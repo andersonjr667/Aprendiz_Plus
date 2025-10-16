@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Notícia (Admin) | Aprendiz+</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/logo.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav-bar">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Início</a></li>
+                <li><a href="/noticias">Notícias</a></li>
+                <li><a href="/admin/noticias?admin=1" class="active">Nova Notícia</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main style="padding:100px 2rem 2rem;max-width:600px;margin:auto;">
+        <h1>Nova Notícia (Admin)</h1>
+        <form method="POST" action="/admin/noticias?admin=1">
+            <div class="form-group">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" id="titulo" name="titulo" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="conteudo" class="form-label">Conteúdo</label>
+                <textarea id="conteudo" name="conteudo" class="form-control" rows="6" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Publicar Notícia</button>
+        </form>
+        <p style="margin-top:2rem;color:#888;">Apenas administradores podem acessar esta página.</p>
+    </main>
+</body>
+</html>

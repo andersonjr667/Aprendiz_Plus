@@ -1,0 +1,41 @@
+# Node
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploaded files and generated content
+uploads/
+public/uploads/
+
+# Database (local JSON)
+data/db.json
+
+# Misc
+coverage/
+*.log
+
+# npm
+package-lock.json
+
+# Others
+/dist
+/build
+

@@ -1,0 +1,220 @@
+/* Estilos para página de detalhes da vaga */
+.job-details-container {
+    padding: 80px 2rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header da vaga */
+.job-header {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.company-info {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.company-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.company-details h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.company-name {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.job-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.job-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.save-job {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Conteúdo principal */
+.job-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.job-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.job-section h2 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.job-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.job-section ul li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.job-section ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #0066cc;
+}
+
+/* Grid de benefícios */
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.benefit-item i {
+    color: #0066cc;
+    font-size: 1.2rem;
+}
+
+/* Sidebar */
+.job-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.job-overview ul {
+    list-style: none;
+    padding: 0;
+}
+
+.job-overview li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.job-overview li:last-child {
+    border-bottom: none;
+}
+
+.job-overview li i {
+    color: #0066cc;
+    font-size: 1.2rem;
+    width: 24px;
+}
+
+.job-overview li div {
+    flex: 1;
+}
+
+.job-overview li strong {
+    display: block;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.job-overview li span {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Compartilhar vaga */
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.share-buttons button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.share-buttons i {
+    font-size: 1.2rem;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .job-content {
+        grid-template-columns: 1fr;
+    }
+
+    .job-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .job-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .company-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .job-tags {
+        justify-content: center;
+    }
+
+    .job-actions {
+        width: 100%;
+    }
+
+    .job-actions button {
+        flex: 1;
+    }
+}
