@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": "mgu3b0026qu2odig3e",
+      "name": "ANDERSON LUIZ DA SILVA JUNIOR",
+      "email": "alsj1520@gmail.com",
+      "password": "$2b$10$NwGAUuBMDLLP8Zr03hHK7uPBp4cwoHO8Gz7IkXkJyRE41LnUpOSmW",
+      "type": "candidate",
+      "createdAt": "2025-10-17T00:07:44.834Z"
+    }
+  ],
+  "news": [],
+  "jobs": [],
+  "comments": []
+}
