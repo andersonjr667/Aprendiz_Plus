@@ -5,15 +5,17 @@ const fs = require('fs');
 // Configurar o armazenamento de arquivos
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        let uploadPath = 'uploads/';
+        let uploadPath;
         
         // Definir subpastas baseado no tipo de upload
-        if (file.fieldname === 'profile') {
-            uploadPath += 'profiles/';
+        if (file.fieldname === 'profileImage') {
+            uploadPath = 'data/images_perfil_candidato/';
         } else if (file.fieldname === 'news') {
-            uploadPath += 'news/';
+            uploadPath = 'uploads/news/';
         } else if (file.fieldname === 'resume') {
-            uploadPath += 'resumes/';
+            uploadPath = 'uploads/resumes/';
+        } else {
+            uploadPath = 'uploads/';
         }
 
         // Criar diretório se não existir

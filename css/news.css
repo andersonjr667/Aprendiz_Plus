@@ -20,15 +20,16 @@
 }
 
 .featured-card {
-    background: #fff;
-    border-radius: 10px;
+    background: white;
+    border-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
 }
 
 .featured-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .featured-image {
@@ -50,11 +51,13 @@
     position: absolute;
     top: 1rem;
     left: 1rem;
-    background: #0066cc;
-    color: #fff;
+    background: var(--primary);
+    color: white;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
 }
 
 .featured-content {
@@ -62,19 +65,22 @@
 }
 
 .featured-content h2 {
-    font-size: 1.8rem;
-    color: #333;
+    font-size: 1.875rem;
+    color: var(--text);
     margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 .featured-content h3 {
-    font-size: 1.2rem;
-    color: #333;
+    font-size: 1.25rem;
+    color: var(--text);
     margin-bottom: 0.5rem;
+    font-weight: 600;
 }
 
 .featured-content p {
-    color: #666;
+    color: var(--text-light);
     margin-bottom: 1rem;
     line-height: 1.6;
 }
@@ -170,10 +176,10 @@
 
 /* Sidebar */
 .news-sidebar > * {
-    background: #fff;
-    border-radius: 10px;
+    background: white;
+    border-radius: 1rem;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow);
     margin-bottom: 2rem;
 }
 
@@ -185,18 +191,32 @@
 
 .search-box input {
     flex: 1;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    outline: none;
 }
 
 .search-box button {
-    padding: 0.75rem;
-    background: #0066cc;
-    color: #fff;
+    padding: 0.75rem 1rem;
+    background: var(--primary);
+    color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 0.5rem;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-box button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
 }
 
 /* Mais Lidas */
@@ -256,18 +276,20 @@
 }
 
 .tag {
-    background: #f8f9fa;
-    color: #666;
+    background: var(--background);
+    color: var(--text-light);
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    border-radius: 9999px;
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .tag:hover {
-    background: #0066cc;
-    color: #fff;
+    background: var(--primary);
+    color: white;
+    transform: translateY(-1px);
 }
 
 /* Paginação */
@@ -288,15 +310,27 @@
     width: 40px;
     height: 40px;
     border: none;
-    background: #f8f9fa;
-    border-radius: 5px;
-    color: #666;
+    background: var(--background);
+    border-radius: 0.5rem;
+    color: var(--text-light);
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.page-numbers button:hover {
+    background: var(--primary-light);
+    color: white;
+    transform: translateY(-1px);
 }
 
 .page-numbers button.active {
-    background: #0066cc;
-    color: #fff;
+    background: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-sm);
 }
 
 .page-numbers span {

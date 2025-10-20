@@ -6,6 +6,7 @@ const newsRouter = require('./api/news');
 const jobsRouter = require('./api/jobs');
 const commentsRouter = require('./api/comments');
 const recommendationsRouter = require('./api/recommendations');
+const usersRouter = require('./api/users');
 
 // Rotas da API
 router.use('/api/auth', authRouter);
@@ -13,6 +14,8 @@ router.use('/api/news', newsRouter);
 router.use('/api/jobs', jobsRouter);
 router.use('/api/comments', commentsRouter);
 router.use('/api/recommendations', recommendationsRouter);
+router.use('/api/users', usersRouter);
+router.use('/api/audit', require('./api/audit'));
 
 // Rota principal
 router.get('/', (req, res) => {

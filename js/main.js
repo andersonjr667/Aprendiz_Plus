@@ -10,13 +10,13 @@ async function login(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
         if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            // Token é enviado via cookie httpOnly; não armazenar em localStorage
             window.location.href = '/';
         } else {
             alert(data.error);
@@ -39,13 +39,13 @@ async function register(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ name, email, password, type })
         });
 
         const data = await response.json();
         if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            // Token em cookie httpOnly
             window.location.href = '/';
         } else {
             alert(data.error);
@@ -56,31 +56,39 @@ async function register(event) {
 }
 
 function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+    // pedir ao servidor para limpar cookie e depois redirecionar
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+        .catch(() => {})
+        .finally(() => {
+            // Cookie limpo pelo servidor; não manipular localStorage
+            window.location.href = '/login';
+        });
 }
 
 // Verificar autenticação
 function checkAuth() {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    const authLinks = document.querySelectorAll('.auth-link');
-    const profileLinks = document.querySelectorAll('.profile-link');
-    
-    if (token && user) {
-        authLinks.forEach(link => link.style.display = 'none');
-        profileLinks.forEach(link => {
-            link.style.display = 'block';
-            if (link.classList.contains('profile-name')) {
-                link.textContent = user.name;
+    // Verifica no servidor via cookie httpOnly
+    fetch('/api/auth/me', { credentials: 'include' })
+        .then(res => {
+            const authLinks = document.querySelectorAll('.auth-link');
+            const profileLinks = document.querySelectorAll('.profile-link');
+            if (!res.ok) {
+                authLinks.forEach(link => link.style.display = 'block');
+                profileLinks.forEach(link => link.style.display = 'none');
+                return null;
             }
-        });
-    } else {
-        authLinks.forEach(link => link.style.display = 'block');
-        profileLinks.forEach(link => link.style.display = 'none');
-    }
+                return res.json().then(user => {
+                authLinks.forEach(link => link.style.display = 'none');
+                profileLinks.forEach(link => {
+                    link.style.display = 'block';
+                    if (link.classList.contains('profile-name')) {
+                        link.textContent = user.name;
+                    }
+                });
+                return user;
+            });
+        })
+        .catch(() => {});
 }
 
 // Carregar notícias

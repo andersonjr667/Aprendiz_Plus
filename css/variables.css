@@ -1,17 +1,31 @@
 :root {
-    --text: #211105;
-    --background: #f2f9fd;
-    --primary: #2f27ce;
-    --secondary: #ff932e;
-    --accent: #e4a559;
-
-    /* Variações de cores para diferentes estados */
-    --primary-dark: #251f9e;
-    --primary-light: #403ad5;
-    --secondary-dark: #e67f1c;
-    --secondary-light: #ffa649;
-    --text-light: #4a3a2d;
-    --text-lighter: #736357;
+    /* Cores primárias */
+    --primary: #4361ee;
+    --primary-dark: #3046c7;
+    --primary-light: #6b81f5;
+    
+    /* Cores secundárias */
+    --secondary: #ff7b47;
+    --secondary-dark: #e65f2a;
+    --secondary-light: #ff9b73;
+    
+    /* Cores de fundo e texto */
+    --background: #f8fafc;
+    --text: #1e293b;
+    --text-light: #475569;
+    --text-lighter: #94a3b8;
+    
+    /* Cores de destaque */
+    --accent: #38bdf8;
+    --success: #22c55e;
+    --warning: #fbbf24;
+    --error: #ef4444;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Resetando estilos padrão */

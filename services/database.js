@@ -12,7 +12,7 @@ async function readDB() {
     } catch (error) {
         if (error.code === 'ENOENT') {
             // Se o arquivo não existir, cria um novo
-            const initialData = { users: [], news: [], jobs: [], comments: [] };
+            const initialData = { users: [], news: [], jobs: [], comments: [], auditLogs: [] };
             await fs.writeFile(dbPath, JSON.stringify(initialData, null, 2));
             return initialData;
         }

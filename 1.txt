@@ -1,0 +1,15 @@
+git status
+git add .
+git commit -m "Versão 1.0.3 BETA"
+git push origin main
+
+Alterações a se fazer:
+
+1- Na hora que for publicar uma vaga é um formulario que irá pedir os dados da vaga ao invez de mostrar essa pagina de vaga ou pode deixar essa pagina mas so que editavel.
+2- Faça a pagina de vagas funcionar agora
+3- Faça a pagina Para Candidatos (http://localhost:3000/candidatos) funcionar assim nela aparecera os cursos que você pediu para entrar os statusse a empresa deu respostas e outros sugeridos
+4- Faça a pagina Noticias (http://localhost:3000/noticias) funcionar, nela tanto os usuarios tanto as empresas podem ver noticias recentes que serão publicadas pelos admins ou empresas que quiserem postar
+5- Arrume a pagina de perfil da empresa (http://localhost:3000/perfil-empresa) pois tá aparecendo dados errados tem hora
+6- Arrume a pagina de perfil de usuario para poder adicionar ou editar as seguintes coisas (Sobre Mim,Formação Acadêmica,Cursos e Certificações,Habilidades) pois não está funcionando
+7- Adicione o brain.js no site ele irá recomendar as vagas para os usuarios
+8- Adicionar um chatbot que irá tirar duvidas no site tanto para as empresas,funcionarios e admins (Cada um com um chabot diferente). Esse chabot será uma IA também

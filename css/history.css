@@ -1,0 +1,69 @@
+.timeline {
+    position: relative;
+    margin: 2rem 0;
+    padding: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-left: 3rem;
+    border-left: 2px solid var(--primary);
+    transition: all 0.3s ease;
+}
+
+.timeline-time {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.timeline-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.timeline-content h4 {
+    margin: 0 0 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.timeline-content p {
+    margin: 0;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--primary);
+    border: 3px solid white;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+/* Estado hover do item da timeline */
+.timeline-item:hover {
+    transform: translateX(8px);
+}
+
+.timeline-item:hover::before {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow);
+}
+
+.timeline-item:hover .timeline-content {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}

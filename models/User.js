@@ -30,14 +30,35 @@ const userSchema = new mongoose.Schema({
     },
     // Campos específicos para candidatos
     candidateProfile: {
-        education: [{
-            institution: String,
-            course: String,
-            degree: String,
-            startDate: Date,
-            endDate: Date,
-            current: Boolean
-        }],
+        education: {
+            degree: {
+                type: String,
+                enum: [
+                    'Ensino Fundamental - Cursando',
+                    'Ensino Fundamental - Completo',
+                    'Ensino Médio - 1º Ano',
+                    'Ensino Médio - 2º Ano',
+                    'Ensino Médio - 3º Ano',
+                    'Ensino Médio - Completo',
+                    'Ensino Técnico - Cursando',
+                    'Ensino Técnico - Completo'
+                ],
+                required: true
+            },
+            currentCourse: {
+                hasCourse: {
+                    type: Boolean,
+                    default: false
+                },
+                institution: String,
+                courseName: String,
+                status: {
+                    type: String,
+                    enum: ['Em Andamento', 'Concluído', 'Trancado']
+                },
+                expectedEndYear: Number
+            }
+        },
         experience: [{
             company: String,
             position: String,
@@ -47,7 +68,31 @@ const userSchema = new mongoose.Schema({
             current: Boolean
         }],
         skills: [String],
-        interests: [String],
+        areaInteresse: {
+            type: String,
+            enum: [
+                'Administração',
+                'Logística',
+                'Vendas',
+                'Tecnologia',
+                'Produção',
+                'Finanças',
+                'Recursos Humanos',
+                'Marketing',
+                'Atendimento',
+                'Outros'
+            ]
+        },
+        disponibilidade: {
+            type: String,
+            enum: [
+                'Integral',
+                'Meio Período - Manhã',
+                'Meio Período - Tarde',
+                'Noturno',
+                'Flexível'
+            ]
+        },
         resumeUrl: String,
         phone: String,
         address: {

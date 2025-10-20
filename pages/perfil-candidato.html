@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/perfil.css">
-        <link rel="stylesheet" href="/css/logo.css">
-        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/css/logo.css">
+    <link rel="stylesheet" href="/css/login-required.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 </head>
 <body>
     <header class="header">
@@ -75,30 +76,26 @@
             <div class="perfil-main">
                 <div class="perfil-card">
                     <h3>Sobre Mim</h3>
-                    <p>Estudante dedicado em busca da primeira oportunidade profissional. 
-                    Possuo conhecimentos básicos em informática e grande interesse em aprender 
-                    e desenvolver novas habilidades.</p>
-                    <button class="btn-editar">Editar</button>
+                    <div class="sobre-content">
+                        <p class="placeholder-text">Conte um pouco sobre você, seus objetivos e interesses...</p>
+                    </div>
+                    <button class="btn-editar" data-target="sobre">Adicionar Descrição</button>
                 </div>
 
                 <div class="perfil-card">
                     <h3>Formação Acadêmica</h3>
-                    <div class="formacao-item">
-                        <h4>Ensino Médio</h4>
-                        <p>Escola Estadual XYZ</p>
-                        <p>2023 - 2025</p>
+                    <div class="formacao-content">
+                        <p class="placeholder-text">Adicione informações sobre sua formação acadêmica atual...</p>
                     </div>
-                    <button class="btn-editar">Adicionar Formação</button>
+                    <button class="btn-editar" data-target="formacao">Adicionar Formação</button>
                 </div>
 
                 <div class="perfil-card">
                     <h3>Cursos e Certificações</h3>
-                    <div class="curso-item">
-                        <h4>Informática Básica</h4>
-                        <p>Instituição ABC</p>
-                        <p>40 horas - 2024</p>
+                    <div class="cursos-content">
+                        <p class="placeholder-text">Adicione seus cursos e certificações aqui...</p>
                     </div>
-                    <button class="btn-editar">Adicionar Curso</button>
+                    <button class="btn-editar" data-target="curso">Adicionar Curso</button>
                 </div>
             </div>
         </div>
@@ -126,7 +123,10 @@
         </div>
     </footer>
 
+    <script src="/js/toast.js"></script>
+    <script src="/js/validator.js"></script>
     <script src="/js/main.js"></script>
-    <script src="/js/perfil.js"></script>
+    <script src="/js/perfil-novo.js"></script>
+    <script src="/js/session-ui.js"></script>
 </body>
 </html>

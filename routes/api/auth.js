@@ -24,30 +24,94 @@ router.post('/register', async (req, res) => {
         // Validar idade
         const today = new Date();
         const birthdateDate = new Date(birthdate);
-        const age = today.getFullYear() - birthdateDate.getFullYear();
+    let age = today.getFullYear() - birthdateDate.getFullYear();
         const monthDiff = today.getMonth() - birthdateDate.getMonth();
         
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdateDate.getDate())) {
             age--;
         }
 
-        if (age < 14) {
-            return res.status(400).json({ error: 'É necessário ter pelo menos 14 anos para se cadastrar' });
+        if (age < 14 || age > 24) {
+            return res.status(400).json({ error: 'É necessário ter entre 14 e 24 anos para se cadastrar como Jovem Aprendiz' });
         }
 
-        const createdUser = await UserService.create({
+        // Validação mínima
+        if (!email || !password || password.length < 6) {
+            return res.status(400).json({ error: 'Email e senha (mínimo 6 caracteres) são obrigatórios.' });
+        }
+
+        // Bloquear criação de admin via registro público
+        const allowedTypes = ['candidato', 'empresa'];
+        const userType = (type || '').toString().toLowerCase();
+        if (!allowedTypes.includes(userType)) {
+            return res.status(400).json({ error: 'Tipo de usuário inválido.' });
+        }
+
+        const userData = {
             name,
             email,
             password,
             cpf,
             birthdate,
-            type
-        });
+            type: userType
+        };
+
+        // Dados comuns de endereço
+        const address = {
+            street: req.body.rua,
+            number: req.body.numero,
+            complement: req.body.complemento,
+            neighborhood: req.body.bairro,
+            city: req.body.cidade,
+            state: req.body.estado,
+            zipCode: req.body.cep
+        };
+
+        // Adicionar campos específicos baseado no tipo de usuário
+        if (userType === 'candidato') {
+            userData.candidateProfile = {
+                education: {
+                    degree: req.body.escolaridade,
+                    currentCourse: {
+                        hasCourse: req.body.tem_curso === 'sim',
+                        institution: req.body.tem_curso === 'sim' ? req.body.instituicao : undefined,
+                        courseName: req.body.tem_curso === 'sim' ? req.body.curso : undefined,
+                        status: req.body.tem_curso === 'sim' ? req.body.status_curso : undefined,
+                        expectedEndYear: req.body.tem_curso === 'sim' && req.body.ano_conclusao ? 
+                            parseInt(req.body.ano_conclusao) : undefined
+                    }
+                },
+                skills: req.body.habilidades ? JSON.parse(req.body.habilidades) : [],
+                phone: req.body.phone,
+                address: address
+            };
+        } else if (userType === 'empresa') {
+            userData.companyProfile = {
+                cnpj: req.body.cnpj,
+                description: req.body.sobre_empresa,
+                website: req.body.website,
+                phone: req.body.phone,
+                address: address,
+                industry: req.body.setor
+            };
+        }
+
+        const createdUser = await UserService.create(userData);
 
         const token = jwt.sign({ id: createdUser.id }, process.env.JWT_SECRET);
+        // Setar cookie httpOnly como fallback seguro
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
+        });
+
         res.status(201).json({ user: createdUser, token });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Auth register error:', error && error.stack ? error.stack : error);
+        const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de registro') : 'Erro ao processar registro';
+        res.status(400).json({ error: msg });
     }
 });
 
@@ -63,9 +127,19 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
         const { password: pwd, ...userWithoutPassword } = user;
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 7
+        });
+
         res.json({ user: userWithoutPassword, token });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Auth login error:', error && error.stack ? error.stack : error);
+        const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de login') : 'Erro ao processar login';
+        res.status(400).json({ error: msg });
     }
 });
 
@@ -81,3 +155,14 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// Logout (limpa cookie httpOnly)
+router.post('/logout', (req, res) => {
+    try {
+        res.clearCookie('token');
+        res.json({ message: 'Logout realizado' });
+    } catch (e) {
+        console.error('Logout error:', e);
+        res.status(500).json({ error: 'Erro ao realizar logout' });
+    }
+});

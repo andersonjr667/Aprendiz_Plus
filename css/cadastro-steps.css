@@ -1,0 +1,132 @@
+.step-container {
+    display: none;
+}
+
+.step-container.active {
+    display: block;
+}
+
+.steps-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dark);
+    position: relative;
+    z-index: 2;
+}
+
+.step-dot.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+.step-dot.completed {
+    background-color: var(--success);
+    color: white;
+}
+
+.step-line {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--gray-light);
+    z-index: 1;
+}
+
+.step-line-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--success);
+    transition: width 0.3s ease;
+}
+
+.step-title {
+    font-size: 0.8rem;
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    color: var(--text-dark);
+}
+
+.step-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.step-buttons button {
+    min-width: 120px;
+}
+
+.step-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Animações de transição */
+.step-container {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.step-container.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Loader para o CEP */
+.cep-loader {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+.cep-loading .cep-loader {
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Grupos de campos */
+.field-group {
+    margin-bottom: 1.5rem;
+}
+
+.field-group-title {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}

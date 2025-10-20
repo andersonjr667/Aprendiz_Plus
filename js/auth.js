@@ -36,15 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
+                    // Token está em cookie httpOnly; não usar localStorage
+
                     // Redirecionar baseado no tipo de usuário
                     switch(data.user.type) {
                         case 'candidato':
@@ -70,12 +70,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função de registro
     if (registerForm) {
+        // Configurar validações em tempo real
+        const validationConfig = {
+            name: ['required', Validator.rules.minLength(3)],
+            email: ['required', 'email'],
+            password: ['required', Validator.rules.minLength(6)],
+            'confirm-password': ['required'],
+            cpf: ['required', 'cpf'],
+            birthdate: ['required', 'date', Validator.rules.age(14)],
+            cidade: ['required'],
+            estado: ['required'],
+            titulo: [Validator.rules.maxLength(100)],
+            setor: [Validator.rules.maxLength(100)],
+            website: ['url']
+        };
+
+        // Validar campos em tempo real
+        Object.keys(validationConfig).forEach(field => {
+            const input = registerForm.querySelector(`[name="${field}"]`);
+            if (input) {
+                input.addEventListener('blur', () => {
+                    const error = Validator.validateField(input.value, validationConfig[field]);
+                    if (error) {
+                        Validator.showFieldError(input, error);
+                    } else {
+                        Validator.clearFieldError(input);
+                    }
+                });
+            }
+        });
+
         // Alterna entre tipos de conta
         const accountTypes = document.querySelectorAll('.account-type');
         accountTypes.forEach(btn => {
             btn.addEventListener('click', () => {
                 accountTypes.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+
+                // Mostrar/esconder campos específicos
+                const type = btn.dataset.type;
+                document.querySelectorAll('.candidate-field').forEach(el => {
+                    el.style.display = type === 'candidate' ? 'block' : 'none';
+                });
+                document.querySelectorAll('.company-field').forEach(el => {
+                    el.style.display = type === 'company' ? 'block' : 'none';
+                });
             });
         });
 
@@ -100,32 +139,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmPassword = document.getElementById('confirm-password').value;
             const cpf = document.getElementById('cpf').value;
             const birthdate = document.getElementById('birthdate').value;
-            const type = document.querySelector('.account-type.active').dataset.type;
+            const cidade = document.getElementById('cidade').value;
+            const estado = document.getElementById('estado').value;
+            let type = document.querySelector('.account-type.active').dataset.type;
+            // mapear para valores esperados pelo backend (pt-br)
+            if (type === 'candidate') type = 'candidato';
+            if (type === 'company') type = 'empresa';
             
-            // Validações
+            // campos específicos por tipo
+            const additionalData = type === 'candidato' ? {
+                titulo: document.getElementById('titulo').value || 'Estudante',
+                escolaridade: document.getElementById('escolaridade').value
+            } : {
+                setor: document.getElementById('setor').value,
+                website: document.getElementById('website').value
+            };
+            
+            // Validar formulário completo
+            const { isValid, errors } = Validator.validateForm(registerForm, validationConfig);
+            
+            if (!isValid) {
+                Toast.error('Por favor, corrija os erros no formulário');
+                return;
+            }
+
+            // Validar senha de confirmação
             if (password !== confirmPassword) {
-                showError('As senhas não coincidem');
-                return;
-            }
-
-            // Validar CPF
-            if (!validateCPF(cpf)) {
-                showError('CPF inválido');
-                return;
-            }
-
-            // Validar idade (mínimo 14 anos)
-            const today = new Date();
-            const birthdateDate = new Date(birthdate);
-            const age = today.getFullYear() - birthdateDate.getFullYear();
-            const monthDiff = today.getMonth() - birthdateDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdateDate.getDate())) {
-                age--;
-            }
-
-            if (age < 14) {
-                showError('É necessário ter pelo menos 14 anos para se cadastrar');
+                Validator.showFieldError(
+                    document.getElementById('confirm-password'),
+                    'As senhas não coincidem'
+                );
+                Toast.error('As senhas não coincidem');
                 return;
             }
             
@@ -135,16 +179,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ name, email, password, type })
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        cpf: cpf.replace(/\D/g, ''),
+                        birthdate,
+                        type,
+                        cidade,
+                        estado,
+                        ...additionalData
+                    })
                 });
 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // Redirecionar baseado no tipo de usuário
+                    // Token está no cookie httpOnly; não usar localStorage
+
+                    // Redirecionar
                     switch(data.user.type) {
                         case 'candidato':
                             window.location.href = '/perfil-candidato';
@@ -156,26 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.href = '/';
                     }
                 } else {
-                    showError(data.error || 'Erro ao fazer cadastro');
+                    Toast.error(data.error || 'Erro ao fazer cadastro');
                 }
             } catch (error) {
-                showError('Erro ao conectar com o servidor');
+                Toast.error('Erro ao conectar com o servidor');
+                console.error('Registro error:', error);
             }
         });
-    }
-
-    // Função para mostrar mensagens de erro
-    function showError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger';
-        errorDiv.textContent = message;
-        
-        const form = document.querySelector('.auth-form');
-        form.insertBefore(errorDiv, form.firstChild);
-        
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
     }
 
     // Função para validar CPF
@@ -213,29 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Verificar autenticação atual via API
     async function checkAuth() {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        try {
-            const response = await fetch('/api/auth/me', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                // Usuário autenticado — redirecionar se estiver em login/cadastro
-                if (window.location.pathname === '/login' || window.location.pathname === '/cadastro') {
-                    window.location.href = '/';
-                }
-            } else {
-                // token inválido — remover
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
-        } catch (e) {
-            console.error('Erro ao verificar token', e);
-        }
+        // Agora usamos cookie httpOnly; verificação será feita pelo servidor quando necessário
     }
 
     // Verificar autenticação ao carregar a página

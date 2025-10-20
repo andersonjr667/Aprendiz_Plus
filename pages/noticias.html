@@ -10,6 +10,7 @@
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <link rel="stylesheet" href="/css/logo.css">
     <link rel="stylesheet" href="/css/news.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="header">
@@ -31,23 +32,83 @@
     </header>
 
     <main class="news-container">
-        <!-- Seção de Destaque removida -->
+        <!-- Seção de busca e filtros -->
+        <section class="news-header">
+            <h1>Notícias do Mundo do Trabalho</h1>
+            <div class="search-filters">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar notícias...">
+                    <button id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <!-- Categorias -->
         <section class="news-categories">
             <div class="category-tabs">
-                <button class="category-tab active">Todas</button>
-                <button class="category-tab">Mercado de Trabalho</button>
-                <button class="category-tab">Educação</button>
-                <button class="category-tab">Tecnologia</button>
-                <button class="category-tab">Carreira</button>
-                <button class="category-tab">Legislação</button>
+                <button class="category-tab active" data-category="all">Todas</button>
+                <button class="category-tab" data-category="mercado">Mercado de Trabalho</button>
+                <button class="category-tab" data-category="educacao">Educação</button>
+                <button class="category-tab" data-category="tecnologia">Tecnologia</button>
+                <button class="category-tab" data-category="carreira">Carreira</button>
+                <button class="category-tab" data-category="legislacao">Legislação</button>
             </div>
         </section>
 
-        <!-- Feed de Notícias removido -->
+        <!-- Feed de Notícias -->
+        <section class="news-feed" id="newsFeed">
+            <!-- As notícias serão carregadas aqui -->
+        </section>
 
-        <!-- Paginação removida -->
+        <!-- Paginação -->
+        <div class="pagination" id="pagination">
+            <!-- A paginação será gerada aqui -->
+        </div>
+
+        <!-- Botão de Criar Notícia (apenas para admins e empresas) -->
+        <div id="createNewsButton" class="create-news-button" style="display: none;">
+            <button class="btn btn-primary" onclick="openCreateNewsForm()">
+                <i class="fas fa-plus"></i> Nova Notícia
+            </button>
+        </div>
+
+        <!-- Modal de Criar/Editar Notícia -->
+        <div id="newsModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">Nova Notícia</h2>
+                <form id="newsForm">
+                    <div class="form-group">
+                        <label for="title">Título</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Categoria</label>
+                        <select id="category" name="category" required>
+                            <option value="mercado">Mercado de Trabalho</option>
+                            <option value="educacao">Educação</option>
+                            <option value="tecnologia">Tecnologia</option>
+                            <option value="carreira">Carreira</option>
+                            <option value="legislacao">Legislação</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Conteúdo</label>
+                        <textarea id="content" name="content" rows="10" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageUrl">URL da Imagem</label>
+                        <input type="url" id="imageUrl" name="imageUrl">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
