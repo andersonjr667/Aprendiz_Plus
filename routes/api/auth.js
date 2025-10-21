@@ -7,6 +7,7 @@ const authMiddleware = require('../../middleware/auth');
 // Registro
 router.post('/register', async (req, res) => {
     try {
+        console.log('[DEBUG] /api/auth/register body:', JSON.stringify(req.body));
         const { name, email, password, cpf, birthdate, type } = req.body;
 
         // Validar CPF único
@@ -86,13 +87,26 @@ router.post('/register', async (req, res) => {
                 address: address
             };
         } else if (userType === 'empresa') {
+            // Mapear campos específicos de empresa (inclui nome fantasia e razão social)
+            const benefits = req.body.beneficios ? (() => {
+                try { return JSON.parse(req.body.beneficios); } catch (e) { return []; }
+            })() : [];
+            // Se foi informado nome fantasia, usar como nome principal do usuário
+            const nomeFantasia = req.body.nome_fantasia || req.body.nomeFantasia || undefined;
+            if (nomeFantasia) userData.name = nomeFantasia;
+
             userData.companyProfile = {
+                razaoSocial: req.body.razao_social || req.body.razaoSocial || undefined,
+                nomeFantasia: nomeFantasia,
                 cnpj: req.body.cnpj,
                 description: req.body.sobre_empresa,
                 website: req.body.website,
-                phone: req.body.phone,
+                linkedin: req.body.linkedin,
+                phone: req.body.rep_phone || req.body.phone,
                 address: address,
-                industry: req.body.setor
+                industry: req.body.setor,
+                size: req.body.porte,
+                benefits: benefits
             };
         }
 
@@ -111,13 +125,16 @@ router.post('/register', async (req, res) => {
     } catch (error) {
         console.error('Auth register error:', error && error.stack ? error.stack : error);
         const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de registro') : 'Erro ao processar registro';
-        res.status(400).json({ error: msg });
+        const payload = { error: msg };
+        if (process.env.NODE_ENV === 'development') payload.stack = error && error.stack ? error.stack : '';
+        res.status(400).json(payload);
     }
 });
 
 // Login
 router.post('/login', async (req, res) => {
     try {
+        console.log('[DEBUG] /api/auth/login body:', JSON.stringify(req.body));
         const { email, password } = req.body;
         const user = await UserService.findByEmail(email);
 
@@ -128,18 +145,26 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
         const { password: pwd, ...userWithoutPassword } = user;
 
+        // Define o cookie com opções mais permissivas em desenvolvimento
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 * 24 * 7
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
+            path: '/'
         });
+
+        // Log para debug
+        console.log('Login successful for:', user.email, '(Type:', user.type, ')');
+        console.log('Token set in cookie');
 
         res.json({ user: userWithoutPassword, token });
     } catch (error) {
         console.error('Auth login error:', error && error.stack ? error.stack : error);
         const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de login') : 'Erro ao processar login';
-        res.status(400).json({ error: msg });
+        const payload = { error: msg };
+        if (process.env.NODE_ENV === 'development') payload.stack = error && error.stack ? error.stack : '';
+        res.status(400).json(payload);
     }
 });
 

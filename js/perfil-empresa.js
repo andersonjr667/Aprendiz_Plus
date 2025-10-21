@@ -1,17 +1,34 @@
 async function loadCompanyData(userId) {
     try {
-        const response = await fetch(`/api/users/${userId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        const user = await response.json();
+        let user;
+
+        // Se nenhum userId for fornecido, tenta obter o usuário logado via cookie httpOnly
+        if (!userId) {
+            const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!meRes.ok) {
+                throw new Error('Usuário não autenticado');
+            }
+            user = await meRes.json();
+            userId = user.id;
+        }
+
+        // Se ainda não temos o objeto completo, buscar pelo id público
+        if (!user) {
+            const response = await fetch(`/api/users/${userId}`);
+            if (!response.ok) {
+                throw new Error('Usuário não encontrado');
+            }
+            user = await response.json();
+        }
 
         if (!user || !user.companyProfile) {
             throw new Error('Dados da empresa não encontrados');
         }
 
-        // Atualizar perfil header
-        document.querySelector('.perfil-dados h1').textContent = user.name;
-        document.querySelector('.perfil-titulo').textContent = user.companyProfile.industry || 'Empresa';
+    // Atualizar perfil header (usar nome fantasia quando disponível)
+    const headerNameEl = document.querySelector('.perfil-dados h1');
+    headerNameEl.textContent = user.companyProfile.nomeFantasia || user.name || 'Nome da Empresa';
+    document.querySelector('.perfil-titulo').textContent = user.companyProfile.industry || 'Empresa';
         document.querySelector('.perfil-local').textContent = `${user.companyProfile.address?.city || ''}, ${user.companyProfile.address?.state || ''}`;
 
         // Atualizar logo se houver
@@ -49,12 +66,14 @@ async function loadCompanyData(userId) {
 
         // Atualizar sobre a empresa
         const aboutContent = document.querySelector('.perfil-main .perfil-card p');
-        aboutContent.textContent = user.companyProfile.description || 
-            'Empresa líder no setor de tecnologia, focada em inovação e desenvolvimento de soluções digitais. Buscamos jovens talentos para crescer conosco e contribuir com o futuro da tecnologia no Brasil.';
+        if (aboutContent) {
+            aboutContent.textContent = user.companyProfile.description || 
+                'Empresa líder no setor de tecnologia, focada em inovação e desenvolvimento de soluções digitais. Buscamos jovens talentos para crescer conosco e contribuir com o futuro da tecnologia no Brasil.';
+        }
 
         // Carregar vagas da empresa
         const jobsResponse = await fetch(`/api/jobs?company=${userId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            credentials: 'include'
         });
         const jobs = await jobsResponse.json();
 
@@ -90,6 +109,11 @@ async function loadCompanyData(userId) {
 
     } catch (error) {
         console.error('Erro ao carregar dados da empresa:', error);
+        // Se for erro de auth, redirecionar para login
+        if (error.message && (error.message.includes('autenticado') || error.message.includes('Usuário não encontrado'))) {
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
         alert('Erro ao carregar dados da empresa. Por favor, tente novamente mais tarde.');
     }
 }
@@ -102,3 +126,11 @@ window.editarVaga = async (jobId) => {
 window.verCandidatos = async (jobId) => {
     window.location.href = `/candidatos-vaga/${jobId}`;
 };
+
+// Carregar automaticamente quando a página estiver pronta
+document.addEventListener('DOMContentLoaded', () => {
+    // Se o container tiver data-user-id, passa para a função, senão ela buscará /api/auth/me
+    const container = document.querySelector('.perfil-container');
+    const userId = container ? container.dataset.userId : null;
+    loadCompanyData(userId).catch(() => {});
+});

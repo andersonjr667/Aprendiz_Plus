@@ -31,6 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Marcar o elemento com o ID do usuário para edições
                 document.querySelector('.perfil-container').dataset.userId = user.id;
+
+                // Se for empresa e estivermos na página de empresa, carregar dados completos da empresa
+                if (user.type === 'empresa' && window.location.pathname === '/perfil-empresa') {
+                    // Carrega o script de perfil-empresa (se existir) dinamicamente
+                    if (typeof loadCompanyData === 'function') {
+                        loadCompanyData(user.id);
+                    } else {
+                        // tenta carregar o arquivo e executar após carregamento
+                        const s = document.createElement('script');
+                        s.src = '/js/perfil-empresa.js';
+                        s.onload = () => { if (typeof loadCompanyData === 'function') loadCompanyData(user.id); };
+                        document.body.appendChild(s);
+                    }
+                }
                 
                 // Informações específicas por tipo
                 const infoList = document.querySelector('.perfil-sidebar .perfil-card ul');

@@ -32,9 +32,30 @@ router.get('/termos', servePage('termos'));
 router.get('/privacidade', servePage('privacidade'));
 
 // Rotas protegidas (requerem autenticação)
-router.get('/perfil-candidato', requireAuth, servePage('perfil-candidato'));
-router.get('/perfil-empresa', requireAuth, servePage('perfil-empresa'));
-router.get('/publicar-vaga', requireAuth, servePage('publicar-vaga'));
+router.get('/perfil-candidato', auth, (req, res, next) => {
+    if (req.user && (req.user.type === 'candidato' || req.user.type === 'admin')) {
+        servePage('perfil-candidato')(req, res, next);
+    } else {
+        res.redirect('/');
+    }
+});
+
+router.get('/perfil-empresa', auth, (req, res, next) => {
+    if (req.user && (req.user.type === 'empresa' || req.user.type === 'admin')) {
+        servePage('perfil-empresa')(req, res, next);
+    } else {
+        res.redirect('/');
+    }
+});
+
+router.get('/publicar-vaga', auth, (req, res, next) => {
+    if (req.user && (req.user.type === 'empresa' || req.user.type === 'admin')) {
+        servePage('publicar-vaga')(req, res, next);
+    } else {
+        res.redirect('/');
+    }
+});
+
 router.get('/vaga-detalhes/:id', servePage('vaga-detalhes'));
 
 // Página 404 para rotas não encontradas

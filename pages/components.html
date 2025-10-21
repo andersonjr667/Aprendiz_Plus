@@ -6,23 +6,41 @@
                 <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
             </a>
         </div>
-        <ul class="nav-menu">
-            <li><a href="/">Início</a></li>
-            <li><a href="/vagas">Vagas</a></li>
-            <li><a href="/empresas">Para Empresas</a></li>
-            <li><a href="/candidatos">Para Candidatos</a></li>
-            <li><a href="/noticias">Notícias</a></li>
-            <!-- Links de autenticação -->
-            <li class="auth-link"><a href="/login">Login</a></li>
-            <li class="auth-link"><a href="/cadastro" class="btn-cadastro">Cadastre-se</a></li>
-            <!-- Links de perfil (visíveis apenas quando logado) -->
-            <li class="profile-link" style="display: none;">
-                <a href="#" class="profile-name"></a>
-            </li>
-            <li class="profile-link" style="display: none;">
-                <a href="#" onclick="logout()" class="btn-logout">Sair</a>
-            </li>
-        </ul>
+
+        <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="header-nav" role="navigation" aria-label="Menu principal">
+            <ul class="nav-menu">
+                <li><a href="/" data-nav-link>Início</a></li>
+                <li><a href="/vagas" data-nav-link>Vagas</a></li>
+                <li><a href="/empresas" data-nav-link>Para Empresas</a></li>
+                <li><a href="/candidatos" data-nav-link>Para Candidatos</a></li>
+                <li><a href="/noticias" data-nav-link>Notícias</a></li>
+                
+                <!-- Botões de autenticação (visíveis quando não logado) -->
+                <li class="auth-buttons">
+                    <a href="/login" class="auth-link">Login</a>
+                    <a href="/cadastro" class="auth-link btn-cadastro">Cadastre-se</a>
+                </li>
+                
+                <!-- Menu do usuário (visível quando logado) -->
+                <li class="nav-user" style="display: none;">
+                    <a class="user-link" data-profile-link="true">
+                        <span class="user-name"></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown">
+                        <div class="dropdown-content">
+                            <!-- Menu items serão inseridos dinamicamente -->
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </nav>
 </header>
 

@@ -13,39 +13,73 @@ function parseCookies(cookieHeader) {
     return list;
 }
 
+function isApiRequest(req) {
+    const accepts = req.headers.accept || '';
+    return req.xhr || (req.originalUrl && req.originalUrl.startsWith('/api/')) || accepts.indexOf('application/json') !== -1;
+}
+
 const auth = async (req, res, next) => {
     try {
         let token;
 
-        // Verifica header Authorization: 'Bearer <token>'
-        const authHeader = req.header('Authorization');
+        // 1) Tenta header Authorization: 'Bearer <token>'
+        const authHeader = req.get('Authorization') || req.header && req.header('Authorization');
         if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.replace('Bearer ', '');
+            token = authHeader.slice(7).trim();
         }
 
-        // Se não veio no header, tenta cookie: 'token'
-        if (!token) {
+        // 2) Se não veio no header, tenta cookie: 'token'
+        if (!token && req.headers && req.headers.cookie) {
             const cookies = parseCookies(req.headers.cookie);
-            if (cookies && cookies.token) token = cookies.token;
+            if (cookies && cookies.token) {
+                token = cookies.token;
+            }
         }
 
+        // Remover aspas extras se existirem
+        if (typeof token === 'string' && token.startsWith('"') && token.endsWith('"')) {
+            token = token.slice(1, -1);
+        }
+
+        // 3) Se não tem token, responder/redirect conforme tipo de request
         if (!token) {
-            return res.status(401).json({ error: 'Por favor, faça login.' });
+            // Log temporário para depuração: mostrar cookies recebidos
+            try { console.log('[Auth][DEBUG] cookies header:', req.headers.cookie); } catch (e) {}
+            if (isApiRequest(req)) {
+                return res.status(401).json({ error: 'Por favor, faça login.' });
+            }
+            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // 4) Verificar e decodificar JWT
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (jwtErr) {
+            console.warn('[Auth] JWT verification failed:', jwtErr.message);
+            // limpar cookie inválido (se aplicável)
+            try { res.clearCookie && res.clearCookie('token'); } catch (e) {}
+            if (isApiRequest(req)) return res.status(401).json({ error: 'Sessão inválida. Por favor, faça login novamente.' });
+            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
+        }
+
+        // 5) Buscar usuário
         const user = await UserService.findById(decoded.id);
-
         if (!user) {
-            return res.status(401).json({ error: 'Por favor, faça login.' });
+            console.warn('[Auth] User not found for token id:', decoded && decoded.id);
+            try { res.clearCookie && res.clearCookie('token'); } catch (e) {}
+            if (isApiRequest(req)) return res.status(401).json({ error: 'Usuário não encontrado.' });
+            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
         }
 
+        // 6) Anexar e seguir
         req.token = token;
         req.user = user;
-        next();
-    } catch (e) {
-        console.error('Auth middleware error:', e.message || e);
-        res.status(401).json({ error: 'Por favor, faça login.' });
+        return next();
+    } catch (err) {
+        console.error('[Auth] Middleware error:', err && err.stack ? err.stack : err);
+        if (isApiRequest(req)) return res.status(500).json({ error: 'Erro de autenticação' });
+        return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
     }
 };
 

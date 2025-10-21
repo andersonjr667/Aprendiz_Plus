@@ -19,10 +19,17 @@
     };
 
     async function getMe() {
+        // Se já temos o usuário no estado global, use-o
+        if (window.currentUser) {
+            return window.currentUser;
+        }
+
         try {
             const res = await fetch('/api/auth/me', { credentials: 'include' });
             if (!res.ok) return null;
-            return await res.json();
+            const user = await res.json();
+            window.currentUser = user; // Armazena globalmente
+            return user;
         } catch (e) {
             return null;
         }
@@ -94,7 +101,9 @@
 
     function renderUserMenu(user) {
         const nav = document.querySelector('.nav-menu');
-        if (!nav) return;
+        if (!nav || !user) return;
+
+        window.currentUser = user; // Garante que o estado global está atualizado
 
         // Remove botões de autenticação se existirem
         const authButtons = nav.querySelector('.auth-buttons');
@@ -107,16 +116,26 @@
         li.className = 'nav-user';
         
         // Preparar os links do menu baseado no tipo de usuário
+        const profilePath = user.type === 'candidato' ? '/perfil-candidato' : 
+                          user.type === 'empresa' ? '/perfil-empresa' : 
+                          user.type === 'admin' ? '/admin' : '/';
+        
         let menuItems = '';
         if (user.type === 'admin') {
             menuItems = `
+                <a href="/admin" class="dropdown-item">Painel Admin</a>
                 <a href="/perfil-candidato" class="dropdown-item">Meu Perfil Candidato</a>
                 <a href="/perfil-empresa" class="dropdown-item">Meu Perfil Empresa</a>
             `;
         } else {
-            const profilePath = user.type === 'candidato' ? '/perfil-candidato' : '/perfil-empresa';
             menuItems = `<a href="${profilePath}" class="dropdown-item">Meu Perfil</a>`;
         }
+
+        // Atualizar o link do perfil no header principal
+        const profileLinks = document.querySelectorAll('[data-profile-link="true"]');
+        profileLinks.forEach(link => {
+            link.href = profilePath;
+        });
 
         li.innerHTML = `
             <a class="user-link" style="cursor:pointer">${user.name}</a>
@@ -156,6 +175,15 @@
                 dd.style.display = 'none';
             }
         });
+
+        // Adicionar evento de clique no nome do usuário para redirecionar para o perfil
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const profilePath = user.type === 'candidato' ? '/perfil-candidato' : 
+                              user.type === 'empresa' ? '/perfil-empresa' : 
+                              user.type === 'admin' ? '/admin' : '/';
+            window.location.href = profilePath;
+        });
     }
 
     function renderGuestMenu() {
@@ -180,6 +208,55 @@
         }
     }
 
+    function applyPageLinks(user) {
+        // Atualiza botões de 'Meu Perfil' estáticos
+        const perfilButtons = document.querySelectorAll('.btn-perfil');
+        perfilButtons.forEach(btn => {
+            if (user) {
+                const path = user.type === 'candidato' ? '/perfil-candidato' : user.type === 'empresa' ? '/perfil-empresa' : '/';
+                btn.setAttribute('href', path);
+                btn.addEventListener('click', (e) => {
+                    // caso seja um <button>, permitir navegação programática
+                    if (btn.tagName.toLowerCase() === 'button') {
+                        e.preventDefault();
+                        window.location.href = path;
+                    }
+                });
+            } else {
+                btn.setAttribute('href', '/login?redirect=' + encodeURIComponent(window.location.pathname));
+                btn.addEventListener('click', (e) => {
+                    if (btn.tagName.toLowerCase() === 'button') {
+                        e.preventDefault();
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    }
+                });
+            }
+        });
+
+        // Atualiza botões de 'Publicar Vaga'
+        const publishButtons = document.querySelectorAll('.btn-publicar, .btn-publicar-vaga, .btn-post-job');
+        publishButtons.forEach(btn => {
+            if (user && (user.type === 'empresa' || user.type === 'admin')) {
+                btn.setAttribute('href', '/publicar-vaga');
+                btn.addEventListener('click', (e) => {
+                    if (btn.tagName.toLowerCase() === 'button') {
+                        e.preventDefault();
+                        window.location.href = '/publicar-vaga';
+                    }
+                });
+            } else {
+                // redireciona para login
+                btn.setAttribute('href', '/login?redirect=' + encodeURIComponent('/publicar-vaga'));
+                btn.addEventListener('click', (e) => {
+                    if (btn.tagName.toLowerCase() === 'button') {
+                        e.preventDefault();
+                        window.location.href = '/login?redirect=' + encodeURIComponent('/publicar-vaga');
+                    }
+                });
+            }
+        });
+    }
+
     const user = await getMe();
     
     // Verificar acesso à página atual
@@ -187,8 +264,10 @@
         // Renderizar menu apropriado
         if (user) {
             renderUserMenu(user);
+            applyPageLinks(user);
         } else {
             renderGuestMenu();
+            applyPageLinks(null);
         }
         // Atualizar visibilidade da navegação
         updateNavigationVisibility(user);

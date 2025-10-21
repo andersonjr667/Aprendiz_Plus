@@ -1,31 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const body = document.body;
-    // Prefer header-nav (which será inserido no header). Fallback para .nav-menu
-    let mobileNav = document.querySelector('.header-nav');
-    if (!mobileNav) {
-        mobileNav = document.querySelector('.nav-menu');
-    }
+    const header = document.querySelector('.header');
+    const mobileNav = document.querySelector('.header-nav');
+    const hamburgerMenu = document.querySelector('.hamburger-menu');
 
-    // Se não tiver nav, não faz nada
-    if (!mobileNav) return;
-
-    // Evita recriar múltiplos botões se houver mais de uma execução
-    let hamburgerMenu = document.querySelector('.hamburger-menu');
-    if (!hamburgerMenu) {
-        const menuButton = document.createElement('button');
-        menuButton.classList.add('hamburger-menu');
-        menuButton.setAttribute('aria-label', 'Abrir menu');
-        menuButton.setAttribute('aria-expanded', 'false');
-        menuButton.innerHTML = `
-            <span></span>
-            <span></span>
-            <span></span>
-        `;
-        // Inserir antes do nav-menu para ficar visível em mobile
-        const header = document.querySelector('.header');
-        if (header) header.prepend(menuButton);
-        hamburgerMenu = menuButton;
-    }
+    if (!mobileNav || !hamburgerMenu) return;
 
     function openMenu() {
         hamburgerMenu.classList.add('active');

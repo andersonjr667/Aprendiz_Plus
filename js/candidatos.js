@@ -1,6 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Verificar se o usuário está logado
-    if (!localStorage.getItem('token')) {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Verificar se o usuário está logado via cookie
+    try {
+        const meResp = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!meResp.ok) {
+            window.location.href = '/login?redirect=/candidatos';
+            return;
+        }
+    } catch (e) {
         window.location.href = '/login?redirect=/candidatos';
         return;
     }
@@ -19,15 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadCandidateData() {
         try {
             const [applicationsResponse, coursesResponse, suggestedResponse] = await Promise.all([
-                fetch('/api/users/me/applications', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                }),
-                fetch('/api/users/me/courses', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                }),
-                fetch('/api/recommendations/jobs', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                })
+                fetch('/api/users/me/applications', { credentials: 'include' }),
+                fetch('/api/users/me/courses', { credentials: 'include' }),
+                fetch('/api/recommendations/jobs', { credentials: 'include' })
             ]);
 
             const [applications, courses, suggested] = await Promise.all([

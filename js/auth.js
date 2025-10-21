@@ -84,16 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.href = '/';
                     }
                 } else {
-                    showError(data.error || 'Erro ao fazer login');
+                    console.error('Login error response:', data);
+                    Toast.error(data.error || 'Erro ao fazer login');
                 }
             } catch (error) {
-                showError('Erro ao conectar com o servidor');
+                console.error('Login request failed:', error);
+                Toast.error('Erro ao conectar com o servidor');
             }
         });
     }
 
-    // Função de registro
-    if (registerForm) {
+    // Função de registro (somente para formulários simples, não para multi-step)
+    if (registerForm && !document.querySelector('.steps-indicator')) {
         // Configurar validações em tempo real
         const validationConfig = {
             name: ['required', Validator.rules.minLength(3)],
@@ -236,10 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     Toast.error(data.error || 'Erro ao fazer cadastro');
                 }
-            } catch (error) {
-                Toast.error('Erro ao conectar com o servidor');
-                console.error('Registro error:', error);
-            }
+                } catch (error) {
+                    Toast.error('Erro ao conectar com o servidor');
+                    console.error('Registro error:', error);
+                }
         });
     }
 

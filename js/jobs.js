@@ -97,13 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Função para verificar se o usuário está logado
-    function isUserLoggedIn() {
-        return !!localStorage.getItem('token');
+    async function isUserLoggedIn() {
+        try {
+            const me = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!me.ok) return false;
+            const user = await me.json();
+            window.__currentUser = user;
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
-    // Função para obter o tipo de usuário
+    // Função para obter o tipo de usuário (sincrona após carregamento)
     function getUserType() {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = window.__currentUser;
         return user ? user.type : null;
     }
 
@@ -118,9 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`/api/jobs/${jobId}/apply`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include'
             });
 
             const data = await response.json();

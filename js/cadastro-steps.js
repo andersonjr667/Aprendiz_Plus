@@ -246,8 +246,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentContainer = document.querySelector('.step-container[data-step="' + step + '"]');
         const requiredFields = currentContainer.querySelectorAll('[required]');
         let isValid = true;
+        let firstInvalid = null;
 
         requiredFields.forEach(field => {
+            // Ignorar campos escondidos (display:none ou que não são visíveis)
+            if (!(field.offsetParent === null)) {
+                // visible
+            } else {
+                // hidden, pular
+                return;
+            }
             // Se for o select de curso, verificar os campos relacionados apenas se "sim" estiver selecionado
             if (field.id === 'tem_curso' && field.value === 'sim') {
                 const camposObrigatoriosCurso = ['instituicao', 'curso', 'status_curso'];
@@ -260,16 +268,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
-            if (!field.value.trim()) {
-                isValid = false;
-                field.classList.add('invalid');
-            } else {
-                field.classList.remove('invalid');
-            }
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('invalid');
+                    if (!firstInvalid) firstInvalid = field;
+                } else {
+                    field.classList.remove('invalid');
+                }
         });
 
         if (!isValid) {
             Toast.error('Por favor, preencha todos os campos obrigatórios');
+            // foco no primeiro campo inválido para melhor UX
+            if (firstInvalid) firstInvalid.focus();
         }
 
         return isValid;
@@ -336,6 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
 

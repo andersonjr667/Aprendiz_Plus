@@ -4,6 +4,7 @@ const routes = require('./routes');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
@@ -17,7 +18,19 @@ if (process.env.NODE_ENV === 'production') {
 }
 app.use(helmet());
 app.use(compression());
-app.use(morgan(process.env.MORGAN_FORMAT || 'combined'));
+
+// Configuração do Morgan para logging mais limpo
+const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(morgan(morganFormat, {
+    skip: (req, res) => {
+        // Pula logs de recursos estáticos e requisições bem-sucedidas em desenvolvimento
+        return process.env.NODE_ENV !== 'production' && 
+               (req.path.startsWith('/css') || 
+                req.path.startsWith('/js') || 
+                req.path.startsWith('/images') ||
+                req.path.includes('zybTracker'));
+    }
+}));
 
 // Rate limiting para rotas /api
 const apiLimiter = rateLimit({
@@ -34,14 +47,15 @@ app.use(cors({
   origin: function (origin, callback) {
     // permitir requests sem origin (ex: mobile apps, curl, server-side)
     if (!origin) return callback(null, true);
-    if (allowed.indexOf(origin) !== -1) {
+    if (allowed.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       return callback(null, true);
     }
     return callback(new Error('CORS policy: Origin not allowed'), false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie']
 }));
 
 // Configuração para servir arquivos estáticos
@@ -53,9 +67,18 @@ app.use('/documents', express.static(path.join(__dirname, 'documents')));
 app.use('/pages', express.static(path.join(__dirname, 'pages')));
 app.use('/data/images_perfil_candidato', express.static(path.join(__dirname, 'data', 'images_perfil_candidato')));
 
-// Parsing de corpo
+// Parsing de corpo e cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.COOKIE_SECRET || 'sua-chave-secreta'));
+
+// Middleware para ignorar requisições do zybTracker
+app.use((req, res, next) => {
+    if (req.path.includes('zybTracker')) {
+        return res.status(200).end();
+    }
+    next();
+});
 
 // Middleware de autenticação de empresa
 const companyAuth = require('./middleware/company-auth');
@@ -74,6 +97,7 @@ const auditRoutes = require('./routes/api/audit');
 const recommendationsRoutes = require('./routes/api/recommendations');
 const chatbotRoutes = require('./routes/api/chatbot');
 const commentsRoutes = require('./routes/api/comments');
+const companiesRoutes = require('./routes/api/companies');
 
 // Usar rotas centralizadas
 app.use('/admin', adminRoutes);
@@ -86,6 +110,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/comments', commentsRoutes);
+app.use('/api/companies', companiesRoutes);
 app.use('/', pagesRoutes);
 
 // Rota para favicon (caso não seja encontrada pelo static)

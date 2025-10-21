@@ -192,14 +192,14 @@ class Chatbot {
         this.input.value = '';
 
         try {
-            const response = await fetch('/api/chatbot/message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message })
-            });
+                const response = await fetch('/api/chatbot/message', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
 
             const data = await response.json();
             
@@ -223,9 +223,14 @@ class Chatbot {
 }
 
 // Inicializar chatbot quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar apenas se o usuário estiver logado
-    if (localStorage.getItem('token')) {
-        window.chatbot = new Chatbot();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializar apenas se o usuário estiver logado (verifica cookie httpOnly)
+    try {
+        const me = await fetch('/api/auth/me', { credentials: 'include' });
+        if (me.ok) {
+            window.chatbot = new Chatbot();
+        }
+    } catch (e) {
+        // não inicializa
     }
 });

@@ -65,30 +65,52 @@ function logout() {
         });
 }
 
-// Verificar autenticação
-function checkAuth() {
-    // Verifica no servidor via cookie httpOnly
-    fetch('/api/auth/me', { credentials: 'include' })
-        .then(res => {
-            const authLinks = document.querySelectorAll('.auth-link');
-            const profileLinks = document.querySelectorAll('.profile-link');
-            if (!res.ok) {
-                authLinks.forEach(link => link.style.display = 'block');
-                profileLinks.forEach(link => link.style.display = 'none');
-                return null;
+// Verificar autenticação e manter estado
+let currentUser = null;
+
+async function checkAuth() {
+    try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const authButtons = document.querySelector('.auth-buttons');
+        const profileMenu = document.querySelector('.profile-menu');
+        
+        if (!res.ok) {
+            currentUser = null;
+            if (authButtons) authButtons.style.display = 'block';
+            if (profileMenu) profileMenu.style.display = 'none';
+            return null;
+        }
+
+        const user = await res.json();
+        currentUser = user; // Armazena o usuário atual
+        
+        if (authButtons) authButtons.style.display = 'none';
+        if (profileMenu) {
+            profileMenu.style.display = 'block';
+            const userName = profileMenu.querySelector('.user-name');
+            if (userName) {
+                userName.textContent = user.name;
+                userName.href = user.type === 'candidato' ? '/perfil-candidato' : '/perfil-empresa';
             }
-                return res.json().then(user => {
-                authLinks.forEach(link => link.style.display = 'none');
-                profileLinks.forEach(link => {
-                    link.style.display = 'block';
-                    if (link.classList.contains('profile-name')) {
-                        link.textContent = user.name;
-                    }
-                });
-                return user;
+        }
+        
+        // Atualiza os links de perfil na página
+        const perfilLinks = document.querySelectorAll('a[href="/perfil-candidato"], a[href="/perfil-empresa"]');
+        perfilLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!currentUser) {
+                    e.preventDefault();
+                    window.location.href = '/login?redirect=' + encodeURIComponent(this.getAttribute('href'));
+                }
             });
-        })
-        .catch(() => {});
+        });
+        
+        return user;
+    } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        currentUser = null;
+        return null;
+    }
 }
 
 // Carregar notícias

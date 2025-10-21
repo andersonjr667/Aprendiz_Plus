@@ -18,6 +18,20 @@ const updateSchema = Joi.object({
 
 // PATCH /api/users/:id - atualizar perfil (apenas dono ou admin)
 // POST /api/users/:id/profile-image - upload de imagem de perfil
+// GET /api/users/:id - obter dados públicos do usuário
+router.get('/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await UserService.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+        const { password, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+    } catch (e) {
+        console.error('Users GET error:', e && e.stack ? e.stack : e);
+        res.status(500).json({ error: 'Erro ao buscar usuário' });
+    }
+});
+
 router.post('/:id/profile-image', auth, upload.single('profileImage'), async (req, res) => {
     try {
         const userId = req.params.id;

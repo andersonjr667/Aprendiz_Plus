@@ -15,10 +15,12 @@
     
     /* Cores de fundo e texto */
     --background: #F5F6F8;
+    --background-hover: #F0F2F4;
     --text: #1A2B4D;
     --text-light: #475569;
     --text-lighter: #94a3b8;
     --border: #D1D5DB;
+    --border-color: #E5E7EB;
 
     /* Cores semânticas */
     --success: #2ECC71;
