@@ -60,64 +60,37 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware de autenticação de empresa
 const companyAuth = require('./middleware/company-auth');
 
-// Usar rotas centralizadas
+// Rotas principais
 const adminRoutes = require('./routes/admin');
-app.use('/admin', adminRoutes);
-app.use('/', routes);
+const pagesRoutes = require('./routes/pages');
 
-// Proteção da rota /empresas
-app.use('/empresas', companyAuth, (req, res, next) => {
-    res.sendFile(path.join(__dirname, 'pages', 'empresas.html'));
-});
+// Importar e configurar rotas da API
+const authRoutes = require('./routes/api/auth');
+const usersRoutes = require('./routes/api/users');
+const jobsRoutes = require('./routes/api/jobs');
+const candidatesRoutes = require('./routes/api/candidates');
+const newsRoutes = require('./routes/api/news');
+const auditRoutes = require('./routes/api/audit');
+const recommendationsRoutes = require('./routes/api/recommendations');
+const chatbotRoutes = require('./routes/api/chatbot');
+const commentsRoutes = require('./routes/api/comments');
+
+// Usar rotas centralizadas
+app.use('/admin', adminRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/jobs', jobsRoutes);
+app.use('/api/candidates', candidatesRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/audit', auditRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/comments', commentsRoutes);
+app.use('/', pagesRoutes);
 
 // Rota para favicon (caso não seja encontrada pelo static)
 app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'images', 'favicon.ico'));
-});
-
-// Rotas para páginas HTML
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'index.html'));
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'login.html'));
-});
-
-app.get('/cadastro', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'cadastro.html'));
-});
-
-app.get('/vagas', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'vagas.html'));
-});
-
-app.get('/vaga-detalhes', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'vaga-detalhes.html'));
-});
-
-app.get('/empresas', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'empresas.html'));
-});
-
-app.get('/candidatos', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'candidatos.html'));
-});
-
-app.get('/noticias', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'noticias.html'));
-});
-
-app.get('/contato', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'contato.html'));
-});
-
-app.get('/perfil-candidato', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'perfil-candidato.html'));
-});
-
-app.get('/perfil-empresa', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'perfil-empresa.html'));
 });
 
 // 404 - deve ser a última rota

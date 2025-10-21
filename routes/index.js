@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const auth = require('../middleware/auth');
+const roleAuth = require('../middleware/role-auth');
 const authRouter = require('./api/auth');
 const newsRouter = require('./api/news');
 const jobsRouter = require('./api/jobs');
 const commentsRouter = require('./api/comments');
 const recommendationsRouter = require('./api/recommendations');
 const usersRouter = require('./api/users');
+const chatbotRouter = require('./api/chatbot');
 
 // Rotas da API
 router.use('/api/auth', authRouter);
@@ -15,6 +18,7 @@ router.use('/api/jobs', jobsRouter);
 router.use('/api/comments', commentsRouter);
 router.use('/api/recommendations', recommendationsRouter);
 router.use('/api/users', usersRouter);
+router.use('/api/chatbot', chatbotRouter);
 router.use('/api/audit', require('./api/audit'));
 
 // Rota principal
@@ -39,16 +43,16 @@ router.get('/noticias', (req, res) => {
     res.sendFile(path.join(__dirname, '../pages', 'noticias.html'));
 });
 
-// Rotas de perfil
-router.get('/perfil-candidato', (req, res) => {
+// Rotas de perfil (protegidas)
+router.get('/perfil-candidato', auth, roleAuth(['candidato', 'admin']), (req, res) => {
     res.sendFile(path.join(__dirname, '../pages', 'perfil-candidato.html'));
 });
 
-router.get('/perfil-empresa', (req, res) => {
+router.get('/perfil-empresa', auth, roleAuth(['empresa', 'admin']), (req, res) => {
     res.sendFile(path.join(__dirname, '../pages', 'perfil-empresa.html'));
 });
 
-router.get('/publicar-vaga', (req, res) => {
+router.get('/publicar-vaga', auth, roleAuth(['empresa', 'admin']), (req, res) => {
     res.sendFile(path.join(__dirname, '../pages', 'publicar-vaga.html'));
 });
 

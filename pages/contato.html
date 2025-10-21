@@ -9,25 +9,43 @@
     <link rel="stylesheet" href="/css/components.css">
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <link rel="stylesheet" href="/css/logo.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/auth-buttons.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/contact.css">
 </head>
 <body>
     <header class="header">
         <nav class="nav-bar">
             <div class="logo">
-                <h1>Aprendiz+</h1>
-                    <a href="/">
-                        <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
-                    </a>
+                <a href="/">
+                    <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
+                </a>
             </div>
-            <ul class="nav-menu">
-                <li><a href="/">Início</a></li>
-                <li><a href="/vagas">Vagas</a></li>
-                <li><a href="/empresas">Para Empresas</a></li>
-                <li><a href="/candidatos">Para Candidatos</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/cadastro" class="btn-cadastro">Cadastre-se</a></li>
-            </ul>
+
+            <div class="header-actions">
+                <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="header-nav" role="navigation" aria-label="Menu principal">
+                <ul class="nav-menu">
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/empresas">Para Empresas</a></li>
+                    <li><a href="/candidatos">Para Candidatos</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li class="auth-buttons">
+                        <a href="/login" class="btn-login">Fazer Login</a>
+                        <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -160,5 +178,7 @@
     </footer>
 
     <script src="/js/contact.js"></script>
+    <script src="/js/mobile-menu.js"></script>
+    <script src="/js/mobile-menu.js"></script>
 </body>
 </html>

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <p class="job-description">${job.description.substring(0, 200)}...</p>
                 <div class="job-actions">
-                    <a href="/vaga-detalhes.html?id=${job.id}" class="btn btn-primary">Ver Detalhes</a>
+                    <a href="/vaga-detalhes?id=${job.id}" class="btn btn-primary">Ver Detalhes</a>
                     ${isUserLoggedIn() && getUserType() === 'candidato' ? 
                         `<button onclick="applyForJob('${job.id}')" class="btn btn-secondary">
                             Candidatar-se
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function applyForJob(jobId) {
         if (!isUserLoggedIn()) {
             alert('Por favor, faça login para se candidatar à vaga');
-            window.location.href = '/login.html';
+            window.location.href = '/login';
             return;
         }
 

@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aprendiz+ | Conectando Talentos e Oportunidades</title>
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/auth-buttons.css">
+    <link rel="stylesheet" href="/css/dropdown.css">
 </head>
 <body>
     <header class="header">
@@ -18,14 +22,30 @@
                     <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
                 </a>
             </div>
-            <ul class="nav-menu">
-                <li><a href="/">Início</a></li>
-                <li><a href="/vagas">Vagas</a></li>
-                <li><a href="/empresas">Para Empresas</a></li>
-                <li><a href="/candidatos">Para Candidatos</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/cadastro" class="btn-cadastro">Cadastre-se</a></li>
-            </ul>
+
+            <!-- Mobile hamburger injected by JS if needed -->
+            <div class="header-actions">
+                <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="header-nav" role="navigation" aria-label="Menu principal">
+                <ul class="nav-menu">
+                    <li><a href="#inicio">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/empresas">Para Empresas</a></li>
+                    <li><a href="/candidatos">Para Candidatos</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <!-- auth-buttons será gerado pelo session-ui.js -->
+                    <li class="auth-buttons">
+                        <a href="/login" class="btn-login">Fazer Login</a>
+                        <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -35,8 +55,8 @@
                 <h1>Conectando Jovens Talentos às Melhores Oportunidades</h1>
                 <p>Encontre seu primeiro emprego ou o aprendiz ideal para sua empresa</p>
                 <div class="hero-buttons">
-                    <a href="/candidatos" class="btn btn-primary">Sou Candidato</a>
-                    <a href="/empresas" class="btn btn-secondary">Sou Empresa</a>
+                    <a href="/cadastro" class="btn btn-primary">Sou Candidato</a>
+                    <a href="/cadastro" class="btn btn-secondary">Sou Empresa</a>
                 </div>
             </div>
         </section>
@@ -104,5 +124,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
+    <script src="/js/mobile-menu.js"></script>
 </body>
 </html>

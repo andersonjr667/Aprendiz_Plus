@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/auth-buttons.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/candidatos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -20,14 +25,28 @@
                     <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
                 </a>
             </div>
-            <ul class="nav-menu">
-                <li><a href="/">Início</a></li>
-                <li><a href="/vagas">Vagas</a></li>
-                <li><a href="/empresas">Para Empresas</a></li>
-                <li><a href="/candidatos" class="active">Para Candidatos</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/cadastro" class="btn-cadastro">Cadastre-se</a></li>
-            </ul>
+
+            <div class="header-actions">
+                <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="header-nav" role="navigation" aria-label="Menu principal">
+                <ul class="nav-menu">
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/empresas">Para Empresas</a></li>
+                    <li><a href="/candidatos" class="active">Para Candidatos</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li class="auth-buttons">
+                        <a href="/login" class="btn-login">Fazer Login</a>
+                        <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
     <main style="padding:100px 2rem 2rem;">
@@ -106,5 +125,7 @@
     <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
     <script src="/js/candidatos.js"></script>
+    <script src="/js/mobile-menu.js"></script>
+    <script src="/js/mobile-menu.js"></script>
 </body>
 </html>

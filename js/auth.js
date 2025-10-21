@@ -44,8 +44,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (response.ok) {
                     // Token está em cookie httpOnly; não usar localStorage
-
-                    // Redirecionar baseado no tipo de usuário
+                    
+                    // Verificar se há um redirecionamento pendente
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectUrl = urlParams.get('redirect');
+                    
+                    if (redirectUrl) {
+                        // Se for admin, permite qualquer redirecionamento
+                        if (data.user.type === 'admin') {
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+                        
+                        // Para outros usuários, validar o redirecionamento
+                        const allowedPaths = {
+                            candidato: ['/perfil-candidato', '/vagas'],
+                            empresa: ['/perfil-empresa', '/publicar-vaga', '/vagas', '/candidatos']
+                        };
+                        
+                        const userAllowedPaths = allowedPaths[data.user.type] || [];
+                        if (userAllowedPaths.some(path => redirectUrl.startsWith(path))) {
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+                    }
+                    
+                    // Se não houver redirecionamento ou não for permitido, usar redirecionamento padrão
                     switch(data.user.type) {
                         case 'candidato':
                             window.location.href = '/perfil-candidato';

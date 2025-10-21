@@ -133,6 +133,22 @@ const userSchema = new mongoose.Schema({
         enum: ['candidato', 'empresa', 'admin'],
         required: true
     },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'pending'],
+        default: 'pending'
+    },
+    permissions: [{
+        type: String,
+        enum: [
+            'manage_users',
+            'manage_jobs',
+            'manage_companies',
+            'manage_news',
+            'view_logs',
+            'manage_settings'
+        ]
+    }],
     createdAt: {
         type: Date,
         default: Date.now

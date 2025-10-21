@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/auth-buttons.css">
+    <link rel="stylesheet" href="/css/mobile-menu.css">
+    <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/publicar-vaga.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -33,8 +38,26 @@
     <main class="container" style="padding:100px 2rem 2rem;">
         <div class="post-job-container">
             <div class="form-header">
-                <h1>Publicar Nova Vaga de Aprendiz</h1>
+                <h1><i class="fas fa-plus-circle"></i> Publicar Nova Vaga de Aprendiz</h1>
                 <p>Preencha os detalhes da vaga para encontrar o candidato ideal</p>
+                <div class="progress-bar">
+                    <div class="progress-step active">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Informações Básicas</span>
+                    </div>
+                    <div class="progress-step">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Localização</span>
+                    </div>
+                    <div class="progress-step">
+                        <i class="fas fa-list-ul"></i>
+                        <span>Requisitos</span>
+                    </div>
+                    <div class="progress-step">
+                        <i class="fas fa-clock"></i>
+                        <span>Prazo e Benefícios</span>
+                    </div>
+                </div>
             </div>
 
             <form id="postJobForm" class="post-job-form">
@@ -197,5 +220,7 @@
     <script src="/js/session-ui.js"></script>
     <script src="/js/main.js"></script>
     <script src="/js/publish-job.js"></script>
+    <script src="/js/mobile-menu.js"></script>
+    <script src="/js/mobile-menu.js"></script>
 </body>
 </html>

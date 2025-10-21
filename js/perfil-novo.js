@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <h2>Acesso Restrito</h2>
             <p>Para acessar esta página, é necessário fazer login</p>
             <div class="login-required-buttons">
-                <a href="/pages/login.html" class="btn btn-primary">Fazer Login</a>
-                <a href="/pages/cadastro.html" class="btn btn-secondary">Criar Conta</a>
+                <a href="/login" class="btn btn-primary">Fazer Login</a>
+                <a href="/cadastro" class="btn btn-secondary">Criar Conta</a>
             </div>
         </div>
     `;

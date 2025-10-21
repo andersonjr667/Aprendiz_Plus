@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Verificar se o usuário está logado
     if (!localStorage.getItem('token')) {
-        window.location.href = '/login.html?redirect=/candidatos';
+        window.location.href = '/login?redirect=/candidatos';
         return;
     }
 
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span><i class="fas fa-map-marker-alt"></i> ${job.city}, ${job.state}</span>
                     </div>
                 </div>
-                <a href="/vaga-detalhes.html?id=${job.id}" class="btn btn-secondary">
+                <a href="/vaga-detalhes?id=${job.id}" class="btn btn-secondary">
                     Ver Vaga
                 </a>
             </div>

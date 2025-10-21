@@ -116,9 +116,26 @@ async function loadNews() {
     }
 }
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+// Carregar chatbot
+async function loadChatbot() {
+    if (!document.querySelector('#chatbot-script')) {
+        const script = document.createElement('script');
+        script.id = 'chatbot-script';
+        script.src = '/js/chatbot.js';
+        document.body.appendChild(script);
+    }
+}
+
+// Carregar componentes e chatbot
+document.addEventListener('DOMContentLoaded', async () => {
+    // Primeiro carregamos os componentes
+    await loadComponents();
+    
+    // Depois verificamos autenticação e carregamos o chatbot se necessário
+    const user = await checkAuth();
+    if (user) {
+        loadChatbot();
+    }
     loadNews();
     // Adicionar funcionalidade de scroll suave para links internos
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

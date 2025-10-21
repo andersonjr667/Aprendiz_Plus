@@ -1,0 +1,49 @@
+<!-- Header padrão -->
+<header class="header">
+    <nav class="nav-bar">
+        <div class="logo">
+            <a href="/">
+                <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
+            </a>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/">Início</a></li>
+            <li><a href="/vagas">Vagas</a></li>
+            <li><a href="/empresas">Para Empresas</a></li>
+            <li><a href="/candidatos">Para Candidatos</a></li>
+            <li><a href="/noticias">Notícias</a></li>
+            <!-- Links de autenticação -->
+            <li class="auth-link"><a href="/login">Login</a></li>
+            <li class="auth-link"><a href="/cadastro" class="btn-cadastro">Cadastre-se</a></li>
+            <!-- Links de perfil (visíveis apenas quando logado) -->
+            <li class="profile-link" style="display: none;">
+                <a href="#" class="profile-name"></a>
+            </li>
+            <li class="profile-link" style="display: none;">
+                <a href="#" onclick="logout()" class="btn-logout">Sair</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Footer padrão -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Aprendiz+</h4>
+            <p>Conectando jovens talentos ao mercado de trabalho</p>
+        </div>
+        <div class="footer-section">
+            <h4>Links Úteis</h4>
+            <ul>
+                <li><a href="/sobre">Sobre Nós</a></li>
+                <li><a href="/contato">Contato</a></li>
+                <li><a href="/termos">Termos de Uso</a></li>
+                <li><a href="/privacidade">Política de Privacidade</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+    </div>
+</footer>

@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 Toast.success('Cadastro realizado com sucesso!');
                 setTimeout(() => {
-                    window.location.href = data.type === 'candidato' ? '/perfil-candidato.html' : '/perfil-empresa.html';
+                    window.location.href = data.type === 'candidato' ? '/perfil-candidato' : '/perfil-empresa';
                 }, redirectDelay);
             } else {
                 Toast.error(responseData.error || 'Erro ao realizar cadastro');

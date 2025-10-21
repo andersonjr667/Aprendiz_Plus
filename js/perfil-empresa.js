@@ -96,7 +96,7 @@ async function loadCompanyData(userId) {
 
 // Funções auxiliares
 window.editarVaga = async (jobId) => {
-    window.location.href = `/publicar-vaga.html?id=${jobId}`;
+    window.location.href = `/publicar-vaga?id=${jobId}`;
 };
 
 window.verCandidatos = async (jobId) => {
