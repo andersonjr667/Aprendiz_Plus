@@ -41,25 +41,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        jobsList.innerHTML = jobs.map(job => `
+        jobsList.innerHTML = jobs.map(job => {
+            const jobId = job.id || job._id || job._id?._id || '';
+            const salary = typeof job.salary === 'number' ? job.salary.toFixed(2) : (job.salary || '0.00');
+            return `
             <article class="job-card">
                 <h3>${job.title}</h3>
                 <div class="job-info">
                     <span><i class="fas fa-building"></i> ${job.company_name}</span>
                     <span><i class="fas fa-map-marker-alt"></i> ${job.city}, ${job.state}</span>
-                    <span><i class="fas fa-money-bill-wave"></i> R$ ${job.salary.toFixed(2)}</span>
+                    <span><i class="fas fa-money-bill-wave"></i> R$ ${salary}</span>
                 </div>
                 <p class="job-description">${job.description.substring(0, 200)}...</p>
                 <div class="job-actions">
-                    <a href="/vaga-detalhes?id=${job.id}" class="btn btn-primary">Ver Detalhes</a>
+                    <a href="/vaga/${jobId}" class="btn btn-primary">Ver Detalhes</a>
                     ${isUserLoggedIn() && getUserType() === 'candidato' ? 
-                        `<button onclick="applyForJob('${job.id}')" class="btn btn-secondary">
+                        `<button onclick="applyForJob('${jobId}')" class="btn btn-secondary">
                             Candidatar-se
                         </button>` : 
                         ''}
                 </div>
             </article>
-        `).join('');
+        `}).join('');
     }
 
     function updatePagination(currentPage, totalPages) {

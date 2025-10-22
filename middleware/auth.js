@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { UserService } = require('../services/database');
+const db = require('../services/database');
+const UserService = db.UserService;
+const mongoose = require('mongoose');
 
 function parseCookies(cookieHeader) {
     const list = {};
@@ -63,7 +65,15 @@ const auth = async (req, res, next) => {
             return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
         }
 
-        // 5) Buscar usuário
+        // 5) Validar id do token quando estamos usando MongoDB (evita CastError se o cookie tiver um id do DB em arquivo JSON)
+        if (db && db._usingMongo && decoded && decoded.id && !mongoose.Types.ObjectId.isValid(decoded.id)) {
+            console.warn('[Auth] Token contém id inválido para MongoDB:', decoded.id);
+            try { res.clearCookie && res.clearCookie('token'); } catch (e) {}
+            if (isApiRequest(req)) return res.status(401).json({ error: 'Sessão inválida. Por favor, faça login novamente.' });
+            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
+        }
+
+        // 6) Buscar usuário
         const user = await UserService.findById(decoded.id);
         if (!user) {
             console.warn('[Auth] User not found for token id:', decoded && decoded.id);
@@ -72,11 +82,19 @@ const auth = async (req, res, next) => {
             return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
         }
 
-        // 6) Anexar e seguir
+        // 7) Anexar e seguir
         req.token = token;
         req.user = user;
         return next();
     } catch (err) {
+        // Tratar CastError do mongoose como sessão inválida (retornar 401 em vez de 500)
+        if (err && (err.name === 'CastError' || err instanceof mongoose.Error.CastError)) {
+            console.warn('[Auth] CastError ao buscar usuário - token possivelmente com id antigo:', err.message || err);
+            try { res.clearCookie && res.clearCookie('token'); } catch (e) {}
+            if (isApiRequest(req)) return res.status(401).json({ error: 'Sessão inválida. Por favor, faça login novamente.' });
+            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
+        }
+
         console.error('[Auth] Middleware error:', err && err.stack ? err.stack : err);
         if (isApiRequest(req)) return res.status(500).json({ error: 'Erro de autenticação' });
         return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);

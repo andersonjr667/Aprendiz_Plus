@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!mobileNav || !hamburgerMenu) return;
 
+    // Garantir que o botão tenha 3 spans para o icon hamburger (fallback caso templates não incluam)
+    if (hamburgerMenu && hamburgerMenu.querySelectorAll('span').length < 3) {
+        hamburgerMenu.innerHTML = '<span></span><span></span><span></span>';
+    }
+
+    // Garantir aria-expanded inicial
+    if (!hamburgerMenu.hasAttribute('aria-expanded')) {
+        hamburgerMenu.setAttribute('aria-expanded', 'false');
+    }
+
     function openMenu() {
         hamburgerMenu.classList.add('active');
         mobileNav.classList.add('active');

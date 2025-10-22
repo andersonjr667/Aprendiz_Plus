@@ -151,9 +151,10 @@
 
         const link = li.querySelector('.user-link');
         const dd = li.querySelector('.user-dropdown');
-        // Abrir/fechar dropdown ao clicar no nome
+        // Abrir/fechar dropdown ao clicar no nome (não redirecionar)
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation(); // evita que o listener de documento feche imediatamente
             dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
         });
 
@@ -176,14 +177,7 @@
             }
         });
 
-        // Adicionar evento de clique no nome do usuário para redirecionar para o perfil
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const profilePath = user.type === 'candidato' ? '/perfil-candidato' : 
-                              user.type === 'empresa' ? '/perfil-empresa' : 
-                              user.type === 'admin' ? '/admin' : '/';
-            window.location.href = profilePath;
-        });
+        // Observação: o redirecionamento ao perfil fica disponível no item "Meu Perfil" do dropdown
     }
 
     function renderGuestMenu() {

@@ -4,26 +4,20 @@ const path = require('path');
 const pagesDir = path.join(__dirname, '../pages');
 
 // Header padrão para todas as páginas (exceto admin)
-const standardHeader = `    <header class="header">
-        <nav class="nav-bar">
-            <div class="logo">
-                <a href="/">
-                    <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
-                </a>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="/">Início</a></li>
-                <li><a href="/vagas">Vagas</a></li>
-                <li><a href="/empresas">Para Empresas</a></li>
-                <li><a href="/candidatos">Para Candidatos</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li class="auth-buttons">
-                    <a href="/login" class="btn-login">Fazer Login</a>
-                    <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
-                </li>
-            </ul>
-        </nav>
-    </header>`;
+// Vamos extrair o header diretamente de pages/empresas.html para garantir consistência visual
+const empresasPath = path.join(pagesDir, 'empresas.html');
+let standardHeader = `    <header class="header">`;
+try {
+    const empresasContent = fs.readFileSync(empresasPath, 'utf8');
+    const headerMatch = empresasContent.match(/<header[\s\S]*?<\/header>/);
+    if (headerMatch) {
+        standardHeader = headerMatch[0];
+    } else {
+        console.warn('Não foi possível extrair header de empresas.html — usando fallback simples');
+    }
+} catch (err) {
+    console.warn('Erro lendo empresas.html para extrair header:', err.message || err);
+}
 
 // Header para páginas administrativas
 const adminHeader = `    <header class="header">

@@ -90,7 +90,8 @@ async function checkAuth() {
             const userName = profileMenu.querySelector('.user-name');
             if (userName) {
                 userName.textContent = user.name;
-                userName.href = user.type === 'candidato' ? '/perfil-candidato' : '/perfil-empresa';
+                // NÃO setar href aqui — o comportamento de clique será controlado pelo dropdown em session-ui.js
+                userName.removeAttribute && userName.removeAttribute('href');
             }
         }
         
