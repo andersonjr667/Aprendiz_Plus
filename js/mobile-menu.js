@@ -40,7 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fechar ao clicar em um link (apenas links dentro do mobileNav)
     mobileNav.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => closeMenu());
+        link.addEventListener('click', (e) => {
+            // Não impedir navegação, apenas fecha o menu após um pequeno delay
+            setTimeout(() => closeMenu(), 150);
+        });
     });
 
     // Fechar ao clicar fora do menu quando aberto

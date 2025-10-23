@@ -31,6 +31,23 @@
     background-color: var(--primary-color-dark);
 }
 
+/* Quadrado branco com bordas arredondadas para o botão de cadastro */
+.btn-cadastro-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    padding: 6px 18px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.btn-cadastro-wrapper .btn-cadastro {
+    color: var(--primary-color, #0b2140) !important;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 /* Estilos responsivos */
 @media screen and (max-width: 768px) {
     .auth-buttons {

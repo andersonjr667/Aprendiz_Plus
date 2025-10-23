@@ -1,3 +1,24 @@
+/* Importação de fontes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Importação de variáveis e utilitários */
+@import url('variables.css');
+@import url('utilities.css');
+
+/* Importação de componentes */
+@import url('components/header.css');
+@import url('components/job-cards.css');
+@import url('components/auth.css');
+@import url('components/news.css');
+
+/* Importação de páginas */
+@import url('pages/home.css');
+@import url('pages/jobs.css');
+@import url('pages/companies.css');
+@import url('pages/candidates.css');
+@import url('pages/profile-candidate.css');
+@import url('pages/profile-company.css');
+
 /* Reset e estilos globais */
 *, *::before, *::after {
     margin: 0;
@@ -6,10 +27,12 @@
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: 1.5;
     color: var(--text);
     background-color: var(--background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Header e Navegação */
@@ -195,7 +218,7 @@ body {
 
 /* Footer */
 .footer {
-    background-color: var(--text);
+    background-color: #1a2b4d;
     color: #fff;
     padding: 3rem 2rem 1rem;
 }

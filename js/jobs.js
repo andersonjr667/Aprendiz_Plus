@@ -44,22 +44,54 @@ document.addEventListener('DOMContentLoaded', () => {
         jobsList.innerHTML = jobs.map(job => {
             const jobId = job.id || job._id || job._id?._id || '';
             const salary = typeof job.salary === 'number' ? job.salary.toFixed(2) : (job.salary || '0.00');
+            const deadlineDate = new Date(job.deadline);
+            const today = new Date();
+            const daysUntilDeadline = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+            const requirements = (job.requirements || '').split('\n')[0];
+            const tags = requirements.split(',').slice(0, 3);
+
             return `
             <article class="job-card">
-                <h3>${job.title}</h3>
+                <div class="company-info">
+                    <img src="/images/company-placeholder.png" alt="Logo da Empresa" class="company-logo">
+                    <div>
+                        <h3>${job.title}</h3>
+                        <p class="company-name">
+                            <i class="fas fa-building"></i>
+                            ${job.company_name || 'Empresa Confidencial'}
+                        </p>
+                    </div>
+                </div>
+                
                 <div class="job-info">
-                    <span><i class="fas fa-building"></i> ${job.company_name}</span>
                     <span><i class="fas fa-map-marker-alt"></i> ${job.city}, ${job.state}</span>
                     <span><i class="fas fa-money-bill-wave"></i> R$ ${salary}</span>
+                    <span><i class="fas fa-graduation-cap"></i> ${job.education}</span>
+                    <span><i class="fas fa-clock"></i> ${job.workload}h semanais</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${daysUntilDeadline} dias restantes</span>
                 </div>
-                <p class="job-description">${job.description.substring(0, 200)}...</p>
+
+                <p class="job-description">${job.description.split('\n')[0]}</p>
+
+                <div class="job-tags">
+                    ${tags.map(tag => `<span class="job-tag">${tag.trim()}</span>`).join('')}
+                </div>
+
                 <div class="job-actions">
-                    <a href="/vaga/${jobId}" class="btn btn-primary">Ver Detalhes</a>
+                    <a href="/vaga-detalhes?id=${jobId}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i>
+                        Ver Detalhes
+                    </a>
                     ${isUserLoggedIn() && getUserType() === 'candidato' ? 
-                        `<button onclick="applyForJob('${jobId}')" class="btn btn-secondary">
+                        `<button onclick="applyForJob('${jobId}')" class="btn btn-outline">
+                            <i class="fas fa-paper-plane"></i>
                             Candidatar-se
                         </button>` : 
-                        ''}
+                        `<button class="btn btn-outline" onclick="saveJob('${jobId}')">
+                            <i class="far fa-bookmark"></i>
+                            Salvar Vaga
+                        </button>`
+                    }
                 </div>
             </article>
         `}).join('');

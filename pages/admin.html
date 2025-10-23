@@ -5,45 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo | Aprendiz+</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <link rel="stylesheet" href="/css/variables.css">
+        <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
     <link rel="stylesheet" href="/css/mobile-menu.css">
     <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/auth-buttons.css">
-    <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
-    <header class="header">
+        <header class="header">
         <nav class="nav-bar">
             <div class="logo">
-                <a href="/">
+                <a href="/admin">
                     <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
                 </a>
             </div>
-
-            <div class="header-actions">
-                <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-
-            <div class="header-nav" role="navigation" aria-label="Menu principal">
-                <ul class="nav-menu">
-                    <li><a href="/admin" class="active">Dashboard</a></li>
-                    <li><a href="/admin/usuarios">Usuários</a></li>
-                    <li><a href="/admin/vagas">Vagas</a></li>
-                    <li><a href="/admin/empresas">Empresas</a></li>
-                    <li><a href="/admin/noticias">Notícias</a></li>
-                    <li class="auth-buttons">
-                        <a href="/login" class="btn-login">Fazer Login</a>
-                        <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
-                    </li>
-                </ul>
-            </div>
+            <ul class="nav-menu">
+                <li><a href="/admin">Dashboard</a></li>
+                <li><a href="/admin/usuarios">Usuários</a></li>
+                <li><a href="/admin/vagas">Vagas</a></li>
+                <li><a href="/admin/empresas">Empresas</a></li>
+                <li><a href="/admin/noticias">Notícias</a></li>
+                <li><a href="/admin/logs">Logs</a></li>
+            </ul>
         </nav>
     </header>
 
@@ -120,7 +105,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/js/admin.js"></script>
+        <script src="/js/main.js"></script>
+    <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
-</body>
+    <script src="/js/mobile-menu.js"></script></body>
 </html>

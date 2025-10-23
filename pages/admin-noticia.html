@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Notícia (Admin) | Aprendiz+</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <link rel="stylesheet" href="/css/variables.css">
+        <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
@@ -14,31 +14,21 @@
     <link rel="stylesheet" href="/css/auth-buttons.css">
 </head>
 <body>
-    <header class="header">
+        <header class="header">
         <nav class="nav-bar">
             <div class="logo">
-                <a href="/">
+                <a href="/admin">
                     <img src="/images/logo.png" alt="Aprendiz+" class="logo-img">
                 </a>
             </div>
-            <div class="header-actions">
-                <button class="hamburger-menu" aria-label="Abrir menu" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-            <div class="header-nav" role="navigation" aria-label="Menu principal">
-                <ul class="nav-menu">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="/noticias">Notícias</a></li>
-                    <li><a href="/admin/noticias?admin=1" class="active">Nova Notícia</a></li>
-                    <li class="auth-buttons">
-                        <a href="/login" class="btn-login">Fazer Login</a>
-                        <a href="/cadastro" class="btn-cadastro">Cadastre-se</a>
-                    </li>
-                </ul>
-            </div>
+            <ul class="nav-menu">
+                <li><a href="/admin">Dashboard</a></li>
+                <li><a href="/admin/usuarios">Usuários</a></li>
+                <li><a href="/admin/vagas">Vagas</a></li>
+                <li><a href="/admin/empresas">Empresas</a></li>
+                <li><a href="/admin/noticias">Notícias</a></li>
+                <li><a href="/admin/logs">Logs</a></li>
+            </ul>
         </nav>
     </header>
     <main style="padding:100px 2rem 2rem;max-width:600px;margin:auto;">
@@ -56,6 +46,8 @@
         </form>
         <p style="margin-top:2rem;color:#888;">Apenas administradores podem acessar esta página.</p>
     </main>
-    <script src="/js/mobile-menu.js"></script>
-</body>
+        <script src="/js/main.js"></script>
+    <script src="/js/img-fallbacks.js"></script>
+    <script src="/js/session-ui.js"></script>
+    <script src="/js/mobile-menu.js"></script></body>
 </html>

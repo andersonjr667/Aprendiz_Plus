@@ -1,57 +1,76 @@
-/* Estilos para dispositivos móveis */
+/* Breakpoints responsivos */
 @media screen and (max-width: 768px) {
     /* Regras gerais */
-    body {
+    html {
         font-size: 14px;
     }
 
     .container {
-        padding: 0 15px;
         width: 100%;
+        padding: 0 1rem;
+        margin: 0 auto;
     }
 
     /* Header responsivo */
     .header {
-        padding: 10px 0;
+        padding: 0;
     }
 
-    .header-nav {
+    .nav-bar {
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-menu {
         display: none;
         position: fixed;
-        top: 0;
+        top: 72px;
         left: 0;
-        width: 100%;
-        height: 100vh;
-        background-color: var(--background-color);
-        z-index: 1000;
-        padding: 20px;
-    }
-
-    .header-nav.active {
-        display: block;
-    }
-
-    .header-nav ul {
+        right: 0;
+        background: white;
+        padding: 1.5rem;
         flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        gap: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
     }
 
-    .hamburger-menu {
-        display: block;
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .mobile-menu-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: transparent;
         cursor: pointer;
-        z-index: 1001;
+    }
+
+    .nav-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .btn-login,
+    .btn-register {
+        width: 100%;
+        text-align: center;
     }
 
     /* Cards e grids */
-    .grid {
+    .grid,
+    .jobs-grid,
+    .news-grid {
         grid-template-columns: 1fr !important;
-        gap: 15px;
+        gap: 1rem;
     }
 
     .card {
-        width: 100% !important;
-        margin: 10px 0;
+        border-radius: 0.75rem;
     }
 
     /* Formulários */
@@ -59,8 +78,18 @@
         width: 100%;
     }
 
-    input, select, textarea {
+    .form-control {
+        font-size: 16px; /* Previne zoom em iOS */
+        padding: 0.875rem 1rem;
+    }
+
+    input, 
+    select, 
+    textarea {
         width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        border-radius: 0.5rem;
     }
 
     /* Perfil */
@@ -105,11 +134,78 @@
 
 /* Estilos para tablets */
 @media screen and (min-width: 769px) and (max-width: 1024px) {
-    .grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+    .container {
+        max-width: 768px;
+        padding: 0 2rem;
+        margin: 0 auto;
     }
 
+    .grid,
+    .jobs-grid,
+    .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* Estilos para desktop */
+@media screen and (min-width: 1025px) {
     .container {
-        width: 90%;
+        max-width: 1280px;
+        padding: 0 2rem;
+        margin: 0 auto;
+    }
+}
+
+/* Estilos para dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #ffffff;
+        --text: #f9fafb;
+        --text-light: #9ca3af;
+        --text-lighter: #6b7280;
+        --border: #374151;
+        --primary-light: rgba(37, 99, 235, 0.1);
+    }
+
+    body {
+        background-color: var(--background);
+    }
+
+    .header,
+    .nav-menu,
+    .card,
+    .auth-card,
+    .job-card,
+    .news-card {
+        background: #1f2937;
+    }
+
+    .btn-outline {
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
+
+    .form-control {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        background: #1f2937;
+    }
+
+    input::placeholder {
+        color: #6b7280;
+    }
+
+    .card {
+        border-color: #374151;
+    }
+
+    .card:hover {
+        border-color: var(--primary);
     }
 }

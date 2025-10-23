@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vagas | Aprendiz+</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <link rel="stylesheet" href="/css/variables.css">
+        <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/logo.css">
     <link rel="stylesheet" href="/css/mobile-menu.css">
     <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/auth-buttons.css">
-    <link rel="stylesheet" href="/css/vagas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/vagas.css">
 </head>
 <body>
     <header class="header">
@@ -35,8 +35,8 @@
             <div class="header-nav" role="navigation" aria-label="Menu principal">
                 <ul class="nav-menu">
                     <li><a href="/">Início</a></li>
-                    <li><a href="/vagas" class="active">Vagas</a></li>
-                    <li><a href="/empresas">Para Empresas</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/empresas" class="active">Para Empresas</a></li>
                     <li><a href="/candidatos">Para Candidatos</a></li>
                     <li><a href="/noticias">Notícias</a></li>
                     <li class="auth-buttons">
@@ -47,14 +47,14 @@
             </div>
         </nav>
     </header>
-    <main style="padding:100px 2rem 2rem;">
+    <main>
         <div class="jobs-container">
             <aside class="filters-section">
                 <h2>Filtros</h2>
                 <form id="filterForm">
                     <div class="filter-group">
-                        <label for="search">Buscar</label>
-                        <input type="text" id="search" name="search" placeholder="Digite um termo...">
+                        <label for="search">Buscar vagas</label>
+                        <input type="text" id="search" name="search" placeholder="Cargo, empresa ou palavra-chave...">
                     </div>
                     <div class="filter-group">
                         <label for="location">Localização</label>
@@ -62,16 +62,25 @@
                     </div>
                     <div class="filter-group">
                         <label for="salary">Salário Mínimo</label>
-                        <input type="number" id="salary" name="salary" placeholder="R$ 0,00">
+                        <input type="number" id="salary" name="salary" placeholder="R$ 0,00" min="0" step="100">
                     </div>
                     <div class="filter-group">
                         <label for="education">Escolaridade</label>
                         <select id="education" name="education">
-                            <option value="">Todos</option>
+                            <option value="">Todos os níveis</option>
                             <option value="Ensino Fundamental - Cursando">Ensino Fundamental - Cursando</option>
                             <option value="Ensino Fundamental - Completo">Ensino Fundamental - Completo</option>
                             <option value="Ensino Médio - Cursando">Ensino Médio - Cursando</option>
                             <option value="Ensino Médio - Completo">Ensino Médio - Completo</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="type">Tipo de Vaga</label>
+                        <select id="type" name="type">
+                            <option value="">Todos os tipos</option>
+                            <option value="Jovem Aprendiz">Jovem Aprendiz</option>
+                            <option value="Estágio">Estágio</option>
+                            <option value="CLT">CLT</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
@@ -87,11 +96,13 @@
                 </div>
 
                 <div id="jobsList" class="jobs-list">
-                    <!-- Jobs will be loaded here -->
                 </div>
 
                 <div id="pagination" class="pagination">
-                    <!-- Pagination will be generated here -->
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>Próxima</button>
                 </div>
             </section>
         </div>
@@ -118,10 +129,10 @@
         </div>
     </footer>
 
-    <script src="/js/main.js"></script>
+        <script src="/js/main.js"></script>
     <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
-    <script src="/js/jobs.js"></script>
     <script src="/js/mobile-menu.js"></script>
+    <script src="/js/jobs.js"></script>
 </body>
 </html>
