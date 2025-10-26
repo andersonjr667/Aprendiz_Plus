@@ -126,19 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Alterna entre tipos de conta
+        // Alterna entre tipos de conta (suporta tanto singular quanto plural nas classes)
         const accountTypes = document.querySelectorAll('.account-type');
         accountTypes.forEach(btn => {
             btn.addEventListener('click', () => {
                 accountTypes.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                // Mostrar/esconder campos específicos
                 const type = btn.dataset.type;
-                document.querySelectorAll('.candidate-field').forEach(el => {
+                const candidateEls = document.querySelectorAll('.candidate-field, .candidate-fields');
+                const companyEls = document.querySelectorAll('.company-field, .company-fields');
+
+                candidateEls.forEach(el => {
                     el.style.display = type === 'candidate' ? 'block' : 'none';
                 });
-                document.querySelectorAll('.company-field').forEach(el => {
+                companyEls.forEach(el => {
                     el.style.display = type === 'company' ? 'block' : 'none';
                 });
             });

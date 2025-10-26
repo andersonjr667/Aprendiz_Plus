@@ -70,7 +70,7 @@ router.post('/register', async (req, res) => {
 
         // Adicionar campos específicos baseado no tipo de usuário
         if (userType === 'candidato') {
-            userData.candidateProfile = {
+                userData.candidateProfile = {
                 education: {
                     degree: req.body.escolaridade,
                     currentCourse: {
@@ -82,15 +82,23 @@ router.post('/register', async (req, res) => {
                             parseInt(req.body.ano_conclusao) : undefined
                     }
                 },
-                skills: req.body.habilidades ? JSON.parse(req.body.habilidades) : [],
+                skills: (function() {
+                    const s = req.body.habilidades;
+                    if (!s) return [];
+                    if (Array.isArray(s)) return s;
+                    try { return JSON.parse(s); } catch (e) { return typeof s === 'string' ? [s] : [] }
+                })(),
                 phone: req.body.phone,
                 address: address
             };
         } else if (userType === 'empresa') {
             // Mapear campos específicos de empresa (inclui nome fantasia e razão social)
-            const benefits = req.body.beneficios ? (() => {
-                try { return JSON.parse(req.body.beneficios); } catch (e) { return []; }
-            })() : [];
+            const benefits = (function() {
+                const b = req.body.beneficios;
+                if (!b) return [];
+                if (Array.isArray(b)) return b;
+                try { return JSON.parse(b); } catch (e) { return typeof b === 'string' ? [b] : []; }
+            })();
             // Se foi informado nome fantasia, usar como nome principal do usuário
             const nomeFantasia = req.body.nome_fantasia || req.body.nomeFantasia || undefined;
             if (nomeFantasia) userData.name = nomeFantasia;

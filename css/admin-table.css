@@ -51,10 +51,18 @@
     background-color: #f8f9fa;
     font-weight: 600;
     color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .admin-table tr:hover {
     background-color: #f8f9fa;
+}
+
+/* zebra */
+.admin-table tr:nth-child(even) {
+    background-color: #fbfcfd;
 }
 
 .admin-table .status-badge {
@@ -85,26 +93,35 @@
 }
 
 .btn-action {
-    padding: 4px 8px;
+    padding: 6px 10px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.3s;
+    transition: background-color 0.15s, transform 0.15s;
+}
+
+.btn-action:hover {
+    filter: brightness(0.96);
+    transform: translateY(-1px);
+}
+
+.btn-action:focus {
+    outline: 3px solid rgba(0,123,255,0.12);
 }
 
 .btn-edit {
-    background-color: #ffc107;
+    background-color: var(--secondary, #ffc107);
     color: #000;
 }
 
 .btn-delete {
-    background-color: #dc3545;
+    background-color: var(--danger, #dc3545);
     color: white;
 }
 
 .btn-view {
-    background-color: #17a2b8;
+    background-color: var(--info, #17a2b8);
     color: white;
 }
 
@@ -191,11 +208,57 @@
         width: 100%;
     }
 
+    /* Card view for tables on mobile */
     .table-container {
-        overflow-x: auto;
+        overflow-x: visible;
     }
 
     .admin-table {
-        min-width: 800px;
+        display: block;
+        min-width: auto;
+    }
+
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table tbody {
+        display: block;
+    }
+
+    .admin-table tr {
+        display: block;
+        background: white;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+    }
+
+    .admin-table td {
+        display: flex;
+        padding: 0.5rem 0;
+        border: none;
+        align-items: center;
+    }
+
+    .admin-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        width: 120px;
+        min-width: 120px;
+        color: var(--text-light);
+    }
+
+    .action-buttons {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
     }
 }

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/css/logo.css">
     <link rel="stylesheet" href="/css/mobile-menu.css">
     <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/auth.css">
     <link rel="stylesheet" href="/css/auth-buttons.css">
 </head>
 <body class="auth-page">
@@ -418,9 +419,7 @@
                     </label>
                 </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
-                </div>
+                <!-- botão principal removido quando usamos o fluxo em etapas; o botão final está em .step-buttons -->
 
                 <div class="auth-divider">
                     <span>ou</span>
@@ -428,11 +427,11 @@
 
                 <div class="social-login">
                     <button type="button" class="btn btn-outline social-btn">
-                        <img src="/images/google-icon.png" alt="Google">
+                        <img src="/images/logo.png" alt="Google" style="width:20px;height:20px;">
                         Continuar com Google
                     </button>
                     <button type="button" class="btn btn-outline social-btn">
-                        <img src="/images/linkedin-icon.png" alt="LinkedIn">
+                        <img src="/images/logo.png" alt="LinkedIn" style="width:20px;height:20px;">
                         Continuar com LinkedIn
                     </button>
                 </div>
@@ -444,7 +443,12 @@
         </div>
     </div>
 
-        <script src="/js/main.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/validator.js"></script>
+    <script src="/js/cadastro-steps.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/main.js"></script>
     <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
     <script src="/js/mobile-menu.js"></script></body>

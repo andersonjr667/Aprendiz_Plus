@@ -1,13 +1,13 @@
 :root {
     /* Cores primárias */
-    --primary: #0a3ead;
-    --primary-dark: #333847;
-    --primary-light: #dbeafe;
+    --primary: #0b8f8f;
+    --primary-dark: #076a6a;
+    --primary-light: #e6fbfb;
     
     /* Cores secundárias */
-    --secondary: #10b981;
-    --secondary-dark: #059669;
-    --secondary-hover: #059669;
+    --secondary: #ff8a5b;
+    --secondary-dark: #e06b3f;
+    --secondary-hover: #e06b3f;
     
     /* Cores de destaque */
     --accent: #FF6B5B;

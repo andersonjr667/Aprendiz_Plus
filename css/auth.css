@@ -20,7 +20,7 @@
 }
 
 .auth-card.wide {
-    max-width: 600px;
+    max-width: 900px;
 }
 
 .auth-header {
@@ -41,6 +41,87 @@
 
 .auth-form .form-group {
     margin-bottom: 1.5rem;
+}
+
+/* Inputs e botões */
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color, #e6e6e6);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-dark);
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary, #0066cc);
+    box-shadow: 0 0 0 0.15rem rgba(0, 102, 204, 0.12);
+    outline: none;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg,var(--primary),var(--primary-dark));
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: rgba(0,0,0,0.08);
+    color: var(--text-dark);
+}
+
+.w-100 { width: 100%; }
+
+/* Password toggle adjustments */
+.password-input .toggle-password {
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.04);
+    padding: 0.35rem 0.45rem;
+    border-radius: 0.4rem;
+}
+
+/* Skills / tags */
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,0,0,0.05);
+    color: var(--text-dark);
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+}
+
+.skill-tag .remove-skill {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
 }
 
 .password-input {
@@ -125,6 +206,15 @@
     color: #0066cc;
     text-decoration: none;
     font-weight: 500;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .auth-container { padding: 1rem; padding-top: calc(1rem + 64px); }
+    .auth-card { padding: 1.25rem; border-radius: 0.75rem; }
+    .auth-header h1 { font-size: 1.5rem; }
+    .auth-card.wide { max-width: 100%; }
+    .account-type-selector { grid-template-columns: 1fr; }
 }
 
 /* Seletor de tipo de conta */

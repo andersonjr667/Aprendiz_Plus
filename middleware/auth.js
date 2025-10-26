@@ -65,13 +65,9 @@ const auth = async (req, res, next) => {
             return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
         }
 
-        // 5) Validar id do token quando estamos usando MongoDB (evita CastError se o cookie tiver um id do DB em arquivo JSON)
-        if (db && db._usingMongo && decoded && decoded.id && !mongoose.Types.ObjectId.isValid(decoded.id)) {
-            console.warn('[Auth] Token contém id inválido para MongoDB:', decoded.id);
-            try { res.clearCookie && res.clearCookie('token'); } catch (e) {}
-            if (isApiRequest(req)) return res.status(401).json({ error: 'Sessão inválida. Por favor, faça login novamente.' });
-            return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl || '/')}`);
-        }
+        // (Nota) Não rejeitamos tokens com id não-formato-ObjectId aqui porque o UserService
+        // pode oferecer fallback para o banco JSON local. Continuamos e tentamos buscar o usuário —
+        // se houver um CastError ou usuário não encontrado, lidaremos abaixo.
 
         // 6) Buscar usuário
         const user = await UserService.findById(decoded.id);

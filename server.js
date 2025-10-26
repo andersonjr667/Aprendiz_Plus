@@ -133,8 +133,45 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// Iniciar o servidor
+// Conexão com MongoDB (espera antes de iniciar o servidor) e shutdown gracioso
+const db = require('./services/mongoose');
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+
+(async () => {
+  try {
+    // Tenta conectar ao Mongo se habilitado; se falhar, encerra para que a plataforma (Render)
+    // possa reiniciar a instância e tentar novamente.
+    await db.connect();
+  } catch (err) {
+    console.error('Falha ao conectar ao MongoDB. Saindo para permitir restart da plataforma.', err.message || err);
+    // Em produção é melhor falhar rápido e deixar o provedor (Render) tentar reiniciar.
+    process.exit(1);
+  }
+
+  const server = app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+
+  // Shutdown gracioso: Render envia SIGTERM ao desligar/redeploy
+  const gracefulShutdown = async () => {
+    console.log('Recebido sinal de encerramento. Desconectando do MongoDB e fechando servidor...');
+    try {
+      await db.disconnect();
+    } catch (e) {
+      console.error('Erro ao desconectar do MongoDB durante shutdown:', e.message || e);
+    }
+    server.close(() => {
+      console.log('Servidor fechado. Saindo.');
+      process.exit(0);
+    });
+    // Se o server não fechar em 10s, forçar saída
+    setTimeout(() => {
+      console.error('Forçando saída após timeout de shutdown');
+      process.exit(1);
+    }, 10_000).unref();
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
+})();

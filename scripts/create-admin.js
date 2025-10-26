@@ -1,55 +1,63 @@
-const mongoose = require('mongoose');
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+const { UserService } = require('../services/database');
 
-async function createAdminUser() {
-    try {
-        // Verificar se já existe um admin
-        const adminExists = await User.findOne({ type: 'admin' });
-        if (adminExists) {
-            console.log('Usuário admin já existe!');
-            return;
+(async function createAdmin() {
+  try {
+    const email = 'alsj1520@gmail.com';
+    const password = '152070an';
+    const name = 'Anderson';
+    const company = 'Aprendiz plus';
+
+    const existing = await UserService.findByEmail(email);
+    if (existing) {
+      console.log('Usuário já existe:', existing.email, '-> promovendo/atualizando para admin');
+      const updates = { type: 'admin', name };
+      if (existing.companyProfile || existing.type === 'empresa') {
+        updates.companyProfile = existing.companyProfile || { nomeFantasia: company };
+      } else {
+        updates.company = company;
+      }
+
+      // Se o usuário veio do JSON local (não tem _id do Mongo), atualize o arquivo local diretamente
+      if (!existing._id) {
+        const fs = require('fs').promises;
+        const path = require('path');
+        const dbPath = path.join(__dirname, '..', 'data', 'db.json');
+        const dbRaw = await fs.readFile(dbPath, 'utf8');
+        const db = JSON.parse(dbRaw || '{}');
+        db.users = db.users || [];
+        const idx = db.users.findIndex(u => u.id === existing.id);
+        if (idx !== -1) {
+          db.users[idx] = { ...db.users[idx], ...updates, updatedAt: new Date().toISOString() };
+          await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
+          console.log('Usuário local atualizado para admin:', db.users[idx].email || db.users[idx].name, 'id=', db.users[idx].id);
+          return;
         }
+      }
 
-        // Criar usuário admin
-        const adminUser = new User({
-            name: 'Administrador',
-            email: 'admin@aprendizmais.com',
-            password: await bcrypt.hash('admin123', 10),
-            type: 'admin',
-            status: 'active',
-            permissions: [
-                'manage_users',
-                'manage_jobs',
-                'manage_companies',
-                'manage_news',
-                'view_logs',
-                'manage_settings'
-            ],
-            cpf: '000.000.000-00', // CPF fictício para admin
-            birthdate: new Date('1990-01-01') // Data fictícia para admin
-        });
-
-        await adminUser.save();
-        console.log('Usuário admin criado com sucesso!');
-        console.log('Email: admin@aprendizmais.com');
-        console.log('Senha: admin123');
-    } catch (error) {
-        console.error('Erro ao criar usuário admin:', error);
-    } finally {
-        mongoose.disconnect();
+      // Caso contrário, tente usar UserService.update (aplica para registros Mongo)
+      try {
+        const updated = await UserService.update(existing.id, updates);
+        console.log('Usuário atualizado para admin:', updated.email || updated.name, 'id=', updated.id);
+        return;
+      } catch (e) {
+        console.error('Falha ao atualizar usuário existente via UserService.update:', e && e.message ? e.message : e);
+      }
     }
-}
 
-// Conectar ao banco de dados e criar admin
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/aprendizmais', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => {
-    console.log('Conectado ao MongoDB');
-    createAdminUser();
-})
-.catch(error => {
-    console.error('Erro ao conectar ao MongoDB:', error);
-});
+    const userData = {
+      name,
+      email,
+      password,
+      cpf: '',
+      birthdate: new Date().toISOString(),
+      type: 'admin',
+      company
+    };
+
+    const created = await UserService.create(userData);
+    console.log('Admin criado com sucesso:', created.email || created.name, 'id=', created.id);
+  } catch (e) {
+    console.error('Erro ao criar admin:', e && e.message ? e.message : e);
+    process.exit(1);
+  }
+})();

@@ -44,7 +44,11 @@ if (useMongo) {
             // Preferir MongoDB, mas fallback para arquivo local se não encontrado ou em caso de erro
             try {
                 const m = await User.findOne({ email: email.toLowerCase() }).lean();
-                if (m) return m;
+                if (m) {
+                    // garantir campo id como string (compatibilidade entre Mongo e JSON file)
+                    if (!m.id && m._id) m.id = m._id.toString();
+                    return m;
+                }
             } catch (e) {
                 console.warn('Mongo findByEmail error, falling back to local DB:', e && e.message ? e.message : e);
             }
@@ -55,7 +59,10 @@ if (useMongo) {
         async findByCPF(cpf) {
             try {
                 const m = await User.findOne({ cpf }).lean();
-                if (m) return m;
+                if (m) {
+                    if (!m.id && m._id) m.id = m._id.toString();
+                    return m;
+                }
             } catch (e) {
                 console.warn('Mongo findByCPF error, falling back to local DB:', e && e.message ? e.message : e);
             }
@@ -65,7 +72,10 @@ if (useMongo) {
         async findById(id) {
             try {
                 const m = await User.findById(id).lean();
-                if (m) return m;
+                if (m) {
+                    if (!m.id && m._id) m.id = m._id.toString();
+                    return m;
+                }
             } catch (e) {
                 console.warn('Mongo findById error, falling back to local DB:', e && e.message ? e.message : e);
             }
@@ -73,16 +83,38 @@ if (useMongo) {
             return db.users.find(u => u.id === id) || null;
         },
         async create(userData) {
-            // O hash de senha é tratado pelo pre-save do schema
-            const u = new User(userData);
-            await u.save();
-            const obj = u.toObject();
-            delete obj.password;
-            return obj;
+            // Tenta salvar no Mongo; em caso de erro, faz fallback para arquivo local
+            try {
+                // O hash de senha é tratado pelo pre-save do schema
+                const u = new User(userData);
+                await u.save();
+                const obj = u.toObject();
+                // garantir id string compatível
+                if (!obj.id && obj._id) obj.id = obj._id.toString();
+                delete obj.password;
+                return obj;
+            } catch (e) {
+                console.warn('Mongo User.create failed, falling back to local JSON DB:', e && e.message ? e.message : e);
+                // Fallback local: escrever no arquivo JSON
+                const db = await readDB();
+                // garantir formato similar ao fallback (id, hashed password)
+                const hashedPassword = await bcrypt.hash(userData.password, 10);
+                const newUser = {
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+                    ...userData,
+                    password: hashedPassword,
+                    createdAt: new Date().toISOString()
+                };
+                db.users.push(newUser);
+                await writeDB(db);
+                const { password, ...userWithoutPassword } = newUser;
+                return userWithoutPassword;
+            }
         },
         async update(id, updateData) {
             const updated = await User.findByIdAndUpdate(id, updateData, { new: true }).lean();
             if (!updated) return null;
+            if (!updated.id && updated._id) updated.id = updated._id.toString();
             delete updated.password;
             return updated;
         },
@@ -238,12 +270,14 @@ if (useMongo) {
     const UserService = {
         async findByEmail(email) {
             const db = await readDB();
-            return db.users.find(user => user.email === email);
+            const target = (email || '').toString().toLowerCase();
+            return db.users.find(user => (user.email || '').toString().toLowerCase() === target);
         },
 
         async findByCPF(cpf) {
             const db = await readDB();
-            return db.users.find(user => user.cpf === cpf);
+            const target = (cpf || '').toString().replace(/\D/g, '');
+            return db.users.find(user => (user.cpf || '').toString().replace(/\D/g, '') === target);
         },
 
         async findById(id) {

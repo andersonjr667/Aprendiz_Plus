@@ -57,6 +57,44 @@
     transition: width 0.3s ease;
 }
 
+/* Deixa o indicador com cor mais suave e mostra o percentual de progresso */
+.step-dot {
+    min-width: 36px;
+    min-height: 36px;
+    font-weight: 600;
+}
+
+.step-title {
+    top: 42px;
+    font-size: 0.75rem;
+}
+
+/* Linha de progresso com bordas arredondadas */
+.step-line, .step-line-progress {
+    border-radius: 4px;
+}
+
+/* Loader e input-group */
+.input-group { display: flex; align-items: center; gap: 0.5rem; }
+
+.cep-loader { margin-left: 0.5rem; }
+
+/* Tags de habilidades/benefícios */
+.skills-input { display: flex; flex-direction: column; }
+.skill-tag { background: rgba(0,0,0,0.06); padding: 0.35rem 0.6rem; border-radius: 999px; }
+
+/* Step buttons styling */
+.step-buttons { gap: 0.75rem; display: flex; flex-wrap: wrap; justify-content: space-between; }
+.step-buttons .btn { min-width: 140px; }
+
+/* Animação mais suave ao trocar de etapa */
+.step-container { transition: opacity 0.25s ease, transform 0.25s ease; }
+
+@media (max-width: 768px) {
+    .steps-indicator { padding: 0 0.75rem; }
+    .step-title { display: none; }
+}
+
 .step-title {
     font-size: 0.8rem;
     position: absolute;

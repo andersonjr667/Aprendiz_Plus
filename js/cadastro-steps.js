@@ -191,55 +191,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Alternar tipo de conta
+    // Alternar tipo de conta (suporta variações de nome de classe)
     const accountTypes = document.querySelectorAll('.account-type');
     accountTypes.forEach(btn => {
         btn.addEventListener('click', () => {
             accountTypes.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const type = btn.dataset.type;
-            
-            // Atualizar campos visíveis
-            if (type === 'candidate') {
-                // Campos da etapa profissional
-                document.querySelector('.candidate-fields').style.display = 'block';
-                document.querySelector('.company-fields').style.display = 'none';
-                // Campos pessoais
-                document.querySelector('.candidate-personal-fields').style.display = 'block';
-                document.querySelector('.company-personal-fields').style.display = 'none';
-                // Título da etapa
-                document.querySelector('.candidate-step-title').style.display = 'block';
-                document.querySelector('.company-step-title').style.display = 'none';
-            } else {
-                // Campos da etapa profissional
-                document.querySelector('.candidate-fields').style.display = 'none';
-                document.querySelector('.company-fields').style.display = 'block';
-                // Campos pessoais
-                document.querySelector('.candidate-personal-fields').style.display = 'none';
-                document.querySelector('.company-personal-fields').style.display = 'block';
-                // Título da etapa
-                document.querySelector('.candidate-step-title').style.display = 'none';
-                document.querySelector('.company-step-title').style.display = 'block';
-            }
 
-            // Atualizar campos required
-            const candidateFields = document.querySelectorAll('.candidate-fields [required]');
-            const companyFields = document.querySelectorAll('.company-fields [required]');
+            // Seletores mais tolerantes para encontrar os grupos corretos
+            const candidateGroups = document.querySelectorAll('.candidate-field, .candidate-fields, .candidate-personal-fields');
+            const companyGroups = document.querySelectorAll('.company-field, .company-fields, .company-personal-fields');
 
-            candidateFields.forEach(field => {
-                field.required = type === 'candidate';
-            });
+            candidateGroups.forEach(el => el.style.display = type === 'candidate' ? 'block' : 'none');
+            companyGroups.forEach(el => el.style.display = type === 'company' ? 'block' : 'none');
 
-            companyFields.forEach(field => {
-                field.required = type === 'company';
-            });
+            // Títulos das etapas
+            const candidateStepTitle = document.querySelectorAll('.candidate-step-title');
+            const companyStepTitle = document.querySelectorAll('.company-step-title');
+            candidateStepTitle.forEach(el => el.style.display = type === 'candidate' ? 'block' : 'none');
+            companyStepTitle.forEach(el => el.style.display = type === 'company' ? 'block' : 'none');
 
-            // Reset form validation state
+            // Atualizar atributos required de forma abrangente
+            const candidateRequired = document.querySelectorAll('.candidate-field [required], .candidate-fields [required], .candidate-personal-fields [required]');
+            const companyRequired = document.querySelectorAll('.company-field [required], .company-fields [required], .company-personal-fields [required]');
+
+            candidateRequired.forEach(field => { field.required = type === 'candidate'; });
+            companyRequired.forEach(field => { field.required = type === 'company'; });
+
+            // Reset form validation state (remover classe invalid apenas no container atual)
             const currentStepContainer = document.querySelector('.step-container.active');
-            const invalidFields = currentStepContainer.querySelectorAll('.invalid');
-            invalidFields.forEach(field => field.classList.remove('invalid'));
+            if (currentStepContainer) {
+                const invalidFields = currentStepContainer.querySelectorAll('.invalid');
+                invalidFields.forEach(field => field.classList.remove('invalid'));
+            }
         });
     });
+
+    // Garantir estado inicial com base no botão ativo (se houver)
+    const initiallyActive = document.querySelector('.account-type.active');
+    if (initiallyActive) {
+        // chama o handler para aplicar classes/required corretamente
+        initiallyActive.click();
+    }
 
     // Validação de campos por etapa
     function validateStep(step) {
@@ -248,39 +242,49 @@ document.addEventListener('DOMContentLoaded', () => {
         let isValid = true;
         let firstInvalid = null;
 
+        const isVisible = (el) => !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
+
         requiredFields.forEach(field => {
-            // Ignorar campos escondidos (display:none ou que não são visíveis)
-            if (!(field.offsetParent === null)) {
-                // visible
-            } else {
-                // hidden, pular
-                return;
-            }
+            // Ignorar campos escondidos
+            if (!isVisible(field)) return;
+
             // Se for o select de curso, verificar os campos relacionados apenas se "sim" estiver selecionado
             if (field.id === 'tem_curso' && field.value === 'sim') {
                 const camposObrigatoriosCurso = ['instituicao', 'curso', 'status_curso'];
                 camposObrigatoriosCurso.forEach(id => {
                     const campo = document.getElementById(id);
-                    if (campo && !campo.value.trim()) {
+                    if (campo && isVisible(campo) && !campo.value.toString().trim()) {
                         isValid = false;
                         campo.classList.add('invalid');
+                        if (!firstInvalid) firstInvalid = campo;
                     }
                 });
             }
-            
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('invalid');
-                    if (!firstInvalid) firstInvalid = field;
-                } else {
-                    field.classList.remove('invalid');
-                }
+
+            const val = field.value == null ? '' : field.value.toString();
+            if (!val.trim()) {
+                isValid = false;
+                field.classList.add('invalid');
+                if (!firstInvalid) firstInvalid = field;
+            } else {
+                field.classList.remove('invalid');
+            }
         });
 
         if (!isValid) {
             Toast.error('Por favor, preencha todos os campos obrigatórios');
-            // foco no primeiro campo inválido para melhor UX
-            if (firstInvalid) firstInvalid.focus();
+            // foco no primeiro campo inválido visível para melhor UX
+            if (firstInvalid && isVisible(firstInvalid)) {
+                try {
+                    firstInvalid.focus();
+                } catch (e) {
+                    const currentContainer = document.querySelector('.step-container[data-step="' + step + '"]');
+                    if (currentContainer && currentContainer.scrollIntoView) currentContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                const currentContainer = document.querySelector('.step-container[data-step="' + step + '"]');
+                if (currentContainer && currentContainer.scrollIntoView) currentContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         return isValid;
@@ -331,27 +335,56 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!validateStep(currentStep)) {
             return;
         }
-
+        // Construir um objeto limpo a partir do formulário (inclui campos escondidos)
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
-        // Adicionar tipo de conta
-        const accountType = document.querySelector('.account-type.active').dataset.type;
+
+        // Adicionar tipo de conta selecionado
+        const accountTypeEl = document.querySelector('.account-type.active');
+        const accountType = accountTypeEl ? accountTypeEl.dataset.type : 'candidate';
         data.type = accountType === 'candidate' ? 'candidato' : 'empresa';
-        // Esperar um pouco mais para garantir que o cookie seja definido
-        const redirectDelay = 2000; // 2 segundos
+
+        // Sanitizações e validações extras do cliente
+        if (data.cpf) data.cpf = data.cpf.replace(/\D/g, '');
+        if (data.cep) data.cep = data.cep.replace(/\D/g, '');
+
+        // Validações de senha (caso existam no formulário)
+        const password = data.password || '';
+        const confirmPassword = data['confirm-password'] || data.confirmPassword || '';
+        if (password.length < 6) {
+            Toast.error('A senha deve ter no mínimo 6 caracteres');
+            return;
+        }
+        if (password !== confirmPassword) {
+            Toast.error('As senhas não coincidem');
+            return;
+        }
+
+        // Garantir que habilidades e benefícios sejam arrays válidos
+        try {
+            if (typeof data.habilidades === 'string' && data.habilidades.trim() === '') data.habilidades = JSON.stringify([]);
+        } catch (e) { data.habilidades = JSON.stringify([]); }
+        try {
+            if (typeof data.beneficios === 'string' && data.beneficios.trim() === '') data.beneficios = JSON.stringify([]);
+        } catch (e) { data.beneficios = JSON.stringify([]); }
+
+        // Desabilitar botões para prevenir múltiplos envios
+        submitButton.disabled = true;
+        nextButton.disabled = true;
+        prevButton.disabled = true;
+
+        const redirectDelay = 1200; // pequeno atraso para UX
 
         try {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(data)
             });
 
-            const responseData = await response.json();
+            let responseData = {};
+            try { responseData = await response.json(); } catch (e) { /* ignore parse errors */ }
 
             if (response.ok) {
                 Toast.success('Cadastro realizado com sucesso!');
@@ -359,11 +392,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = data.type === 'candidato' ? '/perfil-candidato' : '/perfil-empresa';
                 }, redirectDelay);
             } else {
+                console.error('Register response error:', response.status, responseData);
                 Toast.error(responseData.error || 'Erro ao realizar cadastro');
             }
         } catch (error) {
             console.error('Erro no cadastro:', error);
             Toast.error('Erro ao conectar com o servidor');
+        } finally {
+            submitButton.disabled = false;
+            nextButton.disabled = false;
+            prevButton.disabled = false;
         }
     });
 });
