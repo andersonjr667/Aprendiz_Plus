@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { UserService } = require('../../services/database');
 const authMiddleware = require('../../middleware/auth');
+const AuthService = require('../../services/auth');
 
 // Middleware para validar corpo da requisição
 const validateLoginRequest = (req, res, next) => {
@@ -188,6 +189,32 @@ router.post('/login', validateLoginRequest, async (req, res) => {
         const isValidPassword = await UserService.comparePassword(user, password);
         console.log('🔑 [LOGIN] Senha válida?', isValidPassword);
 
+        if (!isValidPassword) {
+            console.log('❌ [LOGIN] Senha inválida para:', email);
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        }
+
+        // Gerar token JWT e setar cookie httpOnly
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
+        });
+
+        // Retornar usuário (pode remover senha no serviço se necessário)
+        const { password: pwd, ...userWithoutPassword } = user;
+        res.json({ user: userWithoutPassword, token });
+    } catch (error) {
+        console.error('Auth login error:', error && error.stack ? error.stack : error);
+        const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de login') : 'Erro ao processar login';
+        const payload = { error: msg };
+        if (process.env.NODE_ENV === 'development') payload.stack = error && error.stack ? error.stack : '';
+        res.status(400).json(payload);
+    }
+});
+
 // Verificar token / obter dados do usuário logado
 router.get('/me', authMiddleware, async (req, res) => {
     try {
@@ -199,8 +226,6 @@ router.get('/me', authMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router;
-
 // Logout (limpa cookie httpOnly)
 router.post('/logout', (req, res) => {
     try {
@@ -211,3 +236,5 @@ router.post('/logout', (req, res) => {
         res.status(500).json({ error: 'Erro ao realizar logout' });
     }
 });
+
+module.exports = router;
