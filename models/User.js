@@ -150,6 +150,14 @@ const userSchema = new mongoose.Schema({
             'manage_settings'
         ]
     }],
+    // Campos para recuperação de senha
+    resetPasswordToken: {
+        type: String,
+        select: false
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now

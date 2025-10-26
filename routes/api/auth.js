@@ -6,6 +6,8 @@ const authMiddleware = require('../../middleware/auth');
 const AuthService = require('../../services/auth');
 const UserModel = require('../../models/User');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 // Middleware para validar corpo da requisição
 const validateLoginRequest = (req, res, next) => {
@@ -282,6 +284,93 @@ router.post('/admin-reset-password', async (req, res) => {
     } catch (error) {
         console.error('admin-reset-password error:', error);
         return res.status(500).json({ error: 'Erro ao atualizar senha' });
+    }
+});
+
+// Iniciar fluxo de esquecimento de senha (envia token por email ou log)
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email obrigatório' });
+
+    try {
+        const useMongo = process.env.MONGO_ENABLED === 'true' || process.env.USE_MONGO === 'true';
+        if (!useMongo) {
+            // Fallback: not implemented for local JSON to avoid complexity
+            return res.status(501).json({ error: 'Reset de senha disponível apenas quando usando MongoDB' });
+        }
+
+        const user = await UserModel.findOne({ email }).select('+resetPasswordToken +resetPasswordExpires');
+        if (!user) {
+            // Responder 200 para não vazar existência de usuário
+            console.log('forgot-password: email not found (ignored)');
+            return res.json({ message: 'Se o email estiver cadastrado, você receberá instruções para resetar a senha.' });
+        }
+
+        // Gerar token e salvar hash no documento
+        const token = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + (1000 * 60 * 60); // 1 hora
+        await user.save();
+
+        const resetUrl = `${process.env.APP_URL || ''}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+        // Enviar email se SMTP configurado
+        if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+            const transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST,
+                port: parseInt(process.env.SMTP_PORT || '587', 10),
+                secure: process.env.SMTP_SECURE === 'true',
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS
+                }
+            });
+
+            const info = await transporter.sendMail({
+                from: process.env.SMTP_FROM || 'no-reply@' + (process.env.APP_DOMAIN || 'example.com'),
+                to: email,
+                subject: 'Redefinição de senha - Aprendiz+',
+                text: `Clique no link para redefinir sua senha: ${resetUrl}`,
+                html: `<p>Clique no link para redefinir sua senha:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+            });
+            console.log('forgot-password: email sent', info.messageId);
+        } else {
+            // Caso não haja SMTP configurado, logamos o token (útil para testes)
+            console.warn('forgot-password: SMTP não configurado. Token (use para reset):', token);
+        }
+
+        return res.json({ message: 'Se o email estiver cadastrado, você receberá instruções para resetar a senha.' });
+    } catch (error) {
+        console.error('forgot-password error:', error);
+        return res.status(500).json({ error: 'Erro ao processar requisição' });
+    }
+});
+
+// Endpoint para aplicar reset com token
+router.post('/reset-password', async (req, res) => {
+    const { token, email, newPassword } = req.body;
+    if (!token || !email || !newPassword) return res.status(400).json({ error: 'Token, email e nova senha são obrigatórios' });
+
+    try {
+        const useMongo = process.env.MONGO_ENABLED === 'true' || process.env.USE_MONGO === 'true';
+        if (!useMongo) {
+            return res.status(501).json({ error: 'Reset de senha disponível apenas quando usando MongoDB' });
+        }
+
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        const user = await UserModel.findOne({ email, resetPasswordToken: hashedToken, resetPasswordExpires: { $gt: Date.now() } }).select('+password +resetPasswordToken +resetPasswordExpires');
+        if (!user) return res.status(400).json({ error: 'Token inválido ou expirado' });
+
+        user.password = newPassword; // pre-save irá hashear
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.json({ message: 'Senha redefinida com sucesso' });
+    } catch (error) {
+        console.error('reset-password error:', error);
+        return res.status(500).json({ error: 'Erro ao processar requisição' });
     }
 });
 
