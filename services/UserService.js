@@ -82,18 +82,27 @@ class UserService {
     }
 
     static async comparePassword(user, candidatePassword) {
-        if (!user || !candidatePassword) return false;
+        if (!user || !candidatePassword) {
+            console.log('[DEBUG] Dados inválidos para comparação de senha');
+            return false;
+        }
 
         try {
+            console.log('[DEBUG] Comparando senha para usuário:', user.email);
+            
             // Se o usuário é um documento do Mongoose
-            if (user instanceof mongoose.Model) {
+            if (user.constructor.modelName === 'User') {
+                console.log('[DEBUG] Usando método comparePassword do modelo');
                 return await user.comparePassword(candidatePassword);
             }
 
             // Se é um objeto plano
-            return await bcrypt.compare(candidatePassword, user.password);
+            console.log('[DEBUG] Usando bcrypt.compare diretamente');
+            const result = await bcrypt.compare(candidatePassword, user.password);
+            console.log('[DEBUG] Resultado da comparação:', result);
+            return result;
         } catch (error) {
-            console.error('Erro ao comparar senhas:', error);
+            console.error('[ERROR] Erro ao comparar senhas:', error);
             return false;
         }
     }

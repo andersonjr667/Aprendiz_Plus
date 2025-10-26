@@ -4,6 +4,21 @@ const jwt = require('jsonwebtoken');
 const { UserService } = require('../../services/database');
 const authMiddleware = require('../../middleware/auth');
 
+// Middleware para validar corpo da requisição
+const validateLoginRequest = (req, res, next) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ 
+            error: 'Email e senha são obrigatórios',
+            details: {
+                email: !email ? 'Email não fornecido' : null,
+                password: !password ? 'Senha não fornecida' : null
+            }
+        });
+    }
+    next();
+};
+
 // Registro
 router.post('/register', async (req, res) => {
     try {
