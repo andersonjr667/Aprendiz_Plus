@@ -160,9 +160,12 @@ const UserService = {
         if (useMongo || !isJsonDbAvailable) {
             try {
                 const result = await retryOperation(async () => {
+                    // For Mongo we pass the raw password so the model's pre-save
+                    // middleware will hash it once. hashedPassword is used only
+                    // for the local JSON file fallback.
                     const u = new User({
                         ...userData,
-                        password: hashedPassword, // Usar a senha já hasheada
+                        password: userData.password,
                         _id: userId,
                         createdAt: timestamp
                     });

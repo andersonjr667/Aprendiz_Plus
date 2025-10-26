@@ -21,6 +21,8 @@ function requireAuth(req, res, next) {
 // Rotas públicas
 router.get('/', servePage('index'));
 router.get('/login', servePage('login'));
+router.get('/recuperar-senha', servePage('recuperar-senha'));
+router.get('/reset-password', servePage('reset-password'));
 router.get('/cadastro', servePage('cadastro'));
 router.get('/vagas', servePage('vagas'));
 router.get('/empresas', servePage('empresas'));
