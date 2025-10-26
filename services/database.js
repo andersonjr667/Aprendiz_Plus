@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Configuração do MongoDB quando habilitado
 let User, Job, News;
-const useMongo = process.env.USE_MONGO === 'true';
+const useMongo = process.env.MONGO_ENABLED === 'true';
 if (useMongo) {
     User = require('../models/User');
     Job = require('../models/Job');
@@ -88,7 +88,7 @@ const UserService = {
         try {
             if (useMongo) {
                 console.log('[DEBUG] Procurando usuário no MongoDB:', email);
-                const user = await User.findOne({ email }).exec();
+                const user = await User.findOne({ email }).select('+password').exec();
                 if (!user) {
                     console.log('[DEBUG] Usuário não encontrado no MongoDB');
                     return null;
