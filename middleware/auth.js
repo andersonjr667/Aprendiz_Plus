@@ -24,18 +24,28 @@ const auth = async (req, res, next) => {
     try {
         let token;
 
-        // 1) Tenta header Authorization: 'Bearer <token>'
-        const authHeader = req.get('Authorization') || req.header && req.header('Authorization');
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.slice(7).trim();
-        }
-
-        // 2) Se não veio no header, tenta cookie: 'token'
-        if (!token && req.headers && req.headers.cookie) {
+        // 1) Tenta cookie: 'token' primeiro (preferência)
+        if (req.headers && req.headers.cookie) {
             const cookies = parseCookies(req.headers.cookie);
             if (cookies && cookies.token) {
                 token = cookies.token;
+                console.log('[Auth][DEBUG] Token encontrado no cookie');
             }
+        }
+
+        // 2) Tenta header Authorization como fallback
+        if (!token) {
+            const authHeader = req.get('Authorization') || req.header && req.header('Authorization');
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.slice(7).trim();
+                console.log('[Auth][DEBUG] Token encontrado no header Authorization');
+            }
+        }
+
+        // 3) Tenta query parameter como último recurso (para desenvolvimento)
+        if (!token && process.env.NODE_ENV === 'development' && req.query.token) {
+            token = req.query.token;
+            console.log('[Auth][DEBUG] Token encontrado na query string (apenas desenvolvimento)');
         }
 
         // Remover aspas extras se existirem

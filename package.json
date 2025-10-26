@@ -4,7 +4,7 @@
   "description": "Plataforma Aprendiz+",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "NODE_ENV=production node server.js",
     "dev": "NODE_ENV=development nodemon --quiet --ignore 'data/*' server.js",
     "dev:clean": "kill-port 3000 && npm run dev",
     "seed-admin": "node scripts/seed-admin.js"

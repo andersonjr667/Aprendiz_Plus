@@ -139,27 +139,43 @@ router.post('/register', async (req, res) => {
     }
 });
 
+const AuthService = require('../../services/auth');
+
 // Login
 router.post('/login', async (req, res) => {
     try {
         console.log('[DEBUG] /api/auth/login body:', JSON.stringify(req.body));
         const { email, password } = req.body;
-        const user = await UserService.findByEmail(email);
 
-        if (!user || !(await UserService.comparePassword(user, password))) {
-            throw new Error('Email ou senha inválidos');
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+        }
+
+        const user = await UserService.findByEmail(email);
+        console.log('[DEBUG] Usuário encontrado:', user ? 'Sim' : 'Não');
+
+        if (!user) {
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        }
+
+        const isValidPassword = await AuthService.comparePassword(user, password);
+        console.log('[DEBUG] Senha válida:', isValidPassword ? 'Sim' : 'Não');
+
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
         }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
         const { password: pwd, ...userWithoutPassword } = user;
 
-        // Define o cookie com opções mais permissivas em desenvolvimento
+        // Define o cookie com opções otimizadas para Render
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            secure: true, // Sempre usar HTTPS no Render
+            sameSite: 'none', // Necessário para cross-site no Render
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
-            path: '/'
+            path: '/',
+            domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
         });
 
         // Log para debug
