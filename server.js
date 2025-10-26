@@ -7,9 +7,31 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const mongooseService = require('./services/mongoose');
 require('dotenv').config();
 
+// Variáveis para controle do servidor
+let server;
+const SHUTDOWN_TIMEOUT = 10000; // 10 segundos para shutdown gracioso
+
+// Função para inicializar o banco de dados
+async function initializeDatabase() {
+  try {
+    await mongooseService.connect({
+      maxAttempts: 5,
+      baseDelay: 2000
+    });
+    console.log('✅ Conexão com MongoDB estabelecida com sucesso');
+  } catch (error) {
+    console.error('❌ Erro ao conectar com MongoDB:', error);
+    process.exit(1);
+  }
+}
+
 const app = express();
+
+// Inicializa a conexão com o banco de dados
+initializeDatabase();
 
 // Segurança e performance
 if (process.env.NODE_ENV === 'production') {
@@ -19,8 +41,31 @@ if (process.env.NODE_ENV === 'production') {
 app.use(helmet());
 app.use(compression());
 
-// Configuração do Morgan para logging mais limpo
-const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+// Configuração do Morgan para logging colorido e informativo
+const morganFormat = process.env.NODE_ENV === 'production' 
+  ? 'combined' 
+  : ':method :url :status :response-time ms';
+
+// Função para colorir status code
+morgan.token('status', (req, res) => {
+  const status = res.statusCode;
+  const color = status >= 500 ? 31 // vermelho
+    : status >= 400 ? 33 // amarelo
+    : status >= 300 ? 36 // ciano
+    : 32; // verde
+  return `\x1b[${color}m${status}\x1b[0m`;
+});
+
+// Função para colorir método HTTP
+morgan.token('method', (req) => {
+  const color = req.method === 'GET' ? 34 // azul
+    : req.method === 'POST' ? 32 // verde
+    : req.method === 'PUT' ? 33 // amarelo
+    : req.method === 'DELETE' ? 31 // vermelho
+    : 35; // magenta
+  return `\x1b[${color}m${req.method}\x1b[0m`;
+});
+
 app.use(morgan(morganFormat, {
     skip: (req, res) => {
         // Pula logs de recursos estáticos e requisições bem-sucedidas em desenvolvimento
@@ -133,45 +178,95 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// Conexão com MongoDB (espera antes de iniciar o servidor) e shutdown gracioso
-const db = require('./services/mongoose');
-
 const PORT = process.env.PORT || 3000;
 
-(async () => {
-  try {
-    // Tenta conectar ao Mongo se habilitado; se falhar, encerra para que a plataforma (Render)
-    // possa reiniciar a instância e tentar novamente.
-    await db.connect();
-  } catch (err) {
-    console.error('Falha ao conectar ao MongoDB. Saindo para permitir restart da plataforma.', err.message || err);
-    // Em produção é melhor falhar rápido e deixar o provedor (Render) tentar reiniciar.
-    process.exit(1);
-  }
-
-  const server = app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-  });
-
-  // Shutdown gracioso: Render envia SIGTERM ao desligar/redeploy
-  const gracefulShutdown = async () => {
-    console.log('Recebido sinal de encerramento. Desconectando do MongoDB e fechando servidor...');
+// Inicialização do servidor com retry e reconexão
+async function startServer() {
     try {
-      await db.disconnect();
-    } catch (e) {
-      console.error('Erro ao desconectar do MongoDB durante shutdown:', e.message || e);
-    }
-    server.close(() => {
-      console.log('Servidor fechado. Saindo.');
-      process.exit(0);
-    });
-    // Se o server não fechar em 10s, forçar saída
-    setTimeout(() => {
-      console.error('Forçando saída após timeout de shutdown');
-      process.exit(1);
-    }, 10_000).unref();
-  };
+        // Tenta conectar ao MongoDB
+        if (process.env.MONGO_ENABLED === 'true') {
+            console.log('\x1b[34m%s\x1b[0m', '🔄 Iniciando conexão com MongoDB...');
+            await mongooseService.connect({
+                maxAttempts: 5,
+                baseDelay: 2000
+            });
+        }
 
-  process.on('SIGTERM', gracefulShutdown);
-  process.on('SIGINT', gracefulShutdown);
-})();
+        // Verifica se a porta está em uso antes de iniciar
+        const tcpServer = require('net').createServer();
+        await new Promise((resolve, reject) => {
+            tcpServer.once('error', (err) => {
+                if (err.code === 'EADDRINUSE') {
+                    reject(new Error(`A porta ${PORT} já está em uso. Por favor, encerre o processo ou use outra porta.`));
+                } else {
+                    reject(err);
+                }
+            });
+            tcpServer.once('listening', () => {
+                tcpServer.close();
+                resolve();
+            });
+            tcpServer.listen(PORT);
+        });
+
+        // Inicia o servidor HTTP
+        server = app.listen(PORT, () => {
+            console.log('\x1b[32m%s\x1b[0m', `✅ Servidor iniciado com sucesso na porta ${PORT}`);
+            if (process.env.MONGO_ENABLED === 'true') {
+                console.log('\x1b[34m%s\x1b[0m', '📊 MongoDB conectado e pronto');
+            } else {
+                console.log('\x1b[33m%s\x1b[0m', '⚠️  Modo local ativo (sem MongoDB)');
+            }
+        });
+
+        // Configurar timeout do servidor
+        server.timeout = 30000; // 30 segundos
+        server.keepAliveTimeout = 65000; // Recomendado para Nginx/proxy
+        
+        // Monitorar eventos do servidor
+        server.on('error', (error) => {
+            console.error('\x1b[31m%s\x1b[0m', '❌ Erro no servidor HTTP:', error);
+            if (error.code === 'EADDRINUSE') {
+                console.log('\x1b[33m%s\x1b[0m', '⚠️  Porta em uso, tentando novamente em 1 minuto...');
+                setTimeout(startServer, 60000);
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro fatal ao iniciar servidor:', error);
+        process.exit(1);
+    }
+}
+
+// Função de shutdown gracioso
+async function shutdown(signal) {
+    console.log('\x1b[33m%s\x1b[0m', `⚠️  Iniciando shutdown do servidor (${signal})...`);
+    
+    if (server) {
+        server.close(() => {
+            console.log('\x1b[32m%s\x1b[0m', '✅ Servidor HTTP fechado com sucesso');
+        });
+    }
+
+    if (process.env.MONGO_ENABLED === 'true') {
+        try {
+            await mongoose.connection.close();
+            console.log('\x1b[32m%s\x1b[0m', '✅ Conexão MongoDB fechada com sucesso');
+        } catch (err) {
+            console.error('\x1b[31m%s\x1b[0m', '❌ Erro ao fechar conexão MongoDB:', err);
+        }
+    }
+
+    // Força o shutdown após o timeout
+    setTimeout(() => {
+        console.error('\x1b[31m%s\x1b[0m', '❌ Timeout de shutdown atingido, forçando encerramento');
+        process.exit(1);
+    }, SHUTDOWN_TIMEOUT);
+}
+
+// Handlers para shutdown gracioso
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Inicia o servidor
+startServer();
