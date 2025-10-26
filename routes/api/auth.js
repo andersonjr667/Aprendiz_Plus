@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { UserService } = require('../../services/database');
 const authMiddleware = require('../../middleware/auth');
 const AuthService = require('../../services/auth');
+const UserModel = require('../../models/User');
+const bcrypt = require('bcryptjs');
 
 // Middleware para validar corpo da requisição
 const validateLoginRequest = (req, res, next) => {
@@ -232,6 +234,46 @@ router.post('/logout', (req, res) => {
     } catch (e) {
         console.error('Logout error:', e);
         res.status(500).json({ error: 'Erro ao realizar logout' });
+    }
+});
+
+// Admin-protected password reset endpoint (protected by ADMIN_RESET_TOKEN env var)
+// Usage: send header 'x-admin-token' with value of process.env.ADMIN_RESET_TOKEN
+router.post('/admin-reset-password', async (req, res) => {
+    const token = req.headers['x-admin-token'] || req.body.token;
+    if (!process.env.ADMIN_RESET_TOKEN || token !== process.env.ADMIN_RESET_TOKEN) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+        return res.status(400).json({ error: 'Email e nova senha são obrigatórios' });
+    }
+
+    try {
+        // If using Mongo, update via the model so pre('save') hashes password
+        const useMongo = process.env.MONGO_ENABLED === 'true' || process.env.USE_MONGO === 'true';
+        if (useMongo) {
+            const user = await UserModel.findOne({ email }).select('+password');
+            if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+            user.password = newPassword; // pre-save middleware will hash
+            await user.save();
+            const obj = user.toObject();
+            delete obj.password;
+            return res.json({ message: 'Senha atualizada', user: obj });
+        }
+
+        // Fallback: local JSON DB - hash then update
+        const hashed = await bcrypt.hash(newPassword, 10);
+        const existing = await UserService.findByEmail(email);
+        if (!existing) return res.status(404).json({ error: 'Usuário não encontrado' });
+        await UserService.update(existing.id, { password: hashed });
+        const updated = await UserService.findByEmail(email);
+        const { password, ...userWithoutPassword } = updated;
+        return res.json({ message: 'Senha atualizada', user: userWithoutPassword });
+    } catch (error) {
+        console.error('admin-reset-password error:', error);
+        return res.status(500).json({ error: 'Erro ao atualizar senha' });
     }
 });
 
