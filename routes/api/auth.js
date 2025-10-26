@@ -155,8 +155,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-const AuthService = require('../../services/auth');
-
 // Login
 router.post('/login', validateLoginRequest, async (req, res) => {
     try {
