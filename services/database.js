@@ -88,12 +88,16 @@ const UserService = {
         try {
             if (useMongo) {
                 console.log('[DEBUG] Procurando usuário no MongoDB:', email);
+                console.log('[DEBUG] MongoDB está habilitado:', useMongo);
                 const user = await User.findOne({ email }).select('+password').exec();
+                console.log('[DEBUG] Resultado da busca:', user ? 'Encontrado' : 'Não encontrado');
+                console.log('[DEBUG] User tem senha?', user?.password ? 'Sim' : 'Não');
                 if (!user) {
                     console.log('[DEBUG] Usuário não encontrado no MongoDB');
                     return null;
                 }
                 console.log('[DEBUG] Usuário encontrado no MongoDB');
+                console.log('[DEBUG] Campos do usuário:', Object.keys(user._doc));
                 return user;
             } else {
                 const db = await readDB();
@@ -221,10 +225,29 @@ const UserService = {
         return null;
     },
     async comparePassword(user, password) {
+        console.log('[DEBUG] UserService.comparePassword - usando MongoDB?', useMongo);
+        console.log('[DEBUG] UserService.comparePassword - user tem método comparePassword?', !!user.comparePassword);
+        console.log('[DEBUG] UserService.comparePassword - user tem senha?', !!user.password);
+        
         if (useMongo) {
-            return user.comparePassword(password);
+            try {
+                const result = await user.comparePassword(password);
+                console.log('[DEBUG] UserService.comparePassword - resultado MongoDB:', result);
+                return result;
+            } catch (error) {
+                console.error('[ERROR] UserService.comparePassword - erro ao comparar senha:', error);
+                return false;
+            }
         }
-        return bcrypt.compare(password, user.password);
+        
+        try {
+            const result = await bcrypt.compare(password, user.password);
+            console.log('[DEBUG] UserService.comparePassword - resultado bcrypt:', result);
+            return result;
+        } catch (error) {
+            console.error('[ERROR] UserService.comparePassword - erro ao comparar senha com bcrypt:', error);
+            return false;
+        }
     }
 };
 

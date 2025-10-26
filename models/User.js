@@ -159,6 +159,10 @@ const userSchema = new mongoose.Schema({
 // Hash da senha antes de salvar
 userSchema.pre('save', async function(next) {
     try {
+        console.log('[DEBUG] pre-save middleware - campos do documento:', Object.keys(this._doc));
+        console.log('[DEBUG] pre-save middleware - tem senha?', !!this.password);
+        console.log('[DEBUG] pre-save middleware - senha foi modificada?', this.isModified('password'));
+        
         if (!this.isModified('password')) {
             console.log('[DEBUG] Senha não modificada, pulando hash');
             return next();
@@ -167,6 +171,7 @@ userSchema.pre('save', async function(next) {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
         console.log('[DEBUG] Hash gerado com sucesso');
+        console.log('[DEBUG] Nova senha hasheada:', this.password.substring(0, 10) + '...');
         next();
     } catch (error) {
         console.error('[ERROR] Erro ao gerar hash da senha:', error);
@@ -177,13 +182,18 @@ userSchema.pre('save', async function(next) {
 // Método para comparar senhas
 userSchema.methods.comparePassword = async function(candidatePassword) {
     try {
-        console.log('[DEBUG] Comparando senha no método do modelo');
+        console.log('[DEBUG] Model.comparePassword - Iniciando comparação de senha');
+        console.log('[DEBUG] Model.comparePassword - Tem senha definida?', !!this.password);
+        console.log('[DEBUG] Model.comparePassword - Senha hasheada atual:', this.password ? (this.password.substring(0, 10) + '...') : 'nenhuma');
+        
         if (!this.password) {
-            console.log('[DEBUG] Usuário não tem senha definida');
+            console.log('[DEBUG] Model.comparePassword - Usuário não tem senha definida');
             return false;
         }
+        
+        console.log('[DEBUG] Model.comparePassword - Comparando senhas...');
         const isMatch = await bcrypt.compare(candidatePassword, this.password);
-        console.log('[DEBUG] Resultado da comparação:', isMatch);
+        console.log('[DEBUG] Model.comparePassword - Resultado da comparação:', isMatch);
         return isMatch;
     } catch (error) {
         console.error('[ERROR] Erro ao comparar senhas no modelo:', error);
