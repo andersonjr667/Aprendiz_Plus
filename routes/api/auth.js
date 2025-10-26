@@ -195,7 +195,9 @@ router.post('/login', validateLoginRequest, async (req, res) => {
         }
 
         // Gerar token JWT e setar cookie httpOnly
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+        // Normalize user id for token (supports mongoose document or plain object)
+        const userId = (user && (user.id || (user._id && user._id.toString()))) || undefined;
+        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -203,9 +205,15 @@ router.post('/login', validateLoginRequest, async (req, res) => {
             maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
         });
 
-        // Retornar usuário (pode remover senha no serviço se necessário)
-        const { password: pwd, ...userWithoutPassword } = user;
-        res.json({ user: userWithoutPassword, token });
+        // Retornar usuário sem senha. Se for um documento Mongoose, converta para objeto.
+        let userObj;
+        if (user && typeof user.toObject === 'function') {
+            userObj = user.toObject();
+        } else {
+            userObj = Object.assign({}, user);
+        }
+        if (userObj && userObj.password) delete userObj.password;
+        res.json({ user: userObj, token });
     } catch (error) {
         console.error('Auth login error:', error && error.stack ? error.stack : error);
         const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de login') : 'Erro ao processar login';
