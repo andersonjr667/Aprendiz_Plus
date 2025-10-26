@@ -158,6 +158,7 @@ const UserService = {
                 const result = await retryOperation(async () => {
                     const u = new User({
                         ...userData,
+                        password: hashedPassword, // Usar a senha já hasheada
                         _id: userId,
                         createdAt: timestamp
                     });
@@ -220,6 +221,9 @@ const UserService = {
         return null;
     },
     async comparePassword(user, password) {
+        if (useMongo) {
+            return user.comparePassword(password);
+        }
         return bcrypt.compare(password, user.password);
     }
 };
