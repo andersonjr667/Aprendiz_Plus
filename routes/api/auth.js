@@ -157,55 +157,36 @@ router.post('/register', async (req, res) => {
 const AuthService = require('../../services/auth');
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', validateLoginRequest, async (req, res) => {
     try {
-        console.log('[DEBUG] /api/auth/login body:', JSON.stringify(req.body));
         const { email, password } = req.body;
+        console.log('🔐 [LOGIN] Tentativa de login para:', email);
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email e senha são obrigatórios' });
-        }
-
-        const user = await UserService.findByEmail(email);
-        console.log('[DEBUG] Usuário encontrado:', user ? 'Sim' : 'Não');
-
+        // Buscar usuário
+        let user = await UserService.findByEmail(email);
+        console.log('👤 [LOGIN] Usuário encontrado?', !!user);
+        
         if (!user) {
-            return res.status(401).json({ error: 'Email ou senha inválidos' });
+            console.log('❌ [LOGIN] Usuário não encontrado');
+            return res.status(401).json({ 
+                error: 'Email ou senha inválidos',
+                debug: process.env.NODE_ENV === 'development' ? 'Usuário não encontrado' : undefined
+            });
         }
 
-        const isValidPassword = await AuthService.comparePassword(user, password);
-        console.log('[DEBUG] Senha válida:', isValidPassword ? 'Sim' : 'Não');
-
-        if (!isValidPassword) {
-            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        // Verificar se o usuário tem senha definida
+        if (!user.password) {
+            console.log('⚠️ [LOGIN] Usuário sem senha definida:', email);
+            return res.status(401).json({ 
+                error: 'Email ou senha inválidos',
+                debug: process.env.NODE_ENV === 'development' ? 'Usuário sem senha' : undefined
+            });
         }
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-        const { password: pwd, ...userWithoutPassword } = user;
-
-        // Define o cookie com opções otimizadas para Render
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: true, // Sempre usar HTTPS no Render
-            sameSite: 'none', // Necessário para cross-site no Render
-            maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
-            path: '/',
-            domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
-        });
-
-        // Log para debug
-        console.log('Login successful for:', user.email, '(Type:', user.type, ')');
-        console.log('Token set in cookie');
-
-        res.json({ user: userWithoutPassword, token });
-    } catch (error) {
-        console.error('Auth login error:', error && error.stack ? error.stack : error);
-        const msg = process.env.NODE_ENV === 'development' ? (error && error.message ? error.message : 'Erro de login') : 'Erro ao processar login';
-        const payload = { error: msg };
-        if (process.env.NODE_ENV === 'development') payload.stack = error && error.stack ? error.stack : '';
-        res.status(400).json(payload);
-    }
-});
+        // Verificar senha
+        console.log('🔍 [LOGIN] Verificando senha para:', email);
+        const isValidPassword = await UserService.comparePassword(user, password);
+        console.log('🔑 [LOGIN] Senha válida?', isValidPassword);
 
 // Verificar token / obter dados do usuário logado
 router.get('/me', authMiddleware, async (req, res) => {

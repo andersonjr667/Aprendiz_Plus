@@ -5,18 +5,30 @@ const User = require('../models/User');
 class UserService {
     static async findByEmail(email) {
         try {
-            if (!email) return null;
-            email = email.toLowerCase();
-
-            console.log('[DEBUG] Procurando usuário no MongoDB:', email);
-            const user = await User.findOne({ email }).exec();
-            
-            if (!user) {
-                console.log('[DEBUG] Usuário não encontrado no MongoDB');
+            if (!email) {
+                console.log('⚠️ [DB] Email não fornecido');
                 return null;
             }
             
-            console.log('[DEBUG] Usuário encontrado no MongoDB');
+            email = email.toLowerCase();
+            console.log('🔍 [DB] Buscando usuário:', email);
+
+            const user = await User.findOne({ email })
+                .select('+password') // Garantir que o campo password seja incluído
+                .exec();
+            
+            if (!user) {
+                console.log('❌ [DB] Usuário não encontrado:', email);
+                return null;
+            }
+            
+            console.log('✅ [DB] Usuário encontrado:', email);
+            console.log('📦 [DB] Dados do usuário:', {
+                id: user._id,
+                email: user.email,
+                type: user.type,
+                hasPassword: !!user.password
+            });
             return user;
         } catch (error) {
             console.error('[ERROR] Erro ao buscar usuário:', error);
@@ -83,24 +95,31 @@ class UserService {
 
     static async comparePassword(user, candidatePassword) {
         if (!user || !candidatePassword) {
-            console.log('[DEBUG] Dados inválidos para comparação de senha');
+            console.log('⚠️ [AUTH] Dados inválidos para comparação de senha');
+            return false;
+        }
+
+        if (!user.password) {
+            console.log('⚠️ [AUTH] Usuário não tem senha definida:', user.email);
             return false;
         }
 
         try {
-            console.log('[DEBUG] Comparando senha para usuário:', user.email);
+            console.log('🔐 [AUTH] Comparando senha para:', user.email);
             
             // Se o usuário é um documento do Mongoose
             if (user.constructor.modelName === 'User') {
-                console.log('[DEBUG] Usando método comparePassword do modelo');
-                return await user.comparePassword(candidatePassword);
+                console.log('🔄 [AUTH] Usando método do modelo Mongoose');
+                const isValid = await user.comparePassword(candidatePassword);
+                console.log('✅ [AUTH] Resultado da comparação (modelo):', isValid);
+                return isValid;
             }
 
             // Se é um objeto plano
-            console.log('[DEBUG] Usando bcrypt.compare diretamente');
-            const result = await bcrypt.compare(candidatePassword, user.password);
-            console.log('[DEBUG] Resultado da comparação:', result);
-            return result;
+            console.log('🔄 [AUTH] Usando bcrypt.compare diretamente');
+            const isValid = await bcrypt.compare(candidatePassword, user.password);
+            console.log('✅ [AUTH] Resultado da comparação (bcrypt):', isValid);
+            return isValid;
         } catch (error) {
             console.error('[ERROR] Erro ao comparar senhas:', error);
             return false;
