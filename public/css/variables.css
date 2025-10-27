@@ -1,0 +1,38 @@
+:root {
+  /* Colors */
+  --brand-darknavy: #1A2B4D;
+  --brand-green: #2ECC71;
+  --brand-coral: #FF6B5B;
+  --brand-red: #FC3E50;
+  --brand-warm: #F39C74;
+  
+  /* Grays */
+  --gray-100: #F7F9FC;
+  --gray-200: #EDF1F7;
+  --gray-300: #E4E9F2;
+  --gray-400: #C5CEE0;
+  --gray-500: #8F9BB3;
+  --gray-600: #2E3A59;
+
+  /* Typography */
+  --font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --border-radius: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Legacy support */
+:root {
+  --spacing: var(--spacing-sm);
+}

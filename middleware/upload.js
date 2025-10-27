@@ -1,66 +1,23 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Configurar o armazenamento de arquivos
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        let uploadPath;
-        
-        // Definir subpastas baseado no tipo de upload
-        if (file.fieldname === 'profileImage') {
-            uploadPath = 'data/images_perfil_candidato/';
-        } else if (file.fieldname === 'news') {
-            uploadPath = 'uploads/news/';
-        } else if (file.fieldname === 'resume') {
-            uploadPath = 'uploads/resumes/';
-        } else {
-            uploadPath = 'uploads/';
-        }
-
-        // Criar diretório se não existir
-        fs.mkdirSync(uploadPath, { recursive: true });
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        // Gerar nome único para o arquivo
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '..', 'uploads'));
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + '-' + Math.random().toString(36).substring(2, 8) + ext);
+  }
 });
 
-// Filtrar tipos de arquivos permitidos
-const fileFilter = (req, file, cb) => {
-    if (file.fieldname === 'resume') {
-        // Permitir apenas PDF e DOC/DOCX para currículos
-        if (file.mimetype === 'application/pdf' || 
-            file.mimetype === 'application/msword' ||
-            file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            cb(null, true);
-        } else {
-            cb(new Error('Formato de arquivo não suportado. Use PDF ou DOC/DOCX.'), false);
-        }
-    } else {
-        // Permitir apenas imagens para outros uploads
-        if (file.mimetype.startsWith('image/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Apenas imagens são permitidas.'), false);
-        }
-    }
-};
+function fileFilter(req, file, cb) {
+  const allowed = ['.pdf', '.docx', '.doc'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowed.includes(ext)) cb(null, true);
+  else cb(new Error('File type not allowed'));
+}
 
-// Configurar limites
-const limits = {
-    fileSize: 5 * 1024 * 1024, // 5MB
-    files: 1
-};
-
-// Criar middleware do Multer
-const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: limits
-});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter });
 
 module.exports = upload;

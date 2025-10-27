@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Detalhe da Vaga - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script>
+    async function load() {
+      const id = location.pathname.split('/').pop();
+      const res = await fetch('/api/jobs/' + id);
+      const job = await res.json();
+      document.getElementById('title').textContent = job.title;
+      document.getElementById('desc').textContent = job.description || '';
+    }
+    window.addEventListener('DOMContentLoaded', load);
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h2 id="title">Vaga</h2>
+    <div id="desc"></div>
+  </main>
+</body>
+</html>

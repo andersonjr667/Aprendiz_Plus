@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Aprendiz+</title>
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: var(--spacing-xl);
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .btn-login {
+            width: 100%;
+            margin-top: var(--spacing-md);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+        }
+
+        .login-footer a {
+            color: var(--brand-green);
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: var(--brand-red);
+            background: #fff5f5;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Aprendiz+</h1>
+            <p>Bem-vindo de volta!</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login">Entrar</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Esqueceu sua senha? <a href="/forgot-password">Recuperar</a></p>
+            <p>Ainda não tem conta? <a href="/register">Cadastre-se</a></p>
+        </div>
+    </div>
+
+    <script src="/public/js/auth.js"></script>
+    <script>
+        // Função de login melhorada com redirecionamento baseado no tipo de usuário
+        async function handleLogin(event) {
+            event.preventDefault();
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+
+            try {
+                const formData = new FormData(event.target);
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Redirecionar baseado no tipo de usuário
+                    switch (data.user.type) {
+                        case 'candidato':
+                            window.location.href = '/candidato/profile';
+                            break;
+                        case 'empresa':
+                            window.location.href = '/empresa/profile';
+                            break;
+                        case 'admin':
+                            window.location.href = '/admin/dashboard';
+                            break;
+                        default:
+                            window.location.href = '/';
+                    }
+                } else {
+                    throw new Error(data.error || 'Erro ao fazer login');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Publicar Vaga - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script>
+    // Multi-step minimal
+    function next(step){ document.querySelectorAll('.step').forEach(s=>s.style.display='none'); document.getElementById(step).style.display='block'; }
+    async function submitForm(e){ e.preventDefault(); const data = Object.fromEntries(new FormData(e.target)); await fetch('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); alert('Vaga enviada (se estiver autenticado como empresa)'); }
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h2>Publicar Vaga</h2>
+    <form onsubmit="submitForm(event)">
+      <div id="step1" class="step">
+        <input name="title" placeholder="Título" required>
+        <button type="button" onclick="next('step2')" class="btn btn-primary">Próximo</button>
+      </div>
+      <div id="step2" class="step" style="display:none;">
+        <textarea name="description" placeholder="Descrição"></textarea>
+        <button type="button" onclick="next('step1')" class="btn">Voltar</button>
+        <button type="submit" class="btn btn-primary">Publicar</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

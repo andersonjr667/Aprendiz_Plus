@@ -1,13 +1,12 @@
-class AuditLog {
-    constructor(data) {
-        this.id = data.id;
-        this.userId = data.userId;
-        this.action = data.action;
-        this.field = data.field;
-        this.oldValue = data.oldValue;
-        this.newValue = data.newValue;
-        this.createdAt = data.createdAt || new Date().toISOString();
-    }
-}
+const mongoose = require('mongoose');
 
-module.exports = AuditLog;
+const AuditLogSchema = new mongoose.Schema({
+  action: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  timestamp: { type: Date, default: Date.now },
+  resourceType: String,
+  resourceId: mongoose.Schema.Types.ObjectId,
+  details: mongoose.Schema.Types.Mixed
+});
+
+module.exports = mongoose.model('AuditLog', AuditLogSchema);

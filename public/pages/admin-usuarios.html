@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Usuários</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <h1>Gerenciar Usuários</h1>
+    <div style="margin-bottom:12px;"><input id="filterType" class="form-control" placeholder="Filtrar por tipo (candidato/empresa)" style="width:240px;display:inline-block;"> <button id="loadBtn" class="btn btn-primary">Buscar</button></div>
+    <table id="usersTable" style="width:100%;border-collapse:collapse;"></table>
+  </main>
+
+  <script>
+    async function load(){ const type=document.getElementById('filterType').value; const res=await fetch('/api/users'+(type?('?type='+encodeURIComponent(type)):'')); const data=await res.json(); const t=document.getElementById('usersTable'); if(!res.ok){ t.innerHTML='<tr><td>Erro ao carregar</td></tr>'; return;} t.innerHTML='<tr><th>Nome</th><th>Email</th><th>Tipo</th><th>Ações</th></tr>'; data.forEach(u=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${u.name}</td><td>${u.email}</td><td>${u.type}</td><td><button data-id='${u.id}' class='btn action-toggle'>${u.active? 'Desativar':'Ativar'}</button></td>`; t.appendChild(tr);} ); document.querySelectorAll('.action-toggle').forEach(b=>b.addEventListener('click',async e=>{ const id=e.target.dataset.id; const res=await fetch('/api/users/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({active: e.target.textContent==='Ativar'})}); const d=await res.json(); if(res.ok) load(); else alert(d.error||'Erro'); })); }
+    document.getElementById('loadBtn').addEventListener('click',load); load();
+  </script>
+</body>
+</html>

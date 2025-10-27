@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vagas - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <header class="nav-header">
+    <nav class="top-nav container">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <div class="nav-links"><a href="/">Início</a><a href="/login">Login</a></div>
+    </nav>
+  </header>
+
+  <main class="container" style="padding-top:100px;">
+    <section>
+      <h1>Buscar Vagas</h1>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <input id="q" class="form-control" placeholder="Buscar por título, empresa, habilidade">
+        <select id="location" class="form-control" style="width:200px;"><option value="">Todas as localizações</option></select>
+        <select id="model" class="form-control" style="width:180px;"><option value="">Todos os modelos</option><option value="presencial">Presencial</option><option value="remoto">Remoto</option></select>
+        <button id="searchBtn" class="btn btn-primary">Buscar</button>
+      </div>
+
+      <div id="jobs" class="jobs-grid"></div>
+      <div id="pagination" style="margin-top:16px;text-align:center;"></div>
+    </section>
+  </main>
+
+  <script>
+    let page = 1, pageSize=10;
+    async function loadJobs(){
+      const q = encodeURIComponent(document.getElementById('q').value || '');
+      const loc = encodeURIComponent(document.getElementById('location').value || '');
+      const model = encodeURIComponent(document.getElementById('model').value || '');
+      const res = await fetch(`/api/jobs?search=${q}&location=${loc}&model=${model}&page=${page}&limit=${pageSize}`);
+      const data = await res.json();
+      const container = document.getElementById('jobs'); container.innerHTML='';
+      if(!res.ok){ container.innerHTML = '<p>Erro ao carregar vagas.</p>'; return; }
+      if(!data || !data.items || data.items.length===0){ container.innerHTML='<p>Nenhuma vaga encontrada.</p>'; return; }
+      data.items.forEach(job=>{
+        const el = document.createElement('div'); el.className='job-card';
+        el.innerHTML = `<h3>${job.title}</h3><div class='job-meta'>${job.company_name||''} • ${job.location||''}</div><p>${(job.summary||job.description||'').slice(0,180)}...</p><p><a href='/pages/vaga-detalhes.html?id=${job.id}'>Ver detalhes</a></p>`;
+        container.appendChild(el);
+      });
+      renderPagination(data.total || 0);
+    }
+    function renderPagination(total){ const pages = Math.ceil(total/pageSize); const p = document.getElementById('pagination'); p.innerHTML=''; for(let i=1;i<=pages;i++){ const btn=document.createElement('button'); btn.className='btn'; btn.textContent=i; btn.onclick=()=>{page=i; loadJobs()}; if(i===page) btn.disabled=true; p.appendChild(btn);} }
+    document.getElementById('searchBtn').addEventListener('click',()=>{page=1;loadJobs()});
+    // initial
+    loadJobs();
+  </script>
+</body>
+</html>

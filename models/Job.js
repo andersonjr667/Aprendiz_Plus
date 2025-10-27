@@ -1,84 +1,20 @@
 const mongoose = require('mongoose');
 
-const jobSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    requirements: {
-        type: [String],
-        required: true
-    },
-    benefits: {
-        type: [String],
-        default: []
-    },
-    salary: {
-        type: Number,
-        required: true
-    },
-    location: {
-        type: String,
-        required: true
-    },
-    type: {
-        type: String,
-        enum: ['aprendiz', 'estagio'],
-        required: true
-    },
-    category: {
-        type: String,
-        required: true
-    },
-    skills: {
-        type: [String],
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['aberta', 'fechada', 'pausada'],
-        default: 'aberta'
-    },
-    applications: [{
-        candidate: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        status: {
-            type: String,
-            enum: ['pendente', 'aprovado', 'rejeitado'],
-            default: 'pendente'
-        },
-        resumeUrl: String,
-        appliedAt: {
-            type: Date,
-            default: Date.now
-        }
-    }],
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    expiresAt: {
-        type: Date,
-        required: true
-    }
+const JobSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  requirements: { type: [String], default: [] },
+  benefits: { type: [String], default: [] },
+  salary: String,
+  workload: String,
+  location: String,
+  workModel: String,
+  startDate: Date,
+  expiresAt: Date,
+  status: { type: String, enum: ['aberta', 'fechada', 'pausada'], default: 'aberta' },
+  company: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }],
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Índices para melhorar a performance das buscas
-jobSchema.index({ title: 'text', description: 'text', skills: 'text' });
-jobSchema.index({ status: 1, expiresAt: 1 });
-jobSchema.index({ company: 1 });
-jobSchema.index({ category: 1 });
-jobSchema.index({ type: 1 });
-
-module.exports = mongoose.model('Job', jobSchema);
+module.exports = mongoose.model('Job', JobSchema);

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Perfil - Empresa | Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <section style="display:grid;grid-template-columns:1fr 320px;gap:24px;">
+      <div>
+        <div class="card"><h2>Perfil da Empresa</h2><div id="company"></div></div>
+        <div class="card" style="margin-top:16px;"><h3>Vagas Ativas</h3><div id="activeJobs"></div></div>
+      </div>
+      <aside>
+        <div class="card"><h3>Gerenciar Vagas</h3><p><a href="/publicar-vaga.html" class="btn btn-primary">Publicar Vaga</a></p></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    async function loadCompany(){ const res=await fetch('/api/companies/me'); const data=await res.json(); if(!res.ok){ document.getElementById('company').innerHTML='Erro'; return;} document.getElementById('company').innerHTML=`<strong>${data.name}</strong><p>${data.website||''}</p><p>${data.email||''}</p>` }
+    async function loadActive(){ const res=await fetch('/api/companies/me/jobs'); const data=await res.json(); const c=document.getElementById('activeJobs'); if(!res.ok||!data){ c.innerHTML='Nenhuma vaga'; return;} c.innerHTML=''; data.forEach(j=>{ const d=document.createElement('div'); d.className='job-card'; d.innerHTML=`<h4>${j.title}</h4><div class='job-meta'>${j.location||''}</div><p><a href='/pages/vaga-detalhes.html?id=${j.id}'>Ver</a></p>`; c.appendChild(d);}); }
+    loadCompany(); loadActive();
+  </script>
+</body>
+</html>

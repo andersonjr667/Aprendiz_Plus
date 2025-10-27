@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vaga - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <section id="job" style="max-width:900px;margin:40px auto;"></section>
+  </main>
+
+  <script>
+    function getQuery(){return new URLSearchParams(window.location.search);} const id = getQuery().get('id');
+    if(!id){document.getElementById('job').innerHTML='<div class="card"><h2>Vaga não encontrada</h2><p>ID ausente na URL.</p></div>'}
+    async function load(){
+      const res = await fetch(`/api/jobs/${id}`);
+      const data = await res.json();
+      const el = document.getElementById('job');
+      if(!res.ok){ el.innerHTML = `<div class='card'><h2>Erro</h2><p>${data.error||'Não foi possível carregar'}</p></div>`; return; }
+      el.innerHTML = `<div class='card'><h1>${data.title}</h1><div class='job-meta'>${data.company_name||''} • ${data.location||''}</div><h3>Descrição</h3><p>${data.description||''}</p><h3>Requisitos</h3><p>${data.requirements||''}</p><h3>Benefícios</h3><p>${data.benefits||''}</p><div style='margin-top:16px;'><button id='applyBtn' class='btn btn-primary'>Candidatar-se</button></div></div>`;
+      document.getElementById('applyBtn').addEventListener('click',apply);
+    }
+    async function apply(){
+      try{
+        const res = await fetch(`/api/jobs/${id}/apply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+        const data = await res.json();
+        if(res.ok){ alert(data.message||'Candidatura enviada com sucesso'); } else { alert(data.error||'Erro ao candidatar-se'); }
+      }catch(err){ alert('Erro ao candidatar: '+err.message); }
+    }
+    if(id) load();
+  </script>
+</body>
+</html>

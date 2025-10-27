@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Notícias - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script>
+    async function load() {
+      const res = await fetch('/api/news');
+      const items = await res.json();
+      const el = document.getElementById('news');
+      items.forEach(n => {
+        const d = document.createElement('div'); d.className='card'; d.innerHTML = `<h3>${n.title}</h3><p>${n.content ? n.content.substring(0,140):''}</p>`; el.appendChild(d);
+      });
+    }
+    window.addEventListener('DOMContentLoaded', load);
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h2>Notícias</h2>
+    <div id="news"></div>
+  </main>
+</body>
+</html>

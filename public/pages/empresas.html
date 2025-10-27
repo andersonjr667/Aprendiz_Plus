@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Empresas - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <h1>Empresas</h1>
+    <div id="list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
+  </main>
+
+  <script>
+    async function load(){ const res=await fetch('/api/companies'); const data=await res.json(); const c=document.getElementById('list'); if(!res.ok){ c.innerHTML='Erro'; return;} c.innerHTML=''; data.forEach(emp=>{ const d=document.createElement('div'); d.className='card'; d.innerHTML=`<h4>${emp.name}</h4><p>${emp.website||''}</p><p><a href='/pages/perfil-empresa.html?id=${emp.id}'>Ver</a></p>`; c.appendChild(d); }); }
+    load();
+  </script>
+</body>
+</html>

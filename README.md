@@ -1,64 +1,71 @@
 # Aprendiz+
 
-Novas páginas e fluxos adicionados:
+MVP monolítico: backend Node.js/Express + frontend estático (HTML5, CSS puro, JS Vanilla).
 
-- Frontend:
-  - `pages/forgot-password.html` — formulário para solicitar recuperação de senha.
-  - `pages/reset-password.html` — formulário para aplicar a nova senha com token.
-  - `js/forgot-password.js`, `js/reset-password.js` — integração com API.
+Estrutura principal:
 
-- Backend:
-  - `POST /api/auth/forgot-password` — gera token (hash salvo no DB) e envia e-mail (se SMTP configurado) ou loga token.
-  - `POST /api/auth/reset-password` — aplica a nova senha usando token.
-  - `POST /api/auth/admin-reset-password` — endpoint protegido por `ADMIN_RESET_TOKEN` para reset manual de senha.
+```
+Aprendiz_Plus/
+├── server.js
+├── package.json
+├── .env.example
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── pages/
+├── models/
+├── routes/
+├── middleware/
+├── scripts/ (seed.js)
+└── README.md
+```
 
-Requisitos para funcionamento completo:
+Tecnologias: Node.js, Express, Mongoose, JWT, bcrypt, Multer, Helmet, express-validator.
 
-- Banco de dados MongoDB configurado (variável `MONGODB_URI` ou `MONGO_URI`).
-- Variáveis de ambiente importantes no Render / ambiente:
-  - `NODE_ENV=production`
-  - `MONGO_ENABLED=true`
-  - `MONGODB_URI` (ou `MONGO_URI`)
-  - `JWT_SECRET`
-  - `COOKIE_SECRET`
-  - `ADMIN_RESET_TOKEN` (chave secreta para resets administrativos)
-  - `APP_URL` (ex: `https://aprendiz-plus.onrender.com`) — usado nos links de reset
-  - (Opcional para envio real de e-mails) `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+Variáveis de ambiente (exemplo em `.env.example`):
+- MONGO_URI
+- JWT_SECRET
+- NODE_ENV
+- PORT
+- CORS_ORIGIN
 
-Deploy no Render
+Scripts importantes:
+- npm run dev (nodemon)
+- npm start
+- npm run seed (popula DB local com dados de exemplo)
+- npm test (jest)
 
-1. Confirme as variáveis de ambiente no painel do serviço Render.
-2. No dashboard do serviço clique em "Manual Deploy" para disparar um novo deploy do branch `main`. Ou use a API do Render para criar um deploy (necessita `RENDER_API_KEY`).
-3. Acompanhe os logs do build e do servidor na aba Live Logs.
+Observações:
+- O backend serve as páginas estáticas em `public/pages` e a API em `/api`.
+- Uploads são armazenados em `/uploads`.
+- JWT é armazenado em cookie `token` com httpOnly.
 
-Testes rápidos
+Como rodar localmente:
 
-- Solicitar reset (sem SMTP) — o token aparecerá nos logs do servidor:
-  ```bash
-  curl -X POST 'https://aprendiz-plus.onrender.com/api/auth/forgot-password' \
-    -H 'Content-Type: application/json' \
-    -d '{"email":"alsj1520@gmail.com"}'
-  ```
+1. Instale dependências:
 
-- Aplicar reset com token (substitua `<token>`):
-  ```bash
-  curl -X POST 'https://aprendiz-plus.onrender.com/api/auth/reset-password' \
-    -H 'Content-Type: application/json' \
-    -d '{"email":"alsj1520@gmail.com","token":"<token>","newPassword":"NovaSenha123"}'
-  ```
+```powershell
+npm install
+```
 
-- Reset admin (use `ADMIN_RESET_TOKEN` como header `x-admin-token`):
-  ```bash
-  curl -X POST 'https://aprendiz-plus.onrender.com/api/auth/admin-reset-password' \
-    -H 'Content-Type: application/json' \
-    -H 'x-admin-token: <ADMIN_RESET_TOKEN>' \
-    -d '{"email":"alsj1520@gmail.com","newPassword":"NovaSenha123"}'
-  ```
+2. Configure `.env` (baseado em `.env.example`).
 
-Observações de segurança
+3. Popule o banco (opcional):
 
-- Não compartilhe `MONGODB_URI` ou `ADMIN_RESET_TOKEN` publicamente.
-- Remova/rotacione `ADMIN_RESET_TOKEN` após uso administrativo.
-- Configure SMTP para produção e remova logs de tokens quando estiver em produção.
+```powershell
+npm run seed
+```
 
-Se quiser, eu posso criar as páginas com um layout mais integrado (cabeçalho/rodapé) e adicionar links visuais no formulário de login. Me diga se prefere que eu faça isso agora e eu atualizo os arquivos de layout.
+4. Inicie em modo dev:
+
+```powershell
+npm run dev
+```
+
+5. Acesse `http://localhost:3000/`.
+
+Próximos passos sugeridos:
+- Implementar envio de emails para recuperação de senha.
+- Melhorar validações e tratamentos de erros.
+- Completar frontend (dashboards, fluxos de publicação mais completos).
+

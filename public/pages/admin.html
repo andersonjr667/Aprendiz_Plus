@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <h1>Admin</h1>
+    <div id="summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;"></div>
+  </main>
+
+  <script>
+    async function load(){ const res=await fetch('/api/admin/summary'); const data=await res.json(); const c=document.getElementById('summary'); if(!res.ok){ c.innerHTML='Erro'; return;} c.innerHTML = `<div class='card'><h3>Usuários</h3><p>${data.users_count||0}</p></div><div class='card'><h3>Vagas</h3><p>${data.jobs_count||0}</p></div><div class='card'><h3>Empresas</h3><p>${data.companies_count||0}</p></div>` }
+    load();
+  </script>
+</body>
+</html>

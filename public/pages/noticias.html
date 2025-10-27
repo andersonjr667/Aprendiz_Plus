@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Notícias - Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <h1>Notícias</h1>
+    <div id="news" class="news-grid"></div>
+  </main>
+
+  <script>
+    async function load(){ const res=await fetch('/api/news'); const data=await res.json(); const c=document.getElementById('news'); if(!res.ok||!data){ c.innerHTML='<p>Erro ao carregar notícias</p>'; return;} c.innerHTML=''; data.forEach(n=>{ const d=document.createElement('div'); d.className='news-card'; d.innerHTML=`<h3>${n.title}</h3><p>${(n.summary||n.content||'').slice(0,180)}...</p><p><a href='/pages/news-detail.html?id=${n.id}'>Ler mais</a></p>`; c.appendChild(d);}); }
+    load();
+  </script>
+</body>
+</html>

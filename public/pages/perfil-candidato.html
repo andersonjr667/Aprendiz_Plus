@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Perfil - Candidato | Aprendiz+</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+</head>
+<body>
+  <main class="container" style="padding-top:100px;">
+    <section style="display:grid;grid-template-columns:1fr 320px;gap:24px;">
+      <div>
+        <div class="card"><h2>Meu Perfil</h2><div id="profile"></div></div>
+        <div class="card" style="margin-top:16px;"><h3>Minhas Candidaturas</h3><div id="applications"></div></div>
+      </div>
+      <aside>
+        <div class="card"><h3>Vagas Recomendadas</h3><div id="recommendations"></div></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    async function loadProfile(){
+      const res = await fetch('/api/users/me');
+      const data = await res.json();
+      if(!res.ok){ document.getElementById('profile').innerHTML='Erro ao carregar perfil'; return; }
+      document.getElementById('profile').innerHTML = `<p><strong>${data.name}</strong></p><p>${data.email}</p><p>${data.type||''}</p>`;
+    }
+    async function loadRecommendations(){ const res=await fetch('/api/jobs/recommendations'); const data=await res.json(); const c=document.getElementById('recommendations'); if(!res.ok || !data) { c.innerHTML='<p>Nenhuma recomendação</p>'; return;} c.innerHTML=''; data.slice(0,5).forEach(j=>{ const d=document.createElement('div'); d.innerHTML=`<a href='/pages/vaga-detalhes.html?id=${j.id}'>${j.title}</a><div class='job-meta'>${j.company_name||''}</div>`; c.appendChild(d);} ) }
+    async function loadApplications(){ const res=await fetch('/api/users/me/applications'); const data=await res.json(); const c=document.getElementById('applications'); if(!res.ok||!data) { c.innerHTML='Nenhuma candidatura'; return;} c.innerHTML=''; data.forEach(a=>{ const d=document.createElement('div'); d.innerHTML = `<div style='margin-bottom:8px;'><a href='/pages/vaga-detalhes.html?id=${a.job_id}'>${a.job_title||'Vaga'}</a> • ${a.status}</div>`; c.appendChild(d);}); }
+    loadProfile(); loadRecommendations(); loadApplications();
+  </script>
+</body>
+</html>

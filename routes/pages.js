@@ -1,68 +1,19 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
-const auth = require('../middleware/auth');
 
-// Função auxiliar para servir páginas HTML
-function servePage(pageName) {
-    return (req, res) => {
-        res.sendFile(path.join(__dirname, '../pages', `${pageName}.html`));
-    };
-}
+const pagesDir = path.join(__dirname, '..', 'public', 'pages');
 
-// Função para verificar autenticação em rotas protegidas
-function requireAuth(req, res, next) {
-    if (!req.user) {
-        return res.redirect('/login');
-    }
-    next();
-}
-
-// Rotas públicas
-router.get('/', servePage('index'));
-router.get('/login', servePage('login'));
-router.get('/recuperar-senha', servePage('recuperar-senha'));
-router.get('/reset-password', servePage('reset-password'));
-router.get('/cadastro', servePage('cadastro'));
-router.get('/vagas', servePage('vagas'));
-router.get('/empresas', servePage('empresas'));
-router.get('/candidatos', servePage('candidatos'));
-router.get('/noticias', servePage('noticias'));
-router.get('/contato', servePage('contato'));
-router.get('/sobre', servePage('sobre'));
-router.get('/termos', servePage('termos'));
-router.get('/privacidade', servePage('privacidade'));
-
-// Rotas protegidas (requerem autenticação)
-router.get('/perfil-candidato', auth, (req, res, next) => {
-    if (req.user && (req.user.type === 'candidato' || req.user.type === 'admin')) {
-        servePage('perfil-candidato')(req, res, next);
-    } else {
-        res.redirect('/');
-    }
-});
-
-router.get('/perfil-empresa', auth, (req, res, next) => {
-    if (req.user && (req.user.type === 'empresa' || req.user.type === 'admin')) {
-        servePage('perfil-empresa')(req, res, next);
-    } else {
-        res.redirect('/');
-    }
-});
-
-router.get('/publicar-vaga', auth, (req, res, next) => {
-    if (req.user && (req.user.type === 'empresa' || req.user.type === 'admin')) {
-        servePage('publicar-vaga')(req, res, next);
-    } else {
-        res.redirect('/');
-    }
-});
-
-router.get('/vaga-detalhes/:id', servePage('vaga-detalhes'));
-
-// Página 404 para rotas não encontradas
-router.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, '../pages', '404.html'));
-});
+router.get('/', (req, res) => res.sendFile(path.join(pagesDir, 'index.html')));
+router.get('/login', (req, res) => res.sendFile(path.join(pagesDir, 'login.html')));
+router.get('/register', (req, res) => res.sendFile(path.join(pagesDir, 'register.html')));
+router.get('/job/:id', (req, res) => res.sendFile(path.join(pagesDir, 'job-detail.html')));
+router.get('/dashboard-candidato', (req, res) => res.sendFile(path.join(pagesDir, 'dashboard-candidato.html')));
+router.get('/dashboard-empresa', (req, res) => res.sendFile(path.join(pagesDir, 'dashboard-empresa.html')));
+router.get('/admin-panel', (req, res) => res.sendFile(path.join(pagesDir, 'admin-panel.html')));
+router.get('/publish-job', (req, res) => res.sendFile(path.join(pagesDir, 'publish-job.html')));
+router.get('/profile', (req, res) => res.sendFile(path.join(pagesDir, 'profile.html')));
+router.get('/news', (req, res) => res.sendFile(path.join(pagesDir, 'news.html')));
+router.get('/search', (req, res) => res.sendFile(path.join(pagesDir, 'search-results.html')));
 
 module.exports = router;
