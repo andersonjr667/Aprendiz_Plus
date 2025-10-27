@@ -25,10 +25,10 @@ async function loadCompanyData(userId) {
             throw new Error('Dados da empresa não encontrados');
         }
 
-    // Atualizar perfil header (usar nome fantasia quando disponível)
+    // Atualizar perfil header (usar nome da empresa)
     const headerNameEl = document.querySelector('.perfil-dados h1');
     headerNameEl.textContent = user.companyProfile.nomeFantasia || user.name || 'Nome da Empresa';
-    document.querySelector('.perfil-titulo').textContent = user.companyProfile.industry || 'Empresa';
+    document.querySelector('.perfil-titulo').textContent = user.companyProfile.industry || 'Setor não informado';
         document.querySelector('.perfil-local').textContent = `${user.companyProfile.address?.city || ''}, ${user.companyProfile.address?.state || ''}`;
 
         // Atualizar logo se houver

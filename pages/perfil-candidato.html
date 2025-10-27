@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="/css/mobile-menu.css">
     <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/auth-buttons.css">
+    <link rel="stylesheet" href="/css/pages/profile-shared.css">
+    <link rel="stylesheet" href="/css/pages/profile-candidate.css">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 </head>
 <body>
@@ -50,8 +52,8 @@
         <div class="perfil-header">
             <div class="perfil-cover"></div>
             <div class="perfil-info">
-                <div class="perfil-avatar">
-                    <img src="/images/avatar-default.png" alt="Foto do Perfil">
+                <div class="perfil-avatar" id="profile-avatar">
+                    <img src="/images/avatar-default.png" alt="Foto do Perfil" id="profile-image">
                     <button class="edit-avatar">Editar foto</button>
                 </div>
                 <div class="perfil-dados">
@@ -140,5 +142,15 @@
         <script src="/js/main.js"></script>
     <script src="/js/img-fallbacks.js"></script>
     <script src="/js/session-ui.js"></script>
-    <script src="/js/mobile-menu.js"></script></body>
+    <script src="/js/mobile-menu.js"></script>
+    <script src="/js/validator.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/image-upload.js"></script>
+    <script src="/js/perfil.js"></script>
+    <script>
+        // Inicializar upload de imagem quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            imageUpload.setupImageInput('profile-avatar', 'profile-image', '/api/users/me/profile-image');
+        });
+    </script></body>
 </html>

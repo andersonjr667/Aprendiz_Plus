@@ -139,17 +139,10 @@ const userSchema = new mongoose.Schema({
         enum: ['active', 'inactive', 'pending'],
         default: 'pending'
     },
-    permissions: [{
-        type: String,
-        enum: [
-            'manage_users',
-            'manage_jobs',
-            'manage_companies',
-            'manage_news',
-            'view_logs',
-            'manage_settings'
-        ]
-    }],
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    },
     // Campos para recuperação de senha
     resetPasswordToken: {
         type: String,

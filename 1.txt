@@ -1,4 +1,15 @@
 git status
 git add .
-git commit -m "Versão 1.1.1 BETA"
+git commit -m "Versão 1.1.2 BETA"
 git push origin main
+
+Agora estilize a pagina http://localhost:3000/perfil-candidato
+Agora estilize a pagina http://localhost:3000/login
+Agora estilize a pagina http://localhost:3000/cadastro
+Agora estilize a pagina http://localhost:3000/empresas
+Agora estilize a pagina http://localhost:3000/publicar-vaga
+Agora estilize a pagina http://localhost:3000/404
+
+
+Crie a pagina http://localhost:3000/candidaturas para ver as candidaturas da empresa e permita abrir cada vaga para ver as candidaturas e ver os perfis dos candidatos
+Crie uma seção na pagina http://localhost:3000/perfil-candidato para colocar o curriculo da pessoa em docx,pdf,png e jpg

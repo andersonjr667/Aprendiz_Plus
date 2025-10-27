@@ -2,7 +2,7 @@
 .header {
     background-color: white;
     box-shadow: var(--shadow);
-    position: sticky;
+    position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
@@ -112,6 +112,7 @@
     background: none;
     cursor: pointer;
     color: var(--text);
+    z-index: 1001; /* Acima do header */
 }
 
 @media (max-width: 768px) {
@@ -126,6 +127,11 @@
         flex-direction: column;
         gap: 1rem;
         border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+    
+    .header {
+        height: 72px; /* Altura fixa para o header em mobile */
     }
 
     .nav-menu.active {

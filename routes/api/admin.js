@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth');
-const { isAdmin } = require('../../middleware/admin-auth');
+const { isAdmin, hasPermission, hasPermissions, canAccessDashboard } = require('../../middleware/admin-auth');
 const User = require('../../models/User');
 const Job = require('../../models/Job');
 const AuditLog = require('../../models/AuditLog');
 const bcrypt = require('bcryptjs');
 
 // Rota para obter dados do dashboard
-router.get('/dashboard', auth, isAdmin, async (req, res) => {
+router.get('/dashboard', auth, canAccessDashboard, async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
         const totalJobs = await Job.countDocuments({ status: 'active' });
@@ -28,7 +28,7 @@ router.get('/dashboard', auth, isAdmin, async (req, res) => {
 });
 
 // Rota para listar usuários com paginação e filtros
-router.get('/users', auth, isAdmin, async (req, res) => {
+router.get('/users', auth, hasPermission('users', 'read'), async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
@@ -70,7 +70,7 @@ router.get('/users', auth, isAdmin, async (req, res) => {
 });
 
 // Rota para criar novo usuário
-router.post('/users', auth, isAdmin, async (req, res) => {
+router.post('/users', auth, hasPermission('users', 'create'), async (req, res) => {
     try {
         const { name, email, password, type, status } = req.body;
 
@@ -121,7 +121,7 @@ router.post('/users', auth, isAdmin, async (req, res) => {
 });
 
 // Rota para atualizar usuário
-router.put('/users/:id', auth, isAdmin, async (req, res) => {
+router.put('/users/:id', auth, hasPermission('users', 'update'), async (req, res) => {
     try {
         const { name, email, password, type, status } = req.body;
         const userId = req.params.id;
@@ -180,7 +180,7 @@ router.put('/users/:id', auth, isAdmin, async (req, res) => {
 });
 
 // Rota para excluir usuário
-router.delete('/users/:id', auth, isAdmin, async (req, res) => {
+router.delete('/users/:id', auth, hasPermission('users', 'delete'), async (req, res) => {
     try {
         const userId = req.params.id;
 
@@ -215,7 +215,7 @@ router.delete('/users/:id', auth, isAdmin, async (req, res) => {
 });
 
 // Rota para obter dados de um usuário específico
-router.get('/users/:id', auth, isAdmin, async (req, res) => {
+router.get('/users/:id', auth, hasPermission('users', 'read'), async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
         if (!user) {

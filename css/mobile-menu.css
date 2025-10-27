@@ -56,16 +56,16 @@
     .header-nav {
         display: block !important; /* Força exibição */
         position: fixed;
-        top: 0;
+        top: 72px; /* Alinha com o header fixo */
         right: 0;
         width: min(85vw, 300px);
-        height: 100vh;
+        height: calc(100vh - 72px); /* Ajusta altura para considerar o header */
         background-color: #0b2140;
         background-image: linear-gradient(to bottom, #0b2140, #153157);
-        padding: 80px 20px 20px;
+        padding: 20px;
         transform: translateX(100%);
         transition: transform 0.3s ease;
-        z-index: 2000;
+        z-index: 1001; /* Abaixo do z-index do header */
         overflow-y: auto;
         box-shadow: -4px 0 25px rgba(0,0,0,0.3);
     }
@@ -79,10 +79,10 @@
     .header-nav::before {
         content: '';
         position: fixed;
-        top: 0;
+        top: 72px; /* Alinha com o header fixo */
         right: 0;
         width: min(85vw, 300px);
-        height: 100vh;
+        height: calc(100vh - 72px); /* Ajusta altura para considerar o header */
         background-color: #0b2140;
         z-index: -1;
     }
