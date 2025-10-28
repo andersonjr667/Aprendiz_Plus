@@ -16,7 +16,7 @@ const app = express();
 // Trust proxy para ambientes como Render
 app.set('trust proxy', 1);
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aprendiz_plus';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://dbuser:152070an@cluster0.85mgjap.mongodb.net/?appName=Cluster0';
 const PORT = 3000;
 
 console.log('Config:', { 
