@@ -34,7 +34,7 @@ router.post('/auth/register',
       const user = await User.create({ name, email, passwordHash: hash, type: type || 'candidato' });
       await logAction({ action: 'register', userId: user._id, resourceType: 'User', resourceId: user._id, details: { type: user.type } });
       res.json({ ok: true, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('Error during registration:', err); res.status(500).json({ error: 'Internal server error during registration.' }); }
   });
 
 router.post('/auth/login', async (req, res) => {
