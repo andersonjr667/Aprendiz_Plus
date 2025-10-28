@@ -118,9 +118,7 @@ async function handleRegister(event) {
     submitButton.innerHTML = 'Criando conta...';
   }
 
-  // Limpar mensagens de erro anteriores
-  const errorMessage = document.getElementById('errorMessage');
-  if (errorMessage) errorMessage.style.display = 'none';
+  
 
   try {
     const form = event.target;
@@ -149,7 +147,7 @@ async function handleRegister(event) {
   // Envia para API (usa o wrapper API.fetch definido em /public/js/api.js)
   const result = await API.fetch('/auth/register', { method: 'POST', body: userData });
     if (result && result.success) {
-      showToast('success', 'Cadastro realizado com sucesso!');
+      showMessage('Cadastro realizado com sucesso!', 'success');
       setTimeout(() => { window.location.href = '/login'; }, 2000);
       return;
     }
@@ -160,16 +158,7 @@ async function handleRegister(event) {
 
   } catch (error) {
     const msg = (error && error.message) || 'Erro ao realizar cadastro';
-    if (window.showMessage) {
-      showMessage(msg, 'error');
-    } else {
-      showToast('error', msg);
-      if (errorMessage) {
-        errorMessage.textContent = msg;
-        errorMessage.style.display = 'block';
-      }
-    }
-
+    showMessage(msg, 'error');
   } finally {
     // Re-habilitar o botão de submit
     if (submitButton) {
