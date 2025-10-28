@@ -32,16 +32,8 @@ mongoose.connect(MONGO_URI)
 
 // Middlewares
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"]
-    }
-  }
+  contentSecurityPolicy: false, // Desabilitado para teste
+
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
