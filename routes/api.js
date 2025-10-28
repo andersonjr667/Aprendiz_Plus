@@ -38,7 +38,7 @@ router.post('/auth/register',
       const user = await User.create({ name, email, passwordHash: hash, type: type || 'candidato' });
       await logAction({ action: 'register', userId: user._id, resourceType: 'User', resourceId: user._id, details: { type: user.type } });
       res.json({ ok: true, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
-    } catch (err) { console.error('Error during registration:', err); res.status(500).json({ error: 'Internal server error during registration.' }); }
+    } catch (err) { console.error('Registration failed:', err.message); res.status(500).json({ error: err.message }); }
   });
 
 router.post('/auth/login', async (req, res) => {
@@ -55,7 +55,7 @@ router.post('/auth/login', async (req, res) => {
   // Set httpOnly cookie for server-side auth and also return token in response for client convenience
   res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
   res.json({ ok: true, token, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { console.error('Login failed:', err.message); res.status(500).json({ error: err.message }); }
 });
 
 router.post('/auth/logout', (req, res) => {
