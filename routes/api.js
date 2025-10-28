@@ -39,14 +39,18 @@ router.post('/auth/register',
 
 router.post('/auth/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body); // Debug
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+    console.log('User found:', user ? 'yes' : 'no'); // Debug
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const match = await bcrypt.compare(password, user.passwordHash);
+    console.log('Password match:', match ? 'yes' : 'no'); // Debug
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id, type: user.type }, JWT_SECRET, { expiresIn: '7d' });
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
-    res.json({ ok: true, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
+  // Set httpOnly cookie for server-side auth and also return token in response for client convenience
+  res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+  res.json({ ok: true, token, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -83,6 +87,23 @@ router.post('/auth/reset', body('token').exists(), body('password').isLength({ m
 });
 
 // ----- USERS -----
+// convenience endpoint for current user
+router.get('/users/me', authMiddleware, async (req, res) => {
+  try {
+    // req.user is populated by authMiddleware (already selected without passwordHash)
+    res.json(req.user);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// applications of current candidate
+router.get('/users/me/applications', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const apps = await Application.find({ candidate: req.user._id }).populate('job', 'title');
+    const out = apps.map(a => ({ id: a._id, job_id: a.job ? a.job._id : null, job_title: a.job ? a.job.title : '', status: a.status, appliedAt: a.appliedAt }));
+    res.json(out);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 router.get('/users/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,6 +234,33 @@ router.put('/jobs/:id/applications/:appId', authMiddleware, roleCheck(['empresa'
     await app.save();
     await logAction({ action: 'update_application', userId: req.user._id, resourceType: 'Application', resourceId: app._id, details: { status: app.status } });
     res.json(app);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ----- COMPANIES (convenience endpoints) -----
+router.get('/companies', async (req, res) => {
+  try {
+    const companies = await User.find({ type: 'empresa' }).select('-passwordHash');
+    res.json(companies);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/companies/:id', async (req, res) => {
+  try {
+    const u = await User.findById(req.params.id).select('-passwordHash');
+    if (!u || u.type !== 'empresa') return res.status(404).json({ error: 'Not found' });
+    res.json(u);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/companies/me', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try { res.json(req.user); } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/companies/me/jobs', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const jobs = await Job.find({ company: req.user._id });
+    res.json(jobs);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

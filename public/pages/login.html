@@ -64,9 +64,9 @@
             <p>Bem-vindo de volta!</p>
         </div>
 
-        <div id="errorMessage" class="error-message"></div>
+    <div id="errorMessage" class="error-message" style="display:none"></div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm">
             <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email" class="form-control" required>
@@ -86,52 +86,38 @@
         </div>
     </div>
 
-    <script src="/public/js/auth.js"></script>
+    <!-- Toast container para mensagens -->
+    <div id="toast" style="display:none; position:fixed; top:20px; right:20px; padding:15px; border-radius:4px; background:#333; color:white; z-index:1000"></div>
+
     <script>
-        // Função de login melhorada com redirecionamento baseado no tipo de usuário
-        async function handleLogin(event) {
-            event.preventDefault();
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.style.display = 'none';
-
-            try {
-                const formData = new FormData(event.target);
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: formData.get('email'),
-                        password: formData.get('password')
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Redirecionar baseado no tipo de usuário
-                    switch (data.user.type) {
-                        case 'candidato':
-                            window.location.href = '/candidato/profile';
-                            break;
-                        case 'empresa':
-                            window.location.href = '/empresa/profile';
-                            break;
-                        case 'admin':
-                            window.location.href = '/admin/dashboard';
-                            break;
-                        default:
-                            window.location.href = '/';
-                    }
-                } else {
-                    throw new Error(data.error || 'Erro ao fazer login');
-                }
-            } catch (error) {
-                errorMessage.textContent = error.message;
-                errorMessage.style.display = 'block';
-            }
+        // Função global para mostrar mensagens
+        function showMessage(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
+        window.showMessage = showMessage;
     </script>
+    <!-- Toast container para mensagens -->
+    <div id="toast" style="display:none; position:fixed; top:20px; right:20px; padding:15px; border-radius:4px; background:#333; color:white; z-index:1000"></div>
+
+    <!-- Carrega os scripts necessários -->
+    <script>
+        // Função global para mostrar mensagens
+        function showMessage(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+        window.showMessage = showMessage;
+    </script>
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/api.js"></script>
+    <script src="/public/js/global.js"></script>
+    <script src="/public/js/login.js"></script>
 </body>
 </html>

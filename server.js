@@ -14,7 +14,7 @@ const pagesRouter = require('./routes/pages');
 const app = express();
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aprendiz_plus';
-const PORT = 8080;
+const PORT = 3000;
 
 console.log('Config:', { 
   MONGO_URI: process.env.MONGO_URI,
@@ -28,7 +28,18 @@ mongoose.connect(MONGO_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Middlewares
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"]
+    }
+  }
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

@@ -21,10 +21,6 @@
     </section>
   </main>
 
-  <script>
-    async function loadCompany(){ const res=await fetch('/api/companies/me'); const data=await res.json(); if(!res.ok){ document.getElementById('company').innerHTML='Erro'; return;} document.getElementById('company').innerHTML=`<strong>${data.name}</strong><p>${data.website||''}</p><p>${data.email||''}</p>` }
-    async function loadActive(){ const res=await fetch('/api/companies/me/jobs'); const data=await res.json(); const c=document.getElementById('activeJobs'); if(!res.ok||!data){ c.innerHTML='Nenhuma vaga'; return;} c.innerHTML=''; data.forEach(j=>{ const d=document.createElement('div'); d.className='job-card'; d.innerHTML=`<h4>${j.title}</h4><div class='job-meta'>${j.location||''}</div><p><a href='/pages/vaga-detalhes.html?id=${j.id}'>Ver</a></p>`; c.appendChild(d);}); }
-    loadCompany(); loadActive();
-  </script>
+  <script src="/public/js/perfil-empresa.js" defer></script>
 </body>
 </html>

@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Publicar Vaga - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
-  <script>
-    // Multi-step minimal
-    function next(step){ document.querySelectorAll('.step').forEach(s=>s.style.display='none'); document.getElementById(step).style.display='block'; }
-    async function submitForm(e){ e.preventDefault(); const data = Object.fromEntries(new FormData(e.target)); await fetch('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); alert('Vaga enviada (se estiver autenticado como empresa)'); }
-  </script>
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/global.js" defer></script>
+  <script src="/public/js/publish-job.js" defer></script>
 </head>
 <body>
-  <main class="container">
+  <main class="container" style="padding-top:100px;">
     <h2>Publicar Vaga</h2>
     <form onsubmit="submitForm(event)">
       <div id="step1" class="step">

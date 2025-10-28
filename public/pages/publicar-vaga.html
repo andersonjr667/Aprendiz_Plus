@@ -34,13 +34,6 @@
     </section>
   </main>
 
-  <script>
-    const toStep2 = document.getElementById('toStep2'); const toStep1 = document.getElementById('toStep1'); const toStep3 = document.getElementById('toStep3'); const toStep2b = document.getElementById('toStep2b');
-    toStep2.addEventListener('click',()=>{ document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block';});
-    toStep1.addEventListener('click',()=>{ document.getElementById('step2').style.display='none'; document.getElementById('step1').style.display='block';});
-    toStep3.addEventListener('click',()=>{ document.getElementById('step2').style.display='none'; document.getElementById('step3').style.display='block'; const form=new FormData(document.getElementById('jobForm')); document.getElementById('review').innerHTML=`<p><strong>${form.get('title')}</strong></p><p>${form.get('requirements')}</p>`});
-    toStep2b.addEventListener('click',()=>{ document.getElementById('step3').style.display='none'; document.getElementById('step2').style.display='block';});
-    document.getElementById('jobForm').addEventListener('submit', async function(e){ e.preventDefault(); const form=new FormData(e.target); const payload = Object.fromEntries(form.entries()); const res=await fetch('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const data=await res.json(); if(res.ok){ alert('Vaga publicada'); location.href='/empresa/profile'; } else { alert(data.error||'Erro ao publicar'); } });
-  </script>
+  <script src="/public/js/publicar-vaga.js" defer></script>
 </body>
 </html>

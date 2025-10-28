@@ -1,4 +1,4 @@
 git status
 git add .
-git commit -m "Versao BETA"
-git push origin master
+git commit -m "Versão BETA"
+git push origin main

@@ -14,9 +14,6 @@
     <div id="list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
   </main>
 
-  <script>
-    async function load(){ const res=await fetch('/api/companies'); const data=await res.json(); const c=document.getElementById('list'); if(!res.ok){ c.innerHTML='Erro'; return;} c.innerHTML=''; data.forEach(emp=>{ const d=document.createElement('div'); d.className='card'; d.innerHTML=`<h4>${emp.name}</h4><p>${emp.website||''}</p><p><a href='/pages/perfil-empresa.html?id=${emp.id}'>Ver</a></p>`; c.appendChild(d); }); }
-    load();
-  </script>
+  <script src="/public/js/empresas.js" defer></script>
 </body>
 </html>

@@ -75,7 +75,7 @@
             <p>Escolha seu tipo de perfil e comece sua jornada</p>
         </div>
 
-        <div id="errorMessage" class="error-message"></div>
+    <div id="errorMessage" class="error-message" style="display:none"></div>
 
         <div class="user-type-select">
             <div class="type-option selected" onclick="selectUserType('candidato', this)">
@@ -115,19 +115,19 @@
 
             <div id="candidateFields" class="dynamic-fields">
                 <div class="form-group">
-                    <label for="cpf">CPF</label>
-                    <input type="text" id="cpf" name="cpf" class="form-control" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}">
+                    <label for="cpf">CPF (opcional)</label>
+                    <input type="text" id="cpf" name="cpf" class="form-control" placeholder="000.000.000-00">
                 </div>
             </div>
 
             <div id="companyFields" class="dynamic-fields" style="display: none;">
                 <div class="form-group">
-                    <label for="cnpj">CNPJ</label>
-                    <input type="text" id="cnpj" name="cnpj" class="form-control" pattern="\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}">
+                    <label for="cnpj">CNPJ (opcional)</label>
+                    <input type="text" id="cnpj" name="cnpj" class="form-control" placeholder="00.000.000/0000-00">
                 </div>
                 <div class="form-group">
-                    <label for="website">Website</label>
-                    <input type="url" id="website" name="website" class="form-control">
+                    <label for="website">Website (opcional)</label>
+                    <input type="url" id="website" name="website" class="form-control" placeholder="https://www.empresa.com">
                 </div>
             </div>
 
@@ -141,107 +141,9 @@
         </div>
     </div>
 
-    <script>
-        function selectUserType(type, element) {
-            // Update UI
-            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
-            element.classList.add('selected');
-            
-            // Update form
-            document.getElementById('userType').value = type;
-            document.getElementById('candidateFields').style.display = type === 'candidato' ? 'block' : 'none';
-            document.getElementById('companyFields').style.display = type === 'empresa' ? 'block' : 'none';
-
-            // Reset form validation
-            const form = document.getElementById('registerForm');
-            form.classList.remove('was-validated');
-        }
-
-        function validateForm(formData) {
-            const password = formData.get('password');
-            const confirmPassword = formData.get('confirmPassword');
-            
-            if (password !== confirmPassword) {
-                throw new Error('As senhas não coincidem');
-            }
-
-            const type = formData.get('type');
-            if (type === 'candidato' && !formData.get('cpf')) {
-                throw new Error('CPF é obrigatório para candidatos');
-            }
-            if (type === 'empresa' && !formData.get('cnpj')) {
-                throw new Error('CNPJ é obrigatório para empresas');
-            }
-        }
-
-        async function handleRegister(event) {
-            event.preventDefault();
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.style.display = 'none';
-
-            try {
-                const form = event.target;
-                const formData = new FormData(form);
-                validateForm(formData);
-
-                const userData = {
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    password: formData.get('password'),
-                    type: formData.get('type')
-                };
-
-                // Adicionar campos específicos baseado no tipo
-                if (formData.get('type') === 'candidato') {
-                    userData.cpf = formData.get('cpf');
-                } else {
-                    userData.cnpj = formData.get('cnpj');
-                    userData.companyProfile = {
-                        website: formData.get('website')
-                    };
-                }
-
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    window.location.href = '/login?registered=true';
-                } else {
-                    throw new Error(data.error || 'Erro ao criar conta');
-                }
-            } catch (error) {
-                errorMessage.textContent = error.message;
-                errorMessage.style.display = 'block';
-            }
-        }
-
-        // Formatação de CPF/CNPJ
-        function formatCPF(e) {
-            let v = e.target.value.replace(/\D/g,'');
-            v = v.replace(/(\d{3})(\d)/,'$1.$2');
-            v = v.replace(/(\d{3})(\d)/,'$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-            e.target.value = v;
-        }
-
-        function formatCNPJ(e) {
-            let v = e.target.value.replace(/\D/g,'');
-            v = v.replace(/^(\d{2})(\d)/,'$1.$2');
-            v = v.replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3');
-            v = v.replace(/\.(\d{3})(\d)/,'.$1/$2');
-            v = v.replace(/(\d{4})(\d)/,'$1-$2');
-            e.target.value = v;
-        }
-
-        document.getElementById('cpf').addEventListener('input', formatCPF);
-        document.getElementById('cnpj').addEventListener('input', formatCNPJ);
-    </script>
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/api.js"></script>
+    <script src="/public/js/global.js"></script>
+    <script src="/public/js/register.js"></script>
 </body>
 </html>

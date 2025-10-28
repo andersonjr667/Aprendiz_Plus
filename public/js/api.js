@@ -16,7 +16,10 @@
     const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
     if(token){ opts.headers['Authorization'] = 'Bearer ' + token; }
 
-    const res = await fetch(url, opts);
+      // ensure cookies (httpOnly token) are sent for same-site auth
+      if (!opts.credentials) opts.credentials = 'include';
+
+      const res = await fetch(url, opts);
     let payload = null;
     try{ payload = await res.json(); }catch(e){ payload = null; }
     if(!res.ok){ const err = new Error(payload && payload.error ? payload.error : ('HTTP '+res.status)); err.response = res; err.payload = payload; throw err; }
