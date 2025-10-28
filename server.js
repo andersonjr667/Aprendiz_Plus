@@ -13,6 +13,9 @@ const pagesRouter = require('./routes/pages');
 
 const app = express();
 
+// Trust proxy para ambientes como Render
+app.set('trust proxy', 1);
+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aprendiz_plus';
 const PORT = 3000;
 
