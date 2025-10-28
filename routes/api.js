@@ -24,8 +24,12 @@ router.post('/auth/register',
   body('email').isEmail(),
   body('password').isLength({ min: 6 }),
   async (req, res) => {
+    console.log('Registration request body:', req.body); // Log request body
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      console.error('Registration validation failed:', errors.array()); // Log validation errors
+      return res.status(400).json({ errors: errors.array() });
+    }
     try {
       const { name, email, password, type } = req.body;
       const existing = await User.findOne({ email });
