@@ -21,40 +21,84 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 
 // ----- AUTH -----
 router.post('/auth/register',
-  body('email').isEmail(),
-  body('password').isLength({ min: 6 }),
+  body('name').trim().notEmpty().withMessage('Nome eh obrigatorio'),
+  body('email').isEmail().withMessage('Email invalido'),
+  body('password').isLength({ min: 6 }).withMessage('Senha deve ter minimo 6 caracteres'),
   async (req, res) => {
-    console.log('Registration request body:', req.body); // Log request body
+    console.log('Registration request body:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error('Registration validation failed:', errors.array()); // Log validation errors
+      console.error('Registration validation failed:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
     try {
       const { name, email, password, type } = req.body;
-      const existing = await User.findOne({ email });
-      if (existing) return res.status(400).json({ error: 'Email already in use' });
+      
+      // Validacao adicional
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Nome, email e senha sao obrigatorios' });
+      }
+      
+      // Verifica se email ja existe (case-insensitive)
+      const existing = await User.findOne({ email: email.toLowerCase() });
+      if (existing) {
+        console.log('Email already exists:', email);
+        return res.status(400).json({ error: 'Este email ja esta registrado' });
+      }
+      
+      // Faz hash da senha
       const hash = await bcrypt.hash(password, 10);
-      const user = await User.create({ name, email, passwordHash: hash, type: type || 'candidato' });
-      await logAction({ action: 'register', userId: user._id, resourceType: 'User', resourceId: user._id, details: { type: user.type } });
-      res.json({ ok: true, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
-    } catch (err) { console.error('Registration failed:', err.message); res.status(500).json({ error: err.message }); }
+      
+      // Cria novo usuario
+      const user = await User.create({ 
+        name: name.trim(), 
+        email: email.toLowerCase(), 
+        passwordHash: hash, 
+        type: type || 'candidato' 
+      });
+      
+      console.log('User created successfully:', user._id);
+      
+      // Log da acao
+      await logAction({ 
+        action: 'register', 
+        userId: user._id, 
+        resourceType: 'User', 
+        resourceId: user._id, 
+        details: { type: user.type } 
+      });
+      
+      // Retorna resposta de sucesso
+      res.json({ 
+        ok: true,
+        success: true,
+        user: { 
+          id: user._id, 
+          name: user.name, 
+          email: user.email, 
+          type: user.type 
+        } 
+      });
+    } catch (err) { 
+      console.error('Registration failed:', err.message); 
+      res.status(500).json({ error: err.message || 'Erro ao criar conta' }); 
+    }
   });
 
 router.post('/auth/login', async (req, res) => {
   try {
-    console.log('Login request received:', req.body); // Debug
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    console.log('User found:', user ? 'yes' : 'no'); // Debug
+    const user = await User.findOne({ email: email.toLowerCase() });
+    console.log('User found:', user ? 'yes' : 'no');
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const match = await bcrypt.compare(password, user.passwordHash);
-    console.log('Password match:', match ? 'yes' : 'no'); // Debug
+    console.log('Password match:', match ? 'yes' : 'no');
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id, type: user.type }, JWT_SECRET, { expiresIn: '7d' });
-  // Set httpOnly cookie for server-side auth and also return token in response for client convenience
-  res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
-  res.json({ ok: true, token, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
+    // Set httpOnly cookie for server-side auth and also return token in response for client convenience
+    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+    res.json({ ok: true, token, user: { id: user._id, name: user.name, email: user.email, type: user.type } });
   } catch (err) { console.error('Login failed:', err.message); res.status(500).json({ error: err.message }); }
 });
 
@@ -66,7 +110,7 @@ router.post('/auth/logout', (req, res) => {
 router.post('/auth/forgot', body('email').isEmail(), async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.json({ ok: true }); // don't reveal
     const token = crypto.randomBytes(20).toString('hex');
     user.resetToken = token;
@@ -140,8 +184,34 @@ router.get('/users', authMiddleware, roleCheck(['admin', 'empresa']), async (req
 // ----- JOBS -----
 router.get('/jobs', async (req, res) => {
   try {
-    const jobs = await Job.find({ status: 'aberta' }).populate('company', 'name companyProfile');
-    res.json(jobs);
+    const { search, location, model, page = 1, limit = 10 } = req.query;
+    const query = { status: 'aberta' };
+    
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { requirements: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    if (location) {
+      query.location = { $regex: location, $options: 'i' };
+    }
+    
+    if (model) {
+      query.model = model;
+    }
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const jobs = await Job.find(query)
+      .populate('company', 'name companyProfile')
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await Job.countDocuments(query);
+    
+    res.json({ items: jobs, total });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
