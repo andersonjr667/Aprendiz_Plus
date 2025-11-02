@@ -83,13 +83,29 @@ document.addEventListener('DOMContentLoaded', () => {
 async function login(event) {
   event.preventDefault();
   const form = event.target;
-  const data = { email: form.email.value, password: form.password.value };
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  
+  // Validação de entrada
+  if (!email) {
+    showMessage('Por favor, insira seu e-mail', 'error');
+    return;
+  }
+  if (!password) {
+    showMessage('Por favor, insira sua senha', 'error');
+    return;
+  }
+  if (!email.includes('@')) {
+    showMessage('E-mail inválido. Verifique o formato (exemplo: seu@email.com)', 'error');
+    return;
+  }
+  
   showMessage('Entrando...', 'info');
   try {
     const res = await fetch('/api/auth/login', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(data), 
+      body: JSON.stringify({ email, password }), 
       credentials: 'include' 
     });
     const json = await res.json();
@@ -97,37 +113,73 @@ async function login(event) {
       if (json.token) window.Auth.setToken(json.token);
       showMessage('Login realizado com sucesso', 'success');
       window.Auth.updateHeader(); // Atualiza o header
-      window.location = '/';
+      setTimeout(() => { window.location = '/'; }, 500);
     } else {
-      showMessage(json.error || 'Erro ao fazer login', 'error');
+      // Mensagens de erro mais claras e construtivas
+      let errorMsg = 'Erro ao fazer login';
+      if (json.error === 'Invalid credentials') {
+        errorMsg = 'E-mail ou senha incorretos. Verifique seus dados e tente novamente.';
+      } else if (json.error) {
+        errorMsg = json.error;
+      }
+      showMessage(errorMsg, 'error');
     }
   } catch (err) {
-    showMessage(err.message || 'Erro de rede', 'error');
+    showMessage('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
   }
 }
 
 async function register(event) {
   event.preventDefault();
   const form = event.target;
-  const data = { 
-    name: form.name.value, 
-    email: form.email.value, 
-    password: form.password.value, 
-    type: document.getElementById('userType').value 
-  };
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  const type = document.getElementById('userType').value;
+  
+  // Validação de entrada
+  if (!name) {
+    showMessage('Por favor, insira seu nome completo', 'error');
+    return;
+  }
+  if (!email) {
+    showMessage('Por favor, insira seu e-mail', 'error');
+    return;
+  }
+  if (!email.includes('@')) {
+    showMessage('E-mail inválido. Use o formato: seu@email.com', 'error');
+    return;
+  }
+  if (!password) {
+    showMessage('Por favor, insira uma senha', 'error');
+    return;
+  }
+  if (password.length < 6) {
+    showMessage('A senha deve ter no mínimo 6 caracteres', 'error');
+    return;
+  }
+  
   showMessage('Registrando...', 'info');
   try {
-  const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'include' });
+  const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password, type }), credentials: 'include' });
     const json = await res.json();
     if (res.ok && json.ok) {
       showMessage('Conta criada com sucesso. Redirecionando para login...', 'success');
-      window.location = '/login?registered=true';
+      setTimeout(() => { window.location = '/login?registered=true'; }, 500);
     } else {
-      const msg = (json.errors && json.errors[0] && json.errors[0].msg) || json.error || 'Erro ao criar conta';
-      showMessage(msg, 'error');
+      // Mensagens de erro mais claras e construtivas
+      let errorMsg = 'Erro ao criar conta';
+      if (json.errors && json.errors[0] && json.errors[0].msg) {
+        errorMsg = json.errors[0].msg;
+      } else if (json.error === 'Email already in use') {
+        errorMsg = 'Este e-mail já está registrado. Tente fazer login ou use outro e-mail.';
+      } else if (json.error) {
+        errorMsg = json.error;
+      }
+      showMessage(errorMsg, 'error');
     }
   } catch (err) {
-    showMessage(err.message || 'Erro de rede', 'error');
+    showMessage('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
   }
 }
 

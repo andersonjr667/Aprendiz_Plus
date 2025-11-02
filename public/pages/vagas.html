@@ -22,7 +22,7 @@
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
         <input id="q" class="form-control" placeholder="Buscar por título, empresa, habilidade">
         <select id="location" class="form-control" style="width:200px;"><option value="">Todas as localizações</option></select>
-        <select id="model" class="form-control" style="width:180px;"><option value="">Todos os modelos</option><option value="presencial">Presencial</option><option value="remoto">Remoto</option></select>
+        <select id="model" class="form-control" style="width:200px;"><option value="">Modalidade de Trabalho</option><option value="presencial">Presencial</option><option value="remoto">Remoto</option></select>
         <button id="searchBtn" class="btn btn-primary">Buscar</button>
       </div>
 
@@ -30,6 +30,28 @@
       <div id="pagination" style="margin-top:16px;text-align:center;"></div>
     </section>
   </main>
+
+  <footer class="main-footer" style="margin-top: 60px;">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Aprendiz+</h3>
+        <p>Conectando jovens talentos ao mercado de trabalho</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links Úteis</h4>
+        <a href="/">Início</a>
+        <a href="/contato">Contato</a>
+        <a href="/termos">Termos de Uso</a>
+        <a href="/privacidade">Política de Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  
+  <!-- Floating Help Button -->
+  <a href="/contato" class="help-link" title="Precisa de ajuda? Clique aqui">?</a>
 
   <script src="/public/js/vagas.js" defer></script>
 </body>
