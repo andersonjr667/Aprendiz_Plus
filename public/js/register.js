@@ -146,7 +146,7 @@ async function handleRegister(event) {
 
   // Envia para API (usa o wrapper API.fetch definido em /public/js/api.js)
   const result = await API.fetch('/auth/register', { method: 'POST', body: userData });
-    if (result && result.success) {
+    if (result && result.ok) {
       showMessage('Cadastro realizado com sucesso!', 'success');
       setTimeout(() => { window.location.href = '/login'; }, 2000);
       return;
@@ -157,7 +157,19 @@ async function handleRegister(event) {
     throw new Error(errMsg);
 
   } catch (error) {
-    const msg = (error && error.message) || 'Erro ao realizar cadastro';
+    let msg = 'Erro ao realizar cadastro';
+    
+    // Verificar se eh um erro da API
+    if (error && error.payload) {
+      if (error.payload.errors && error.payload.errors[0]) {
+        msg = error.payload.errors[0].msg;
+      } else if (error.payload.error) {
+        msg = error.payload.error;
+      }
+    } else if (error && error.message) {
+      msg = error.message;
+    }
+    
     showMessage(msg, 'error');
   } finally {
     // Re-habilitar o botão de submit
