@@ -59,7 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             user.type === 'admin' ? 
             `<a href="/admin">Admin</a>` : ''
           }
-          <button onclick="logout()" class="btn btn-outline">Sair</button>
+          <button onclick="logout()" class="btn btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
         `;
       } else {
         // Usuario não logado
@@ -184,16 +186,19 @@ async function register(event) {
 }
 
 async function logout() {
+  // Adicionar confirmação antes de fazer logout
+  const confirmed = confirm('Tem certeza que deseja sair?');
+  if (!confirmed) return;
+
   try {
     await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include'
     });
-    window.Auth.removeToken();
-    window.Auth.updateHeader();
+    localStorage.removeItem('token');
     showMessage('Logout realizado com sucesso', 'success');
-    window.location = '/';
-  } catch (err) {
+    setTimeout(() => window.location.href = '/', 1000);
+  } catch (error) {
     showMessage('Erro ao fazer logout', 'error');
   }
 }

@@ -5,14 +5,71 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Notícias - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
-    <h1>Notícias</h1>
-    <div id="news" class="news-grid"></div>
+<body class="page-container">
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias" class="active">Notícias</a>
+        <a href="/login" class="nav-link-login">Login</a>
+        <a href="/register" class="btn btn-primary">Cadastre-se</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="container">
+        <h1 class="page-title">Notícias e Novidades</h1>
+        <p class="page-subtitle">Fique por dentro das últimas tendências do mercado de trabalho e dicas de carreira</p>
+      </div>
+    </div>
+
+    <section class="container">
+      <div id="news" class="news-grid"></div>
+      
+      <!-- Loading skeleton -->
+      <div id="loading" class="news-grid" style="display: none;">
+        <div class="card skeleton skeleton-card"></div>
+        <div class="card skeleton skeleton-card"></div>
+        <div class="card skeleton skeleton-card"></div>
+        <div class="card skeleton skeleton-card"></div>
+      </div>
+      
+      <!-- Empty state -->
+      <div id="empty-state" class="text-center" style="display: none; padding: var(--spacing-3xl);">
+        <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">📰</div>
+        <h3>Nenhuma notícia encontrada</h3>
+        <p class="text-gray-500">Volte em breve para conferir as novidades!</p>
+      </div>
+    </section>
   </main>
+
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Aprendiz+</h3>
+        <p>Conectando jovens talentos ao mercado de trabalho</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links Úteis</h4>
+        <a href="/">Início</a>
+        <a href="/contato">Contato</a>
+        <a href="/termos">Termos de Uso</a>
+        <a href="/privacidade">Política de Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+    </div>
+  </footer>
 
   <script src="/public/js/noticias.js" defer></script>
 </body>

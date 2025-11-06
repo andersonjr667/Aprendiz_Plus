@@ -5,60 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aprendiz+ | Conectando Talentos</title>
     <link rel="stylesheet" href="/public/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .hero-section {
-            background: var(--brand-green);
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
             color: white;
-            padding: var(--spacing-xxl) 0;
+            padding: var(--spacing-3xl) 0;
             text-align: center;
-            min-height: 60vh;
+            min-height: 70vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
         }
 
         .hero-content {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 0 var(--spacing-lg);
+            position: relative;
+            z-index: 1;
         }
 
         .hero-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-lg);
+            line-height: var(--line-height-tight);
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: var(--spacing-xl);
-            opacity: 0.9;
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-xxl);
+            opacity: 0.95;
+            line-height: var(--line-height-relaxed);
         }
 
         .cta-buttons {
             display: flex;
-            gap: var(--spacing-md);
+            gap: var(--spacing-lg);
             justify-content: center;
-            margin-top: var(--spacing-xl);
+            flex-wrap: wrap;
         }
 
         .cta-button {
-            padding: var(--spacing-md) var(--spacing-xl);
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            transition: transform 0.2s;
+            padding: var(--spacing-lg) var(--spacing-xxl);
+            border-radius: var(--border-radius-lg);
+            font-weight: var(--font-weight-semibold);
+            transition: var(--transition-normal);
+            text-decoration: none;
+            font-size: var(--font-size-lg);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+            text-decoration: none;
         }
 
         .cta-primary {
             background: white;
             color: var(--brand-green);
+        }
+
+        .cta-primary:hover {
+            color: var(--brand-green-dark);
         }
 
         .cta-secondary {
@@ -67,127 +95,173 @@
             color: white;
         }
 
+        .cta-secondary:hover {
+            background: white;
+            color: var(--brand-green);
+        }
+
         .features-section {
-            padding: var(--spacing-xxl) 0;
+            padding: var(--spacing-3xl) 0;
             background: white;
         }
 
         .features-title {
             text-align: center;
-            font-size: 2rem;
+            font-size: var(--font-size-3xl);
             color: var(--gray-900);
             margin-bottom: var(--spacing-xl);
+            font-weight: var(--font-weight-bold);
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--spacing-xl);
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-xxl);
+            max-width: var(--container-max-width);
             margin: 0 auto;
             padding: 0 var(--spacing-lg);
         }
 
         .feature-card {
             text-align: center;
-            padding: var(--spacing-lg);
-            border-radius: var(--border-radius);
+            padding: var(--spacing-xxl);
+            border-radius: var(--border-radius-lg);
             background: white;
             box-shadow: var(--shadow-sm);
-            transition: transform 0.2s;
+            transition: var(--transition-normal);
+            border: 1px solid var(--gray-200);
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--brand-green);
         }
 
         .feature-icon {
-            width: 64px;
-            height: 64px;
-            margin-bottom: var(--spacing-md);
+            width: 80px;
+            height: 80px;
+            margin: 0 auto var(--spacing-lg);
+            background: var(--brand-green);
+            border-radius: var(--border-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-2xl);
+            color: white;
         }
 
         .feature-title {
             color: var(--gray-900);
-            font-size: 1.25rem;
-            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-md);
+            font-weight: var(--font-weight-semibold);
         }
 
         .feature-description {
             color: var(--gray-600);
-            font-size: 0.95rem;
-            line-height: 1.5;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
         }
 
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2rem;
+                font-size: var(--font-size-3xl);
             }
 
             .hero-subtitle {
-                font-size: 1rem;
+                font-size: var(--font-size-lg);
             }
 
             .cta-buttons {
                 flex-direction: column;
-                padding: 0 var(--spacing-lg);
+                align-items: center;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-                padding: 0 var(--spacing-md);
+                gap: var(--spacing-xl);
+            }
+
+            .feature-card {
+                padding: var(--spacing-xl);
             }
         }
     </style>
 </head>
-<body>
+<body class="page-container">
     <header class="nav-header">
         <nav class="top-nav">
             <div class="nav-logo">
                 <a href="/">Aprendiz+</a>
             </div>
             <div class="nav-links">
+                <a href="/" class="active">Início</a>
                 <a href="/vagas">Vagas</a>
-                <a href="/para-empresas">Para Empresas</a>
                 <a href="/noticias">Notícias</a>
-                <a href="/login" class="nav-link-login">Fazer Login</a>
+                <a href="/login" class="nav-link-login">Login</a>
                 <a href="/register" class="btn btn-primary">Cadastre-se</a>
             </div>
         </nav>
     </header>
 
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">Conectando Jovens Talentos às Melhores Oportunidades</h1>
-            <p class="hero-subtitle">Encontre seu primeiro emprego ou o aprendiz ideal para sua empresa</p>
-            <div class="cta-buttons">
-                <a href="/register?type=candidato" class="cta-button cta-primary">Sou Candidato</a>
-                <a href="/register?type=empresa" class="cta-button cta-secondary">Sou Empresa</a>
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Conectamos jovens talentos ao futuro</h1>
+                <p class="hero-subtitle">
+                    Descubra oportunidades de estágio e emprego que vão impulsionar sua carreira. 
+                    Junte-se a milhares de jovens que já encontraram seu lugar no mercado de trabalho.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/vagas" class="cta-button cta-primary">
+                        <i class="fas fa-search"></i> Buscar Vagas
+                    </a>
+                    <a href="/register" class="cta-button cta-secondary">
+                        <i class="fas fa-rocket"></i> Cadastrar-se
+                    </a>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="features-section">
-        <h2 class="features-title">Por que escolher o Aprendiz+?</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <img src="/public/images/match-icon.svg" alt="Match Inteligente" class="feature-icon">
-                <h3 class="feature-title">Match Inteligente</h3>
-                <p class="feature-description">Sistema de recomendação baseado em IA para encontrar as melhores compatibilidades.</p>
+        <section class="features-section">
+            <div class="container">
+                <h2 class="features-title">Por que escolher o Aprendiz+?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                        <h3 class="feature-title">Vagas Focadas em Jovens</h3>
+                        <p class="feature-description">
+                            Encontre oportunidades específicas para estudantes e recém-formados, 
+                            com empresas que valorizam o potencial jovem.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-handshake"></i></div>
+                        <h3 class="feature-title">Conexão Direta</h3>
+                        <p class="feature-description">
+                            Sistema simplificado que conecta candidatos e empresas de forma 
+                            rápida e eficiente, sem intermediários desnecessários.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3 class="feature-title">Crescimento Profissional</h3>
+                        <p class="feature-description">
+                            Acompanhe seu desenvolvimento profissional com ferramentas que 
+                            ajudam a construir um perfil atrativo para recrutadores.
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <img src="/public/images/easy-icon.svg" alt="Fácil de Usar" class="feature-icon">
-                <h3 class="feature-title">Fácil de Usar</h3>
-                <p class="feature-description">Interface intuitiva e responsiva, pensada para todos os dispositivos.</p>
-            </div>
-            <div class="feature-card">
-                <img src="/public/images/opportunities-icon.svg" alt="Oportunidades Reais" class="feature-icon">
-                <h3 class="feature-title">Oportunidades Reais</h3>
-                <p class="feature-description">Vagas verificadas e empresas comprometidas com o desenvolvimento profissional.</p>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <footer class="main-footer">
         <div class="footer-content">
@@ -196,14 +270,13 @@
                 <p>Conectando jovens talentos ao mercado de trabalho</p>
                 <div class="footer-help">
                     <h4>Precisa de Ajuda?</h4>
-                    <p>Dúvidas sobre como usar a plataforma? Confira nossa <a href="#faq" style="color: var(--brand-green); text-decoration: underline;">seção de FAQ</a> ou <a href="/contato" style="color: var(--brand-green); text-decoration: underline;">entre em contato conosco</a>.</p>
+                    <p>Dúvidas sobre como usar a plataforma? <a href="/contato" style="color: var(--brand-green);">Entre em contato conosco</a>.</p>
                 </div>
             </div>
             <div class="footer-links">
                 <h4>Links Úteis</h4>
                 <a href="/sobre">Sobre Nós</a>
                 <a href="/contato">Contato</a>
-                <a href="#faq">FAQ</a>
                 <a href="/termos">Termos de Uso</a>
                 <a href="/privacidade">Política de Privacidade</a>
             </div>

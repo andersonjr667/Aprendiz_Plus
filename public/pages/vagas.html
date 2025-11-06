@@ -5,29 +5,67 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Vagas - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
 </head>
-<body>
+<body class="page-container">
   <header class="nav-header">
-    <nav class="top-nav container">
+    <nav class="top-nav">
       <div class="nav-logo"><a href="/">Aprendiz+</a></div>
-      <div class="nav-links"><a href="/">Início</a><a href="/login">Login</a></div>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas" class="active">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/login" class="nav-link-login">Login</a>
+        <a href="/register" class="btn btn-primary">Cadastre-se</a>
+      </div>
     </nav>
   </header>
 
-  <main class="container" style="padding-top:100px;">
-    <section>
-      <h1>Buscar Vagas</h1>
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-        <input id="q" class="form-control" placeholder="Buscar por título, empresa, habilidade">
-        <select id="location" class="form-control" style="width:200px;"><option value="">Todas as localizações</option></select>
-        <select id="model" class="form-control" style="width:200px;"><option value="">Modalidade de Trabalho</option><option value="presencial">Presencial</option><option value="remoto">Remoto</option></select>
-        <button id="searchBtn" class="btn btn-primary">Buscar</button>
+  <main class="main-content">
+    <div class="page-header">
+      <div class="container">
+        <h1 class="page-title">Encontre sua oportunidade</h1>
+        <p class="page-subtitle">Descubra vagas de estágio e emprego que combinam com seu perfil</p>
+      </div>
+    </div>
+
+    <section class="container">
+      <div class="card card-flat">
+        <div class="flex flex-col gap-lg">
+          <h2>Filtros de Busca</h2>
+          <div class="form-row three-cols">
+            <div class="form-group">
+              <label for="q">Buscar por palavra-chave</label>
+              <input id="q" class="form-control" placeholder="Título, empresa, habilidade...">
+            </div>
+            <div class="form-group">
+              <label for="location">Localização</label>
+              <select id="location" class="form-control">
+                <option value="">Todas as localizações</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="model">Modalidade</label>
+              <select id="model" class="form-control">
+                <option value="">Todas as modalidades</option>
+                <option value="presencial">Presencial</option>
+                <option value="remoto">Remoto</option>
+                <option value="hibrido">Híbrido</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button id="searchBtn" class="btn btn-primary btn-lg">
+              Buscar Vagas
+            </button>
+          </div>
+        </div>
       </div>
 
       <div id="jobs" class="jobs-grid"></div>
-      <div id="pagination" style="margin-top:16px;text-align:center;"></div>
+      <div id="pagination" class="flex justify-center mt-auto"></div>
     </section>
   </main>
 

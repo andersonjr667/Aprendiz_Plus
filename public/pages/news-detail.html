@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Detalhes da Vaga - Aprendiz+</title>
+  <title>Notícia - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="/public/js/auth.js" defer></script>
@@ -12,21 +12,23 @@
 </head>
 <body>
   <main class="container" style="padding-top:100px;">
-    <div style="margin-bottom: var(--spacing-lg);">
-      <button id="btnVoltar" class="btn btn-back">
-        <i class="fas fa-arrow-left"></i> Voltar
-      </button>
-    </div>
-    
-    <section id="job" style="max-width:900px;margin:40px auto;">
-      <!-- Loading inicial -->
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <span>Carregando detalhes da vaga...</span>
+    <div class="news-detail-container">
+      <div style="margin-bottom: var(--spacing-lg);">
+        <button id="btnVoltarNews" class="btn btn-back">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </button>
       </div>
-    </section>
+      
+      <article id="news-detail">
+        <!-- Carregamento -->
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <span>Carregando notícia...</span>
+        </div>
+      </article>
+    </div>
   </main>
 
-  <script src="/public/js/vaga-detalhes.js" defer></script>
+  <script src="/public/js/news-detail.js" defer></script>
 </body>
 </html>

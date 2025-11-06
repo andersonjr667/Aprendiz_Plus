@@ -143,6 +143,54 @@ router.get('/users/me', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// update current user profile
+router.put('/users/me', authMiddleware, upload.single('profilePhoto'), async (req, res) => {
+  try {
+    console.log('Profile update request:', { 
+      body: req.body, 
+      file: req.file ? { filename: req.file.filename, size: req.file.size } : null,
+      userId: req.user._id 
+    });
+    
+    const updates = { ...req.body };
+    
+    // Handle profile photo upload
+    if (req.file) {
+      updates.profilePhotoUrl = path.join('/uploads', req.file.filename);
+      console.log('Profile photo saved:', updates.profilePhotoUrl);
+    }
+    
+    // Parse skills if it's a JSON string
+    if (updates.skills && typeof updates.skills === 'string') {
+      try {
+        updates.skills = JSON.parse(updates.skills);
+        console.log('Parsed skills:', updates.skills);
+      } catch (e) {
+        // If it's not valid JSON, treat as comma-separated string
+        updates.skills = updates.skills.split(',').map(s => s.trim()).filter(s => s);
+        console.log('Fallback skills parsing:', updates.skills);
+      }
+    }
+    
+    // Remove sensitive fields that shouldn't be updated via this endpoint
+    delete updates.passwordHash;
+    delete updates.email; // Prevent email changes for now
+    
+    console.log('Final updates object:', updates);
+    
+    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-passwordHash');
+    
+    console.log('User updated successfully:', { userId: user._id, name: user.name });
+    
+    await logAction(req.user._id, 'profile_update', { updatedFields: Object.keys(updates) });
+    
+    res.json(user);
+  } catch (err) { 
+    console.error('Profile update error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
+});
+
 // applications of current candidate
 router.get('/users/me/applications', authMiddleware, roleCheck(['candidato']), async (req, res) => {
   try {
@@ -150,6 +198,64 @@ router.get('/users/me/applications', authMiddleware, roleCheck(['candidato']), a
     const out = apps.map(a => ({ id: a._id, job_id: a.job ? a.job._id : null, job_title: a.job ? a.job.title : '', status: a.status, appliedAt: a.appliedAt }));
     res.json(out);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// get user resume info
+router.get('/users/me/resume', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('resumeUrl updatedAt');
+    res.json(user);
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
+});
+
+// upload user resume
+router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+    
+    const resumeUrl = path.join('/uploads', req.file.filename);
+    
+    const user = await User.findByIdAndUpdate(
+      req.user._id, 
+      { 
+        resumeUrl: resumeUrl,
+        updatedAt: new Date()
+      }, 
+      { new: true }
+    ).select('-passwordHash');
+    
+    await logAction(req.user._id, 'resume_upload', { filename: req.file.filename });
+    
+    res.json(user);
+  } catch (err) { 
+    console.error('Resume upload error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
+});
+
+// delete user resume
+router.delete('/users/me/resume', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id, 
+      { 
+        $unset: { resumeUrl: 1 },
+        updatedAt: new Date()
+      }, 
+      { new: true }
+    ).select('-passwordHash');
+    
+    await logAction(req.user._id, 'resume_delete', {});
+    
+    res.json({ message: 'Currículo removido com sucesso' });
+  } catch (err) { 
+    console.error('Resume delete error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.get('/users/:id', authMiddleware, async (req, res) => {
@@ -185,13 +291,13 @@ router.get('/users', authMiddleware, roleCheck(['admin', 'empresa']), async (req
 router.get('/jobs', async (req, res) => {
   try {
     const { search, location, model, page = 1, limit = 10 } = req.query;
-    const query = { status: 'aberta' };
+    const query = { status: 'aberta' }; // Recolocando filtro de status
     
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { requirements: { $regex: search, $options: 'i' } }
+        { requirements: { $in: [new RegExp(search, 'i')] } }
       ];
     }
     
@@ -200,7 +306,7 @@ router.get('/jobs', async (req, res) => {
     }
     
     if (model) {
-      query.model = model;
+      query.workModel = { $regex: model, $options: 'i' };
     }
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -216,7 +322,24 @@ router.get('/jobs', async (req, res) => {
 });
 
 router.get('/jobs/:id', async (req, res) => {
-  try { const job = await Job.findById(req.params.id).populate('company', 'name'); if (!job) return res.status(404).json({ error: 'Not found' }); res.json(job); } catch (err) { res.status(500).json({ error: err.message }); }
+  try { 
+    const { id } = req.params;
+    
+    // Verificar se o ID é um ObjectId válido do MongoDB
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'ID de vaga inválido' });
+    }
+    
+    const job = await Job.findById(id).populate('company', 'name companyProfile'); 
+    if (!job) {
+      return res.status(404).json({ error: 'Vaga não encontrada' });
+    }
+    
+    res.json(job); 
+  } catch (err) { 
+    console.error('Error finding job:', err);
+    res.status(500).json({ error: 'Erro interno do servidor: ' + err.message }); 
+  }
 });
 
 router.post('/jobs', authMiddleware, roleCheck(['empresa']), async (req, res) => {
@@ -340,7 +463,14 @@ router.get('/companies/me/jobs', authMiddleware, roleCheck(['empresa']), async (
 
 // ----- NEWS -----
 router.get('/news', async (req, res) => {
-  try { const news = await News.find().sort({ createdAt: -1 }); res.json(news); } catch (err) { res.status(500).json({ error: err.message }); }
+  try { 
+    const news = await News.find()
+      .populate('author', 'name')
+      .sort({ createdAt: -1 }); 
+    res.json(news); 
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.post('/news', authMiddleware, roleCheck(['admin','empresa']), upload.single('image'), async (req, res) => {
@@ -349,11 +479,20 @@ router.post('/news', authMiddleware, roleCheck(['admin','empresa']), upload.sing
     if (req.file) data.imageUrl = path.join('/uploads', req.file.filename);
     data.author = req.user._id;
     const n = await News.create(data);
-    res.json(n);
+    const populatedNews = await News.findById(n._id).populate('author', 'name');
+    res.json(populatedNews);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.get('/news/:id', async (req, res) => { try { const n = await News.findById(req.params.id); if (!n) return res.status(404).json({ error: 'Not found' }); res.json(n); } catch (err) { res.status(500).json({ error: err.message }); } });
+router.get('/news/:id', async (req, res) => { 
+  try { 
+    const n = await News.findById(req.params.id).populate('author', 'name'); 
+    if (!n) return res.status(404).json({ error: 'Not found' }); 
+    res.json(n); 
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  } 
+});
 
 // ----- AUDIT LOGS -----
 router.get('/logs', authMiddleware, roleCheck(['admin']), async (req, res) => {

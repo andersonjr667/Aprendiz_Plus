@@ -1,21 +1,61 @@
 :root {
-  /* Colors */
+  /* Colors - Primary */
   --brand-darknavy: #1A2B4D;
   --brand-green: #2ECC71;
+  --brand-green-dark: #27AE60;
+  --brand-green-light: #58D68D;
   --brand-coral: #FF6B5B;
   --brand-red: #FC3E50;
   --brand-warm: #F39C74;
   
+  /* Colors - Secondary */
+  --brand-blue: #3498DB;
+  --brand-purple: #9B59B6;
+  --brand-orange: #F39C12;
+  --brand-yellow: #F1C40F;
+  
   /* Grays */
+  --gray-50: #FAFBFC;
   --gray-100: #F7F9FC;
   --gray-200: #EDF1F7;
   --gray-300: #E4E9F2;
   --gray-400: #C5CEE0;
   --gray-500: #8F9BB3;
   --gray-600: #2E3A59;
+  --gray-700: #253649;
+  --gray-800: #1C2B3A;
+  --gray-900: #141B26;
+  
+  /* Semantic Colors */
+  --success: var(--brand-green);
+  --success-light: #D4EDDA;
+  --warning: var(--brand-orange);
+  --warning-light: #FFF3CD;
+  --error: var(--brand-red);
+  --error-light: #F8D7DA;
+  --info: var(--brand-blue);
+  --info-light: #D1ECF1;
 
   /* Typography */
-  --font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
   
   /* Spacing */
   --spacing-xs: 4px;
@@ -23,13 +63,52 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-3xl: 64px;
 
   /* Border Radius */
+  --border-radius-sm: 4px;
   --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-full: 9999px;
 
   /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-modal: 1050;
+  --z-tooltip: 1100;
+  
+  /* Container */
+  --container-max-width: 1200px;
+  --container-padding: var(--spacing-lg);
+}
+
+/* Dark mode support (for future implementation) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-50: #141B26;
+    --gray-100: #1C2B3A;
+    --gray-200: #253649;
+    --gray-300: #2E3A59;
+    --gray-400: #8F9BB3;
+    --gray-500: #C5CEE0;
+    --gray-600: #E4E9F2;
+    --gray-700: #EDF1F7;
+    --gray-800: #F7F9FC;
+    --gray-900: #FAFBFC;
+  }
 }
 
 /* Legacy support */

@@ -51,8 +51,8 @@ router.get('/admin-noticia', (req, res) => sendPage(res, 'admin-noticia.html'));
 // News
 router.get('/news', (req, res) => sendPage(res, 'news.html'));
 router.get('/noticias', (req, res) => sendPage(res, 'noticias.html'));
-router.get('/news/:id', (req, res) => sendPage(res, 'news.html'));
-router.get('/noticia/:id', (req, res) => sendPage(res, 'news.html'));
+router.get('/news/:id', (req, res) => sendPage(res, 'news-detail.html'));
+router.get('/noticia/:id', (req, res) => sendPage(res, 'news-detail.html'));
 
 // Listings
 router.get('/empresas', (req, res) => sendPage(res, 'empresas.html'));
@@ -62,6 +62,7 @@ router.get('/candidatos', (req, res) => sendPage(res, 'candidatos.html'));
 router.get('/contato', (req, res) => sendPage(res, 'contato.html'));
 router.get('/search', (req, res) => sendPage(res, 'search-results.html'));
 router.get('/not-found', (req, res) => sendPage(res, '404.html'));
+router.get('/teste-api', (req, res) => sendPage(res, 'teste-api.html'));
 
 // Fallback for unknown routes -> 404 page
 router.get('*', (req, res) => { res.status(404); sendPage(res, '404.html'); });

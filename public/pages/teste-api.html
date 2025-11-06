@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste API Jobs</title>
+</head>
+<body>
+    <h1>Teste API Jobs</h1>
+    <button onclick="testAPI()">Testar Lista de Vagas</button>
+    <button onclick="testJobDetail()">Testar Vaga Específica</button>
+    <button onclick="testNewsAPI()">Testar API de Notícias</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                console.log('Testando API de lista...');
+                const response = await fetch('/api/jobs');
+                const data = await response.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Lista de Vagas</h2>
+                    <p>Status: ${response.status}</p>
+                    <p>Total de vagas: ${data.items ? data.items.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                console.log('Resposta da lista:', data);
+                
+                // Se há vagas, testa a primeira
+                if (data.items && data.items.length > 0) {
+                    const firstJobId = data.items[0]._id;
+                    console.log('Testando vaga específica:', firstJobId);
+                    await testSpecificJob(firstJobId);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('result').innerHTML = `Erro: ${error.message}`;
+            }
+        }
+        
+        async function testJobDetail() {
+            // Testa com um ID específico
+            const jobId = '690bf9a4ffadde2f057a13d3';
+            await testSpecificJob(jobId);
+        }
+        
+        async function testSpecificJob(jobId) {
+            try {
+                console.log('Testando vaga específica:', jobId);
+                const response = await fetch(`/api/jobs/${jobId}`);
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML += `
+                    <h2>Vaga Específica (${jobId})</h2>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                console.log('Resposta da vaga específica:', data);
+            } catch (error) {
+                console.error('Erro ao testar vaga específica:', error);
+                document.getElementById('result').innerHTML += `<p>Erro na vaga específica: ${error.message}</p>`;
+            }
+        }
+        
+        async function testNewsAPI() {
+            try {
+                console.log('Testando API de notícias...');
+                const response = await fetch('/api/news');
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `
+                    <h2>API de Notícias</h2>
+                    <p>Status: ${response.status}</p>
+                    <p>Total de notícias: ${data ? data.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                console.log('Resposta da API de notícias:', data);
+                
+                // Se há notícias, testa a primeira
+                if (data && data.length > 0) {
+                    const firstNewsId = data[0]._id;
+                    console.log('Testando notícia específica:', firstNewsId);
+                    await testSpecificNews(firstNewsId);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('result').innerHTML += `<p>Erro na API de notícias: ${error.message}</p>`;
+            }
+        }
+        
+        async function testSpecificNews(newsId) {
+            try {
+                console.log('Testando notícia específica:', newsId);
+                const response = await fetch(`/api/news/${newsId}`);
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML += `
+                    <h2>Notícia Específica (${newsId})</h2>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                console.log('Resposta da notícia específica:', data);
+            } catch (error) {
+                console.error('Erro ao testar notícia específica:', error);
+                document.getElementById('result').innerHTML += `<p>Erro na notícia específica: ${error.message}</p>`;
+            }
+        }
+        
+        // Testar automaticamente ao carregar
+        window.addEventListener('DOMContentLoaded', testAPI);
+    </script>
+</body>
+</html>

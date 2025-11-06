@@ -1,5 +1,29 @@
-// Register page scripts moved out of inline HTML to satisfy CSP (script-src 'self')
-// Depends on /public/js/auth.js which defines showMessage and Auth
+// Function to show messages in the register page
+function showRegisterMessage(message, type = 'info') {
+  const container = document.getElementById('messageContainer');
+  const messageText = document.getElementById('messageText');
+  
+  if (container && messageText) {
+    messageText.textContent = message;
+    container.className = `message-container ${type}`;
+    container.style.display = 'block';
+    
+    // Auto-hide after 5 seconds for non-error messages
+    if (type !== 'error') {
+      setTimeout(() => {
+        container.style.display = 'none';
+      }, 5000);
+    }
+  } else {
+    // Fallback to global showMessage if elements not found
+    if (typeof showMessage === 'function') {
+      showMessage(message, type);
+    } else {
+      // Ultimate fallback - simple alert
+      alert(message);
+    }
+  }
+}
 
 function selectUserType(type, element) {
   // Update UI
@@ -42,6 +66,11 @@ function selectUserType(type, element) {
     if (errorMessage) {
       errorMessage.style.display = 'none';
     }
+    // Clear register messages
+    const messageContainer = document.getElementById('messageContainer');
+    if (messageContainer) {
+      messageContainer.style.display = 'none';
+    }
   }
   
   // Clear fields of inactive type
@@ -58,6 +87,13 @@ function selectUserType(type, element) {
 
 // Make the type-option elements keyboard accessible and attach handlers
 document.addEventListener('DOMContentLoaded', () => {
+  // Setup form submit handler
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+    registerForm.addEventListener('submit', handleRegister);
+  }
+
+  // Setup type selection handlers
   document.querySelectorAll('.type-option').forEach(el => {
     el.setAttribute('tabindex', '0');
     const guessType = () => {
@@ -74,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Setup formatting handlers
   const cpfEl = document.getElementById('cpf');
   const cnpjEl = document.getElementById('cnpj');
   if (cpfEl) cpfEl.addEventListener('input', formatCPF);
@@ -81,15 +118,38 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function validateForm(formData) {
+  const name = formData.get('name');
+  const email = formData.get('email');
   const password = formData.get('password');
   const confirmPassword = formData.get('confirmPassword');
 
-  if (password !== confirmPassword) {
-    throw new Error('As senhas não coincidem');
+  // Validate required fields
+  if (!name || name.trim().length === 0) {
+    throw new Error('Por favor, insira seu nome completo');
+  }
+
+  if (!email || email.trim().length === 0) {
+    throw new Error('Por favor, insira seu e-mail');
+  }
+
+  if (!email.includes('@') || !email.includes('.')) {
+    throw new Error('Por favor, insira um e-mail válido');
+  }
+
+  if (!password) {
+    throw new Error('Por favor, insira uma senha');
   }
 
   if (password.length < 6) {
     throw new Error('A senha deve ter pelo menos 6 caracteres');
+  }
+
+  if (!confirmPassword) {
+    throw new Error('Por favor, confirme sua senha');
+  }
+
+  if (password !== confirmPassword) {
+    throw new Error('As senhas não coincidem');
   }
 
   // CPF e CNPJ são opcionais no momento do cadastro
@@ -97,17 +157,23 @@ function validateForm(formData) {
   const cpf = formData.get('cpf');
   const cnpj = formData.get('cnpj');
 
-  if (type === 'candidato' && cpf && !cpf.match(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/)) {
-    throw new Error('CPF inválido');
+  if (type === 'candidato' && cpf && cpf.trim() && !cpf.match(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/)) {
+    throw new Error('CPF inválido. Use o formato: 000.000.000-00');
   }
   
-  if (type === 'empresa' && cnpj && !cnpj.match(/^\d{2}\.?\d{3}\.?\d{3}\/?[0-9]{4}-?\d{2}$/)) {
-    throw new Error('CNPJ inválido');
+  if (type === 'empresa' && cnpj && cnpj.trim() && !cnpj.match(/^\d{2}\.?\d{3}\.?\d{3}\/?[0-9]{4}-?\d{2}$/)) {
+    throw new Error('CNPJ inválido. Use o formato: 00.000.000/0000-00');
   }
 }
 
 async function handleRegister(event) {
   event.preventDefault();
+
+  // Hide any previous messages
+  const messageContainer = document.getElementById('messageContainer');
+  if (messageContainer) {
+    messageContainer.style.display = 'none';
+  }
 
   // Desabilitar o botão de submit para evitar múltiplos envios
   const submitButton = event.target && event.target.querySelector
@@ -117,8 +183,6 @@ async function handleRegister(event) {
     submitButton.disabled = true;
     submitButton.innerHTML = 'Criando conta...';
   }
-
-  
 
   try {
     const form = event.target;
@@ -144,38 +208,55 @@ async function handleRegister(event) {
       if (website) userData.companyProfile = { website: website.trim() };
     }
 
-  // Envia para API (usa o wrapper API.fetch definido em /public/js/api.js)
-  const result = await API.fetch('/auth/register', { method: 'POST', body: userData });
-    if (result && result.ok) {
-      showMessage('Cadastro realizado com sucesso!', 'success');
-      setTimeout(() => { window.location.href = '/login'; }, 2000);
+    showRegisterMessage('Criando conta...', 'info');
+
+    // Verifica se API.fetch existe
+    if (typeof API === 'undefined' || typeof API.fetch !== 'function') {
+      throw new Error('Erro interno: API não disponível');
+    }
+
+    // Envia para API (usa o wrapper API.fetch definido em /public/js/api.js)
+    const result = await API.fetch('/auth/register', { method: 'POST', body: userData });
+    
+    if (result && (result.ok || result.success)) {
+      showRegisterMessage('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
+      setTimeout(() => { window.location.href = '/login?registered=true'; }, 2000);
       return;
     }
 
-    // Se aqui, API respondeu com erro
+    // Se chegou aqui, algo deu errado
     const errMsg = (result && result.error) || 'Erro ao criar conta';
     throw new Error(errMsg);
 
   } catch (error) {
     let msg = 'Erro ao realizar cadastro';
     
-    // Verificar se eh um erro da API
+    // Verificar se é um erro da API
     if (error && error.payload) {
-      if (error.payload.errors && error.payload.errors[0]) {
-        msg = error.payload.errors[0].msg;
+      if (error.payload.errors && Array.isArray(error.payload.errors) && error.payload.errors.length > 0) {
+        // Validation errors
+        msg = error.payload.errors[0].msg || error.payload.errors[0];
       } else if (error.payload.error) {
         msg = error.payload.error;
       }
     } else if (error && error.message) {
+      // Regular error message
       msg = error.message;
+    } else if (typeof error === 'string') {
+      msg = error;
+    }
+
+    // Translate common error messages to Portuguese
+    if (msg === 'Este email ja esta registrado') {
+      msg = 'Este e-mail já está registrado. Tente fazer login ou use outro e-mail.';
     }
     
-    showMessage(msg, 'error');
+    showRegisterMessage(msg, 'error');
   } finally {
     // Re-habilitar o botão de submit
     if (submitButton) {
       submitButton.disabled = false;
-      submitButton.innerHTML = 'Criar conta';
+      submitButton.innerHTML = 'Criar Conta';
     }
   }
 }
@@ -199,7 +280,3 @@ function formatCNPJ(e) {
   v = v.replace(/(\d{4})(\d)/, '$1-$2');
   e.target.value = v;
 }
-
-// expose globals for HTML handlers
-window.selectUserType = selectUserType;
-window.handleRegister = handleRegister;

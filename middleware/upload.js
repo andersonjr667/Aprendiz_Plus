@@ -12,10 +12,32 @@ const storage = multer.diskStorage({
 });
 
 function fileFilter(req, file, cb) {
-  const allowed = ['.pdf', '.docx', '.doc'];
+  const allowedDocs = ['.pdf', '.docx', '.doc'];
+  const allowedImages = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (allowed.includes(ext)) cb(null, true);
-  else cb(new Error('File type not allowed'));
+  
+  if (file.fieldname === 'profilePhoto') {
+    // For profile photos, only allow images
+    if (allowedImages.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas imagens são permitidas para foto de perfil (JPG, PNG, GIF, WEBP)'));
+    }
+  } else if (file.fieldname === 'resume') {
+    // For resume, only allow documents
+    if (allowedDocs.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas documentos são permitidos para currículo (PDF, DOC, DOCX)'));
+    }
+  } else {
+    // Default: allow both images and documents
+    if (allowedDocs.includes(ext) || allowedImages.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo não permitido'));
+    }
+  }
 }
 
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter });

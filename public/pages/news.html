@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Notícias - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
   <script src="/public/js/global.js" defer></script>
@@ -12,8 +13,18 @@
 </head>
 <body>
   <main class="container" style="padding-top:100px;">
-    <h2>Notícias</h2>
-    <div id="news"></div>
+    <div class="news-page-header">
+      <h1><i class="fas fa-newspaper"></i> Notícias</h1>
+      <p>Fique por dentro das últimas novidades do mercado de trabalho e oportunidades</p>
+    </div>
+    
+    <div id="news" class="news-grid">
+      <!-- Notícias serão carregadas aqui -->
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <span>Carregando notícias...</span>
+      </div>
+    </div>
   </main>
 </body>
 </html>

@@ -33,8 +33,17 @@ async function loadJobs(){
     data.items.forEach(job=>{
       const el = document.createElement('div');
       el.className='job-card';
-      const modelType = job.model ? ` • ${job.model === 'presencial' ? 'Presencial' : 'Remoto'}` : '';
-      el.innerHTML = `<h3>${job.title}</h3><div class='job-meta'>${job.company_name||''} • ${job.location||''}${modelType}</div><p>${(job.summary||job.description||'').slice(0,180)}...</p><p><a href='/pages/vaga-detalhes.html?id=${job.id}'>Ver detalhes</a></p>`;
+      
+      // Usar workModel em vez de model e company.name em vez de company_name
+      const workModelDisplay = job.workModel ? ` • ${job.workModel}` : '';
+      const companyName = job.company?.name || 'Empresa não informada';
+      
+      el.innerHTML = `
+        <h3>${job.title}</h3>
+        <div class='job-meta'>${companyName} • ${job.location || 'Local não informado'}${workModelDisplay}</div>
+        <p>${(job.description || '').slice(0,180)}...</p>
+        <p><a href='/vaga/${job._id}'>Ver detalhes</a></p>
+      `;
       container.appendChild(el);
     });
     renderPagination(data.total || 0);

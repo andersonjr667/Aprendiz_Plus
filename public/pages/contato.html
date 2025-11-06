@@ -5,22 +5,167 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Contato - Aprendiz+</title>
   <link rel="stylesheet" href="/public/css/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
-    <section class="card" style="max-width:720px;margin:40px auto;">
-      <h2>Contato</h2>
-      <form id="contactForm">
-        <div class="form-group"><label>Nome</label><input name="name" class="form-control" required></div>
-        <div class="form-group"><label>E-mail</label><input name="email" type="email" class="form-control" required></div>
-        <div class="form-group"><label>Assunto</label><input name="subject" class="form-control"></div>
-        <div class="form-group"><label>Mensagem</label><textarea name="message" class="form-control" required></textarea></div>
-        <button class="btn btn-primary">Enviar</button>
-      </form>
+<body class="page-container">
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/login" class="nav-link-login">Login</a>
+        <a href="/register" class="btn btn-primary">Cadastre-se</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="container">
+        <h1 class="page-title">Entre em Contato</h1>
+        <p class="page-subtitle">Tem dúvidas ou sugestões? Estamos aqui para ajudar!</p>
+      </div>
+    </div>
+
+    <section class="container">
+      <div class="grid-2 gap-xl">
+        <!-- Formulário de Contato -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Envie sua Mensagem</h2>
+            <p class="card-subtitle">Responderemos em até 24 horas</p>
+          </div>
+          
+          <div class="card-body">
+            <div id="messageContainer" class="message-container" style="display: none;">
+              <div id="messageText"></div>
+            </div>
+
+            <form id="contactForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Nome Completo</label>
+                  <input name="name" id="name" class="form-control" required placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                  <label for="email">E-mail</label>
+                  <input name="email" id="email" type="email" class="form-control" required placeholder="seu@email.com">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="subject">Assunto</label>
+                <select name="subject" id="subject" class="form-control" required>
+                  <option value="">Selecione um assunto</option>
+                  <option value="duvida-tecnica">Dúvida Técnica</option>
+                  <option value="problema-conta">Problema com Conta</option>
+                  <option value="sugestao">Sugestão</option>
+                  <option value="parceria">Parceria</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="message">Mensagem</label>
+                <textarea name="message" id="message" class="form-control" required placeholder="Descreva sua dúvida ou sugestão..." rows="6"></textarea>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-block btn-lg">
+                Enviar Mensagem
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Informações de Contato -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Outras Formas de Contato</h3>
+            </div>
+            <div class="card-body">
+              <div class="flex flex-col gap-lg">
+                <div class="flex items-center gap-md">
+                  <div style="font-size: 1.5rem;">📧</div>
+                  <div>
+                    <strong>E-mail</strong><br>
+                    <span class="text-gray-600">suporte@aprendizplus.com</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center gap-md">
+                  <div style="font-size: 1.5rem;">💬</div>
+                  <div>
+                    <strong>Chat Online</strong><br>
+                    <span class="text-gray-600">Segunda a Sexta, 8h às 18h</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center gap-md">
+                  <div style="font-size: 1.5rem;">❓</div>
+                  <div>
+                    <strong>Central de Ajuda</strong><br>
+                    <a href="/faq" class="text-brand-green">Perguntas Frequentes</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: var(--spacing-xl);">
+            <div class="card-header">
+              <h3 class="card-title">FAQ Rápido</h3>
+            </div>
+            <div class="card-body">
+              <div class="flex flex-col gap-md">
+                <details>
+                  <summary style="cursor: pointer; font-weight: 500;">Como criar uma conta?</summary>
+                  <p style="margin-top: var(--spacing-sm); color: var(--gray-600);">
+                    Clique em "Cadastre-se" no canto superior direito e preencha o formulário.
+                  </p>
+                </details>
+                <details>
+                  <summary style="cursor: pointer; font-weight: 500;">Como candidatar-se a uma vaga?</summary>
+                  <p style="margin-top: var(--spacing-sm); color: var(--gray-600);">
+                    Faça login, acesse a vaga desejada e clique em "Candidatar-se".
+                  </p>
+                </details>
+                <details>
+                  <summary style="cursor: pointer; font-weight: 500;">Esqueci minha senha</summary>
+                  <p style="margin-top: var(--spacing-sm); color: var(--gray-600);">
+                    Use a opção "Esqueci minha senha" na página de login.
+                  </p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Aprendiz+</h3>
+        <p>Conectando jovens talentos ao mercado de trabalho</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links Úteis</h4>
+        <a href="/">Início</a>
+        <a href="/contato">Contato</a>
+        <a href="/termos">Termos de Uso</a>
+        <a href="/privacidade">Política de Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+    </div>
+  </footer>
 
   <script src="/public/js/contato.js" defer></script>
 </body>
