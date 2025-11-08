@@ -3,31 +3,118 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Notícia - Aprendiz+</title>
+  <title id="pageTitle">Notícia - Aprendiz+</title>
+  <meta name="description" id="pageDescription" content="Leia o artigo completo no Aprendiz+">
+  <meta name="keywords" content="notícias, carreira, emprego, estágio">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" id="ogTitle" content="Notícia - Aprendiz+">
+  <meta property="og:description" id="ogDescription" content="Leia o artigo completo no Aprendiz+">
+  <meta property="og:image" id="ogImage" content="https://aprendizmais.com/og-news.jpg">
+  
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="/public/css/news-detail.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
-  <script src="/public/js/global.js" defer></script>
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
-    <div class="news-detail-container">
-      <div style="margin-bottom: var(--spacing-lg);">
-        <button id="btnVoltarNews" class="btn btn-back">
-          <i class="fas fa-arrow-left"></i> Voltar
-        </button>
+<body class="page-container">
+<body class="page-container">
+  <!-- Reading Progress Bar -->
+  <div class="reading-progress">
+    <div class="reading-progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias" class="active">Notícias</a>
+        <a href="/login" class="nav-link-login">Login</a>
+        <a href="/register" class="btn btn-primary">Cadastre-se</a>
       </div>
-      
-      <article id="news-detail">
-        <!-- Carregamento -->
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="news-detail-wrapper">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+      <a href="/noticias" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Voltar para Notícias
+      </a>
+    </div>
+
+    <!-- Article Layout -->
+    <div class="article-layout">
+      <!-- Main Article -->
+      <article id="newsArticle" class="article-main">
+        <!-- Loading State -->
         <div class="loading-container">
           <div class="loading-spinner"></div>
-          <span>Carregando notícia...</span>
+          <p>Carregando artigo...</p>
         </div>
       </article>
+
+      <!-- Sidebar -->
+      <aside class="article-sidebar">
+        <!-- Author Info -->
+        <div class="sidebar-widget" id="authorWidget" style="display: none;">
+          <h3><i class="fas fa-user-circle"></i> Sobre o Autor</h3>
+          <div id="authorBox"></div>
+        </div>
+
+        <!-- Related Articles -->
+        <div class="sidebar-widget" id="relatedWidget">
+          <h3><i class="fas fa-newspaper"></i> Artigos Relacionados</h3>
+          <div id="relatedArticles"></div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="sidebar-widget newsletter-widget">
+          <h3><i class="fas fa-envelope"></i> Newsletter</h3>
+          <p>Receba as últimas notícias e dicas de carreira direto no seu e-mail!</p>
+          <form class="newsletter-form-inline" id="sidebarNewsletter">
+            <input type="email" placeholder="Seu e-mail" required>
+            <button type="submit">
+              <i class="fas fa-paper-plane"></i> Inscrever-se
+            </button>
+          </form>
+        </div>
+      </aside>
     </div>
   </main>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" id="scrollTopBtn">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Aprendiz+</h3>
+        <p>Conectando jovens talentos ao mercado de trabalho</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links Úteis</h4>
+        <a href="/">Início</a>
+        <a href="/contato">Contato</a>
+        <a href="/termos">Termos de Uso</a>
+        <a href="/privacidade">Política de Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+    </div>
+  </footer>
 
   <script src="/public/js/news-detail.js" defer></script>
 </body>

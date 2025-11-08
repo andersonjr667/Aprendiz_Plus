@@ -3,8 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Notícias - Aprendiz+</title>
+  <title>Dicas e Tendências para Jovens Profissionais | Aprendiz+</title>
+  <meta name="description" content="Descubra as últimas notícias sobre mercado de trabalho, estágios e carreiras para estudantes e recém-formados. Fique por dentro das tendências!">
+  <meta name="keywords" content="notícias carreira, dicas emprego, mercado de trabalho, tendências profissionais, estágio, primeiro emprego">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dicas e Tendências para Jovens Profissionais | Aprendiz+">
+  <meta property="og:description" content="Descubra as últimas notícias sobre mercado de trabalho, estágios e carreiras para estudantes e recém-formados.">
+  <meta property="og:image" content="https://aprendizmais.com/og-news.jpg">
+  
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="/public/css/noticias.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/auth.js" defer></script>
@@ -24,30 +34,115 @@
     </nav>
   </header>
 
-  <main class="main-content">
-    <div class="page-header">
+  <main class="main-content" style="padding-top: 75px;">
+    <!-- Hero Section -->
+    <div class="noticias-hero">
       <div class="container">
-        <h1 class="page-title">Notícias e Novidades</h1>
-        <p class="page-subtitle">Fique por dentro das últimas tendências do mercado de trabalho e dicas de carreira</p>
+        <h1>Notícias e Novidades</h1>
+        <p>Fique por dentro das últimas tendências do mercado de trabalho e dicas de carreira para jovens profissionais</p>
       </div>
     </div>
 
     <section class="container">
-      <div id="news" class="news-grid"></div>
-      
-      <!-- Loading skeleton -->
-      <div id="loading" class="news-grid" style="display: none;">
-        <div class="card skeleton skeleton-card"></div>
-        <div class="card skeleton skeleton-card"></div>
-        <div class="card skeleton skeleton-card"></div>
-        <div class="card skeleton skeleton-card"></div>
+      <!-- Category Filter -->
+      <div class="category-filter">
+        <span class="category-filter-label">Filtrar por:</span>
+        <button class="filter-btn active" data-category="all">
+          <i class="fas fa-th"></i> Todos
+        </button>
+        <button class="filter-btn" data-category="carreira">
+          <i class="fas fa-briefcase"></i> Carreira
+        </button>
+        <button class="filter-btn" data-category="entrevistas">
+          <i class="fas fa-comments"></i> Entrevistas
+        </button>
+        <button class="filter-btn" data-category="tendencias">
+          <i class="fas fa-chart-line"></i> Tendências
+        </button>
+        <button class="filter-btn" data-category="dicas">
+          <i class="fas fa-lightbulb"></i> Dicas
+        </button>
+        <button class="filter-btn" data-category="mercado">
+          <i class="fas fa-globe"></i> Mercado
+        </button>
       </div>
-      
-      <!-- Empty state -->
-      <div id="empty-state" class="text-center" style="display: none; padding: var(--spacing-3xl);">
-        <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">📰</div>
-        <h3>Nenhuma notícia encontrada</h3>
-        <p class="text-gray-500">Volte em breve para conferir as novidades!</p>
+
+      <!-- Content with Sidebar -->
+      <div class="content-with-sidebar">
+        <!-- Main Content -->
+        <div>
+          <!-- News Grid -->
+          <div id="news" class="news-grid"></div>
+          
+          <!-- Loading skeleton -->
+          <div id="loading" class="news-grid" style="display: none;">
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Load More Button -->
+          <div id="loadMoreContainer" class="load-more-container" style="display: none;">
+            <button id="loadMoreBtn" class="btn-load-more">
+              <i class="fas fa-plus-circle"></i>
+              Carregar mais artigos
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Popular News -->
+          <div class="sidebar-widget">
+            <h3><i class="fas fa-fire"></i> Mais Lidos</h3>
+            <div id="popularNews"></div>
+          </div>
+
+          <!-- Recent Jobs -->
+          <div class="sidebar-widget">
+            <h3><i class="fas fa-briefcase"></i> Últimas Vagas</h3>
+            <ul id="recentJobs" class="recent-jobs"></ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+      <div class="container">
+        <div class="newsletter-content">
+          <div class="newsletter-icon">�</div>
+          <h2>Receba Novidades por E-mail</h2>
+          <p>Quer receber novas oportunidades e dicas de carreira direto na sua caixa de entrada? Cadastre-se e fique por dentro!</p>
+          <form class="newsletter-form" id="newsletterForm">
+            <input type="email" placeholder="Seu melhor e-mail" required>
+            <button type="submit">Inscrever-se</button>
+          </form>
+        </div>
       </div>
     </section>
   </main>

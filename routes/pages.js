@@ -63,6 +63,7 @@ router.get('/contato', (req, res) => sendPage(res, 'contato.html'));
 router.get('/search', (req, res) => sendPage(res, 'search-results.html'));
 router.get('/not-found', (req, res) => sendPage(res, '404.html'));
 router.get('/teste-api', (req, res) => sendPage(res, 'teste-api.html'));
+router.get('/ai-test', (req, res) => sendPage(res, 'ai-test.html'));
 
 // Fallback for unknown routes -> 404 page
 router.get('*', (req, res) => { res.status(404); sendPage(res, '404.html'); });

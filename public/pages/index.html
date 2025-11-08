@@ -3,19 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprendiz+ | Conectando Talentos</title>
+    <title>Aprendiz+ | Seu Primeiro Emprego Começa Aqui - Vagas 100% Gratuitas</title>
+    <meta name="description" content="Encontre seu primeiro emprego ou estágio! Mais de 5.000 jovens já foram contratados. Plataforma 100% gratuita com 1.200+ vagas exclusivas para estudantes e recém-formados. Cadastre-se agora!">
+    <meta name="keywords" content="vaga estágio, emprego jovem, recém-formado, primeiro emprego, jovem talento, mercado de trabalho, oportunidades jovens, estágio remunerado, trainee">
+    <meta name="author" content="Aprendiz+">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aprendizmais.com/">
+    <meta property="og:title" content="Aprendiz+ | Seu Primeiro Emprego Começa Aqui">
+    <meta property="og:description" content="Mais de 5.000 jovens já conseguiram seu primeiro emprego conosco. Cadastro grátis, vagas exclusivas para estudantes e recém-formados!">
+    <meta property="og:image" content="https://aprendizmais.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://aprendizmais.com/">
+    <meta property="twitter:title" content="Aprendiz+ | Seu Primeiro Emprego Começa Aqui">
+    <meta property="twitter:description" content="Mais de 5.000 jovens já conseguiram seu primeiro emprego conosco. Cadastro grátis!">
+    <meta property="twitter:image" content="https://aprendizmais.com/og-image.jpg">
+    
     <link rel="stylesheet" href="/public/css/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
+    <script src="/public/js/main.js" defer></script>
     <style>
+        /* Hero Section - Melhorado */
         .hero-section {
-            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+            background: linear-gradient(135deg, var(--brand-green) 0%, #1e8449 100%);
             color: white;
-            padding: var(--spacing-3xl) 0;
+            padding: 100px 0 120px;
             text-align: center;
-            min-height: 70vh;
+            min-height: 85vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -30,7 +50,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: patternMove 20s linear infinite;
+        }
+
+        @keyframes patternMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
         }
 
         .hero-content {
@@ -39,20 +65,37 @@
             padding: 0 var(--spacing-lg);
             position: relative;
             z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .hero-title {
-            font-size: var(--font-size-4xl);
+            font-size: 3.5rem;
             font-weight: var(--font-weight-bold);
-            margin-bottom: var(--spacing-lg);
-            line-height: var(--line-height-tight);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.3;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            color: #ffffff;
         }
 
         .hero-subtitle {
-            font-size: var(--font-size-xl);
+            font-size: 1.4rem;
             margin-bottom: var(--spacing-xxl);
-            opacity: 0.95;
-            line-height: var(--line-height-relaxed);
+            opacity: 1;
+            line-height: 1.8;
+            font-weight: 400;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .cta-buttons {
@@ -60,63 +103,128 @@
             gap: var(--spacing-lg);
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: var(--spacing-xl);
         }
 
         .cta-button {
-            padding: var(--spacing-lg) var(--spacing-xxl);
+            padding: 18px 40px;
             border-radius: var(--border-radius-lg);
             font-weight: var(--font-weight-semibold);
-            transition: var(--transition-normal);
+            transition: all 0.3s ease;
             text-decoration: none;
-            font-size: var(--font-size-lg);
+            font-size: 1.15rem;
             display: inline-flex;
             align-items: center;
             gap: var(--spacing-sm);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            min-width: 200px;
+            justify-content: center;
         }
 
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             text-decoration: none;
         }
 
         .cta-primary {
             background: white;
             color: var(--brand-green);
+            border: 3px solid white;
+            font-weight: 700;
         }
 
         .cta-primary:hover {
+            background: #f8f9fa;
             color: var(--brand-green-dark);
+            border-color: #f8f9fa;
+            transform: translateY(-4px) scale(1.05);
         }
 
         .cta-secondary {
             background: transparent;
-            border: 2px solid white;
+            border: 3px solid white;
             color: white;
+            backdrop-filter: blur(10px);
         }
 
         .cta-secondary:hover {
-            background: white;
-            color: var(--brand-green);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: white;
         }
 
-        .features-section {
+        /* Statistics Section */
+        .stats-section {
+            background: linear-gradient(135deg, #1A2B4D 0%, #2C3E50 100%);
             padding: var(--spacing-3xl) 0;
-            background: white;
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-xxl);
+            max-width: var(--container-max-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .stat-card {
+            text-align: center;
+            color: white;
+            padding: var(--spacing-lg);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: var(--font-weight-bold);
+            color: #2ecc71;
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 1.15rem;
+            opacity: 1;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Features Section - Melhorada */
+        .features-section {
+            padding: 100px 0;
+            background: linear-gradient(to bottom, #ffffff 0%, var(--gray-50) 100%);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
         }
 
         .features-title {
-            text-align: center;
-            font-size: var(--font-size-3xl);
-            color: var(--gray-900);
-            margin-bottom: var(--spacing-xl);
-            font-weight: var(--font-weight-bold);
+            font-size: 2.5rem;
+            color: #222222;
+            margin-bottom: var(--spacing-md);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .features-subtitle {
+            font-size: 1.25rem;
+            color: #555555;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-xxl);
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
             max-width: var(--container-max-width);
             margin: 0 auto;
             padding: 0 var(--spacing-lg);
@@ -124,53 +232,441 @@
 
         .feature-card {
             text-align: center;
-            padding: var(--spacing-xxl);
-            border-radius: var(--border-radius-lg);
+            padding: 40px 30px;
+            border-radius: var(--border-radius-xl);
             background: white;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-normal);
-            border: 1px solid var(--gray-200);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
+            transform: translateY(-12px);
+            box-shadow: 0 15px 40px rgba(46, 204, 113, 0.2);
             border-color: var(--brand-green);
         }
 
         .feature-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto var(--spacing-lg);
-            background: var(--brand-green);
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--brand-green), #27ae60);
             border-radius: var(--border-radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: var(--font-size-2xl);
+            font-size: 2.5rem;
             color: white;
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 35px rgba(46, 204, 113, 0.4);
         }
 
         .feature-title {
-            color: var(--gray-900);
-            font-size: var(--font-size-xl);
+            color: #1a1a1a;
+            font-size: 1.5rem;
             margin-bottom: var(--spacing-md);
-            font-weight: var(--font-weight-semibold);
+            font-weight: var(--font-weight-bold);
         }
 
         .feature-description {
-            color: var(--gray-600);
-            font-size: var(--font-size-base);
-            line-height: var(--line-height-relaxed);
+            color: #444444;
+            font-size: 1.1rem;
+            line-height: 1.8;
         }
 
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 50px;
+            max-width: var(--container-max-width);
+            margin: 40px auto 0;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+            padding: 30px 20px;
+        }
+
+        .step-number {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--brand-green), #27ae60);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.3);
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .step-description {
+            color: #444444;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--gray-50) 0%, #e8f5e9 100%);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: var(--container-max-width);
+            margin: 40px auto 0;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 35px;
+            border-radius: var(--border-radius-xl);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--brand-green);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        .testimonial-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #2a2a2a;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--brand-green), #27ae60);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .author-info h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .author-info p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #555555;
+        }
+
+        /* Featured Jobs Section */
+        .featured-jobs {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .jobs-carousel {
+            max-width: var(--container-max-width);
+            margin: 40px auto 0;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .job-card-mini {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .job-card-mini:hover {
+            border-color: var(--brand-green);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .job-company {
+            font-size: 1rem;
+            color: #555555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .job-title-mini {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .job-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .job-tag {
+            background: #f0f0f0;
+            color: #333333;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            padding: 100px 0;
+            background: var(--gray-50);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 40px auto 0;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .faq-question {
+            padding: 25px 30px;
+            font-weight: 600;
+            color: #1a1a1a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            font-size: 1.15rem;
+        }
+
+        .faq-question:hover {
+            background: var(--gray-50);
+            color: var(--brand-green);
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: #333333;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 30px 25px;
+            max-height: 500px;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 80px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--brand-green);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .back-to-top:hover {
+            background: var(--brand-green-dark);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .back-to-top.show {
+            display: flex;
+        }
+
+        /* Companies Section */
+        .companies-section {
+            padding: 80px 0;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 40px;
+            max-width: var(--container-max-width);
+            margin: 40px auto 0;
+            padding: 0 var(--spacing-lg);
+            align-items: center;
+        }
+
+        .company-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            filter: grayscale(100%);
+        }
+
+        .company-logo:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.1);
+        }
+
+        .company-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #666;
+        }
+
+        /* Mid-page CTA */
+        .mid-cta {
+            text-align: center;
+            margin: 60px auto;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.05));
+            border-radius: var(--border-radius-xl);
+            border: 2px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .mid-cta h3 {
+            font-size: 2rem;
+            color: #222222;
+            margin-bottom: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .mid-cta p {
+            font-size: 1.2rem;
+            color: #444444;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--brand-green) 0%, #1e8449 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            opacity: 1;
+            color: #ffffff;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.15);
+            line-height: 1.7;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: var(--font-size-3xl);
+                font-size: 2.5rem;
+                line-height: 1.3;
             }
 
             .hero-subtitle {
-                font-size: var(--font-size-lg);
+                font-size: 1.2rem;
+                line-height: 1.7;
             }
 
             .cta-buttons {
@@ -180,17 +676,122 @@
 
             .cta-button {
                 width: 100%;
-                max-width: 300px;
-                justify-content: center;
+                max-width: 320px;
+                font-size: 1.1rem;
+                padding: 16px 32px;
             }
 
-            .features-grid {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-lg);
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .stat-label {
+                font-size: 1rem;
+            }
+
+            .features-grid,
+            .steps-grid,
+            .testimonials-grid {
                 grid-template-columns: 1fr;
                 gap: var(--spacing-xl);
             }
 
-            .feature-card {
-                padding: var(--spacing-xl);
+            .feature-card,
+            .testimonial-card {
+                padding: 30px 20px;
+            }
+
+            .feature-title {
+                font-size: 1.35rem;
+            }
+
+            .feature-description {
+                font-size: 1.05rem;
+            }
+
+            .step-title {
+                font-size: 1.3rem;
+            }
+
+            .step-description {
+                font-size: 1.05rem;
+            }
+
+            .features-title,
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            .features-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section-header {
+                margin-bottom: 40px;
+            }
+
+            .testimonial-text {
+                font-size: 1.05rem;
+            }
+
+            .faq-question {
+                font-size: 1.05rem;
+                padding: 20px 20px;
+            }
+
+            .faq-answer {
+                font-size: 1rem;
+                padding: 0 20px;
+            }
+
+            .faq-item.active .faq-answer {
+                padding: 0 20px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .cta-button {
+                font-size: 1rem;
+                padding: 14px 28px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 2.2rem;
+            }
+
+            .features-title,
+            .cta-section h2 {
+                font-size: 1.75rem;
+            }
+
+            .feature-title {
+                font-size: 1.25rem;
+            }
+
+            .feature-description,
+            .step-description {
+                font-size: 1rem;
+            }
+
+            .cta-section p {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -212,52 +813,318 @@
     </header>
 
     <main class="main-content">
+        <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Conectamos jovens talentos ao futuro</h1>
+                <h1 class="hero-title">Seu primeiro emprego começa aqui - 100% gratuito!</h1>
                 <p class="hero-subtitle">
-                    Descubra oportunidades de estágio e emprego que vão impulsionar sua carreira. 
-                    Junte-se a milhares de jovens que já encontraram seu lugar no mercado de trabalho.
+                    Mais de 5.000 jovens já conseguiram seu primeiro emprego através da nossa plataforma. 
+                    Cadastre-se grátis e comece a se candidatar a 1.200+ vagas exclusivas para estudantes e recém-formados hoje mesmo!
                 </p>
                 <div class="cta-buttons">
-                    <a href="/vagas" class="cta-button cta-primary">
-                        <i class="fas fa-search"></i> Buscar Vagas
+                    <a href="/register" class="cta-button cta-primary">
+                        <i class="fas fa-rocket"></i> Cadastrar Grátis Agora
                     </a>
-                    <a href="/register" class="cta-button cta-secondary">
-                        <i class="fas fa-rocket"></i> Cadastrar-se
+                    <a href="/vagas" class="cta-button cta-secondary">
+                        <i class="fas fa-search"></i> Explorar Vagas
                     </a>
                 </div>
             </div>
         </section>
 
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" data-count="5000">0</span>
+                    <span class="stat-label">Jovens Contratados</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-count="350">0</span>
+                    <span class="stat-label">Empresas Parceiras</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-count="1200">0</span>
+                    <span class="stat-label">Vagas Ativas</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">95%</span>
+                    <span class="stat-label">Taxa de Satisfação</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
         <section class="features-section">
             <div class="container">
-                <h2 class="features-title">Por que escolher o Aprendiz+?</h2>
+                <div class="section-header">
+                    <h2 class="features-title">Por que escolher o Aprendiz+?</h2>
+                    <p class="features-subtitle">
+                        Oferecemos a melhor experiência para jovens profissionais encontrarem oportunidades reais
+                    </p>
+                </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
-                        <h3 class="feature-title">Vagas Focadas em Jovens</h3>
+                        <h3 class="feature-title">Vagas Exclusivas para Jovens</h3>
                         <p class="feature-description">
-                            Encontre oportunidades específicas para estudantes e recém-formados, 
-                            com empresas que valorizam o potencial jovem.
+                            Todas as oportunidades são específicas para estudantes e recém-formados, 
+                            com empresas que realmente valorizam novos talentos e oferecem crescimento.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-handshake"></i></div>
-                        <h3 class="feature-title">Conexão Direta</h3>
+                        <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+                        <h3 class="feature-title">Processo Rápido e Direto</h3>
                         <p class="feature-description">
-                            Sistema simplificado que conecta candidatos e empresas de forma 
-                            rápida e eficiente, sem intermediários desnecessários.
+                            Conexão direta entre candidatos e empresas, sem intermediários. 
+                            Cadastre-se em minutos e comece a se candidatar imediatamente.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                        <h3 class="feature-title">Crescimento Profissional</h3>
+                        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3 class="feature-title">100% Gratuito e Seguro</h3>
                         <p class="feature-description">
-                            Acompanhe seu desenvolvimento profissional com ferramentas que 
-                            ajudam a construir um perfil atrativo para recrutadores.
+                            Plataforma totalmente gratuita com verificação de empresas parceiras. 
+                            Seus dados estão protegidos e nunca compartilhados sem autorização.
                         </p>
                     </div>
+                </div>
+                
+                <!-- Mid-page CTA -->
+                <div class="mid-cta">
+                    <h3>Pronto para começar sua jornada profissional?</h3>
+                    <p>Não perca tempo! Milhares de jovens estão se candidatando agora mesmo.</p>
+                    <a href="/register" class="cta-button cta-primary">
+                        <i class="fas fa-rocket"></i> Criar Conta Gratuita
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Companies Section -->
+        <section class="companies-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Empresas Parceiras de Confiança</h2>
+                    <p class="features-subtitle">
+                        Trabalhamos com as melhores empresas do mercado que realmente valorizam jovens talentos
+                    </p>
+                </div>
+                <div class="companies-grid">
+                    <div class="company-logo"><span class="company-logo-text">TechCorp</span></div>
+                    <div class="company-logo"><span class="company-logo-text">StartUp XYZ</span></div>
+                    <div class="company-logo"><span class="company-logo-text">Creative Agency</span></div>
+                    <div class="company-logo"><span class="company-logo-text">Digital Solutions</span></div>
+                    <div class="company-logo"><span class="company-logo-text">Innovation Labs</span></div>
+                    <div class="company-logo"><span class="company-logo-text">Growth Partners</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Como Funciona?</h2>
+                    <p class="features-subtitle">
+                        Em 3 passos simples você está pronto para conquistar sua vaga dos sonhos
+                    </p>
+                </div>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Crie sua Conta</h3>
+                        <p class="step-description">
+                            Cadastro rápido com suas informações básicas. 
+                            Leva menos de 2 minutos para começar!
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Complete seu Perfil</h3>
+                        <p class="step-description">
+                            Adicione suas habilidades, experiências e o que você busca. 
+                            Quanto mais completo, melhores as oportunidades!
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Candidate-se às Vagas</h3>
+                        <p class="step-description">
+                            Navegue por centenas de vagas e candidate-se com um clique. 
+                            As empresas entram em contato diretamente com você!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Jobs Section -->
+        <section class="featured-jobs">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Vagas em Destaque</h2>
+                    <p class="features-subtitle">
+                        Confira algumas das melhores oportunidades disponíveis agora
+                    </p>
+                </div>
+                <div class="jobs-carousel" id="featuredJobs">
+                    <!-- Jobs will be loaded dynamically -->
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <span>Carregando vagas...</span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="/vagas" class="cta-button cta-primary">
+                        Ver Todas as Vagas
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Histórias de Sucesso</h2>
+                    <p class="features-subtitle">
+                        Veja o que jovens como você conquistaram através do Aprendiz+
+                    </p>
+                </div>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">
+                            "Encontrei meu primeiro estágio em apenas 2 semanas! A plataforma é super fácil 
+                            de usar e as empresas respondem rapidamente. Hoje estou efetivado!"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">MR</div>
+                            <div class="author-info">
+                                <h4>Mariana Rodrigues</h4>
+                                <p>Desenvolvedora Junior - TechCorp</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">
+                            "Como recém-formado, estava perdido na busca por emprego. O Aprendiz+ me conectou 
+                            com empresas que realmente dão chances para quem está começando."
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">PC</div>
+                            <div class="author-info">
+                                <h4>Pedro Costa</h4>
+                                <p>Analista de Marketing - StartUp XYZ</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">
+                            "A melhor parte é que todas as vagas são reais e específicas para jovens. 
+                            Não perdi tempo com processos que pedem 5 anos de experiência!"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">AS</div>
+                            <div class="author-info">
+                                <h4>Ana Silva</h4>
+                                <p>Designer Gráfica - Creative Agency</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Perguntas Frequentes</h2>
+                    <p class="features-subtitle">
+                        Tire suas dúvidas sobre como usar a plataforma
+                    </p>
+                </div>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            É realmente grátis para candidatos?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Sim! O Aprendiz+ é 100% gratuito para candidatos. Você pode criar sua conta, 
+                            completar seu perfil e se candidatar a quantas vagas quiser sem pagar nada.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Preciso ter experiência para me candidatar?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Não! Nossa plataforma é focada em jovens talentos, incluindo estudantes e recém-formados. 
+                            Muitas vagas são específicas para quem está começando a carreira.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Como as empresas entram em contato comigo?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Após você se candidatar, as empresas podem visualizar seu perfil e entrar em contato 
+                            através do email cadastrado ou pelo sistema interno de mensagens da plataforma.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Quanto tempo leva para conseguir uma vaga?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Isso varia de acordo com seu perfil e as vagas disponíveis. Em média, nossos usuários 
+                            recebem as primeiras respostas em 1-2 semanas. Mantenha seu perfil completo e atualizado!
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Posso me candidatar a várias vagas ao mesmo tempo?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Com certeza! Recomendamos que você se candidate a todas as vagas que combinam com seu perfil 
+                            e interesses. Isso aumenta suas chances de sucesso.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Como sei se uma empresa é confiável?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Todas as empresas na nossa plataforma passam por um processo de verificação. 
+                            Além disso, você pode ver avaliações de outros candidatos e informações detalhadas sobre cada empresa.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2>Não perca mais tempo - seu futuro te espera!</h2>
+                <p>
+                    Milhares de jovens já conseguiram seu primeiro emprego através do Aprendiz+. 
+                    Você pode ser o próximo! Cadastre-se gratuitamente e comece hoje mesmo.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/register" class="cta-button cta-primary">
+                        <i class="fas fa-rocket"></i> Começar Agora - É Grátis!
+                    </a>
+                    <a href="/vagas" class="cta-button cta-secondary">
+                        <i class="fas fa-briefcase"></i> Ver Vagas Disponíveis
+                    </a>
                 </div>
             </div>
         </section>
@@ -288,5 +1155,10 @@
     
     <!-- Floating Help Button -->
     <a href="/contato" class="help-link" title="Precisa de ajuda? Clique aqui">?</a>
+    
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Voltar ao topo">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 </body>
 </html>

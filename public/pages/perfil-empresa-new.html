@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil | Aprendiz+</title>
+    <title>Perfil da Empresa | Aprendiz+</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Gerencie seu perfil, candidaturas e currículo no Aprendiz+">
+    <meta name="description" content="Gerencie o perfil da sua empresa, vagas publicadas e candidaturas no Aprendiz+">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- Fonts -->
@@ -19,7 +19,7 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/perfil-candidato.css">
+    <link rel="stylesheet" href="/public/css/perfil-empresa.css">
     
     <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
@@ -36,7 +36,7 @@
                 <li><a href="/">Início</a></li>
                 <li><a href="/vagas">Vagas</a></li>
                 <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/perfil-candidato" class="active">Meu Perfil</a></li>
+                <li><a href="/perfil-empresa" class="active">Minha Empresa</a></li>
             </ul>
             <div class="nav-auth">
                 <button onclick="logout()" class="btn-logout">
@@ -53,21 +53,23 @@
     <section class="profile-header">
         <div class="container profile-header-content">
             <div class="profile-avatar" id="profileAvatar">
-                <i class="fas fa-user"></i>
+                <i class="fas fa-building"></i>
                 <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                 <div class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">
                     <i class="fas fa-camera"></i>
                 </div>
             </div>
-            <h1 id="profileName">Carregando...</h1>
-            <p class="profile-subtitle" id="profileEmail">email@exemplo.com</p>
-            <div class="profile-badges">
-                <span class="profile-badge">
-                    <i class="fas fa-check-circle"></i> Perfil Verificado
-                </span>
-                <span class="profile-badge" id="completionBadge">
-                    <i class="fas fa-chart-line"></i> <span id="completionPercent">0%</span> Completo
-                </span>
+            <div>
+                <h1 id="profileName">Carregando...</h1>
+                <p class="profile-subtitle" id="profileEmail">email@empresa.com</p>
+                <div class="profile-badges">
+                    <span class="profile-badge">
+                        <i class="fas fa-check-circle"></i> Empresa Verificada
+                    </span>
+                    <span class="profile-badge" id="completionBadge">
+                        <i class="fas fa-chart-line"></i> <span id="completionPercent">0%</span> Completo
+                    </span>
+                </div>
             </div>
         </div>
     </section>
@@ -77,12 +79,12 @@
         <div class="profile-grid">
             <!-- Main Content -->
             <div class="profile-main">
-                <!-- Personal Info Card -->
+                <!-- Company Info Card -->
                 <div class="profile-card">
                     <div class="card-header-profile">
                         <h2 class="card-title-profile">
-                            <i class="fas fa-user-circle"></i>
-                            Informações Pessoais
+                            <i class="fas fa-building"></i>
+                            Informações da Empresa
                         </h2>
                         <button class="btn-edit" id="btnEdit" onclick="toggleEditMode()">
                             <i class="fas fa-edit"></i>
@@ -97,8 +99,8 @@
                         <div class="info-grid">
                             <div class="info-card">
                                 <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-user"></i></div>
-                                    <span class="info-label">Nome Completo</span>
+                                    <div class="info-icon"><i class="fas fa-building"></i></div>
+                                    <span class="info-label">Nome da Empresa</span>
                                 </div>
                                 <p class="info-value" id="displayName">-</p>
                             </div>
@@ -114,9 +116,9 @@
                             <div class="info-card">
                                 <div class="info-header">
                                     <div class="info-icon"><i class="fas fa-id-card"></i></div>
-                                    <span class="info-label">CPF</span>
+                                    <span class="info-label">CNPJ</span>
                                 </div>
-                                <p class="info-value" id="displayCpf">Não informado</p>
+                                <p class="info-value" id="displayCnpj">Não informado</p>
                             </div>
 
                             <div class="info-card">
@@ -127,22 +129,28 @@
                                 <p class="info-value" id="displayPhone">Não informado</p>
                             </div>
 
-                            <div class="info-card info-card-full">
+                            <div class="info-card">
                                 <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-user-edit"></i></div>
-                                    <span class="info-label">Sobre Mim</span>
+                                    <div class="info-icon"><i class="fas fa-globe"></i></div>
+                                    <span class="info-label">Website</span>
                                 </div>
-                                <p class="info-bio" id="displayBio">Nenhuma descrição adicionada. Clique em "Editar" para adicionar informações sobre você.</p>
+                                <p class="info-value" id="displayWebsite">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <span class="info-label">Endereço</span>
+                                </div>
+                                <p class="info-value" id="displayAddress">Não informado</p>
                             </div>
 
                             <div class="info-card info-card-full">
                                 <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-rocket"></i></div>
-                                    <span class="info-label">Habilidades</span>
+                                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                                    <span class="info-label">Sobre a Empresa</span>
                                 </div>
-                                <div class="skills-container" id="displaySkills">
-                                    <span style="color: #999;">Nenhuma habilidade adicionada</span>
-                                </div>
+                                <p class="info-bio" id="displayDescription">Nenhuma descrição adicionada. Clique em "Editar" para adicionar informações sobre sua empresa.</p>
                             </div>
                         </div>
                     </div>
@@ -151,7 +159,7 @@
                     <div id="editMode" class="edit-form">
                         <form id="profileForm">
                             <div class="form-group-profile">
-                                <label for="editName">Nome Completo *</label>
+                                <label for="editName">Nome da Empresa *</label>
                                 <input type="text" id="editName" class="form-control-profile" required>
                             </div>
 
@@ -162,24 +170,28 @@
                             </div>
 
                             <div class="form-group-profile">
-                                <label for="editCpf">CPF</label>
-                                <input type="text" id="editCpf" class="form-control-profile" placeholder="000.000.000-00" maxlength="14">
+                                <label for="editCnpj">CNPJ</label>
+                                <input type="text" id="editCnpj" class="form-control-profile" placeholder="00.000.000/0000-00" maxlength="18">
                             </div>
 
                             <div class="form-group-profile">
                                 <label for="editPhone">Telefone</label>
-                                <input type="text" id="editPhone" class="form-control-profile" placeholder="(00) 00000-0000" maxlength="15">
+                                <input type="text" id="editPhone" class="form-control-profile" placeholder="(00) 0000-0000" maxlength="15">
                             </div>
 
                             <div class="form-group-profile">
-                                <label for="editBio">Sobre Você</label>
-                                <textarea id="editBio" class="form-control-profile" rows="5" placeholder="Conte um pouco sobre você, suas experiências e objetivos profissionais..."></textarea>
+                                <label for="editWebsite">Website</label>
+                                <input type="url" id="editWebsite" class="form-control-profile" placeholder="https://exemplo.com">
                             </div>
 
                             <div class="form-group-profile">
-                                <label for="editSkills">Habilidades</label>
-                                <input type="text" id="editSkills" class="form-control-profile" placeholder="Ex: Comunicação, Trabalho em equipe, Excel (separadas por vírgula)">
-                                <span class="form-text-small">Adicione suas habilidades separadas por vírgula</span>
+                                <label for="editAddress">Endereço</label>
+                                <input type="text" id="editAddress" class="form-control-profile" placeholder="Rua, Número, Bairro, Cidade - UF">
+                            </div>
+
+                            <div class="form-group-profile">
+                                <label for="editDescription">Sobre a Empresa</label>
+                                <textarea id="editDescription" class="form-control-profile" rows="5" placeholder="Conte um pouco sobre sua empresa, missão, valores e cultura..."></textarea>
                             </div>
 
                             <div class="form-actions">
@@ -194,69 +206,22 @@
                     </div>
                 </div>
 
-                <!-- Resume Card -->
-                <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
-                            <i class="fas fa-file-pdf"></i>
-                            Currículo
-                        </h2>
-                    </div>
-
-                    <div id="resumeSection">
-                        <div class="resume-upload-area" id="resumeUploadArea">
-                            <div class="upload-icon">
-                                <i class="fas fa-file-upload"></i>
-                            </div>
-                            <h4>Adicione seu currículo</h4>
-                            <p>Faça upload do seu currículo em formato PDF, DOC ou DOCX</p>
-                            <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display: none;">
-                            <button type="button" class="btn btn-primary" onclick="document.getElementById('resumeInput').click()">
-                                <i class="fas fa-upload"></i> Selecionar Arquivo
-                            </button>
-                            <span class="form-text-small" style="display: block; margin-top: 15px;">
-                                Tamanho máximo: 5MB
-                            </span>
-                        </div>
-
-                        <div class="resume-actions" id="resumeActions">
-                            <div class="resume-info">
-                                <div class="resume-file-icon">
-                                    <i class="fas fa-file-pdf"></i>
-                                </div>
-                                <div class="resume-details">
-                                    <h5 id="resumeFileName">curriculo.pdf</h5>
-                                    <span class="form-text-small" id="resumeFileDate">Enviado em --/--/----</span>
-                                </div>
-                            </div>
-                            <div class="resume-buttons">
-                                <button type="button" class="btn btn-outline" onclick="downloadResume()">
-                                    <i class="fas fa-download"></i> Baixar
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="replaceResume()">
-                                    <i class="fas fa-sync-alt"></i> Substituir
-                                </button>
-                                <button type="button" class="btn btn-danger" onclick="deleteResume()">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Applications Card -->
+                <!-- Published Jobs Card -->
                 <div class="profile-card">
                     <div class="card-header-profile">
                         <h2 class="card-title-profile">
                             <i class="fas fa-briefcase"></i>
-                            Minhas Candidaturas
+                            Vagas Publicadas
                         </h2>
+                        <a href="/publicar-vaga" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nova Vaga
+                        </a>
                     </div>
 
-                    <div id="applicationsSection">
+                    <div id="jobsSection">
                         <div class="loading-profile">
                             <div class="spinner-profile"></div>
-                            <p>Carregando candidaturas...</p>
+                            <p>Carregando vagas...</p>
                         </div>
                     </div>
                 </div>
@@ -273,15 +238,15 @@
                         </h3>
                     </div>
                     <div class="quick-actions">
-                        <a href="/vagas" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Buscar Vagas
+                        <a href="/publicar-vaga" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Publicar Nova Vaga
                         </a>
-                        <a href="/noticias" class="btn btn-outline">
-                            <i class="fas fa-newspaper"></i> Ver Notícias
+                        <a href="/dashboard-empresa" class="btn btn-outline">
+                            <i class="fas fa-chart-bar"></i> Ver Dashboard
                         </a>
-                        <button onclick="document.getElementById('resumeInput').click()" class="btn btn-secondary" id="quickResumeBtn">
-                            <i class="fas fa-file-pdf"></i> <span id="quickResumeText">Adicionar Currículo</span>
-                        </button>
+                        <a href="/candidatos" class="btn btn-secondary">
+                            <i class="fas fa-users"></i> Ver Candidatos
+                        </a>
                     </div>
                 </div>
 
@@ -295,12 +260,12 @@
                     </div>
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <span class="stat-label">Candidaturas</span>
-                            <span class="stat-value" id="statsApplications">0</span>
+                            <span class="stat-label">Vagas Ativas</span>
+                            <span class="stat-value" id="statsJobs">0</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">Visualizações</span>
-                            <span class="stat-value" id="statsViews">0</span>
+                            <span class="stat-label">Candidaturas</span>
+                            <span class="stat-value" id="statsApplications">0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Completude</span>
@@ -312,15 +277,15 @@
                     </div>
                 </div>
 
-                <!-- Recommendations -->
+                <!-- Recent Applications -->
                 <div class="profile-card">
                     <div class="card-header-profile">
                         <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-star"></i>
-                            Para Você
+                            <i class="fas fa-bell"></i>
+                            Candidaturas Recentes
                         </h3>
                     </div>
-                    <div id="recommendationsSection">
+                    <div id="recentApplicationsSection">
                         <div class="loading-profile">
                             <div class="spinner-profile"></div>
                             <p style="font-size: 14px;">Carregando...</p>
@@ -365,7 +330,7 @@
                 </div>
                 <div class="footer-section">
                     <h4>Newsletter</h4>
-                    <p>Receba as melhores vagas no seu email</p>
+                    <p>Receba atualizações sobre candidatos e mercado de trabalho</p>
                     <form class="newsletter-form">
                         <input type="email" placeholder="Seu email">
                         <button type="submit"><i class="fas fa-paper-plane"></i></button>
@@ -378,6 +343,6 @@
         </div>
     </footer>
 
-    <script src="/public/js/perfil-candidato.js" defer></script>
+    <script src="/public/js/perfil-empresa.js" defer></script>
 </body>
 </html>

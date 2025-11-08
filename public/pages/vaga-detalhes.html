@@ -1,32 +1,248 @@
-<!doctype html>
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Detalhes da Vaga - Aprendiz+</title>
-  <link rel="stylesheet" href="/public/css/main.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="/public/js/auth.js" defer></script>
-  <script src="/public/js/api.js" defer></script>
-  <script src="/public/js/global.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaga - Aprendiz+</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Confira os detalhes desta vaga de emprego e candidate-se agora mesmo. Oportunidades de emprego para jovens aprendizes.">
+    <meta name="keywords" content="vaga de emprego, jovem aprendiz, oportunidade, carreira">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Vaga - Aprendiz+">
+    <meta property="og:description" content="Confira os detalhes desta vaga de emprego e candidate-se agora mesmo.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/vaga-detalhes.css">
+    
+    <script src="/public/js/auth.js" defer></script>
+    <script src="/public/js/api.js" defer></script>
+    <script src="/public/js/global.js" defer></script>
 </head>
 <body>
-  <main class="container" style="padding-top:100px;">
-    <div style="margin-bottom: var(--spacing-lg);">
-      <button id="btnVoltar" class="btn btn-back">
-        <i class="fas fa-arrow-left"></i> Voltar
-      </button>
-    </div>
-    
-    <section id="job" style="max-width:900px;margin:40px auto;">
-      <!-- Loading inicial -->
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <span>Carregando detalhes da vaga...</span>
-      </div>
-    </section>
-  </main>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Aprendiz+</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Início</a></li>
+                <li><a href="/vagas" class="active">Vagas</a></li>
+                <li><a href="/noticias">Notícias</a></li>
+                <li><a href="/empresas">Empresas</a></li>
+                <li><a href="/candidatos">Candidatos</a></li>
+                <li><a href="/contato">Contato</a></li>
+            </ul>
+            <div class="nav-auth">
+                <a href="/login" class="btn-login">Entrar</a>
+                <a href="/register" class="btn-register">Cadastrar</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
 
-  <script src="/public/js/vaga-detalhes.js" defer></script>
+    <!-- Main Content -->
+    <div class="job-detail-wrapper">
+        <!-- Back Navigation -->
+        <div class="back-navigation">
+            <button id="btnVoltar" class="btn-back-jobs">
+                <i class="fas fa-arrow-left"></i> Voltar para Vagas
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-job-detail">
+            <div class="loading-spinner-large"></div>
+            <h3>Carregando vaga...</h3>
+            <p>Aguarde enquanto buscamos os detalhes desta oportunidade.</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-job-detail" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Vaga não encontrada</h3>
+            <p>Desculpe, não conseguimos encontrar esta vaga. Ela pode ter sido removida ou o link está incorreto.</p>
+            <button class="btn-back-jobs" onclick="window.location.href='/vagas'">
+                <i class="fas fa-arrow-left"></i> Voltar para Vagas
+            </button>
+        </div>
+
+        <!-- Job Content -->
+        <div id="jobContent" class="job-detail-layout" style="display: none;">
+            <!-- Main Content -->
+            <div class="job-detail-main">
+                <!-- Job Header -->
+                <div class="job-header-card">
+                    <div id="jobBadges" class="job-badges-top"></div>
+                    
+                    <h1 id="jobTitle" class="job-header-title">Título da Vaga</h1>
+                    
+                    <div class="company-info">
+                        <div id="companyLogo" class="company-logo">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="company-details">
+                            <h2 id="companyName">Nome da Empresa</h2>
+                            <div class="company-meta">
+                                <span id="companyLocation" class="company-meta-item">
+                                    <i class="fas fa-map-marker-alt"></i> Localização
+                                </span>
+                                <span id="companySize" class="company-meta-item">
+                                    <i class="fas fa-users"></i> Tamanho
+                                </span>
+                                <span id="companyIndustry" class="company-meta-item">
+                                    <i class="fas fa-industry"></i> Setor
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="jobQuickInfo" class="job-quick-info"></div>
+                </div>
+
+                <!-- Job Description -->
+                <div class="job-content-card">
+                    <div id="jobDescription" class="content-section"></div>
+                    <div id="jobRequirements" class="content-section"></div>
+                    <div id="jobBenefits" class="content-section"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="job-detail-sidebar">
+                <!-- Apply Card -->
+                <div class="apply-card">
+                    <h3>Interessado nesta vaga?</h3>
+                    <button id="btnApply" class="btn-apply">
+                        <i class="fas fa-paper-plane"></i> Candidatar-se
+                    </button>
+                    <div class="apply-actions">
+                        <button id="btnFavorite" class="btn-action">
+                            <i class="far fa-heart"></i> Salvar
+                        </button>
+                        <button id="btnShare" class="btn-action">
+                            <i class="fas fa-share-alt"></i> Compartilhar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Job Info Widget -->
+                <div class="info-widget">
+                    <h3><i class="fas fa-info-circle"></i> Informações</h3>
+                    <div id="jobInfoStats"></div>
+                </div>
+
+                <!-- Share Widget -->
+                <div class="share-widget info-widget">
+                    <h3><i class="fas fa-share-nodes"></i> Compartilhar Vaga</h3>
+                    <div class="share-buttons-grid">
+                        <button class="share-btn-widget" data-platform="whatsapp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="share-btn-widget" data-platform="facebook">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </button>
+                        <button class="share-btn-widget" data-platform="linkedin">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </button>
+                        <button class="share-btn-widget" data-platform="twitter">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Similar Jobs -->
+                <div id="similarJobs" class="similar-jobs-widget info-widget">
+                    <h3><i class="fas fa-briefcase"></i> Vagas Similares</h3>
+                    <div id="similarJobsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Aprendiz+</h3>
+                    <p>Conectando jovens talentos com as melhores oportunidades do mercado.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="/vagas">Vagas</a></li>
+                        <li><a href="/noticias">Notícias</a></li>
+                        <li><a href="/empresas">Empresas</a></li>
+                        <li><a href="/candidatos">Candidatos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="/contato">Contato</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Newsletter</h4>
+                    <p>Receba as melhores vagas no seu email</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Seu email">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aprendiz+. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Modal -->
+    <div id="applicationModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>Candidatura Enviada!</h3>
+                <p>Sua candidatura foi enviada com sucesso. A empresa entrará em contato em breve caso seu perfil seja compatível com a vaga.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-back-jobs" onclick="closeModal()">
+                    <i class="fas fa-arrow-left"></i> Ver Mais Vagas
+                </button>
+                <button class="btn-apply" onclick="closeModal()">
+                    <i class="fas fa-check"></i> Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/public/js/vaga-detalhes.js" defer></script>
 </body>
 </html>
