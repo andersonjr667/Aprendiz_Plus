@@ -23,11 +23,14 @@ const UserSchema = new mongoose.Schema({
   address: String,
   bio: String,
   skills: [String],
+  interests: [String], // Áreas de interesse do candidato
   website: String,
   description: String,
   avatarUrl: String,
   profilePhotoUrl: String,
+  profilePhotoCloudinaryId: String, // ID do Cloudinary para foto de perfil
   resumeUrl: String,
+  resumeCloudinaryId: String, // ID do Cloudinary para currículo
   createdAt: { type: Date, default: Date.now },
   candidateProfile: { type: CandidateProfileSchema, default: () => ({}) },
   companyProfile: { type: CompanyProfileSchema, default: () => ({}) },

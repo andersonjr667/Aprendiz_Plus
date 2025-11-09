@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>Perfil da Empresa - Aprendiz+</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -193,34 +194,27 @@
         }
     </style>
 </head>
-<body>
+<body class="page-container">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo">
                 <a href="/">Aprendiz+</a>
             </div>
-            <div class="navbar-nav">
+            <div class="nav-links">
+                <a href="/">Início</a>
                 <a href="/vagas">Vagas</a>
                 <a href="/noticias">Notícias</a>
-                <a href="/contato">Contato</a>
-                <div class="dropdown">
-                    <button class="btn btn-outline" id="userDropdown">
-                        Minha Conta
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="/perfil-empresa">Meu Perfil</a>
-                        <a href="/dashboard-empresa">Dashboard</a>
-                        <a href="/publicar-vaga">Publicar Vaga</a>
-                        <hr>
-                        <a href="#" onclick="logout()">Sair</a>
-                    </div>
-                </div>
+                <a href="/perfil-empresa" class="active">Meu Perfil</a>
+                <a href="/publicar-vaga">Publicar Vaga</a>
+                <button onclick="logout()" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <main>
+    <main class="main-content" style="padding-top: 75px;">
         <div class="profile-container">
             <!-- Message Container -->
             <div id="messageContainer" class="message-container">
@@ -399,6 +393,51 @@
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Aprendiz+</h3>
+                <p>Conectando jovens talentos com as melhores oportunidades do mercado de trabalho.</p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/publicar-vaga">Publicar Vaga</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="/contato">Contato</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Receba as melhores vagas no seu email</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Seu email" required>
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+        </div>
+    </footer>
 
     <script src="../js/global.js"></script>
     <script src="../js/auth.js"></script>

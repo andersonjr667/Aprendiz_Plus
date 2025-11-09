@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>Meu Perfil | Aprendiz+</title>
     
     <!-- SEO Meta Tags -->
@@ -23,48 +24,44 @@
     
     <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
+    <script src="/public/js/perfil-candidato.js" defer></script>
 </head>
-<body>
+<body class="page-container">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Aprendiz+</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="/">Início</a></li>
-                <li><a href="/vagas">Vagas</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/perfil-candidato" class="active">Meu Perfil</a></li>
-            </ul>
-            <div class="nav-auth">
-                <button onclick="logout()" class="btn-logout">
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo">
+                <a href="/">Aprendiz+</a>
+            </div>
+            <div class="nav-links">
+                <a href="/">Início</a>
+                <a href="/vagas">Vagas</a>
+                <a href="/noticias">Notícias</a>
+                <a href="/perfil-candidato" class="active">Meu Perfil</a>
+                <button onclick="logout()" class="btn btn-secondary">
                     <i class="fas fa-sign-out-alt"></i> Sair
                 </button>
             </div>
-            <button class="mobile-menu-toggle" aria-label="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <!-- Profile Header -->
-    <section class="profile-header">
+    <main class="main-content" style="padding-top: 75px;">
+        <!-- Profile Header -->
+        <section class="profile-header">
         <div class="container profile-header-content">
-            <div class="profile-avatar" id="profileAvatar">
-                <i class="fas fa-user"></i>
-                <input type="file" id="avatarInput" accept="image/*" style="display: none;">
-                <div class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="avatar-upload-overlay">
                     <i class="fas fa-camera"></i>
+                    <span>Alterar foto</span>
                 </div>
             </div>
+            <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
             <h1 id="profileName">Carregando...</h1>
             <p class="profile-subtitle" id="profileEmail">email@exemplo.com</p>
             <div class="profile-badges">
-                <span class="profile-badge">
-                    <i class="fas fa-check-circle"></i> Perfil Verificado
-                </span>
                 <span class="profile-badge" id="completionBadge">
                     <i class="fas fa-chart-line"></i> <span id="completionPercent">0%</span> Completo
                 </span>
@@ -90,7 +87,9 @@
                         </button>
                     </div>
 
-                    <div id="messageContainer" style="display: none;"></div>
+                    <div id="messageContainer" class="message-container" style="display: none;">
+                        <span id="messageText"></span>
+                    </div>
 
                     <!-- View Mode -->
                     <div id="viewMode">
@@ -151,6 +150,12 @@
                     <div id="editMode" class="edit-form">
                         <form id="profileForm">
                             <div class="form-group-profile">
+                                <label for="editPhoto">Foto de Perfil</label>
+                                <input type="file" id="editPhoto" class="form-control-profile" accept="image/*">
+                                <span class="form-text-small">Formatos aceitos: JPG, PNG. Tamanho máximo: 2MB</span>
+                            </div>
+
+                            <div class="form-group-profile">
                                 <label for="editName">Nome Completo *</label>
                                 <input type="text" id="editName" class="form-control-profile" required>
                             </div>
@@ -178,8 +183,18 @@
 
                             <div class="form-group-profile">
                                 <label for="editSkills">Habilidades</label>
-                                <input type="text" id="editSkills" class="form-control-profile" placeholder="Ex: Comunicação, Trabalho em equipe, Excel (separadas por vírgula)">
-                                <span class="form-text-small">Adicione suas habilidades separadas por vírgula</span>
+                                <div class="skills-selector">
+                                    <div class="skills-search-box">
+                                        <input type="text" id="skillSearchInput" class="form-control-profile" placeholder="Buscar ou adicionar habilidades...">
+                                        <button type="button" id="addCustomSkillBtn" class="btn btn-sm btn-secondary" style="margin-top: 8px;">
+                                            <i class="fas fa-plus"></i> Adicionar personalizada
+                                        </button>
+                                    </div>
+                                    <div class="skills-suggestions" id="skillsSuggestions" style="display: none;"></div>
+                                    <div class="selected-skills" id="selectedSkills"></div>
+                                    <input type="hidden" id="editSkills">
+                                </div>
+                                <span class="form-text-small">Digite para buscar habilidades ou adicione suas próprias</span>
                             </div>
 
                             <div class="form-actions">
@@ -191,6 +206,47 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Interests Card -->
+                <div class="profile-card">
+                    <div class="card-header-profile">
+                        <h2 class="card-title-profile">
+                            <i class="fas fa-heart"></i>
+                            Áreas de Interesse
+                        </h2>
+                        <button class="btn-edit" id="btnEditInterests">
+                            <i class="fas fa-edit"></i>
+                            <span id="editInterestsText">Editar</span>
+                        </button>
+                    </div>
+                    <p class="card-subtitle" style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 15px;">
+                        Selecione suas áreas de interesse para receber recomendações personalizadas de vagas
+                    </p>
+
+                    <!-- View Mode -->
+                    <div id="interestsViewMode">
+                        <div class="interests-view-list" id="interestsViewList">
+                            <p style="text-align: center; color: #7f8c8d; padding: 20px;">Carregando...</p>
+                        </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div id="interestsEditMode" style="display: none;">
+                        <div class="interests-container">
+                            <div class="interests-grid" id="interestsGrid">
+                                <!-- Interesses serão carregados aqui -->
+                            </div>
+                            <div class="interests-actions" style="margin-top: 20px; text-align: center;">
+                                <button type="button" class="btn btn-primary" id="saveInterestsBtn">
+                                    <i class="fas fa-save"></i> Salvar Alterações
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelInterestsBtn">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -312,6 +368,19 @@
                     </div>
                 </div>
 
+                <!-- Next Steps Card -->
+                <div class="profile-card" id="nextStepsCard">
+                    <div class="card-header-profile">
+                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
+                            <i class="fas fa-tasks"></i>
+                            Próximos Passos
+                        </h3>
+                    </div>
+                    <div class="next-steps-list" id="nextStepsList">
+                        <p class="loading-text" style="text-align: center; color: #7f8c8d; padding: 1rem;">Carregando...</p>
+                    </div>
+                </div>
+
                 <!-- Recommendations -->
                 <div class="profile-card">
                     <div class="card-header-profile">
@@ -332,51 +401,52 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Aprendiz+</h3>
-                    <p>Conectando jovens talentos com as melhores oportunidades do mercado.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="footer-section">
-                    <h4>Links Rápidos</h4>
-                    <ul>
-                        <li><a href="/vagas">Vagas</a></li>
-                        <li><a href="/noticias">Notícias</a></li>
-                        <li><a href="/empresas">Empresas</a></li>
-                        <li><a href="/candidatos">Candidatos</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Suporte</h4>
-                    <ul>
-                        <li><a href="/contato">Contato</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Newsletter</h4>
-                    <p>Receba as melhores vagas no seu email</p>
-                    <form class="newsletter-form">
-                        <input type="email" placeholder="Seu email">
-                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                    </form>
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Aprendiz+</h3>
+                <p>Conectando jovens talentos com as melhores oportunidades do mercado de trabalho.</p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Aprendiz+. Todos os direitos reservados.</p>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/empresas">Empresas</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="/contato">Contato</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Receba as melhores vagas no seu email</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Seu email" required>
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
             </div>
         </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+        </div>
     </footer>
+
+    </main>
 
     <script src="/public/js/perfil-candidato.js" defer></script>
 </body>

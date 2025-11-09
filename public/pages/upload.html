@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivos - Aprendiz Plus</title>
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="nav-header">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">Aprendiz Plus</a>
+            </div>
+            <div class="nav-center">
+                <a href="vagas.html">Vagas</a>
+                <a href="empresas.html">Empresas</a>
+                <a href="candidatos.html">Candidatos</a>
+                <a href="noticias.html">Notícias</a>
+            </div>
+            <div class="nav-right">
+                <a href="perfil-candidato.html" class="btn-secondary">Meu Perfil</a>
+                <button id="btnLogout" class="btn-primary">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="upload-container">
+        <div class="upload-section">
+            <h1><i class="fas fa-cloud-upload-alt"></i> Upload de Arquivos</h1>
+            <p class="upload-description">Envie imagens ou documentos para a nuvem</p>
+
+            <!-- Upload Form -->
+            <div class="upload-box">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3>Arraste e solte arquivos aqui</h3>
+                    <p>ou</p>
+                    <button type="button" class="btn-select-file" id="btnSelectFile">
+                        <i class="fas fa-folder-open"></i> Selecionar Arquivo
+                    </button>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.txt" style="display: none;">
+                    <p class="file-types">Tipos permitidos: JPG, PNG, WEBP, PDF, DOCX, TXT</p>
+                    <p class="file-size">Tamanho máximo: 10MB</p>
+                </div>
+
+                <!-- File Preview -->
+                <div class="file-preview" id="filePreview" style="display: none;">
+                    <div class="preview-header">
+                        <h4>Arquivo Selecionado</h4>
+                        <button type="button" class="btn-clear" id="btnClear">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="preview-content">
+                        <img id="previewImage" style="display: none; max-width: 300px; max-height: 200px; border-radius: 8px;">
+                        <div id="previewDocument" style="display: none;">
+                            <i class="fas fa-file-alt" style="font-size: 48px; color: #666;"></i>
+                        </div>
+                        <div class="preview-info">
+                            <p><strong id="previewName"></strong></p>
+                            <p id="previewSize"></p>
+                        </div>
+                    </div>
+                    <div class="upload-progress" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText">Enviando...</p>
+                    </div>
+                    <button type="button" class="btn-upload" id="btnUpload">
+                        <i class="fas fa-upload"></i> Enviar Arquivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload List -->
+            <div class="uploads-list-section">
+                <h2><i class="fas fa-folder"></i> Meus Arquivos</h2>
+                <div class="uploads-list" id="uploadsList">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Carregando...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Aprendiz Plus</h3>
+                    <p>Conectando talentos às melhores oportunidades</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <a href="vagas.html">Vagas</a>
+                    <a href="empresas.html">Empresas</a>
+                    <a href="candidatos.html">Candidatos</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <a href="contato.html">Contato</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aprendiz Plus. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/upload.js"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+:root {
+    --upload-border: #e0e0e0;
+    --upload-hover: #f5f5f5;
+    --upload-active: #e3f2fd;
+}
+
+.upload-container {
+    max-width: 900px;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+}
+
+.upload-section h1 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.upload-section h1 i {
+    color: var(--primary-color);
+}
+
+.upload-description {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+/* Upload Box */
+.upload-box {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.upload-area {
+    padding: 60px 40px;
+    text-align: center;
+    border: 3px dashed var(--upload-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    background: var(--upload-hover);
+    border-color: var(--primary-color);
+}
+
+.upload-area.drag-over {
+    background: var(--upload-active);
+    border-color: var(--primary-color);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 64px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.upload-area h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.upload-area > p {
+    color: var(--text-secondary);
+    margin: 10px 0;
+}
+
+.btn-select-file {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 20px 0;
+    transition: background 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-select-file:hover {
+    background: var(--primary-dark);
+}
+
+.file-types,
+.file-size {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 5px 0;
+}
+
+/* File Preview */
+.file-preview {
+    padding: 30px;
+    background: white;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--upload-border);
+}
+
+.preview-header h4 {
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.btn-clear {
+    background: #f44336;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.btn-clear:hover {
+    background: #d32f2f;
+}
+
+.preview-content {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.preview-info {
+    margin-top: 15px;
+}
+
+.preview-info p {
+    margin: 5px 0;
+    color: var(--text-secondary);
+}
+
+#previewName {
+    color: var(--text-primary);
+}
+
+/* Upload Progress */
+.upload-progress {
+    margin: 20px 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--upload-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+#progressText {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.btn-upload {
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-upload:hover {
+    background: var(--primary-dark);
+}
+
+.btn-upload:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Uploads List */
+.uploads-list-section {
+    margin-top: 50px;
+}
+
+.uploads-list-section h2 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.uploads-list {
+    display: grid;
+    gap: 15px;
+}
+
+.upload-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.upload-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.upload-icon-wrapper.image {
+    background: #e3f2fd;
+    color: #2196f3;
+}
+
+.upload-icon-wrapper.document {
+    background: #fff3e0;
+    color: #ff9800;
+}
+
+.upload-info {
+    flex: 1;
+}
+
+.upload-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.upload-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.upload-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-view,
+.btn-delete {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-view {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-view:hover {
+    background: var(--primary-dark);
+}
+
+.btn-delete {
+    background: #f44336;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #d32f2f;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+.no-uploads {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.no-uploads i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 40px 20px;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+    }
+
+    .upload-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .upload-actions {
+        width: 100%;
+    }
+
+    .btn-view,
+    .btn-delete {
+        flex: 1;
+    }
+
+    .upload-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+}

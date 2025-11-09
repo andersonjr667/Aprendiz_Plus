@@ -95,22 +95,6 @@
   --container-padding: var(--spacing-lg);
 }
 
-/* Dark mode support (for future implementation) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --gray-50: #141B26;
-    --gray-100: #1C2B3A;
-    --gray-200: #253649;
-    --gray-300: #2E3A59;
-    --gray-400: #8F9BB3;
-    --gray-500: #C5CEE0;
-    --gray-600: #E4E9F2;
-    --gray-700: #EDF1F7;
-    --gray-800: #F7F9FC;
-    --gray-900: #FAFBFC;
-  }
-}
-
 /* Legacy support */
 :root {
   --spacing: var(--spacing-sm);

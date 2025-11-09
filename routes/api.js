@@ -4,11 +4,14 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const path = require('path');
+const multer = require('multer');
+const cloudinary = require('../config/cloudinary');
 
 const User = require('../models/User');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
 const News = require('../models/News');
+const Upload = require('../models/Upload');
 const { logAction } = require('../middleware/audit');
 
 const authMiddleware = require('../middleware/auth');
@@ -138,55 +141,121 @@ router.post('/auth/reset', body('token').exists(), body('password').isLength({ m
 // convenience endpoint for current user
 router.get('/users/me', authMiddleware, async (req, res) => {
   try {
+    console.log('GET /users/me - User ID:', req.user._id);
+    console.log('User data:', JSON.stringify(req.user, null, 2));
     // req.user is populated by authMiddleware (already selected without passwordHash)
     res.json(req.user);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error('GET /users/me error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 // update current user profile
 router.put('/users/me', authMiddleware, upload.single('profilePhoto'), async (req, res) => {
   try {
-    console.log('Profile update request:', { 
-      body: req.body, 
-      file: req.file ? { filename: req.file.filename, size: req.file.size } : null,
-      userId: req.user._id 
-    });
+    console.log('=== PUT /users/me - Profile Update ===');
+    console.log('User ID:', req.user._id);
+    console.log('Request body:', req.body);
+    console.log('File:', req.file ? { filename: req.file.filename, size: req.file.size } : 'No file');
     
-    const updates = { ...req.body };
+    const updates = {};
+    
+    // Explicitly copy allowed fields
+    if (req.body.name) updates.name = req.body.name.trim();
+    if (req.body.cpf) updates.cpf = req.body.cpf;
+    if (req.body.phone) updates.phone = req.body.phone;
+    if (req.body.bio !== undefined) updates.bio = req.body.bio; // Allow empty string
     
     // Handle profile photo upload
     if (req.file) {
-      updates.profilePhotoUrl = path.join('/uploads', req.file.filename);
-      console.log('Profile photo saved:', updates.profilePhotoUrl);
+      console.log('Uploading profile photo to Cloudinary...');
+      
+      // Upload to Cloudinary
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'aprendiz_plus/profile_photos',
+            resource_type: 'image',
+            public_id: `user_${req.user._id}_${Date.now()}`,
+            transformation: [
+              { width: 500, height: 500, crop: 'fill', gravity: 'face' },
+              { quality: 'auto', fetch_format: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('Cloudinary upload success:', result.secure_url);
+              resolve(result);
+            }
+          }
+        );
+        
+        uploadStream.end(req.file.buffer);
+      });
+      
+      const cloudinaryResult = await uploadPromise;
+      updates.profilePhotoUrl = cloudinaryResult.secure_url;
+      updates.profilePhotoCloudinaryId = cloudinaryResult.public_id;
+      console.log('Profile photo will be saved as:', updates.profilePhotoUrl);
     }
     
     // Parse skills if it's a JSON string
-    if (updates.skills && typeof updates.skills === 'string') {
+    if (req.body.skills) {
       try {
-        updates.skills = JSON.parse(updates.skills);
+        const parsedSkills = JSON.parse(req.body.skills);
+        updates.skills = Array.isArray(parsedSkills) ? parsedSkills : [];
         console.log('Parsed skills:', updates.skills);
       } catch (e) {
         // If it's not valid JSON, treat as comma-separated string
-        updates.skills = updates.skills.split(',').map(s => s.trim()).filter(s => s);
+        updates.skills = req.body.skills.split(',').map(s => s.trim()).filter(s => s);
         console.log('Fallback skills parsing:', updates.skills);
       }
     }
     
-    // Remove sensitive fields that shouldn't be updated via this endpoint
-    delete updates.passwordHash;
-    delete updates.email; // Prevent email changes for now
+    // Parse interests if it's a JSON string
+    if (req.body.interests) {
+      try {
+        const parsedInterests = JSON.parse(req.body.interests);
+        updates.interests = Array.isArray(parsedInterests) ? parsedInterests : [];
+        console.log('Parsed interests:', updates.interests);
+      } catch (e) {
+        // If it's not valid JSON, treat as array
+        updates.interests = Array.isArray(req.body.interests) ? req.body.interests : [];
+        console.log('Fallback interests parsing:', updates.interests);
+      }
+    }
     
-    console.log('Final updates object:', updates);
+    console.log('Final updates to be applied:', updates);
     
-    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-passwordHash');
+    if (Object.keys(updates).length === 0) {
+      console.log('No updates to apply');
+      return res.json(req.user);
+    }
     
-    console.log('User updated successfully:', { userId: user._id, name: user.name });
+    const user = await User.findByIdAndUpdate(
+      req.user._id, 
+      { $set: updates }, 
+      { new: true, runValidators: true }
+    ).select('-passwordHash');
+    
+    if (!user) {
+      console.error('User not found after update');
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log('User updated successfully');
+    console.log('Updated user data:', JSON.stringify(user, null, 2));
     
     await logAction(req.user._id, 'profile_update', { updatedFields: Object.keys(updates) });
     
     res.json(user);
   } catch (err) { 
-    console.error('Profile update error:', err);
+    console.error('PUT /users/me error:', err);
+    console.error('Error stack:', err.stack);
     res.status(500).json({ error: err.message }); 
   }
 });
@@ -217,18 +286,48 @@ router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
     
-    const resumeUrl = path.join('/uploads', req.file.filename);
+    console.log('Uploading resume to Cloudinary...');
+    
+    // Upload to Cloudinary
+    const uploadPromise = new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'aprendiz_plus/resumes',
+          resource_type: 'raw',
+          public_id: `resume_${req.user._id}_${Date.now()}`,
+          format: path.extname(req.file.originalname).substring(1)
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            reject(error);
+          } else {
+            console.log('Cloudinary upload success:', result.secure_url);
+            resolve(result);
+          }
+        }
+      );
+      
+      uploadStream.end(req.file.buffer);
+    });
+    
+    const cloudinaryResult = await uploadPromise;
+    const resumeUrl = cloudinaryResult.secure_url;
     
     const user = await User.findByIdAndUpdate(
       req.user._id, 
       { 
         resumeUrl: resumeUrl,
+        resumeCloudinaryId: cloudinaryResult.public_id,
         updatedAt: new Date()
       }, 
       { new: true }
     ).select('-passwordHash');
     
-    await logAction(req.user._id, 'resume_upload', { filename: req.file.filename });
+    await logAction(req.user._id, 'resume_upload', { 
+      filename: req.file.originalname,
+      cloudinaryUrl: resumeUrl
+    });
     
     res.json(user);
   } catch (err) { 
@@ -240,10 +339,26 @@ router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (
 // delete user resume
 router.delete('/users/me/resume', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
+    // Get user to check if resume exists
+    const user = await User.findById(req.user._id);
+    
+    // Delete from Cloudinary if cloudinaryId exists
+    if (user.resumeCloudinaryId) {
+      try {
+        await cloudinary.uploader.destroy(user.resumeCloudinaryId, {
+          resource_type: 'raw'
+        });
+        console.log('Resume deleted from Cloudinary:', user.resumeCloudinaryId);
+      } catch (cloudErr) {
+        console.error('Error deleting from Cloudinary:', cloudErr);
+        // Continue even if Cloudinary delete fails
+      }
+    }
+    
+    const updatedUser = await User.findByIdAndUpdate(
       req.user._id, 
       { 
-        $unset: { resumeUrl: 1 },
+        $unset: { resumeUrl: 1, resumeCloudinaryId: 1 },
         updatedAt: new Date()
       }, 
       { new: true }
@@ -272,10 +387,44 @@ router.put('/users/:id', authMiddleware, upload.single('resume'), async (req, re
     const { id } = req.params;
     if (req.user._id.toString() !== id && req.user.type !== 'admin') return res.status(403).json({ error: 'Forbidden' });
     const updates = { ...req.body };
-    if (req.file) updates.resumeUrl = path.join('/uploads', req.file.filename);
+    
+    // Upload resume to Cloudinary if file provided
+    if (req.file) {
+      console.log('Uploading resume to Cloudinary for user:', id);
+      
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'aprendiz_plus/resumes',
+            resource_type: 'raw',
+            public_id: `resume_${id}_${Date.now()}`,
+            format: path.extname(req.file.originalname).substring(1)
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('Cloudinary upload success:', result.secure_url);
+              resolve(result);
+            }
+          }
+        );
+        
+        uploadStream.end(req.file.buffer);
+      });
+      
+      const cloudinaryResult = await uploadPromise;
+      updates.resumeUrl = cloudinaryResult.secure_url;
+      updates.resumeCloudinaryId = cloudinaryResult.public_id;
+    }
+    
     const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-passwordHash');
     res.json(user);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error('User update error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.get('/users', authMiddleware, roleCheck(['admin', 'empresa']), async (req, res) => {
@@ -473,15 +622,228 @@ router.get('/news', async (req, res) => {
   }
 });
 
+// AI Job Recommendations based on user profile
+router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
+  try {
+    console.log('=== AI Recommendations Request ===');
+    console.log('User ID:', req.user._id);
+    
+    // Get full user profile
+    const user = await User.findById(req.user._id).select('-passwordHash');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log('User profile:', {
+      name: user.name,
+      email: user.email,
+      cpf: user.cpf,
+      phone: user.phone,
+      bio: user.bio ? 'yes' : 'no',
+      skills: user.skills?.length || 0,
+      interests: user.interests?.length || 0,
+      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl ? 'yes' : 'no'
+    });
+    
+    // Calculate profile completeness - SAME as frontend
+    const requiredFields = ['name', 'email'];
+    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
+    const allFields = [...requiredFields, ...optionalFields];
+    
+    const completedFields = allFields.filter(field => {
+      if (field === 'skills') {
+        const completed = user.skills && user.skills.length > 0;
+        console.log('  skills check:', completed, user.skills);
+        return completed;
+      }
+      if (field === 'interests') {
+        const completed = user.interests && user.interests.length >= 3;
+        console.log('  interests check:', completed, user.interests);
+        return completed;
+      }
+      if (field === 'profilePhotoUrl') {
+        const completed = !!(user.profilePhotoUrl || user.avatarUrl);
+        console.log('  photo check:', completed);
+        return completed;
+      }
+      const completed = user[field] && user[field].toString().trim().length > 0;
+      console.log(`  ${field} check:`, completed);
+      return completed;
+    });
+    
+    console.log('Completed fields:', completedFields);
+    console.log('Total fields:', allFields.length);
+    
+    const completeness = Math.round((completedFields.length / allFields.length) * 100);
+    console.log('Profile completeness:', completeness + '%');
+    
+    // Only provide AI recommendations if profile is 100% complete
+    if (completeness < 100) {
+      return res.json({
+        hasRecommendations: false,
+        completeness,
+        message: 'Complete seu perfil para receber recomendações personalizadas de vagas.',
+        missingFields: allFields.filter(f => !completedFields.includes(f))
+      });
+    }
+    
+    // Get all active jobs
+    const allJobs = await Job.find({ status: 'active' })
+      .populate('company', 'name')
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    console.log('Total active jobs:', allJobs.length);
+    
+    // Score each job based on user profile
+    const scoredJobs = allJobs.map(job => {
+      let score = 0;
+      const reasons = [];
+      
+      // 1. Skills match (30%)
+      if (user.skills && user.skills.length > 0 && job.requirements) {
+        const userSkillsLower = user.skills.map(s => s.toLowerCase());
+        const jobReqLower = job.requirements.toLowerCase();
+        const matchingSkills = userSkillsLower.filter(skill => 
+          jobReqLower.includes(skill.toLowerCase())
+        );
+        
+        if (matchingSkills.length > 0) {
+          const skillScore = (matchingSkills.length / user.skills.length) * 30;
+          score += skillScore;
+          reasons.push(`${matchingSkills.length} habilidade(s) compatível(is): ${matchingSkills.join(', ')}`);
+        }
+      }
+      
+      // 2. Interests match (30%)
+      if (user.interests && user.interests.length > 0) {
+        const jobText = `${job.title} ${job.description} ${job.requirements}`.toLowerCase();
+        const matchingInterests = user.interests.filter(interest => {
+          const interestLower = interest.toLowerCase();
+          return jobText.includes(interestLower) || 
+                 jobText.includes(interestLower.replace('-', ' '));
+        });
+        
+        if (matchingInterests.length > 0) {
+          const interestScore = (matchingInterests.length / user.interests.length) * 30;
+          score += interestScore;
+          reasons.push(`Área de interesse: ${matchingInterests.join(', ')}`);
+        }
+      }
+      
+      // 3. Bio keywords match (20%)
+      if (user.bio) {
+        const bioWords = user.bio.toLowerCase().split(/\s+/).filter(w => w.length > 4);
+        const jobText = `${job.title} ${job.description}`.toLowerCase();
+        const matchingWords = bioWords.filter(word => jobText.includes(word));
+        
+        if (matchingWords.length > 0) {
+          score += Math.min(20, matchingWords.length * 2);
+          reasons.push('Compatível com seu perfil profissional');
+        }
+      }
+      
+      // 4. Recent job bonus (10%)
+      const daysSincePosted = (Date.now() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24);
+      if (daysSincePosted < 7) {
+        score += 10;
+        reasons.push('Vaga recente');
+      } else if (daysSincePosted < 14) {
+        score += 5;
+      }
+      
+      // 5. Location match (10%)
+      if (user.address && job.location) {
+        if (user.address.toLowerCase().includes(job.location.toLowerCase()) ||
+            job.location.toLowerCase().includes(user.address.toLowerCase())) {
+          score += 10;
+          reasons.push('Localização próxima');
+        }
+      }
+      
+      return {
+        job: job.toObject(),
+        score,
+        reasons
+      };
+    });
+    
+    // Sort by score and get top recommendations
+    const recommendations = scoredJobs
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6);
+    
+    console.log('Recommendations found:', recommendations.length);
+    
+    res.json({
+      hasRecommendations: true,
+      completeness,
+      recommendations: recommendations.map(item => ({
+        ...item.job,
+        aiScore: Math.round(item.score),
+        matchReasons: item.reasons
+      })),
+      userProfile: {
+        skills: user.skills,
+        interests: user.interests,
+        bio: user.bio
+      }
+    });
+    
+  } catch (err) {
+    console.error('AI Recommendations error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/news', authMiddleware, roleCheck(['admin','empresa']), upload.single('image'), async (req, res) => {
   try {
     const data = req.body;
-    if (req.file) data.imageUrl = path.join('/uploads', req.file.filename);
+    
+    // Upload image to Cloudinary if provided
+    if (req.file) {
+      console.log('Uploading news image to Cloudinary...');
+      
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'aprendiz_plus/news',
+            resource_type: 'image',
+            public_id: `news_${Date.now()}`,
+            transformation: [
+              { width: 1200, height: 630, crop: 'fill' },
+              { quality: 'auto', fetch_format: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('Cloudinary upload success:', result.secure_url);
+              resolve(result);
+            }
+          }
+        );
+        
+        uploadStream.end(req.file.buffer);
+      });
+      
+      const cloudinaryResult = await uploadPromise;
+      data.imageUrl = cloudinaryResult.secure_url;
+      data.imageCloudinaryId = cloudinaryResult.public_id;
+    }
+    
     data.author = req.user._id;
     const n = await News.create(data);
     const populatedNews = await News.findById(n._id).populate('author', 'name');
     res.json(populatedNews);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error('News creation error:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.get('/news/:id', async (req, res) => { 
@@ -500,6 +862,158 @@ router.get('/logs', authMiddleware, roleCheck(['admin']), async (req, res) => {
     const logs = await require('../models/AuditLog').find().sort({ timestamp: -1 }).limit(200);
     res.json(logs);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ----- FILE UPLOAD WITH CLOUDINARY -----
+// Configure multer for memory storage
+const storage = multer.memoryStorage();
+const uploadMiddleware = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allowed file types
+    const allowedImages = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedDocs = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const allowedTypes = [...allowedImages, ...allowedDocs];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo não permitido. Use: jpg, jpeg, png, webp, pdf, docx, txt'));
+    }
+  }
+});
+
+// Upload endpoint
+router.post('/upload', authMiddleware, uploadMiddleware.single('file'), async (req, res) => {
+  try {
+    console.log('=== File Upload Request ===');
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+    
+    console.log('File received:', {
+      originalName: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+    
+    // Determine file type
+    const isImage = req.file.mimetype.startsWith('image/');
+    const fileType = isImage ? 'image' : 'document';
+    
+    // Upload to Cloudinary
+    const uploadPromise = new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `aprendiz_plus/${fileType}s`,
+          resource_type: isImage ? 'image' : 'raw',
+          public_id: `${Date.now()}_${req.file.originalname.replace(/\.[^/.]+$/, '')}`,
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            reject(error);
+          } else {
+            console.log('Cloudinary upload success:', result.secure_url);
+            resolve(result);
+          }
+        }
+      );
+      
+      uploadStream.end(req.file.buffer);
+    });
+    
+    const cloudinaryResult = await uploadPromise;
+    
+    // Save upload info to MongoDB
+    const uploadDoc = await Upload.create({
+      userId: req.user._id,
+      fileName: cloudinaryResult.public_id,
+      originalName: req.file.originalname,
+      fileUrl: cloudinaryResult.secure_url,
+      fileType: fileType,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      cloudinaryId: cloudinaryResult.public_id
+    });
+    
+    console.log('Upload saved to MongoDB:', uploadDoc._id);
+    
+    // Log action
+    await logAction(req.user._id, 'file_upload', {
+      uploadId: uploadDoc._id,
+      fileName: req.file.originalname,
+      fileType: fileType
+    });
+    
+    res.json({
+      success: true,
+      message: 'Arquivo enviado com sucesso!',
+      data: {
+        id: uploadDoc._id,
+        fileName: uploadDoc.originalName,
+        fileUrl: uploadDoc.fileUrl,
+        fileType: uploadDoc.fileType,
+        size: uploadDoc.size,
+        uploadedAt: uploadDoc.uploadedAt
+      }
+    });
+    
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ 
+      error: err.message || 'Erro ao fazer upload do arquivo' 
+    });
+  }
+});
+
+// Get user uploads
+router.get('/uploads', authMiddleware, async (req, res) => {
+  try {
+    const uploads = await Upload.find({ userId: req.user._id })
+      .sort({ uploadedAt: -1 })
+      .limit(50);
+    
+    res.json(uploads);
+  } catch (err) {
+    console.error('Error fetching uploads:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete upload
+router.delete('/uploads/:id', authMiddleware, async (req, res) => {
+  try {
+    const upload = await Upload.findOne({ 
+      _id: req.params.id, 
+      userId: req.user._id 
+    });
+    
+    if (!upload) {
+      return res.status(404).json({ error: 'Arquivo não encontrado' });
+    }
+    
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(upload.cloudinaryId, {
+      resource_type: upload.fileType === 'image' ? 'image' : 'raw'
+    });
+    
+    // Delete from MongoDB
+    await Upload.deleteOne({ _id: req.params.id });
+    
+    await logAction(req.user._id, 'file_delete', {
+      fileName: upload.originalName
+    });
+    
+    res.json({ success: true, message: 'Arquivo excluído com sucesso' });
+  } catch (err) {
+    console.error('Error deleting upload:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
