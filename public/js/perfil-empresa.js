@@ -736,7 +736,10 @@ async function loadLikesCount() {
   try {
     if (!currentUser) return;
     
-    const res = await fetch(`/api/profiles/${currentUser.id}/liked`, {
+    // MongoDB retorna _id, não id
+    const userId = currentUser._id || currentUser.id;
+    
+    const res = await fetch(`/api/profiles/${userId}/liked`, {
       credentials: 'include'
     });
     
@@ -756,7 +759,11 @@ async function loadLikesCount() {
 function shareProfile() {
   if (!currentUser) return;
   
-  const profileUrl = `${window.location.origin}/perfil-publico-empresa?id=${currentUser.id}`;
+  // MongoDB retorna _id, não id
+  const userId = currentUser._id || currentUser.id;
+  console.log('Sharing profile for company:', userId);
+  
+  const profileUrl = `${window.location.origin}/perfil-publico-empresa?id=${userId}`;
   
   // Check if Web Share API is available (mobile)
   if (navigator.share) {
