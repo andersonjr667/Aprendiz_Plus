@@ -1215,13 +1215,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadRecommendations();
   loadResume();
 
-  // Edit toggle - usando o ID correto do HTML
-  const editToggle = document.getElementById('btnEdit');
-  if (editToggle) {
-    editToggle.addEventListener('click', toggleEditMode);
-  } else {
-    console.warn('Edit button not found');
-  }
+  // Edit toggle - removido listener duplicado pois o botão já tem onclick no HTML
   
   // Cancel edit
   const cancelEdit = document.getElementById('cancelEdit');
