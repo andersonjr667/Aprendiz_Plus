@@ -500,7 +500,8 @@ router.get('/users', authMiddleware, roleCheck(['admin', 'empresa']), async (req
 router.get('/jobs', async (req, res) => {
   try {
     const { search, location, model, page = 1, limit = 10 } = req.query;
-    const query = { status: 'aberta' }; // Recolocando filtro de status
+    // Aceitar tanto 'aberta' quanto 'active' como vagas ativas
+    const query = { status: { $in: ['aberta', 'active'] } };
     
     if (search) {
       query.$or = [
@@ -522,7 +523,8 @@ router.get('/jobs', async (req, res) => {
     const jobs = await Job.find(query)
       .populate('company', 'name companyProfile')
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 }); // Ordenar por mais recentes primeiro
     
     const total = await Job.countDocuments(query);
     
