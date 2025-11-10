@@ -7,11 +7,32 @@
   <link rel="stylesheet" href="/public/css/main.css">
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/global.js" defer></script>
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
+<body class="page-container">
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <button class="mobile-menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/empresas" class="active">Empresas</a>
+        <a href="/login" class="nav-link-login">Login</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main class="main-content">
+  <div class="container" style="padding-top:100px;">
     <h1>Empresas</h1>
     <div id="list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
+  </div>
   </main>
 
   <script src="/public/js/empresas.js" defer></script>

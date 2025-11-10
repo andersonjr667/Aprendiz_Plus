@@ -95,7 +95,25 @@
         }
     </style>
 </head>
-<body>
+<body class="page-container">
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links">
+                <a href="/">Início</a>
+                <a href="/vagas">Vagas</a>
+                <a href="/noticias">Notícias</a>
+                <a href="/login" class="btn btn-outline">Login</a>
+            </div>
+        </nav>
+    </header>
+    
+    <main class="main-content">
     <div class="register-container">
         <div class="register-header">
             <h1>Criar Conta</h1>
@@ -170,6 +188,7 @@
             <p>Já tem uma conta? <a href="/login">Fazer Login</a></p>
         </div>
     </div>
+    </main>
 
     <!-- Footer -->
     <footer class="main-footer">
@@ -219,6 +238,7 @@
     <script src="/public/js/auth.js"></script>
     <script src="/public/js/api.js"></script>
     <script src="/public/js/global.js"></script>
+    <script src="/public/js/hamburger-menu.js"></script>
     <script src="/public/js/register.js"></script>
 </body>
 </html>

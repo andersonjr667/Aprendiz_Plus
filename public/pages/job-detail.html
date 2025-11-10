@@ -10,10 +10,29 @@
   <script src="/public/js/global.js" defer></script>
   <script src="/public/js/job-detail.js" defer></script>
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
+<body class="page-container">
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+      <button class="mobile-menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas" class="active">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/login" class="nav-link-login">Login</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main class="main-content">
+  <div class="container" style="padding-top:100px;">
     <h2 id="title">Vaga</h2>
     <div id="desc"></div>
+  </div>
   </main>
 </body>
 </html>
