@@ -148,10 +148,18 @@ function displayProfile(user) {
   if (avatarEl) {
     if (user.profilePhotoUrl || user.avatarUrl) {
       // Show actual photo
-      const photoUrl = user.profilePhotoUrl || user.avatarUrl;
-      avatarEl.innerHTML = `<img src="${photoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">`;
-    } else if (user.name) {
-      // Show initials
+      let photoUrl = user.profilePhotoUrl || user.avatarUrl;
+      
+      // Add cache busting only for local URLs (not Cloudinary)
+      if (photoUrl && photoUrl.startsWith('/uploads')) {
+        photoUrl += '?t=' + Date.now();
+      }
+      
+      console.log('Displaying profile photo:', photoUrl);
+      avatarEl.innerHTML = `<img src="${photoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-user\\' style=\\'font-size: 4rem; color: #2ECC71;\\'></i>';">`;
+    } else {
+      // Show icon
+      console.log('No profile photo, showing icon');
       avatarEl.innerHTML = `<i class="fas fa-user" style="font-size: 4rem; color: #2ECC71; pointer-events: none;"></i>`;
     }
   }
@@ -895,15 +903,25 @@ async function uploadAvatar(file) {
     
     const result = await res.json();
     console.log('Avatar upload response:', result);
+    console.log('profilePhotoUrl from response:', result.profilePhotoUrl);
     
     if (res.ok) {
+      // Update current user
+      currentUser = result;
+      
       // Update avatar immediately
       const avatarEl = document.getElementById('profileAvatar');
-      if (avatarEl && result.profilePhotoUrl) {
-        avatarEl.innerHTML = `<img src="${result.profilePhotoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+      if (avatarEl) {
+        if (result.profilePhotoUrl || result.avatarUrl) {
+          const photoUrl = result.profilePhotoUrl || result.avatarUrl;
+          console.log('Setting avatar to:', photoUrl);
+          avatarEl.innerHTML = `<img src="${photoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Failed to load:', this.src);">`;
+        }
       }
       
-      currentUser = result;
+      // Reload profile to update everything
+      await loadProfile();
+      
       showProfileMessage('Foto atualizada com sucesso!', 'success');
     } else {
       showProfileMessage(result.error || 'Erro ao enviar foto', 'error');
