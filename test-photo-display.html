@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Exibição de Foto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .avatar-test {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 6px solid rgba(46, 204, 113, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        .avatar-test img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+        .log-area {
+            background: #333;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-line {
+            margin: 5px 0;
+        }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        .info { color: #0ff; }
+        button {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #27ae60;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste de Exibição de Foto de Perfil</h1>
+        
+        <div>
+            <label for="photoUrl">URL da Foto do Cloudinary:</label>
+            <input type="text" id="photoUrl" placeholder="https://res.cloudinary.com/..." 
+                   value="https://res.cloudinary.com/dh15wpmd6/image/upload/v1762734673/aprendiz_plus/profile_photos/user_690fce41b35357b410e9d2a4_1762734671568.jpg">
+            <button onclick="testPhoto()">Testar Foto</button>
+            <button onclick="clearAvatar()">Limpar</button>
+        </div>
+
+        <div class="avatar-test" id="avatarTest">
+            <i class="fas fa-user" style="font-size: 4rem; color: #2ECC71;"></i>
+        </div>
+
+        <div class="log-area" id="logArea"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const time = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            line.textContent = `[${time}] ${message}`;
+            logArea.appendChild(line);
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+
+        function clearAvatar() {
+            const avatarTest = document.getElementById('avatarTest');
+            avatarTest.innerHTML = '<i class="fas fa-user" style="font-size: 4rem; color: #2ECC71;"></i>';
+            log('Avatar limpo', 'info');
+        }
+
+        function testPhoto() {
+            const photoUrl = document.getElementById('photoUrl').value.trim();
+            
+            if (!photoUrl) {
+                log('URL vazia!', 'error');
+                return;
+            }
+
+            log('Iniciando teste...', 'info');
+            log('URL: ' + photoUrl, 'info');
+
+            const avatarTest = document.getElementById('avatarTest');
+            
+            // Método 1: innerHTML
+            log('Testando com innerHTML...', 'info');
+            avatarTest.innerHTML = `<img src="${photoUrl}" alt="Test" onerror="log('innerHTML FALHOU ao carregar', 'error')" onload="log('innerHTML SUCESSO!', 'success')">`;
+            
+            // Aguardar 2 segundos e testar método 2
+            setTimeout(() => {
+                log('Testando com createElement...', 'info');
+                avatarTest.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = photoUrl;
+                img.alt = 'Test 2';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1;';
+                
+                img.onerror = function() {
+                    log('createElement FALHOU ao carregar: ' + this.src, 'error');
+                    log('Erro: ' + (this.error || 'Desconhecido'), 'error');
+                };
+                
+                img.onload = function() {
+                    log('createElement SUCESSO!', 'success');
+                    log('Dimensões naturais: ' + this.naturalWidth + 'x' + this.naturalHeight, 'success');
+                    log('Dimensões exibidas: ' + this.width + 'x' + this.height, 'info');
+                };
+                
+                avatarTest.appendChild(img);
+                log('Elemento img adicionado ao DOM', 'info');
+                
+                // Verificar se a imagem está visível
+                setTimeout(() => {
+                    const computedStyle = window.getComputedStyle(img);
+                    log('Display: ' + computedStyle.display, 'info');
+                    log('Visibility: ' + computedStyle.visibility, 'info');
+                    log('Opacity: ' + computedStyle.opacity, 'info');
+                    log('Z-Index: ' + computedStyle.zIndex, 'info');
+                    log('Position: ' + computedStyle.position, 'info');
+                }, 500);
+            }, 2000);
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            log('Página carregada. Pronto para testar!', 'success');
+        };
+    </script>
+</body>
+</html>

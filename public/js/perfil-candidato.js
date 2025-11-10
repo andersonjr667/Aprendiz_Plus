@@ -145,6 +145,9 @@ function displayProfile(user) {
   
   // Update avatar in header
   const avatarEl = document.getElementById('profileAvatar');
+  console.log('Avatar element found:', !!avatarEl);
+  console.log('User data:', { profilePhotoUrl: user.profilePhotoUrl, avatarUrl: user.avatarUrl });
+  
   if (avatarEl) {
     if (user.profilePhotoUrl || user.avatarUrl) {
       // Show actual photo
@@ -156,7 +159,47 @@ function displayProfile(user) {
       }
       
       console.log('Displaying profile photo:', photoUrl);
-      avatarEl.innerHTML = `<img src="${photoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-user\\' style=\\'font-size: 4rem; color: #2ECC71;\\'></i>';">`;
+      console.log('Avatar element before clearing:', avatarEl.innerHTML);
+      
+      // Clear previous content and add image
+      avatarEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = photoUrl;
+      img.alt = 'Foto de perfil';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      
+      img.onerror = function() {
+        console.error('Failed to load image:', this.src);
+        console.error('Image error event fired');
+        avatarEl.innerHTML = `<i class="fas fa-user" style="font-size: 4rem; color: #2ECC71;"></i>`;
+      };
+      img.onload = function() {
+        console.log('Image loaded successfully:', photoUrl);
+        console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight);
+        console.log('Image complete:', this.complete);
+      };
+      avatarEl.appendChild(img);
+      
+      console.log('Avatar element after adding image:', avatarEl.innerHTML);
+      console.log('Image element:', img);
+      
+      // Force a reflow
+      setTimeout(() => {
+        console.log('After timeout - Avatar HTML:', avatarEl.innerHTML);
+        const imgCheck = avatarEl.querySelector('img');
+        if (imgCheck) {
+          console.log('Image still exists, src:', imgCheck.src);
+          console.log('Image computed style display:', window.getComputedStyle(imgCheck).display);
+          console.log('Image computed style visibility:', window.getComputedStyle(imgCheck).visibility);
+          console.log('Image computed style opacity:', window.getComputedStyle(imgCheck).opacity);
+          console.log('Image computed style z-index:', window.getComputedStyle(imgCheck).zIndex);
+        } else {
+          console.error('Image element disappeared!');
+        }
+      }, 500);
     } else {
       // Show icon
       console.log('No profile photo, showing icon');
@@ -915,7 +958,19 @@ async function uploadAvatar(file) {
         if (result.profilePhotoUrl || result.avatarUrl) {
           const photoUrl = result.profilePhotoUrl || result.avatarUrl;
           console.log('Setting avatar to:', photoUrl);
-          avatarEl.innerHTML = `<img src="${photoUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="console.error('Failed to load:', this.src);">`;
+          
+          // Clear and create new image element
+          avatarEl.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = photoUrl;
+          img.alt = 'Foto de perfil';
+          img.onerror = function() {
+            console.error('Failed to load:', this.src);
+          };
+          img.onload = function() {
+            console.log('Avatar image loaded!');
+          };
+          avatarEl.appendChild(img);
         }
       }
       
