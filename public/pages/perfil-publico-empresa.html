@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil da Empresa - Aprendiz+</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/perfil-empresa.css">
+    
+    <script src="/public/js/auth.js" defer></script>
+    <script src="/public/js/hamburger-menu.js" defer></script>
+    
+    <style>
+        .public-profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            padding-top: 100px;
+        }
+        
+        .like-button {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .like-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .like-button.liked {
+            background: linear-gradient(135deg, #2ECC71, #27AE60);
+        }
+        
+        .like-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .login-prompt {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .login-prompt p {
+            margin: 0;
+            color: #856404;
+        }
+        
+        .login-prompt a {
+            color: #856404;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="page-container">
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo">
+                <a href="/">Aprendiz+</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Início</a>
+                <a href="/vagas">Vagas</a>
+                <a href="/noticias">Notícias</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="public-profile-container">
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--brand-green);"></i>
+                <p style="margin-top: 1rem; color: var(--text-gray);">Carregando perfil...</p>
+            </div>
+
+            <!-- Profile Content -->
+            <div id="profileContent" style="display: none;">
+                <!-- Profile Header -->
+                <section class="profile-header">
+                    <div class="container profile-header-content">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar" id="profileAvatar">
+                                <i class="fas fa-building"></i>
+                            </div>
+                        </div>
+                        <h1 id="profileName">Nome da Empresa</h1>
+                        <p class="profile-subtitle" id="profileEmail">email@empresa.com</p>
+                        <div class="profile-badges">
+                            <span class="profile-badge">
+                                <i class="fas fa-briefcase"></i> <span id="jobsCount">0</span> Vagas Ativas
+                            </span>
+                            <span class="profile-badge" id="likesBadge">
+                                <i class="fas fa-heart"></i> <span id="likesCount">0</span> Curtidas
+                            </span>
+                        </div>
+                        
+                        <!-- Like Button (only for logged users) -->
+                        <div class="profile-actions" id="likeSection" style="display: none;">
+                            <button class="like-button" id="likeButton" onclick="toggleLike()">
+                                <i class="fas fa-heart"></i>
+                                <span id="likeText">Curtir Empresa</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Login Prompt (for non-logged users) -->
+                        <div class="login-prompt" id="loginPrompt" style="display: none;">
+                            <p>
+                                <i class="fas fa-info-circle"></i>
+                                <a href="/login">Faça login</a> para curtir esta empresa
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Company Info -->
+                <div class="profile-card">
+                    <div class="card-header-profile">
+                        <h2 class="card-title-profile">
+                            <i class="fas fa-building"></i>
+                            Sobre a Empresa
+                        </h2>
+                    </div>
+                    <div class="profile-info-grid">
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-envelope"></i> Email</span>
+                            <span class="info-value" id="profileEmailValue">-</span>
+                        </div>
+                        <div class="info-item" id="phoneSection" style="display: none;">
+                            <span class="info-label"><i class="fas fa-phone"></i> Telefone</span>
+                            <span class="info-value" id="profilePhone">-</span>
+                        </div>
+                        <div class="info-item" id="websiteSection" style="display: none;">
+                            <span class="info-label"><i class="fas fa-globe"></i> Website</span>
+                            <span class="info-value">
+                                <a href="#" id="profileWebsite" target="_blank" style="color: var(--brand-green); text-decoration: none;">-</a>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="bio-section" id="descSection" style="display: none; margin-top: 1.5rem;">
+                        <h3 style="margin-bottom: 0.75rem; color: var(--text-dark);">
+                            <i class="fas fa-info-circle"></i> Descrição
+                        </h3>
+                        <p id="profileDescription" style="color: var(--text-gray); line-height: 1.6;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" style="display: none; text-align: center; padding: 3rem;">
+                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #e74c3c;"></i>
+                <h2 style="margin-top: 1rem; color: var(--text-dark);">Empresa não encontrada</h2>
+                <p style="margin-top: 0.5rem; color: var(--text-gray);">O perfil que você está procurando não existe ou foi removido.</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">
+                    <i class="fas fa-home"></i> Voltar ao Início
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Aprendiz+</h3>
+                <p>Conectando jovens talentos com as melhores oportunidades.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentUser = null;
+        let profileUser = null;
+        let isLiked = false;
+
+        // Get profile ID from URL
+        function getProfileIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Load profile
+        async function loadProfile() {
+            const profileId = getProfileIdFromUrl();
+            
+            if (!profileId) {
+                showError();
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/profiles/empresa/${profileId}`);
+                
+                if (!res.ok) {
+                    throw new Error('Profile not found');
+                }
+
+                profileUser = await res.json();
+                displayProfile(profileUser);
+                checkUserAuth();
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showError();
+            }
+        }
+
+        // Display profile
+        function displayProfile(user) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('profileContent').style.display = 'block';
+
+            // Basic info
+            document.getElementById('profileName').textContent = user.name || 'Empresa';
+            document.getElementById('profileEmail').textContent = user.email || '';
+            document.getElementById('profileEmailValue').textContent = user.email || '-';
+            document.getElementById('likesCount').textContent = user.likesCount || 0;
+            document.getElementById('jobsCount').textContent = user.activeJobsCount || 0;
+
+            // Avatar
+            const avatar = document.getElementById('profileAvatar');
+            if (user.profilePhotoUrl) {
+                avatar.innerHTML = `<img src="${user.profilePhotoUrl}" alt="${user.name}">`;
+            } else {
+                avatar.innerHTML = `<i class="fas fa-building"></i>`;
+            }
+
+            // Phone
+            if (user.phone) {
+                document.getElementById('phoneSection').style.display = 'flex';
+                document.getElementById('profilePhone').textContent = user.phone;
+            }
+
+            // Website
+            if (user.website) {
+                document.getElementById('websiteSection').style.display = 'flex';
+                const websiteLink = document.getElementById('profileWebsite');
+                websiteLink.href = user.website.startsWith('http') ? user.website : `https://${user.website}`;
+                websiteLink.textContent = user.website;
+            }
+
+            // Description
+            if (user.description) {
+                document.getElementById('descSection').style.display = 'block';
+                document.getElementById('profileDescription').textContent = user.description;
+            }
+
+            // Update page title
+            document.title = `${user.name} - Aprendiz+`;
+        }
+
+        // Check if user is authenticated
+        async function checkUserAuth() {
+            try {
+                const res = await fetch('/api/users/me', { credentials: 'include' });
+                
+                if (res.ok) {
+                    currentUser = await res.json();
+                    
+                    // Don't allow liking own profile
+                    if (currentUser.id === profileUser.id) {
+                        return;
+                    }
+                    
+                    // Show like button
+                    document.getElementById('likeSection').style.display = 'block';
+                    
+                    // Check if already liked
+                    checkLikeStatus();
+                } else {
+                    // User not logged in - show login prompt
+                    document.getElementById('loginPrompt').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error checking auth:', error);
+                document.getElementById('loginPrompt').style.display = 'block';
+            }
+        }
+
+        // Check like status
+        async function checkLikeStatus() {
+            try {
+                const res = await fetch(`/api/profiles/${profileUser.id}/liked`, {
+                    credentials: 'include'
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    isLiked = data.liked;
+                    updateLikeButton();
+                    document.getElementById('likesCount').textContent = data.likesCount || 0;
+                }
+            } catch (error) {
+                console.error('Error checking like status:', error);
+            }
+        }
+
+        // Toggle like
+        async function toggleLike() {
+            if (!currentUser) return;
+
+            const button = document.getElementById('likeButton');
+            button.disabled = true;
+
+            try {
+                const method = isLiked ? 'DELETE' : 'POST';
+                const endpoint = isLiked 
+                    ? `/api/profiles/${profileUser.id}/unlike`
+                    : `/api/profiles/${profileUser.id}/like`;
+
+                const res = await fetch(endpoint, {
+                    method: method,
+                    credentials: 'include'
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    isLiked = !isLiked;
+                    updateLikeButton();
+                    document.getElementById('likesCount').textContent = data.likesCount || 0;
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        // Update like button
+        function updateLikeButton() {
+            const button = document.getElementById('likeButton');
+            const icon = button.querySelector('i');
+            const text = document.getElementById('likeText');
+
+            if (isLiked) {
+                button.classList.add('liked');
+                icon.className = 'fas fa-heart';
+                text.textContent = 'Curtido';
+            } else {
+                button.classList.remove('liked');
+                icon.className = 'far fa-heart';
+                text.textContent = 'Curtir Empresa';
+            }
+        }
+
+        // Show error
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        // Initialize
+        window.toggleLike = toggleLike;
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>

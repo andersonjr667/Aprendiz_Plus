@@ -11,6 +11,8 @@ const JobSchema = new mongoose.Schema({
   workModel: String,
   startDate: Date,
   expiresAt: Date,
+  applicationDeadline: Date, // Prazo limite para candidaturas
+  maxApplicants: Number, // Número máximo de candidatos
   status: { type: String, enum: ['aberta', 'fechada', 'pausada', 'active', 'inactive'], default: 'aberta' },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }],

@@ -14,6 +14,7 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const News = require('../models/News');
 const Upload = require('../models/Upload');
+const ProfileLike = require('../models/ProfileLike');
 const { logAction } = require('../middleware/audit');
 
 const authMiddleware = require('../middleware/auth');
@@ -672,15 +673,67 @@ router.put('/jobs/:id', authMiddleware, roleCheck(['empresa']), async (req, res)
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Update job status (active/inactive)
+router.put('/jobs/:id/status', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    console.log('Updating job status:', req.params.id, req.body);
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Vaga não encontrada' });
+    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
+      return res.status(403).json({ error: 'Sem permissão' });
+    }
+    
+    const { status } = req.body;
+    if (!status || (status !== 'active' && status !== 'inactive')) {
+      return res.status(400).json({ error: 'Status inválido. Use "active" ou "inactive"' });
+    }
+    
+    job.status = status;
+    await job.save();
+    
+    await logAction({ 
+      action: 'update_job_status', 
+      userId: req.user._id, 
+      resourceType: 'Job', 
+      resourceId: job._id, 
+      details: { status: status } 
+    });
+    
+    res.json({ ok: true, job });
+  } catch (err) { 
+    console.error('Error updating job status:', err);
+    res.status(500).json({ error: err.message }); 
+  }
+});
+
 router.delete('/jobs/:id', authMiddleware, async (req, res) => {
   try {
+    console.log('Deleting job:', req.params.id);
     const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ error: 'Not found' });
-    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-    await job.remove();
-    await logAction({ action: 'delete_job', userId: req.user._id, resourceType: 'Job', resourceId: job._id });
-    res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    if (!job) return res.status(404).json({ error: 'Vaga não encontrada' });
+    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
+      return res.status(403).json({ error: 'Sem permissão' });
+    }
+    
+    // Delete all applications for this job
+    await Application.deleteMany({ job: job._id });
+    
+    // Delete the job
+    await Job.findByIdAndDelete(req.params.id);
+    
+    await logAction({ 
+      action: 'delete_job', 
+      userId: req.user._id, 
+      resourceType: 'Job', 
+      resourceId: job._id,
+      details: { title: job.title }
+    });
+    
+    res.json({ ok: true, message: 'Vaga excluída com sucesso' });
+  } catch (err) { 
+    console.error('Error deleting job:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.get('/jobs/search', async (req, res) => {
@@ -709,13 +762,61 @@ router.get('/jobs/recommendations', authMiddleware, roleCheck(['candidato']), as
 router.post('/jobs/:id/apply', authMiddleware, roleCheck(['candidato']), upload.single('resume'), async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ error: 'Job not found' });
-    const app = await Application.create({ candidate: req.user._id, job: job._id, resumeUrl: req.file ? path.join('/uploads', req.file.filename) : req.user.resumeUrl });
+    if (!job) return res.status(404).json({ error: 'Vaga não encontrada' });
+    
+    // Check if job is active
+    if (job.status !== 'active' && job.status !== 'aberta') {
+      return res.status(400).json({ error: 'Esta vaga não está mais aceitando candidaturas' });
+    }
+    
+    // Check application deadline
+    if (job.applicationDeadline) {
+      const deadline = new Date(job.applicationDeadline);
+      const now = new Date();
+      if (now > deadline) {
+        return res.status(400).json({ error: 'O prazo para candidaturas desta vaga já encerrou' });
+      }
+    }
+    
+    // Check if user already applied
+    const existingApplication = await Application.findOne({ 
+      candidate: req.user._id, 
+      job: job._id 
+    });
+    if (existingApplication) {
+      return res.status(400).json({ error: 'Você já se candidatou a esta vaga' });
+    }
+    
+    // Check maximum applicants limit
+    if (job.maxApplicants) {
+      const currentApplicants = await Application.countDocuments({ job: job._id });
+      if (currentApplicants >= job.maxApplicants) {
+        return res.status(400).json({ error: 'Esta vaga já atingiu o limite máximo de candidatos' });
+      }
+    }
+    
+    const app = await Application.create({ 
+      candidate: req.user._id, 
+      job: job._id, 
+      resumeUrl: req.file ? path.join('/uploads', req.file.filename) : req.user.resumeUrl 
+    });
+    
     job.applications.push(app._id);
     await job.save();
-    await logAction({ action: 'apply_job', userId: req.user._id, resourceType: 'Application', resourceId: app._id, details: { jobId: job._id } });
+    
+    await logAction({ 
+      action: 'apply_job', 
+      userId: req.user._id, 
+      resourceType: 'Application', 
+      resourceId: app._id, 
+      details: { jobId: job._id } 
+    });
+    
     res.json(app);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error('Error applying to job:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.get('/jobs/:id/applications', authMiddleware, roleCheck(['empresa']), async (req, res) => {
@@ -1172,6 +1273,194 @@ router.delete('/uploads/:id', authMiddleware, async (req, res) => {
     res.json({ success: true, message: 'Arquivo excluído com sucesso' });
   } catch (err) {
     console.error('Error deleting upload:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- PUBLIC PROFILES -----
+// Get public profile (candidato) - WITHOUT sensitive data
+router.get('/profiles/candidato/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-passwordHash -cpf -resetToken -resetExpires');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Perfil não encontrado' });
+    }
+    
+    if (user.type !== 'candidato') {
+      return res.status(400).json({ error: 'Este não é um perfil de candidato' });
+    }
+    
+    // Get likes count
+    const likesCount = await ProfileLike.countDocuments({ profileUser: user._id });
+    
+    // Return public data only (no CPF, no sensitive info)
+    const publicProfile = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      bio: user.bio,
+      skills: user.skills,
+      interests: user.interests,
+      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl,
+      createdAt: user.createdAt,
+      likesCount: likesCount
+    };
+    
+    res.json(publicProfile);
+  } catch (err) {
+    console.error('Error fetching public profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get public profile (empresa) - WITHOUT sensitive data
+router.get('/profiles/empresa/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-passwordHash -cnpj -resetToken -resetExpires');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Perfil não encontrado' });
+    }
+    
+    if (user.type !== 'empresa') {
+      return res.status(400).json({ error: 'Este não é um perfil de empresa' });
+    }
+    
+    // Get likes count
+    const likesCount = await ProfileLike.countDocuments({ profileUser: user._id });
+    
+    // Get active jobs count
+    const jobsCount = await Job.countDocuments({ company: user._id, status: 'active' });
+    
+    // Return public data only (no CNPJ, no sensitive info)
+    const publicProfile = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      description: user.description,
+      website: user.website,
+      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl,
+      createdAt: user.createdAt,
+      likesCount: likesCount,
+      activeJobsCount: jobsCount
+    };
+    
+    res.json(publicProfile);
+  } catch (err) {
+    console.error('Error fetching public profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- PROFILE LIKES -----
+// Like a profile
+router.post('/profiles/:id/like', authMiddleware, async (req, res) => {
+  try {
+    const profileUserId = req.params.id;
+    const likerId = req.user._id;
+    
+    // Check if user is trying to like their own profile
+    if (profileUserId === likerId.toString()) {
+      return res.status(400).json({ error: 'Você não pode curtir seu próprio perfil' });
+    }
+    
+    // Check if profile exists
+    const profileUser = await User.findById(profileUserId);
+    if (!profileUser) {
+      return res.status(404).json({ error: 'Perfil não encontrado' });
+    }
+    
+    // Check if already liked
+    const existingLike = await ProfileLike.findOne({ 
+      liker: likerId, 
+      profileUser: profileUserId 
+    });
+    
+    if (existingLike) {
+      return res.status(400).json({ error: 'Você já curtiu este perfil' });
+    }
+    
+    // Create like
+    const like = await ProfileLike.create({
+      liker: likerId,
+      profileUser: profileUserId
+    });
+    
+    // Get updated likes count
+    const likesCount = await ProfileLike.countDocuments({ profileUser: profileUserId });
+    
+    await logAction(likerId, 'profile_like', { 
+      profileUserId: profileUserId,
+      profileUserName: profileUser.name
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Perfil curtido com sucesso',
+      likesCount: likesCount
+    });
+  } catch (err) {
+    console.error('Error liking profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Unlike a profile
+router.delete('/profiles/:id/unlike', authMiddleware, async (req, res) => {
+  try {
+    const profileUserId = req.params.id;
+    const likerId = req.user._id;
+    
+    // Find and delete like
+    const result = await ProfileLike.findOneAndDelete({ 
+      liker: likerId, 
+      profileUser: profileUserId 
+    });
+    
+    if (!result) {
+      return res.status(404).json({ error: 'Curtida não encontrada' });
+    }
+    
+    // Get updated likes count
+    const likesCount = await ProfileLike.countDocuments({ profileUser: profileUserId });
+    
+    await logAction(likerId, 'profile_unlike', { 
+      profileUserId: profileUserId
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Curtida removida com sucesso',
+      likesCount: likesCount
+    });
+  } catch (err) {
+    console.error('Error unliking profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Check if current user liked a profile
+router.get('/profiles/:id/liked', authMiddleware, async (req, res) => {
+  try {
+    const profileUserId = req.params.id;
+    const likerId = req.user._id;
+    
+    const like = await ProfileLike.findOne({ 
+      liker: likerId, 
+      profileUser: profileUserId 
+    });
+    
+    const likesCount = await ProfileLike.countDocuments({ profileUser: profileUserId });
+    
+    res.json({ 
+      liked: !!like,
+      likesCount: likesCount
+    });
+  } catch (err) {
+    console.error('Error checking like status:', err);
     res.status(500).json({ error: err.message });
   }
 });

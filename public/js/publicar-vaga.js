@@ -203,6 +203,8 @@ async function handleSubmit(e) {
   formData.append('salary', document.getElementById('salary').value || '');
   formData.append('startDate', document.getElementById('startDate').value || '');
   formData.append('expiresAt', document.getElementById('expiresAt').value || '');
+  formData.append('applicationDeadline', document.getElementById('applicationDeadline').value || '');
+  formData.append('maxApplicants', document.getElementById('maxApplicants').value || '');
   formData.append('description', document.getElementById('description').value);
   formData.append('requirements', JSON.stringify(requirements));
   formData.append('benefits', JSON.stringify(benefits));
@@ -285,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const today = new Date().toISOString().split('T')[0];
   const startDate = document.getElementById('startDate');
   const expiresAt = document.getElementById('expiresAt');
+  const applicationDeadline = document.getElementById('applicationDeadline');
   
   if (startDate) {
     startDate.min = today;
@@ -292,6 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (expiresAt) {
     expiresAt.min = today;
+  }
+  
+  if (applicationDeadline) {
+    applicationDeadline.min = today;
   }
   
   // Auto-fill location from user profile if available

@@ -1658,5 +1658,132 @@ window.viewResume = viewResume;
 window.openResumeDirectly = openResumeDirectly;
 window.replaceResume = replaceResume;
 window.deleteResume = deleteResume;
+
+// ----- PROFILE SHARING AND LIKES -----
+
+// Load likes count
+async function loadLikesCount() {
+  try {
+    if (!currentUser) return;
+    
+    const res = await fetch(`/api/profiles/${currentUser.id}/liked`, {
+      credentials: 'include'
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      const likesCountEl = document.getElementById('likesCount');
+      if (likesCountEl) {
+        likesCountEl.textContent = data.likesCount || 0;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading likes count:', error);
+  }
+}
+
+// Share profile
+function shareProfile() {
+  if (!currentUser) return;
+  
+  const profileUrl = `${window.location.origin}/perfil-publico-candidato?id=${currentUser.id}`;
+  
+  // Check if Web Share API is available (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: `Perfil de ${currentUser.name} - Aprendiz+`,
+      text: `Confira o perfil de ${currentUser.name} no Aprendiz+`,
+      url: profileUrl
+    }).catch(err => {
+      console.log('Error sharing:', err);
+      // Fallback to copy
+      copyProfileLink(profileUrl);
+    });
+  } else {
+    // Desktop: copy to clipboard
+    copyProfileLink(profileUrl);
+  }
+}
+
+// Copy profile link to clipboard
+function copyProfileLink(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    showProfileMessage('Link do perfil copiado para a área de transferência!', 'success');
+    
+    // Show share options modal
+    showShareModal(url);
+  }).catch(err => {
+    console.error('Error copying to clipboard:', err);
+    // Fallback: show link in prompt
+    prompt('Copie o link do seu perfil:', url);
+  });
+}
+
+// Show share modal with options
+function showShareModal(url) {
+  const modal = document.createElement('div');
+  modal.className = 'share-modal';
+  modal.innerHTML = `
+    <div class="share-modal-content">
+      <div class="share-modal-header">
+        <h3><i class="fas fa-share-alt"></i> Compartilhar Perfil</h3>
+        <button onclick="this.closest('.share-modal').remove()" class="share-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="share-modal-body">
+        <p>Compartilhe seu perfil nas redes sociais ou copie o link:</p>
+        <div class="share-input-group">
+          <input type="text" value="${url}" readonly class="share-link-input" id="shareLinkInput">
+          <button onclick="copyFromInput()" class="btn btn-primary">
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+        </div>
+        <div class="share-social-buttons">
+          <a href="https://wa.me/?text=${encodeURIComponent('Confira meu perfil: ' + url)}" target="_blank" class="share-btn whatsapp">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}" target="_blank" class="share-btn linkedin">
+            <i class="fab fa-linkedin"></i> LinkedIn
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" class="share-btn facebook">
+            <i class="fab fa-facebook"></i> Facebook
+          </a>
+          <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Confira meu perfil no Aprendiz+')}" target="_blank" class="share-btn twitter">
+            <i class="fab fa-twitter"></i> Twitter
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Close on background click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+}
+
+// Copy from input field
+window.copyFromInput = function() {
+  const input = document.getElementById('shareLinkInput');
+  input.select();
+  document.execCommand('copy');
+  showProfileMessage('Link copiado!', 'success');
+};
+
+// Global share function
+window.shareProfile = shareProfile;
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  // Load likes count after user is loaded
+  setTimeout(() => {
+    loadLikesCount();
+  }, 1000);
+});
 window.confirmDeleteResume = confirmDeleteResume;
 window.quickResumeAction = quickResumeAction;

@@ -43,6 +43,10 @@ router.get('/perfil-candidato', (req, res) => sendPage(res, 'perfil-candidato.ht
 router.get('/perfil-empresa', (req, res) => sendPage(res, 'perfil-empresa.html'));
 router.get('/painel-empresa', (req, res) => sendPage(res, 'painel-empresa.html'));
 
+// Public profiles (shareable)
+router.get('/perfil-publico-candidato', (req, res) => sendPage(res, 'perfil-publico-candidato.html'));
+router.get('/perfil-publico-empresa', (req, res) => sendPage(res, 'perfil-publico-empresa.html'));
+
 // Admin
 router.get('/admin-panel', (req, res) => sendPage(res, 'admin-panel.html'));
 router.get('/admin', (req, res) => sendPage(res, 'admin.html'));

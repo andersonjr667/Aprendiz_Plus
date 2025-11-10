@@ -141,6 +141,31 @@ function createJobCard(job) {
     rejectedCount = job.applications.filter(app => app.status === 'rejected').length;
   }
   
+  // Check deadline and limits
+  let deadlineWarning = '';
+  let limitWarning = '';
+  
+  if (job.applicationDeadline) {
+    const deadline = new Date(job.applicationDeadline);
+    const now = new Date();
+    const daysRemaining = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    
+    if (daysRemaining < 0) {
+      deadlineWarning = '<div class="job-warning expired"><i class="fas fa-exclamation-circle"></i> Prazo de candidatura encerrado</div>';
+    } else if (daysRemaining <= 3) {
+      deadlineWarning = `<div class="job-warning urgent"><i class="fas fa-clock"></i> ${daysRemaining} dia${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''} para candidaturas</div>`;
+    }
+  }
+  
+  if (job.maxApplicants) {
+    const remaining = job.maxApplicants - applicantsCount;
+    if (remaining <= 0) {
+      limitWarning = '<div class="job-warning expired"><i class="fas fa-users"></i> Limite de candidatos atingido</div>';
+    } else if (remaining <= 5) {
+      limitWarning = `<div class="job-warning urgent"><i class="fas fa-users"></i> Apenas ${remaining} vaga${remaining !== 1 ? 's' : ''} disponível${remaining !== 1 ? 'is' : ''}</div>`;
+    }
+  }
+  
   return `
     <div class="job-item ${statusClass}">
       <div class="job-header">
@@ -157,8 +182,14 @@ function createJobCard(job) {
             </span>
             <span class="job-meta-item">
               <i class="fas fa-users"></i>
-              ${applicantsCount} candidatura${applicantsCount !== 1 ? 's' : ''}
+              ${applicantsCount} candidatura${applicantsCount !== 1 ? 's' : ''}${job.maxApplicants ? ` / ${job.maxApplicants}` : ''}
             </span>
+            ${job.applicationDeadline ? `
+              <span class="job-meta-item">
+                <i class="fas fa-calendar-times"></i>
+                Prazo: ${new Date(job.applicationDeadline).toLocaleDateString('pt-BR')}
+              </span>
+            ` : ''}
           </div>
         </div>
         <span class="job-status ${statusClass}">
@@ -166,6 +197,9 @@ function createJobCard(job) {
           ${statusText}
         </span>
       </div>
+      
+      ${deadlineWarning}
+      ${limitWarning}
       
       ${applicantsCount > 0 ? `
         <div class="job-stats">
@@ -205,6 +239,10 @@ function createJobCard(job) {
         <button onclick="toggleJobStatus('${job._id || job.id}', '${job.status}')" class="btn btn-secondary btn-sm">
           <i class="fas fa-${job.status === 'active' ? 'pause' : 'play'}"></i>
           ${job.status === 'active' ? 'Pausar' : 'Ativar'}
+        </button>
+        <button onclick="confirmDeleteJob('${job._id || job.id}', '${job.title.replace(/'/g, "\\'")}')" class="btn btn-danger btn-sm">
+          <i class="fas fa-trash"></i>
+          Excluir
         </button>
       </div>
     </div>
@@ -488,6 +526,54 @@ async function toggleJobStatus(jobId, currentStatus) {
   }
 }
 
+// Confirm delete job
+function confirmDeleteJob(jobId, jobTitle) {
+  const modal = document.getElementById('confirmModal');
+  const title = document.getElementById('confirmTitle');
+  const message = document.getElementById('confirmMessage');
+  const confirmBtn = document.getElementById('confirmButton');
+  
+  title.textContent = 'Excluir Vaga';
+  message.textContent = `Tem certeza que deseja excluir a vaga "${jobTitle}"? Esta ação não pode ser desfeita e todas as candidaturas serão perdidas.`;
+  confirmBtn.textContent = 'Excluir';
+  confirmBtn.className = 'btn btn-danger';
+  
+  // Remove old event listeners by cloning
+  const newBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+  
+  // Add new event listener
+  document.getElementById('confirmButton').addEventListener('click', () => {
+    deleteJob(jobId);
+    closeConfirmModal();
+  });
+  
+  modal.classList.add('active');
+}
+
+// Delete job
+async function deleteJob(jobId) {
+  try {
+    showMessage('Excluindo vaga...', 'info');
+    
+    const res = await fetch(`/api/jobs/${jobId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (res.ok) {
+      showMessage('Vaga excluída com sucesso!', 'success');
+      await loadJobs();
+    } else {
+      const error = await res.json();
+      showMessage(error.error || 'Erro ao excluir vaga', 'error');
+    }
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    showMessage('Erro de conexão ao excluir vaga', 'error');
+  }
+}
+
 // Close applications modal
 function closeApplicationsModal() {
   const modal = document.getElementById('applicationsModal');
@@ -557,6 +643,8 @@ window.viewApplications = viewApplications;
 window.viewResume = viewResume;
 window.confirmUpdateApplicationStatus = confirmUpdateApplicationStatus;
 window.toggleJobStatus = toggleJobStatus;
+window.confirmDeleteJob = confirmDeleteJob;
+window.deleteJob = deleteJob;
 window.closeApplicationsModal = closeApplicationsModal;
 window.closeConfirmModal = closeConfirmModal;
 window.filterJobs = filterJobs;

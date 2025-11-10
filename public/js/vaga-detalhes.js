@@ -206,6 +206,40 @@ function renderQuickInfo(job) {
         }
     ];
     
+    // Add application deadline if exists
+    if (job.applicationDeadline) {
+        const deadline = new Date(job.applicationDeadline);
+        const today = new Date();
+        const daysRemaining = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+        
+        let deadlineText = deadline.toLocaleDateString('pt-BR');
+        if (daysRemaining > 0) {
+            deadlineText += ` (${daysRemaining} dia${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''})`;
+        } else if (daysRemaining === 0) {
+            deadlineText += ' (Último dia!)';
+        } else {
+            deadlineText = 'Encerrado';
+        }
+        
+        infoItems.push({
+            icon: 'fa-calendar-times',
+            label: 'Prazo de Candidatura',
+            value: deadlineText
+        });
+    }
+    
+    // Add max applicants if exists
+    if (job.maxApplicants) {
+        const applicantsCount = job.applicants_count || 0;
+        const remaining = job.maxApplicants - applicantsCount;
+        
+        infoItems.push({
+            icon: 'fa-users',
+            label: 'Vagas Disponíveis',
+            value: remaining > 0 ? `${remaining} de ${job.maxApplicants}` : 'Limite atingido'
+        });
+    }
+    
     container.innerHTML = infoItems.map(item => `
         <div class="info-item">
             <div class="info-icon">
@@ -325,6 +359,25 @@ async function handleApply() {
         return;
     }
     
+    // Check application deadline
+    if (currentJob.applicationDeadline) {
+        const deadline = new Date(currentJob.applicationDeadline);
+        const now = new Date();
+        if (now > deadline) {
+            alert('O prazo para candidaturas desta vaga já encerrou.');
+            return;
+        }
+    }
+    
+    // Check max applicants
+    if (currentJob.maxApplicants) {
+        const applicantsCount = currentJob.applicants_count || 0;
+        if (applicantsCount >= currentJob.maxApplicants) {
+            alert('Esta vaga já atingiu o limite máximo de candidatos.');
+            return;
+        }
+    }
+    
     const btnApply = document.getElementById('btnApply');
     btnApply.disabled = true;
     btnApply.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
@@ -340,6 +393,8 @@ async function handleApply() {
             })
         });
         
+        const data = await response.json();
+        
         if (response.ok) {
             hasApplied = true;
             localStorage.setItem(`applied_${currentJob.id}`, 'true');
@@ -349,12 +404,12 @@ async function handleApply() {
             
             showApplicationModal();
         } else {
-            throw new Error('Failed to apply');
+            throw new Error(data.error || 'Failed to apply');
         }
         
     } catch (error) {
         console.error('Error applying:', error);
-        alert('Erro ao enviar candidatura. Por favor, tente novamente.');
+        alert(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.');
         
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
