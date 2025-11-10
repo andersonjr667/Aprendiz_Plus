@@ -251,50 +251,75 @@
                 </div>
 
                 <!-- Resume Card -->
-                <div class="profile-card">
+                <div class="profile-card resume-card">
                     <div class="card-header-profile">
                         <h2 class="card-title-profile">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="fas fa-file-alt"></i>
                             Currículo
                         </h2>
                     </div>
 
                     <div id="resumeSection">
+                        <!-- Upload Area -->
                         <div class="resume-upload-area" id="resumeUploadArea">
-                            <div class="upload-icon">
-                                <i class="fas fa-file-upload"></i>
+                            <div class="upload-content">
+                                <div class="upload-icon-simple">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h4>Enviar currículo</h4>
+                                <p class="resume-upload-text">Arraste seu arquivo ou clique para selecionar</p>
+                                <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display: none;">
+                                <button type="button" class="btn btn-primary-custom" onclick="document.getElementById('resumeInput').click()">
+                                    <i class="fas fa-plus-circle"></i> Selecionar arquivo
+                                </button>
+                                <span class="upload-hint">PDF, DOC ou DOCX · Máx. 5MB</span>
                             </div>
-                            <h4>Adicione seu currículo</h4>
-                            <p>Faça upload do seu currículo em formato PDF, DOC ou DOCX</p>
-                            <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display: none;">
-                            <button type="button" class="btn btn-primary" onclick="document.getElementById('resumeInput').click()">
-                                <i class="fas fa-upload"></i> Selecionar Arquivo
-                            </button>
-                            <span class="form-text-small" style="display: block; margin-top: 15px;">
-                                Tamanho máximo: 5MB
-                            </span>
                         </div>
 
+                        <!-- Resume Actions -->
                         <div class="resume-actions" id="resumeActions">
-                            <div class="resume-info">
-                                <div class="resume-file-icon">
+                            <!-- File Info -->
+                            <div class="resume-file-card">
+                                <div class="file-icon-wrapper">
                                     <i class="fas fa-file-pdf"></i>
                                 </div>
-                                <div class="resume-details">
-                                    <h5 id="resumeFileName">curriculo.pdf</h5>
-                                    <span class="form-text-small" id="resumeFileDate">Enviado em --/--/----</span>
+                                <div class="file-info-content">
+                                    <h4 class="file-name" id="resumeFileName">Currículo.pdf</h4>
+                                    <div class="file-meta">
+                                        <span class="file-date" id="resumeFileDate">Enviado hoje</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="resume-buttons">
-                                <button type="button" class="btn btn-outline" onclick="downloadResume()">
-                                    <i class="fas fa-download"></i> Baixar
+                            
+                            <!-- Action Buttons -->
+                            <div class="resume-actions-wrapper">
+                                <!-- Primary Action -->
+                                <button type="button" class="btn-resume btn-primary-action" onclick="openResumeDirectly()" title="Abrir arquivo em nova aba">
+                                    <i class="fas fa-eye"></i>
+                                    <span>Visualizar</span>
                                 </button>
-                                <button type="button" class="btn btn-secondary" onclick="replaceResume()">
-                                    <i class="fas fa-sync-alt"></i> Substituir
-                                </button>
-                                <button type="button" class="btn btn-danger" onclick="deleteResume()">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
+                                
+                                <!-- Secondary Actions -->
+                                <div class="secondary-actions">
+                                    <button type="button" class="btn-resume btn-secondary-action" onclick="downloadResume()" title="Fazer download do arquivo">
+                                        <i class="fas fa-download"></i>
+                                        <span>Baixar</span>
+                                    </button>
+                                    <button type="button" class="btn-resume btn-secondary-action" onclick="replaceResume()" title="Enviar um novo arquivo">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span>Trocar</span>
+                                    </button>
+                                    <button type="button" class="btn-resume btn-danger-action" onclick="confirmDeleteResume()" title="Remover arquivo">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Excluir</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Helpful Tip -->
+                            <div class="resume-helper-tip">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Mantenha seu currículo atualizado para aumentar suas chances com os recrutadores</span>
                             </div>
                         </div>
                     </div>

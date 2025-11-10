@@ -516,26 +516,48 @@ async function saveProfile(event) {
 
 // Load applications
 async function loadApplications() {
+  const container = document.getElementById('applicationsSection');
+  
+  if (!container) {
+    console.error('Container #applicationsSection não encontrado');
+    return;
+  }
+  
   try {
     const res = await fetch('/api/users/me/applications', { credentials: 'include' });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     const data = await res.json();
     
-    const container = document.getElementById('applications');
-    
-    if (!res.ok || !data || data.length === 0) {
+    if (!data || data.length === 0) {
       container.innerHTML = `
         <div class="text-center p-xl">
-          <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--brand-blue);"><i class="fas fa-briefcase"></i></div>
-          <h4>Nenhuma candidatura ainda</h4>
-          <p class="text-gray-500">Candidate-se a vagas para vê-las aqui</p>
-          <a href="/vagas" class="btn btn-primary">Buscar Vagas</a>
+          <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--brand-blue);">
+            <i class="fas fa-briefcase"></i>
+          </div>
+          <h4 style="margin-bottom: var(--spacing-sm);">Nenhuma candidatura ainda</h4>
+          <p class="text-gray-500" style="margin-bottom: var(--spacing-lg);">Comece a se candidatar às vagas disponíveis</p>
+          <a href="/vagas" class="btn btn-primary">
+            <i class="fas fa-search"></i> Buscar Vagas
+          </a>
         </div>
       `;
+      
+      // Atualiza contador
+      const statsEl = document.getElementById('statsApplications');
+      if (statsEl) statsEl.textContent = '0';
+      
       return;
     }
 
     container.innerHTML = '';
-    document.getElementById('statsApplications').textContent = data.length;
+    
+    // Atualiza contador
+    const statsEl = document.getElementById('statsApplications');
+    if (statsEl) statsEl.textContent = data.length;
 
     data.forEach(app => {
       const appEl = document.createElement('div');
@@ -560,23 +582,171 @@ async function loadApplications() {
 
   } catch (error) {
     console.error('Error loading applications:', error);
-    document.getElementById('applications').innerHTML = '<p class="text-error">Erro ao carregar candidaturas</p>';
+    if (container) {
+      container.innerHTML = `
+        <div class="text-center p-lg">
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--text-gray);">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <p class="text-gray-500">Não foi possível carregar suas candidaturas</p>
+          <button onclick="loadApplications()" class="btn btn-secondary" style="margin-top: var(--spacing-md);">
+            <i class="fas fa-redo"></i> Tentar novamente
+          </button>
+        </div>
+      `;
+    }
   }
 }
 
 // Load recommendations
 async function loadRecommendations() {
+  const container = document.getElementById('recommendationsSection');
+  
+  if (!container) {
+    console.error('Container #recommendationsSection não encontrado');
+    return;
+  }
+  
   try {
-    const res = await fetch('/api/jobs/recommendations', { credentials: 'include' });
+    const res = await fetch('/api/jobs/recommendations', { 
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Recommendations response status:', res.status);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Recommendations error:', res.status, errorText);
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     const data = await res.json();
+    console.log('Recommendations data:', data);
     
-    const container = document.getElementById('recommendations');
+    // Dicas úteis para o candidato
+    const tips = [
+      {
+        icon: 'fa-file-alt',
+        title: 'Mantenha seu currículo atualizado',
+        text: 'Um currículo completo aumenta suas chances em até 40%'
+      },
+      {
+        icon: 'fa-lightbulb',
+        title: 'Complete suas habilidades',
+        text: 'Candidatos com 5+ habilidades recebem 3x mais visualizações'
+      },
+      {
+        icon: 'fa-star',
+        title: 'Destaque suas conquistas',
+        text: 'Adicione projetos e experiências relevantes no seu perfil'
+      },
+      {
+        icon: 'fa-bell',
+        title: 'Ative as notificações',
+        text: 'Seja o primeiro a saber sobre novas vagas na sua área'
+      },
+      {
+        icon: 'fa-search',
+        title: 'Personalize sua busca',
+        text: 'Defina suas áreas de interesse para receber melhores recomendações'
+      },
+      {
+        icon: 'fa-users',
+        title: 'Faça networking',
+        text: 'Conecte-se com profissionais da sua área e participe de eventos'
+      },
+      {
+        icon: 'fa-graduation-cap',
+        title: 'Invista em capacitação',
+        text: 'Cursos e certificações aumentam sua empregabilidade em 60%'
+      },
+      {
+        icon: 'fa-clock',
+        title: 'Candidate-se rapidamente',
+        text: 'As primeiras 24h são cruciais - vagas recebem 80% das candidaturas nesse período'
+      },
+      {
+        icon: 'fa-briefcase',
+        title: 'Personalize sua candidatura',
+        text: 'Adapte seu currículo para cada vaga - isso triplica suas chances'
+      },
+      {
+        icon: 'fa-chart-line',
+        title: 'Acompanhe suas métricas',
+        text: 'Monitore visualizações do perfil e ajuste sua estratégia'
+      },
+      {
+        icon: 'fa-linkedin',
+        title: 'Otimize seu LinkedIn',
+        text: '90% dos recrutadores checam o LinkedIn antes de entrevistar'
+      },
+      {
+        icon: 'fa-comment-dots',
+        title: 'Prepare-se para entrevistas',
+        text: 'Pratique respostas comuns e pesquise sobre a empresa'
+      },
+      {
+        icon: 'fa-tools',
+        title: 'Mostre seus projetos',
+        text: 'Tenha um portfólio online - aumenta credibilidade em 70%'
+      },
+      {
+        icon: 'fa-trophy',
+        title: 'Destaque diferencias competitivos',
+        text: 'O que te torna único? Idiomas, certificações, projetos especiais?'
+      },
+      {
+        icon: 'fa-handshake',
+        title: 'Seja proativo',
+        text: 'Entre em contato com recrutadores e demonstre interesse genuíno'
+      },
+      {
+        icon: 'fa-envelope',
+        title: 'Escreva um bom resumo',
+        text: 'Sua bio é a primeira impressão - seja claro e objetivo'
+      },
+      {
+        icon: 'fa-check-circle',
+        title: 'Complete 100% do perfil',
+        text: 'Perfis completos têm 40x mais chances de serem visualizados'
+      },
+      {
+        icon: 'fa-bullseye',
+        title: 'Seja específico nas áreas de interesse',
+        text: 'Quanto mais claro seu objetivo, melhores as recomendações'
+      },
+      {
+        icon: 'fa-rocket',
+        title: 'Atualize regularmente',
+        text: 'Perfis ativos aparecem primeiro nas buscas dos recrutadores'
+      },
+      {
+        icon: 'fa-phone',
+        title: 'Mantenha contatos atualizados',
+        text: 'Verifique se email e telefone estão corretos - oportunidades podem escapar'
+      }
+    ];
     
-    if (!res.ok || !data || data.length === 0) {
+    if (!data || data.length === 0) {
+      // Mostra dicas quando não há recomendações
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      
       container.innerHTML = `
         <div class="text-center p-lg">
-          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--brand-teal);"><i class="fas fa-bullseye"></i></div>
-          <p class="text-gray-500">Nenhuma recomendação no momento</p>
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--brand-teal);">
+            <i class="fas ${randomTip.icon}"></i>
+          </div>
+          <h5 style="margin-bottom: var(--spacing-xs);">${randomTip.title}</h5>
+          <p class="text-gray-500">${randomTip.text}</p>
+        </div>
+        <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: #f8f9fa; border-radius: 8px;">
+          <p class="text-sm text-gray-600" style="margin: 0;">
+            <i class="fas fa-info-circle" style="color: var(--brand-teal);"></i>
+            Complete seu perfil para receber recomendações personalizadas de vagas
+          </p>
         </div>
       `;
       return;
@@ -584,23 +754,61 @@ async function loadRecommendations() {
 
     container.innerHTML = '';
     
-    data.slice(0, 5).forEach(job => {
+    // Mostra até 3 vagas recomendadas
+    data.slice(0, 3).forEach(item => {
+      const job = item.job;
       const jobEl = document.createElement('div');
       jobEl.style.marginBottom = 'var(--spacing-md)';
       
       jobEl.innerHTML = `
-        <div class="p-md" style="border-left: 3px solid var(--brand-green);">
-          <h5><a href="/vaga-detalhes?id=${job.id}">${job.title}</a></h5>
-          <p class="text-sm text-gray-500">${job.company_name || 'Empresa'}</p>
+        <div class="p-md" style="border-left: 3px solid var(--brand-green); background: white; border-radius: 4px;">
+          <h5 style="margin-bottom: var(--spacing-xs);">
+            <a href="/vaga-detalhes?id=${job._id}" style="color: var(--text-primary);">${job.title}</a>
+          </h5>
+          <p class="text-sm text-gray-500" style="margin: 0;">${job.company_name || 'Empresa'}</p>
         </div>
       `;
       
       container.appendChild(jobEl);
     });
+    
+    // Adiciona uma dica aleatória no final
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    const tipEl = document.createElement('div');
+    tipEl.style.marginTop = 'var(--spacing-lg)';
+    tipEl.innerHTML = `
+      <div style="padding: var(--spacing-md); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+        <div style="display: flex; align-items: start; gap: var(--spacing-sm);">
+          <i class="fas ${randomTip.icon}" style="font-size: 1.5rem; margin-top: 2px;"></i>
+          <div>
+            <h6 style="margin: 0 0 var(--spacing-xs) 0; color: white;">${randomTip.title}</h6>
+            <p style="margin: 0; font-size: 0.875rem; opacity: 0.95;">${randomTip.text}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(tipEl);
 
   } catch (error) {
     console.error('Error loading recommendations:', error);
-    document.getElementById('recommendations').innerHTML = '<p class="text-error">Erro ao carregar recomendações</p>';
+    if (container) {
+      // Mostra uma dica mesmo quando há erro
+      container.innerHTML = `
+        <div class="text-center p-lg">
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--brand-teal);">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h5 style="margin-bottom: var(--spacing-xs);">Complete suas habilidades</h5>
+          <p class="text-gray-500">Candidatos com 5+ habilidades recebem 3x mais visualizações</p>
+        </div>
+        <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: #f8f9fa; border-radius: 8px;">
+          <p class="text-sm text-gray-600" style="margin: 0;">
+            <i class="fas fa-info-circle" style="color: var(--brand-teal);"></i>
+            Adicione suas habilidades na seção Informações Profissionais
+          </p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -1207,16 +1415,45 @@ function showResumeUpload() {
 // Show resume actions
 function showResumeActions(resumeData) {
   document.getElementById('resumeUploadArea').style.display = 'none';
-  document.getElementById('resumeActions').style.display = 'flex';
+  document.getElementById('resumeActions').style.display = 'block';
   
-  // Update resume info
-  const fileName = resumeData.resumeUrl ? resumeData.resumeUrl.split('/').pop() : 'currículo.pdf';
-  document.getElementById('resumeFileName').textContent = fileName;
-  
-  if (resumeData.updatedAt) {
-    const date = new Date(resumeData.updatedAt).toLocaleDateString('pt-BR');
-    document.getElementById('resumeFileDate').textContent = `Enviado em ${date}`;
+  // Get original filename or use friendly name
+  let fileName = 'Currículo.pdf';
+  if (resumeData.resumeUrl) {
+    const urlFileName = resumeData.resumeUrl.split('/').pop();
+    const extension = urlFileName.split('.').pop();
+    fileName = `Currículo.${extension}`;
   }
+  
+  const fileNameElement = document.getElementById('resumeFileName');
+  if (fileNameElement) {
+    fileNameElement.textContent = fileName;
+  }
+  
+  // Format date nicely
+  const fileDateElement = document.getElementById('resumeFileDate');
+  if (resumeData.updatedAt && fileDateElement) {
+    const date = new Date(resumeData.updatedAt);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Check if today, yesterday, or format date
+    if (date.toDateString() === today.toDateString()) {
+      fileDateElement.textContent = 'Enviado hoje';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      fileDateElement.textContent = 'Enviado ontem';
+    } else {
+      const formattedDate = date.toLocaleDateString('pt-BR', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+      fileDateElement.textContent = `Enviado em ${formattedDate}`;
+    }
+  }
+  
+  console.log('Resume actions shown. URL:', resumeData.resumeUrl);
 }
 
 // Upload resume
@@ -1256,12 +1493,15 @@ async function uploadResume(file) {
 // Show upload progress
 function showUploadProgress() {
   const uploadArea = document.getElementById('resumeUploadArea');
+  if (!uploadArea) return;
+  
   uploadArea.innerHTML = `
-    <div class="resume-progress">
-      <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--brand-blue); margin-bottom: var(--spacing-sm);"></i>
-      <p>Enviando currículo...</p>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: 70%;"></div>
+    <div class="resume-progress" style="text-align: center; padding: 40px;">
+      <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--brand-blue); margin-bottom: 20px;"></i>
+      <h4 style="color: #333; margin-bottom: 10px;">Enviando currículo...</h4>
+      <p style="color: #666; font-size: 0.95rem;">Aguarde enquanto processamos seu arquivo</p>
+      <div class="progress-bar" style="width: 100%; height: 6px; background: #e0e0e0; border-radius: 10px; margin-top: 20px; overflow: hidden;">
+        <div class="progress-fill" style="width: 70%; height: 100%; background: linear-gradient(90deg, #2ECC71, #27AE60); animation: progressPulse 1.5s ease-in-out infinite;"></div>
       </div>
     </div>
   `;
@@ -1275,15 +1515,96 @@ async function downloadResume() {
   }
   
   try {
+    // Create a temporary link and trigger download
     const link = document.createElement('a');
     link.href = currentResume.resumeUrl;
-    link.download = currentResume.resumeUrl.split('/').pop();
+    
+    // Extract filename from URL or use default
+    const urlParts = currentResume.resumeUrl.split('/');
+    const filename = urlParts[urlParts.length - 1] || 'curriculo.pdf';
+    
+    link.download = filename;
+    link.target = '_blank';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    showProfileMessage('Download iniciado!', 'success');
   } catch (error) {
     console.error('Error downloading resume:', error);
     showProfileMessage('Erro ao baixar currículo', 'error');
+  }
+}
+
+// Open resume directly (now served locally)
+async function openResumeDirectly() {
+  if (!currentResume || !currentResume.resumeUrl) {
+    showProfileMessage('Nenhum currículo encontrado', 'error');
+    return;
+  }
+  
+  try {
+    console.log('Opening resume:', currentResume.resumeUrl);
+    
+    const fileUrl = currentResume.resumeUrl;
+    
+    // Open file directly in new tab (browser's native PDF viewer)
+    const newWindow = window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      // Popup blocker
+      showProfileMessage('⚠️ Por favor, permita pop-ups para visualizar o currículo', 'warning');
+      setTimeout(() => {
+        if (confirm('Bloqueador de pop-ups detectado.\n\nDeseja baixar o arquivo?')) {
+          downloadResume();
+        }
+      }, 500);
+    } else {
+      showProfileMessage('✓ Abrindo visualizador...', 'success');
+    }
+    
+  } catch (error) {
+    console.error('Error opening resume:', error);
+    showProfileMessage('Erro ao abrir currículo. Use o botão "Baixar".', 'error');
+  }
+}
+
+// View resume in new tab or modal
+async function viewResume() {
+  if (!currentResume || !currentResume.resumeUrl) {
+    showProfileMessage('Nenhum currículo encontrado', 'error');
+    return;
+  }
+  
+  try {
+    console.log('Opening resume URL:', currentResume.resumeUrl);
+    const fileUrl = currentResume.resumeUrl;
+    
+    // Open file directly in new tab (browser's native PDF viewer)
+    const newWindow = window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      // Popup blocker might have prevented opening
+      showProfileMessage('⚠️ Bloqueador de pop-ups detectado! Por favor, permita pop-ups para este site.', 'warning');
+      
+      // Show alternative option
+      setTimeout(() => {
+        const userChoice = confirm(
+          'Não foi possível abrir o visualizador.\n\n' +
+          'Clique em OK para baixar o arquivo diretamente,\n' +
+          'ou CANCELAR para tentar novamente após permitir pop-ups.'
+        );
+        
+        if (userChoice) {
+          downloadResume();
+        }
+      }, 500);
+    } else {
+      showProfileMessage('✓ Abrindo visualizador de currículo...', 'success');
+    }
+  } catch (error) {
+    console.error('Error viewing resume:', error);
+    showProfileMessage('Erro ao visualizar currículo. Use o botão "Baixar" como alternativa.', 'error');
   }
 }
 
@@ -1292,12 +1613,22 @@ function replaceResume() {
   document.getElementById('resumeInput').click();
 }
 
+// Confirm delete resume (with better UX)
+function confirmDeleteResume() {
+  // Show custom confirmation
+  const confirmDelete = confirm(
+    '⚠️ Confirmar exclusão\n\n' +
+    'Tem certeza que deseja excluir seu currículo?\n\n' +
+    'Esta ação não pode ser desfeita.'
+  );
+  
+  if (confirmDelete) {
+    deleteResume();
+  }
+}
+
 // Delete resume
 async function deleteResume() {
-  if (!confirm('Tem certeza que deseja remover seu currículo?')) {
-    return;
-  }
-  
   try {
     const res = await fetch('/api/users/me/resume', {
       method: 'DELETE',
@@ -1321,6 +1652,9 @@ async function deleteResume() {
 
 // Global resume functions
 window.downloadResume = downloadResume;
+window.viewResume = viewResume;
+window.openResumeDirectly = openResumeDirectly;
 window.replaceResume = replaceResume;
 window.deleteResume = deleteResume;
+window.confirmDeleteResume = confirmDeleteResume;
 window.quickResumeAction = quickResumeAction;

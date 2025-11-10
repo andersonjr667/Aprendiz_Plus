@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
   profilePhotoUrl: String,
   profilePhotoCloudinaryId: String, // ID do Cloudinary para foto de perfil
   resumeUrl: String,
-  resumeCloudinaryId: String, // ID do Cloudinary para currículo
+  resumeFileId: String, // ID do arquivo no GridFS
   createdAt: { type: Date, default: Date.now },
   candidateProfile: { type: CandidateProfileSchema, default: () => ({}) },
   companyProfile: { type: CompanyProfileSchema, default: () => ({}) },

@@ -394,43 +394,102 @@ textarea.form-control-profile {
 }
 
 /* Resume Section */
+/* ============================================
+   RESUME CARD - CLEAN & MINIMAL DESIGN
+   ============================================ */
+
+/* Resume Card Container */
+.resume-card {
+  background: #ffffff;
+  border: 1px solid #e8eaed;
+}
+
+.resume-card .card-title-profile i {
+  color: #5f6368;
+  font-size: 1.3rem;
+}
+
+/* ============================================
+   UPLOAD AREA - SIMPLIFIED
+   ============================================ */
+
 .resume-upload-area {
   text-align: center;
-  padding: 60px 20px;
-  border: 3px dashed #e0e0e0;
-  border-radius: 20px;
+  padding: 60px 40px;
+  background: #fafbfc;
+  border: 2px dashed #dadce0;
+  border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .resume-upload-area:hover {
+  background: #f8f9fa;
   border-color: #2ECC71;
-  background: #f9f9f9;
 }
 
-.upload-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 25px;
-  color: white;
+.upload-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.upload-icon-simple {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  color: #5f6368;
   font-size: 2.5rem;
+  opacity: 0.7;
 }
 
 .resume-upload-area h4 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 1.25rem;
+  color: #202124;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
-.resume-upload-area p {
-  color: #666;
-  margin-bottom: 25px;
+.resume-upload-text {
+  color: #5f6368;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.btn-primary-custom {
+  background: #2ECC71;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary-custom:hover {
+  background: #27AE60;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.btn-primary-custom i {
   font-size: 1.1rem;
 }
+
+.upload-hint {
+  display: block;
+  margin-top: 16px;
+  color: #80868b;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   RESUME ACTIONS - CLEAN LAYOUT
+   ============================================ */
 
 .resume-actions {
   display: none;
@@ -440,40 +499,230 @@ textarea.form-control-profile {
   display: block;
 }
 
-.resume-info {
+/* File Info Card - Minimal & Clean */
+.resume-file-card {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 25px;
-  background: #f9f9f9;
-  border-radius: 15px;
-  margin-bottom: 20px;
+  gap: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  border: 1px solid #e8eaed;
 }
 
-.resume-file-icon {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  border-radius: 12px;
+.file-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: #ea4335;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 28px;
+  font-size: 1.5rem;
   flex-shrink: 0;
 }
 
-.resume-details h5 {
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 5px;
+.file-info-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.resume-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.file-name {
+  font-size: 1rem;
+  color: #202124;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+.file-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.file-date {
+  color: #5f6368;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   ACTION BUTTONS - HIERARCHY & CLARITY
+   ============================================ */
+
+.resume-actions-wrapper {
+  margin-bottom: 20px;
+}
+
+/* Primary Action - Most Important */
+.btn-primary-action {
+  width: 100%;
+  background: #2ECC71;
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+}
+
+.btn-primary-action:hover {
+  background: #27AE60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
+}
+
+.btn-primary-action i {
+  font-size: 1.2rem;
+}
+
+/* Secondary Actions - Equal Weight */
+.secondary-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.btn-secondary-action,
+.btn-danger-action {
+  background: white;
+  color: #5f6368;
+  border: 1px solid #dadce0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 70px;
+}
+
+.btn-secondary-action:hover {
+  background: #f8f9fa;
+  border-color: #2ECC71;
+  color: #2ECC71;
+}
+
+.btn-secondary-action i {
+  font-size: 1.1rem;
+}
+
+/* Danger Action - Subtle but Clear */
+.btn-danger-action {
+  color: #ea4335;
+  border-color: #fce8e6;
+  background: #fef7f6;
+}
+
+.btn-danger-action:hover {
+  background: #fce8e6;
+  border-color: #ea4335;
+}
+
+.btn-danger-action i {
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   HELPER TIP - SUBTLE & FRIENDLY
+   ============================================ */
+
+.resume-helper-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  border-left: 3px solid #4285f4;
+}
+
+.resume-helper-tip i {
+  color: #4285f4;
+  font-size: 1.1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.resume-helper-tip span {
+  color: #174ea6;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .resume-upload-area {
+    padding: 40px 24px;
+  }
+  
+  .upload-icon-simple {
+    width: 56px;
+    height: 56px;
+    font-size: 2rem;
+  }
+  
+  .secondary-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-secondary-action,
+  .btn-danger-action {
+    flex-direction: row;
+    justify-content: flex-start;
+    min-height: auto;
+    padding: 14px 16px;
+  }
+  
+  .resume-file-card {
+    padding: 16px;
+  }
+  
+  .file-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .resume-upload-area {
+    padding: 32px 20px;
+  }
+  
+  .btn-primary-action {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+  
+  .resume-helper-tip {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+
 
 /* Applications */
 .application-item {
@@ -989,6 +1238,20 @@ textarea.form-control-profile {
     flex-direction: column;
   }
   
+  .resume-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .resume-preview-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .resume-tip {
+    flex-direction: column;
+    text-align: center;
+  }
+  
   .application-item {
     flex-direction: column;
     gap: 15px;
@@ -1009,6 +1272,40 @@ textarea.form-control-profile {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+  }
+  
+  .resume-upload-area {
+    padding: 35px 20px;
+  }
+  
+  .upload-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2.2rem;
+  }
+  
+  .resume-upload-area h4 {
+    font-size: 1.3rem;
+  }
+  
+  .resume-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .btn-action {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 15px 20px;
+    gap: 12px;
+  }
+  
+  .btn-action i {
+    font-size: 1.3rem;
+  }
+  
+  .btn-action span {
+    font-size: 1rem;
   }
 }
 
@@ -1160,5 +1457,129 @@ textarea.form-control-profile {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   RESUME VIEWER MODAL
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content.resume-viewer {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header h3 i {
+  color: #e74c3c;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modal-body {
+  padding: 25px;
+  flex: 1;
+  overflow: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 25px;
+  border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .modal-content.resume-viewer {
+    max-width: 95%;
+    max-height: 95vh;
+  }
+  
+  .modal-body iframe {
+    height: 60vh !important;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
   }
 }

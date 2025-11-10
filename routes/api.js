@@ -6,6 +6,8 @@ const crypto = require('crypto');
 const path = require('path');
 const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
+const mongoose = require('mongoose');
+const { GridFSBucket } = require('mongodb');
 
 const User = require('../models/User');
 const Job = require('../models/Job');
@@ -19,6 +21,15 @@ const roleCheck = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
 
 const router = express.Router();
+
+// Initialize GridFS
+let gfsBucket;
+mongoose.connection.once('open', () => {
+  gfsBucket = new GridFSBucket(mongoose.connection.db, {
+    bucketName: 'resumes'
+  });
+  console.log('GridFS initialized for resumes');
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 
@@ -286,39 +297,51 @@ router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
     
-    console.log('Uploading resume to Cloudinary...');
+    if (!gfsBucket) {
+      return res.status(500).json({ error: 'Sistema de armazenamento não inicializado' });
+    }
     
-    // Upload to Cloudinary
-    const uploadPromise = new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'aprendiz_plus/resumes',
-          resource_type: 'raw',
-          public_id: `resume_${req.user._id}_${Date.now()}`,
-          format: path.extname(req.file.originalname).substring(1)
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error);
-            reject(error);
-          } else {
-            console.log('Cloudinary upload success:', result.secure_url);
-            resolve(result);
-          }
-        }
-      );
-      
-      uploadStream.end(req.file.buffer);
+    console.log('Uploading resume to MongoDB GridFS...');
+    
+    // Delete old resume if exists
+    const oldUser = await User.findById(req.user._id).select('resumeFileId');
+    if (oldUser && oldUser.resumeFileId) {
+      try {
+        await gfsBucket.delete(new mongoose.Types.ObjectId(oldUser.resumeFileId));
+        console.log('Old resume deleted from GridFS');
+      } catch (err) {
+        console.error('Error deleting old resume:', err);
+      }
+    }
+    
+    // Upload to GridFS
+    const uploadStream = gfsBucket.openUploadStream(req.file.originalname, {
+      contentType: req.file.mimetype,
+      metadata: {
+        userId: req.user._id,
+        uploadedAt: new Date()
+      }
     });
     
-    const cloudinaryResult = await uploadPromise;
-    const resumeUrl = cloudinaryResult.secure_url;
+    // Write file buffer to GridFS
+    uploadStream.end(req.file.buffer);
+    
+    // Wait for upload to complete
+    await new Promise((resolve, reject) => {
+      uploadStream.on('finish', resolve);
+      uploadStream.on('error', reject);
+    });
+    
+    const fileId = uploadStream.id;
+    const resumeUrl = `/api/resumes/${fileId}`;
+    
+    console.log('Resume uploaded to GridFS:', fileId);
     
     const user = await User.findByIdAndUpdate(
       req.user._id, 
       { 
         resumeUrl: resumeUrl,
-        resumeCloudinaryId: cloudinaryResult.public_id,
+        resumeFileId: fileId.toString(),
         updatedAt: new Date()
       }, 
       { new: true }
@@ -326,7 +349,7 @@ router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (
     
     await logAction(req.user._id, 'resume_upload', { 
       filename: req.file.originalname,
-      cloudinaryUrl: resumeUrl
+      gridFsFileId: fileId.toString()
     });
     
     res.json(user);
@@ -336,29 +359,60 @@ router.post('/users/me/resume', authMiddleware, upload.single('resume'), async (
   }
 });
 
+// Serve resume file from GridFS
+router.get('/resumes/:fileId', async (req, res) => {
+  try {
+    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+    
+    if (!gfsBucket) {
+      return res.status(500).json({ error: 'Sistema de armazenamento não inicializado' });
+    }
+    
+    // Get file info
+    const files = await gfsBucket.find({ _id: fileId }).toArray();
+    
+    if (!files || files.length === 0) {
+      return res.status(404).json({ error: 'Arquivo não encontrado' });
+    }
+    
+    const file = files[0];
+    
+    // Set headers for inline display
+    res.setHeader('Content-Type', file.contentType || 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    
+    // Stream file from GridFS
+    const downloadStream = gfsBucket.openDownloadStream(fileId);
+    downloadStream.pipe(res);
+    
+  } catch (err) {
+    console.error('Error serving resume:', err);
+    res.status(500).json({ error: 'Erro ao carregar arquivo' });
+  }
+});
+
 // delete user resume
 router.delete('/users/me/resume', authMiddleware, async (req, res) => {
   try {
     // Get user to check if resume exists
     const user = await User.findById(req.user._id);
     
-    // Delete from Cloudinary if cloudinaryId exists
-    if (user.resumeCloudinaryId) {
+    // Delete from GridFS if fileId exists
+    if (user.resumeFileId) {
       try {
-        await cloudinary.uploader.destroy(user.resumeCloudinaryId, {
-          resource_type: 'raw'
-        });
-        console.log('Resume deleted from Cloudinary:', user.resumeCloudinaryId);
-      } catch (cloudErr) {
-        console.error('Error deleting from Cloudinary:', cloudErr);
-        // Continue even if Cloudinary delete fails
+        const fileId = new mongoose.Types.ObjectId(user.resumeFileId);
+        await gfsBucket.delete(fileId);
+        console.log('Resume deleted from GridFS:', user.resumeFileId);
+      } catch (gridErr) {
+        console.error('Error deleting from GridFS:', gridErr);
       }
     }
     
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id, 
       { 
-        $unset: { resumeUrl: 1, resumeCloudinaryId: 1 },
+        $unset: { resumeUrl: 1, resumeFileId: 1 },
         updatedAt: new Date()
       }, 
       { new: true }
