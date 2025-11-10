@@ -1346,6 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global functions for window (mantém apenas as necessárias)
 window.downloadProfile = downloadProfile;
+window.toggleEditMode = toggleEditMode;
 
 // Resume management functions
 let currentResume = null;

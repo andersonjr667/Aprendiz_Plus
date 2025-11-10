@@ -5,191 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
     <title>Perfil da Empresa - Aprendiz+</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Gerencie o perfil da sua empresa e vagas publicadas no Aprendiz+">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/public/css/variables.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/perfil-empresa.css?v=2.0">
+    
+    <script src="/public/js/auth.js" defer></script>
+    <script src="/public/js/api.js" defer></script>
+    <script src="/public/js/hamburger-menu.js" defer></script>
+    <script src="/public/js/perfil-empresa.js?v=2.0" defer></script>
+    
     <style>
-        .profile-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--spacing-xl) var(--spacing-md);
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-teal) 100%);
-            color: white;
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .profile-content {
+    </style>
+        /* Inline styles for better performance */
+        .personal-info-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: var(--spacing-xl);
-            margin-top: var(--spacing-xl);
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
         }
-
-        .profile-main {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-lg);
+        
+        .bio-card {
+            grid-column: 1 / -1;
         }
-
-        .profile-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-lg);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-md);
-        }
-
-        .stat-card {
-            background: var(--bg-white);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            text-align: center;
-            border: 1px solid var(--border-light);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--brand-blue);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .stat-label {
-            font-size: var(--font-sm);
-            color: var(--text-gray);
-        }
-
-        .edit-toggle {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: var(--spacing-sm) var(--spacing-md);
-            align-items: center;
-        }
-
-        .info-label {
-            font-weight: 500;
-            color: var(--text-gray);
-        }
-
-        .message-container {
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-lg);
-            display: none;
-        }
-
-        .message-container.success {
-            background: var(--success-bg);
-            color: var(--success-text);
-            border: 1px solid var(--success-border);
-        }
-
-        .message-container.error {
-            background: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid var(--error-border);
-        }
-
-        .message-container.info {
-            background: var(--info-bg);
-            color: var(--info-text);
-            border: 1px solid var(--info-border);
-        }
-
-        .job-item {
-            padding: var(--spacing-md);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .job-meta {
-            display: flex;
-            justify-content: between;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-sm);
-            font-size: var(--font-sm);
-            color: var(--text-gray);
-        }
-
-        .job-actions {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-md);
-        }
-
-        .application-item {
-            padding: var(--spacing-md);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .application-status {
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-sm);
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: var(--warning-bg);
-            color: var(--warning-text);
-        }
-
-        .status-approved {
-            background: var(--success-bg);
-            color: var(--success-text);
-        }
-
-        .status-rejected {
-            background: var(--error-bg);
-            color: var(--error-text);
-        }
-
+        
         @media (max-width: 768px) {
-            .profile-content {
+            .personal-info-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-xs);
-            }
-
-            .info-label {
-                margin-bottom: var(--spacing-xs);
             }
         }
     </style>
@@ -222,46 +75,54 @@
     <main class="main-content" style="padding-top: 75px;">
         <div class="profile-container">
             <!-- Message Container -->
-            <div id="messageContainer" class="message-container">
+            <div id="messageContainer" class="message-container" style="display: none;">
                 <span id="messageText"></span>
             </div>
 
-            <!-- Profile Header -->
-            <div class="profile-header">
-                <div class="flex items-center gap-lg">
-                    <div id="profileAvatar" class="profile-avatar">E</div>
-                    <div>
-                        <h1 id="profileName">Nome da Empresa</h1>
-                        <p id="profileTitle">Empresa</p>
-                    </div>
+    <!-- Profile Header -->
+    <section class="profile-header">
+        <div class="container profile-header-content">
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-building"></i>
                 </div>
-
-                <!-- Stats -->
-                <div class="stats-grid" style="margin-top: var(--spacing-xl);">
-                    <div class="stat-card">
-                        <div id="statsJobs" class="stat-number">0</div>
-                        <div class="stat-label">Vagas Ativas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div id="statsApplications" class="stat-number">0</div>
-                        <div class="stat-label">Candidaturas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div id="statsCompletion" class="stat-number">0%</div>
-                        <div class="stat-label">Perfil Completo</div>
-                    </div>
+                <div class="avatar-upload-overlay">
+                    <i class="fas fa-camera"></i>
+                    <span>Alterar logo</span>
                 </div>
             </div>
+            <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+            <div style="flex: 1;">
+                <h1 id="profileName">Carregando...</h1>
+                <p class="profile-subtitle" id="profileEmail">email@exemplo.com</p>
+                <div class="profile-badges">
+                    <span class="profile-badge">
+                        <i class="fas fa-briefcase"></i> <span id="statsJobsBadge">0</span> Vagas
+                    </span>
+                    <span class="profile-badge">
+                        <i class="fas fa-users"></i> <span id="statsApplicationsBadge">0</span> Candidaturas
+                    </span>
+                    <span class="profile-badge" id="completionBadge">
+                        <i class="fas fa-chart-line"></i> <span id="completionPercent">0%</span> Completo
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
 
             <!-- Profile Content -->
-            <div class="profile-content">
+            <div class="profile-grid">
                 <!-- Main Content -->
                 <div class="profile-main">
                     <!-- Company Info Section -->
-                    <section class="card">
-                        <div class="flex justify-between items-center" style="margin-bottom: var(--spacing-lg);">
-                            <h2>Informações da Empresa</h2>
-                            <button id="editToggle" class="btn btn-outline edit-toggle" onclick="toggleEditMode()">
+                    <section class="profile-card">
+                        <div class="card-header-profile">
+                            <h2 class="card-title-profile">
+                                <i class="fas fa-building"></i>
+                                Informações da Empresa
+                            </h2>
+                            <button class="btn-edit" id="btnEdit" onclick="toggleEditMode()">
+                                <i class="fas fa-edit"></i>
                                 <span id="editText">Editar</span>
                             </button>
                         </div>
@@ -320,81 +181,139 @@
                         </div>
 
                         <!-- Edit Mode -->
-                        <div id="editMode" style="display: none;">
+                        <div id="editMode" class="edit-form">
                             <form id="profileForm">
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editPhoto">Logo da Empresa</label>
-                                    <input type="file" id="editPhoto" class="form-control" accept="image/*">
-                                    <small class="form-text text-gray-500">Formatos aceitos: JPG, PNG, GIF (máx. 5MB)</small>
+                                    <input type="file" id="editPhoto" class="form-control-profile" accept="image/*">
+                                    <span class="form-text-small">Formatos aceitos: JPG, PNG. Tamanho máximo: 2MB</span>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editName">Nome da Empresa *</label>
-                                    <input type="text" id="editName" class="form-control" required>
+                                    <input type="text" id="editName" class="form-control-profile" required>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editEmail">E-mail *</label>
-                                    <input type="email" id="editEmail" class="form-control" required readonly>
-                                    <small class="form-text text-gray-500">Entre em contato conosco para alterar o e-mail</small>
+                                    <input type="email" id="editEmail" class="form-control-profile" readonly disabled>
+                                    <span class="form-text-small">Entre em contato conosco para alterar o e-mail</span>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editCnpj">CNPJ</label>
-                                    <input type="text" id="editCnpj" class="form-control" placeholder="00.000.000/0000-00">
+                                    <input type="text" id="editCnpj" class="form-control-profile" placeholder="00.000.000/0000-00" maxlength="18">
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editPhone">Telefone</label>
-                                    <input type="text" id="editPhone" class="form-control" placeholder="(00) 0000-0000">
+                                    <input type="text" id="editPhone" class="form-control-profile" placeholder="(00) 00000-0000" maxlength="15">
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editWebsite">Website</label>
-                                    <input type="url" id="editWebsite" class="form-control" placeholder="https://exemplo.com">
+                                    <input type="url" id="editWebsite" class="form-control-profile" placeholder="https://exemplo.com">
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group-profile">
                                     <label for="editDescription">Sobre a Empresa</label>
-                                    <textarea id="editDescription" class="form-control" rows="4" placeholder="Descreva sua empresa..."></textarea>
+                                    <textarea id="editDescription" class="form-control-profile" rows="5" placeholder="Descreva sua empresa, cultura, valores e o que a torna única..."></textarea>
                                 </div>
 
-                                <div class="flex gap-md">
-                                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                                    <button type="button" id="cancelEdit" class="btn btn-outline-secondary" onclick="toggleEditMode()">Cancelar</button>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Salvar Alterações
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </section>
 
                     <!-- Published Jobs Section -->
-                    <section class="card">
-                        <div class="flex justify-between items-center" style="margin-bottom: var(--spacing-lg);">
-                            <h2>Vagas Publicadas</h2>
-                            <a href="/publicar-vaga" class="btn btn-primary">Nova Vaga</a>
+                    <section class="profile-card">
+                        <div class="card-header-profile">
+                            <h2 class="card-title-profile">
+                                <i class="fas fa-briefcase"></i>
+                                Vagas Publicadas
+                            </h2>
+                            <a href="/publicar-vaga" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nova Vaga
+                            </a>
                         </div>
-                        <div id="jobs"></div>
+                        <div id="jobsSection">
+                            <div class="loading-profile">
+                                <div class="spinner-profile"></div>
+                                <p>Carregando vagas...</p>
+                            </div>
+                        </div>
                     </section>
                 </div>
 
                 <!-- Sidebar -->
-                <div class="profile-sidebar">
+                <aside class="profile-sidebar">
+                    <!-- Quick Stats -->
+                    <div class="profile-card">
+                        <div class="card-header-profile">
+                            <h3 class="card-title-profile" style="font-size: 1.3rem;">
+                                <i class="fas fa-chart-bar"></i>
+                                Estatísticas
+                            </h3>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Vagas Ativas</span>
+                                <span class="stat-value" id="statsJobs">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Candidaturas</span>
+                                <span class="stat-value" id="statsApplications">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Completude</span>
+                                <span class="stat-value" id="statsCompletion">0%</span>
+                            </div>
+                        </div>
+                        <div class="completion-bar">
+                            <div class="completion-fill" id="completionBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
                     <!-- Quick Actions -->
-                    <section class="card">
-                        <h3 style="margin-bottom: var(--spacing-md);">Ações Rápidas</h3>
-                        <div class="flex flex-col gap-sm">
-                            <a href="/publicar-vaga" class="btn btn-primary">Publicar Nova Vaga</a>
-                            <a href="/dashboard-empresa" class="btn btn-outline">Ver Dashboard</a>
-                            <button onclick="downloadProfile()" class="btn btn-outline-secondary">Baixar Perfil (PDF)</button>
+                    <section class="profile-card">
+                        <h3 class="card-title-profile" style="font-size: 1.3rem; margin-bottom: var(--spacing-md);">
+                            <i class="fas fa-bolt"></i>
+                            Ações Rápidas
+                        </h3>
+                        <div class="quick-actions">
+                            <a href="/publicar-vaga" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i> Publicar Nova Vaga
+                            </a>
+                            <a href="/vagas" class="btn btn-outline">
+                                <i class="fas fa-search"></i> Ver Todas as Vagas
+                            </a>
+                            <a href="/candidatos" class="btn btn-outline">
+                                <i class="fas fa-users"></i> Buscar Candidatos
+                            </a>
                         </div>
                     </section>
 
                     <!-- Recent Applications -->
-                    <section class="card">
-                        <h3 style="margin-bottom: var(--spacing-md);">Candidaturas Recentes</h3>
-                        <div id="recentApplications"></div>
+                    <section class="profile-card">
+                        <h3 class="card-title-profile" style="font-size: 1.3rem; margin-bottom: var(--spacing-md);">
+                            <i class="fas fa-user-check"></i>
+                            Candidaturas Recentes
+                        </h3>
+                        <div id="recentApplications">
+                            <div class="loading-profile">
+                                <div class="spinner-profile"></div>
+                                <p style="font-size: 14px;">Carregando...</p>
+                            </div>
+                        </div>
                     </section>
-                </div>
+                </aside>
             </div>
         </div>
     </main>

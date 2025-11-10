@@ -1,4 +1,6 @@
 // Enhanced profile management for companies
+console.log('perfil-empresa.js loaded!');
+
 let currentUser = null;
 let isEditMode = false;
 
@@ -39,13 +41,31 @@ function formatCNPJ(value) {
 // Load company profile
 async function loadProfile() {
   try {
-    const res = await fetch('/api/users/me', { credentials: 'include' });
-    const data = await res.json();
+    console.log('Loading profile...');
+    const res = await fetch('/api/users/me', { 
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Profile response status:', res.status);
     
     if (!res.ok) {
-      showProfileMessage('Erro ao carregar perfil', 'error');
+      const errorData = await res.json().catch(() => ({}));
+      console.error('Profile load error:', errorData);
+      showProfileMessage('Erro ao carregar perfil: ' + (errorData.error || 'Não autorizado'), 'error');
+      
+      if (res.status === 401) {
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
       return;
     }
+    
+    const data = await res.json();
+    console.log('Profile data loaded:', data);
 
     currentUser = data;
     displayProfile(data);
@@ -59,42 +79,121 @@ async function loadProfile() {
 
 // Display profile data
 function displayProfile(user) {
-  // Update header
-  document.getElementById('profileName').textContent = user.name || 'Nome não informado';
-  document.getElementById('profileTitle').textContent = 'Empresa';
+  console.log('Displaying profile for user:', user);
   
-  // Update avatar
+  // Update header name
+  const profileName = document.getElementById('profileName');
+  if (profileName) {
+    profileName.textContent = user.name || 'Nome não informado';
+  }
+  
+  // Update header email
+  const profileEmail = document.getElementById('profileEmail');
+  if (profileEmail) {
+    profileEmail.textContent = user.email || '';
+  }
+  
+  // Update avatar in header
   const avatarEl = document.getElementById('profileAvatar');
-  if (user.profilePhotoUrl || user.avatarUrl) {
-    // Show actual photo
-    avatarEl.innerHTML = `<img src="${user.profilePhotoUrl || user.avatarUrl}" alt="Logo da empresa" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-  } else if (user.name) {
-    // Show initials
-    avatarEl.textContent = user.name.charAt(0).toUpperCase();
+  console.log('Avatar element found:', !!avatarEl);
+  console.log('User data:', { profilePhotoUrl: user.profilePhotoUrl, avatarUrl: user.avatarUrl });
+  
+  if (avatarEl) {
+    if (user.profilePhotoUrl || user.avatarUrl) {
+      // Show actual photo
+      let photoUrl = user.profilePhotoUrl || user.avatarUrl;
+      
+      // Add cache busting only for local URLs
+      if (photoUrl && photoUrl.startsWith('/uploads')) {
+        photoUrl += '?t=' + Date.now();
+      }
+      
+      console.log('Displaying company logo:', photoUrl);
+      
+      // Clear previous content and add image
+      avatarEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = photoUrl;
+      img.alt = 'Logo da empresa';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      
+      img.onerror = function() {
+        console.error('Failed to load image:', this.src);
+        avatarEl.innerHTML = `<i class="fas fa-building" style="font-size: 4rem; color: #2ECC71;"></i>`;
+      };
+      img.onload = function() {
+        console.log('Image loaded successfully:', photoUrl);
+      };
+      avatarEl.appendChild(img);
+    } else {
+      // Show icon or initials
+      console.log('No profile photo, showing icon/initials');
+      if (user.name) {
+        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        avatarEl.innerHTML = initials;
+        avatarEl.style.fontSize = '4rem';
+        avatarEl.style.color = 'white';
+      } else {
+        avatarEl.innerHTML = `<i class="fas fa-building" style="font-size: 4rem; color: white; pointer-events: none;"></i>`;
+      }
+    }
   }
 
   // Update display fields
-  document.getElementById('displayName').textContent = user.name || '-';
-  document.getElementById('displayEmail').textContent = user.email || '-';
-  document.getElementById('displayCnpj').textContent = user.cnpj ? formatCNPJ(user.cnpj) : '-';
-  document.getElementById('displayPhone').textContent = user.phone || '-';
-  document.getElementById('displayWebsite').textContent = user.website || '-';
-  document.getElementById('displayDescription').textContent = user.description || 'Nenhuma descrição adicionada';
+  const displayName = document.getElementById('displayName');
+  if (displayName) displayName.textContent = user.name || '-';
+  
+  const displayEmail = document.getElementById('displayEmail');
+  if (displayEmail) displayEmail.textContent = user.email || '-';
+  
+  const displayCnpj = document.getElementById('displayCnpj');
+  if (displayCnpj) displayCnpj.textContent = user.cnpj ? formatCNPJ(user.cnpj) : 'Não informado';
+  
+  const displayPhone = document.getElementById('displayPhone');
+  if (displayPhone) displayPhone.textContent = user.phone || 'Não informado';
+  
+  const displayWebsite = document.getElementById('displayWebsite');
+  if (displayWebsite) {
+    if (user.website) {
+      displayWebsite.innerHTML = `<a href="${user.website}" target="_blank" rel="noopener">${user.website}</a>`;
+    } else {
+      displayWebsite.textContent = 'Não informado';
+    }
+  }
+  
+  const displayDescription = document.getElementById('displayDescription');
+  if (displayDescription) displayDescription.textContent = user.description || 'Nenhuma descrição adicionada. Clique em "Editar" para adicionar informações sobre sua empresa.';
 
   // Fill edit form
-  document.getElementById('editName').value = user.name || '';
-  document.getElementById('editEmail').value = user.email || '';
-  document.getElementById('editCnpj').value = user.cnpj || '';
-  document.getElementById('editPhone').value = user.phone || '';
-  document.getElementById('editWebsite').value = user.website || '';
-  document.getElementById('editDescription').value = user.description || '';
+  const editName = document.getElementById('editName');
+  if (editName) editName.value = user.name || '';
+  
+  const editEmail = document.getElementById('editEmail');
+  if (editEmail) editEmail.value = user.email || '';
+  
+  const editCnpj = document.getElementById('editCnpj');
+  if (editCnpj) editCnpj.value = user.cnpj || '';
+  
+  const editPhone = document.getElementById('editPhone');
+  if (editPhone) editPhone.value = user.phone || '';
+  
+  const editWebsite = document.getElementById('editWebsite');
+  if (editWebsite) editWebsite.value = user.website || '';
+  
+  const editDescription = document.getElementById('editDescription');
+  if (editDescription) editDescription.value = user.description || '';
+  
+  console.log('Profile displayed successfully');
 }
 
 // Toggle edit mode
 function toggleEditMode() {
   const viewMode = document.getElementById('viewMode');
   const editMode = document.getElementById('editMode');
-  const editButton = document.getElementById('editToggle');
+  const editButton = document.getElementById('btnEdit');
   const editText = document.getElementById('editText');
 
   isEditMode = !isEditMode;
@@ -103,12 +202,12 @@ function toggleEditMode() {
     viewMode.style.display = 'none';
     editMode.style.display = 'block';
     editText.textContent = 'Cancelar';
-    editButton.className = 'btn btn-outline-secondary edit-toggle';
+    editButton.className = 'btn-edit editing';
   } else {
     viewMode.style.display = 'block';
     editMode.style.display = 'none';
     editText.textContent = 'Editar';
-    editButton.className = 'btn btn-outline edit-toggle';
+    editButton.className = 'btn-edit';
     // Reset form to current data
     if (currentUser) {
       displayProfile(currentUser);
@@ -119,27 +218,39 @@ function toggleEditMode() {
 // Save profile changes
 async function saveProfile(event) {
   event.preventDefault();
+  console.log('=== Save profile called ===');
   
   // Use FormData to handle file upload
   const formData = new FormData();
   
-  formData.append('name', document.getElementById('editName').value.trim());
-  formData.append('cnpj', document.getElementById('editCnpj').value.replace(/\D/g, ''));
-  formData.append('phone', document.getElementById('editPhone').value.replace(/\D/g, ''));
-  formData.append('website', document.getElementById('editWebsite').value.trim());
-  formData.append('description', document.getElementById('editDescription').value.trim());
+  const name = document.getElementById('editName').value.trim();
+  const cnpj = document.getElementById('editCnpj').value.replace(/\D/g, '');
+  const phone = document.getElementById('editPhone').value.replace(/\D/g, '');
+  const website = document.getElementById('editWebsite').value.trim();
+  const description = document.getElementById('editDescription').value.trim();
+  
+  formData.append('name', name);
+  formData.append('cnpj', cnpj);
+  formData.append('phone', phone);
+  formData.append('website', website);
+  formData.append('description', description);
 
   // Handle profile photo/logo
   const photoInput = document.getElementById('editPhoto');
-  if (photoInput && photoInput.files[0]) {
+  if (photoInput && photoInput.files && photoInput.files[0]) {
+    console.log('Company logo selected:', photoInput.files[0]);
     formData.append('profilePhoto', photoInput.files[0]);
   }
 
   // Validation
-  const name = formData.get('name');
   if (!name) {
     showProfileMessage('Nome é obrigatório', 'error');
     return;
+  }
+
+  console.log('FormData entries:');
+  for (let [key, value] of formData.entries()) {
+    console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
   }
 
   try {
@@ -151,7 +262,10 @@ async function saveProfile(event) {
       body: formData
     });
 
+    console.log('Save response status:', res.status);
+    
     const result = await res.json();
+    console.log('Save response data:', result);
 
     if (res.ok) {
       currentUser = result;
@@ -159,7 +273,13 @@ async function saveProfile(event) {
       updateProfileCompletion(currentUser);
       toggleEditMode();
       showProfileMessage('Perfil atualizado com sucesso!', 'success');
+      
+      // Reload profile to ensure we have fresh data
+      setTimeout(() => {
+        loadProfile();
+      }, 1000);
     } else {
+      console.error('Save failed:', result);
       showProfileMessage(result.error || 'Erro ao salvar perfil', 'error');
     }
   } catch (error) {
@@ -170,42 +290,90 @@ async function saveProfile(event) {
 
 // Load published jobs
 async function loadJobs() {
+  const container = document.getElementById('jobsSection');
+  
+  if (!container) {
+    console.error('Container #jobsSection não encontrado');
+    return;
+  }
+  
   try {
     const res = await fetch('/api/jobs/my-jobs', { credentials: 'include' });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     const data = await res.json();
     
-    const container = document.getElementById('jobs');
-    
-    if (!res.ok || !data || data.length === 0) {
+    if (!data || data.length === 0) {
       container.innerHTML = `
-        <div class="text-center p-xl">
-          <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--brand-blue);"><i class="fas fa-briefcase"></i></div>
+        <div class="empty-state-profile">
+          <i class="fas fa-briefcase"></i>
           <h4>Nenhuma vaga publicada</h4>
-          <p class="text-gray-500">Publique sua primeira vaga para encontrar candidatos</p>
-          <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>
+          <p>Publique sua primeira vaga para encontrar candidatos qualificados</p>
+          <a href="/publicar-vaga" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Publicar Primeira Vaga
+          </a>
         </div>
       `;
+      
+      // Update stats
+      const statsEl = document.getElementById('statsJobs');
+      if (statsEl) statsEl.textContent = '0';
+      const statsBadge = document.getElementById('statsJobsBadge');
+      if (statsBadge) statsBadge.textContent = '0';
+      
       return;
     }
 
     container.innerHTML = '';
-    document.getElementById('statsJobs').textContent = data.length;
+    
+    // Update stats
+    const activeJobs = data.filter(job => job.status === 'active').length;
+    const statsEl = document.getElementById('statsJobs');
+    if (statsEl) statsEl.textContent = activeJobs;
+    const statsBadge = document.getElementById('statsJobsBadge');
+    if (statsBadge) statsBadge.textContent = data.length;
 
     data.forEach(job => {
       const jobEl = document.createElement('div');
       jobEl.className = 'job-item';
       
-      const statusClass = job.status === 'active' ? 'text-success' : 'text-gray-500';
+      const statusClass = job.status === 'active' ? 'active' : 'inactive';
+      const statusText = job.status === 'active' ? 'Ativa' : 'Inativa';
       
       jobEl.innerHTML = `
-        <h4><a href="/vaga-detalhes?id=${job.id}">${job.title}</a></h4>
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+          <h4 class="job-title">
+            <a href="/vaga-detalhes?id=${job._id || job.id}" style="color: var(--text-dark); text-decoration: none;">
+              ${job.title}
+            </a>
+          </h4>
+          <span class="job-status ${statusClass}">
+            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> ${statusText}
+          </span>
+        </div>
         <div class="job-meta">
-          <span class="${statusClass}">${job.status === 'active' ? 'Ativa' : 'Inativa'}</span>
-          <span>Criada em ${new Date(job.created_at).toLocaleDateString('pt-BR')}</span>
+          <span class="job-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            ${job.location || 'Local não informado'}
+          </span>
+          <span class="job-meta-item">
+            <i class="fas fa-clock"></i>
+            ${new Date(job.createdAt || job.created_at).toLocaleDateString('pt-BR')}
+          </span>
+          <span class="job-meta-item">
+            <i class="fas fa-users"></i>
+            ${job.applicants_count || 0} candidaturas
+          </span>
         </div>
         <div class="job-actions">
-          <a href="/vaga-detalhes?id=${job.id}" class="btn btn-sm btn-outline">Ver Detalhes</a>
-          <button onclick="toggleJobStatus('${job.id}', '${job.status}')" class="btn btn-sm btn-outline-secondary">
+          <a href="/vaga-detalhes?id=${job._id || job.id}" class="btn btn-outline">
+            <i class="fas fa-eye"></i> Ver Detalhes
+          </a>
+          <button onclick="toggleJobStatus('${job._id || job.id}', '${job.status}')" class="btn btn-secondary">
+            <i class="fas fa-${job.status === 'active' ? 'pause' : 'play'}"></i>
             ${job.status === 'active' ? 'Pausar' : 'Ativar'}
           </button>
         </div>
@@ -216,47 +384,107 @@ async function loadJobs() {
 
   } catch (error) {
     console.error('Error loading jobs:', error);
-    document.getElementById('jobs').innerHTML = '<p class="text-error">Erro ao carregar vagas</p>';
+    if (container) {
+      container.innerHTML = `
+        <div class="empty-state-profile">
+          <i class="fas fa-exclamation-circle"></i>
+          <p>Não foi possível carregar as vagas</p>
+          <button onclick="loadJobs()" class="btn btn-secondary" style="margin-top: var(--spacing-md);">
+            <i class="fas fa-redo"></i> Tentar novamente
+          </button>
+        </div>
+      `;
+    }
   }
 }
 
 // Load recent applications
 async function loadRecentApplications() {
+  const container = document.getElementById('recentApplications');
+  
+  if (!container) {
+    console.error('Container #recentApplications não encontrado');
+    return;
+  }
+  
   try {
-    const res = await fetch('/api/applications/company', { credentials: 'include' });
+    const res = await fetch('/api/applications/company', { 
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Applications response status:', res.status);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     const data = await res.json();
+    console.log('Applications data:', data);
     
-    const container = document.getElementById('recentApplications');
-    
-    if (!res.ok || !data || data.length === 0) {
+    if (!data || data.length === 0) {
       container.innerHTML = `
         <div class="text-center p-lg">
-          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--brand-teal);"><i class="fas fa-users"></i></div>
-          <p class="text-gray-500">Nenhuma candidatura ainda</p>
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--text-light);">
+            <i class="fas fa-users"></i>
+          </div>
+          <p class="text-gray-500" style="font-size: 0.9rem;">Nenhuma candidatura ainda</p>
         </div>
       `;
+      
+      // Update stats
+      const statsEl = document.getElementById('statsApplications');
+      if (statsEl) statsEl.textContent = '0';
+      const statsBadge = document.getElementById('statsApplicationsBadge');
+      if (statsBadge) statsBadge.textContent = '0';
+      
       return;
     }
 
     container.innerHTML = '';
-    document.getElementById('statsApplications').textContent = data.length;
     
+    // Update stats
+    const statsEl = document.getElementById('statsApplications');
+    if (statsEl) statsEl.textContent = data.length;
+    const statsBadge = document.getElementById('statsApplicationsBadge');
+    if (statsBadge) statsBadge.textContent = data.length;
+    
+    // Show only last 5 applications
     data.slice(0, 5).forEach(app => {
       const appEl = document.createElement('div');
       appEl.className = 'application-item';
       
+      const statusMap = {
+        'pending': 'Pendente',
+        'reviewing': 'Em análise',
+        'accepted': 'Aceita',
+        'rejected': 'Rejeitada'
+      };
+      
       const statusClass = `status-${app.status.toLowerCase()}`;
+      const statusText = statusMap[app.status.toLowerCase()] || app.status;
       
       appEl.innerHTML = `
-        <div class="flex justify-between items-start">
+        <div class="application-header">
           <div>
-            <h5>${app.user_name || 'Candidato'}</h5>
-            <p class="text-sm text-gray-500">${app.job_title}</p>
-            <p class="text-sm text-gray-500">
-              ${new Date(app.applied_at).toLocaleDateString('pt-BR')}
+            <h5 class="application-title">${app.user_name || 'Candidato'}</h5>
+            <p class="application-candidate">
+              <i class="fas fa-briefcase"></i>
+              ${app.job_title || 'Vaga'}
             </p>
           </div>
-          <span class="application-status ${statusClass}">${app.status}</span>
+          <span class="application-status ${statusClass}">${statusText}</span>
+        </div>
+        <div class="application-footer">
+          <span class="application-date">
+            <i class="fas fa-calendar"></i>
+            ${new Date(app.appliedAt || app.applied_at).toLocaleDateString('pt-BR')}
+          </span>
+          <a href="/vaga-detalhes?id=${app.job_id}" class="btn-link">
+            Ver detalhes <i class="fas fa-arrow-right"></i>
+          </a>
         </div>
       `;
       
@@ -265,7 +493,16 @@ async function loadRecentApplications() {
 
   } catch (error) {
     console.error('Error loading applications:', error);
-    document.getElementById('recentApplications').innerHTML = '<p class="text-error">Erro ao carregar candidaturas</p>';
+    if (container) {
+      container.innerHTML = `
+        <div class="text-center p-lg">
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--text-light);">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <p class="text-gray-500" style="font-size: 0.9rem;">Erro ao carregar</p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -296,13 +533,108 @@ async function toggleJobStatus(jobId, currentStatus) {
 
 // Calculate and update profile completion
 function updateProfileCompletion(user) {
-  const fields = ['name', 'email', 'cnpj', 'phone', 'website', 'description'];
-  const completedFields = fields.filter(field => {
+  // Campos obrigatórios e opcionais
+  const fields = {
+    required: ['name', 'email'],
+    optional: ['cnpj', 'phone', 'website', 'description', 'profilePhotoUrl']
+  };
+  
+  const allFields = [...fields.required, ...fields.optional];
+  
+  const completedFields = allFields.filter(field => {
+    if (field === 'profilePhotoUrl') {
+      return user.profilePhotoUrl || user.avatarUrl;
+    }
     return user[field] && user[field].toString().trim().length > 0;
   });
   
-  const completion = Math.round((completedFields.length / fields.length) * 100);
-  document.getElementById('statsCompletion').textContent = `${completion}%`;
+  const completion = Math.round((completedFields.length / allFields.length) * 100);
+  
+  // Update stats completion
+  const statsCompletion = document.getElementById('statsCompletion');
+  if (statsCompletion) {
+    statsCompletion.textContent = `${completion}%`;
+  }
+  
+  // Update header badge
+  const completionPercent = document.getElementById('completionPercent');
+  if (completionPercent) {
+    completionPercent.textContent = `${completion}%`;
+  }
+  
+  // Update completion badge color
+  const completionBadge = document.getElementById('completionBadge');
+  if (completionBadge) {
+    if (completion === 100) {
+      completionBadge.style.backgroundColor = '#2ECC71';
+    } else if (completion >= 70) {
+      completionBadge.style.backgroundColor = '#3498DB';
+    } else if (completion >= 40) {
+      completionBadge.style.backgroundColor = '#F39C12';
+    } else {
+      completionBadge.style.backgroundColor = '#E74C3C';
+    }
+  }
+  
+  // Update progress bar
+  const completionBar = document.getElementById('completionBar');
+  if (completionBar) {
+    completionBar.style.width = `${completion}%`;
+  }
+}
+
+// Upload avatar photo
+async function uploadAvatar(file) {
+  try {
+    console.log('Uploading avatar:', file.name);
+    showProfileMessage('Enviando logo...', 'info');
+    
+    const formData = new FormData();
+    formData.append('profilePhoto', file);
+    
+    const res = await fetch('/api/users/me', {
+      method: 'PUT',
+      credentials: 'include',
+      body: formData
+    });
+    
+    const result = await res.json();
+    console.log('Avatar upload response:', result);
+    
+    if (res.ok) {
+      currentUser = result;
+      
+      // Update avatar immediately
+      const avatarEl = document.getElementById('profileAvatar');
+      if (avatarEl && result.profilePhotoUrl) {
+        const photoUrl = result.profilePhotoUrl;
+        console.log('Setting avatar to:', photoUrl);
+        
+        avatarEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = photoUrl;
+        img.alt = 'Logo da empresa';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '50%';
+        img.onerror = function() {
+          console.error('Failed to load:', this.src);
+        };
+        avatarEl.appendChild(img);
+      }
+      
+      // Reload profile
+      await loadProfile();
+      
+      showProfileMessage('Logo atualizado com sucesso!', 'success');
+    } else {
+      showProfileMessage(result.error || 'Erro ao enviar logo', 'error');
+    }
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    showProfileMessage('Erro de conexão ao enviar logo', 'error');
+  }
 }
 
 // Download profile as PDF (placeholder)
@@ -312,31 +644,87 @@ function downloadProfile() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Perfil empresa loaded');
+  
   // Load data
   loadProfile();
   loadJobs();
   loadRecentApplications();
 
   // Edit toggle
-  document.getElementById('editToggle').addEventListener('click', toggleEditMode);
-  
-  // Cancel edit
-  document.getElementById('cancelEdit').addEventListener('click', toggleEditMode);
+  const editToggle = document.getElementById('btnEdit');
+  if (editToggle) {
+    editToggle.addEventListener('click', toggleEditMode);
+  } else {
+    console.warn('Edit button not found');
+  }
   
   // Form submission
-  document.getElementById('profileForm').addEventListener('submit', saveProfile);
+  const profileForm = document.getElementById('profileForm');
+  if (profileForm) {
+    profileForm.addEventListener('submit', saveProfile);
+  } else {
+    console.warn('Profile form not found');
+  }
+  
+  // Avatar upload from header
+  const avatarWrapper = document.querySelector('.profile-avatar-wrapper');
+  const avatarInput = document.getElementById('avatarInput');
+  
+  if (avatarWrapper && avatarInput) {
+    console.log('Setting up avatar click handler');
+    
+    avatarWrapper.addEventListener('click', function(e) {
+      console.log('Avatar wrapper clicked!');
+      e.preventDefault();
+      e.stopPropagation();
+      avatarInput.click();
+    });
+    
+    avatarInput.addEventListener('change', function(e) {
+      console.log('Avatar input change event triggered');
+      const file = e.target.files[0];
+      if (file) {
+        console.log('File selected:', file.name, file.size, file.type);
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+          showProfileMessage('Formato não suportado. Use JPG ou PNG.', 'error');
+          return;
+        }
+        
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          showProfileMessage('Imagem muito grande. Tamanho máximo: 2MB.', 'error');
+          return;
+        }
+        
+        uploadAvatar(file);
+      }
+    });
+  } else {
+    console.error('Avatar wrapper or input element not found!');
+  }
   
   // Format inputs
-  document.getElementById('editCnpj').addEventListener('input', function(e) {
-    e.target.value = formatCNPJ(e.target.value);
-  });
+  const editCnpj = document.getElementById('editCnpj');
+  if (editCnpj) {
+    editCnpj.addEventListener('input', function(e) {
+      e.target.value = formatCNPJ(e.target.value);
+    });
+  }
   
-  document.getElementById('editPhone').addEventListener('input', function(e) {
-    e.target.value = formatPhone(e.target.value);
-  });
+  const editPhone = document.getElementById('editPhone');
+  if (editPhone) {
+    editPhone.addEventListener('input', function(e) {
+      e.target.value = formatPhone(e.target.value);
+    });
+  }
 });
 
 // Global functions for window
 window.toggleEditMode = toggleEditMode;
 window.downloadProfile = downloadProfile;
 window.toggleJobStatus = toggleJobStatus;
+window.loadJobs = loadJobs;
+

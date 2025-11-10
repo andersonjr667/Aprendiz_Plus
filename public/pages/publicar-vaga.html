@@ -1,13 +1,315 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Publicar Vaga - Aprendiz+</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
   <link rel="stylesheet" href="/public/css/main.css">
+  
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
   <script src="/public/js/global.js" defer></script>
+  <script src="/public/js/hamburger-menu.js" defer></script>
+  
+  <style>
+    .publish-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      padding-top: 100px;
+    }
+    
+    .publish-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .publish-header h1 {
+      font-size: 2.5rem;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+    }
+    
+    .publish-header p {
+      font-size: 1.1rem;
+      color: var(--text-gray);
+    }
+    
+    .form-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    
+    .form-section {
+      margin-bottom: 2.5rem;
+    }
+    
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--bg-light);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-title i {
+      color: var(--brand-green);
+      font-size: 1.3rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    
+    .required {
+      color: #e74c3c;
+      margin-left: 0.25rem;
+    }
+    
+    .form-control, .form-textarea, .form-select {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .form-control:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+    }
+    
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+    
+    .form-hint {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+    
+    .tag-input-container {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.5rem;
+      min-height: 50px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .tag-input-container:focus-within {
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+    }
+    
+    .tag {
+      background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .tag button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .tag button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .tag-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 0.5rem;
+      font-size: 0.95rem;
+      font-family: 'Poppins', sans-serif;
+      min-width: 150px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .btn-publish {
+      background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+      color: white;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+    }
+    
+    .btn-publish:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    }
+    
+    .btn-publish:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-cancel {
+      background: var(--text-gray);
+      color: white;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .btn-cancel:hover {
+      background: var(--text-dark);
+      transform: translateY(-2px);
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid var(--bg-light);
+    }
+    
+    .message-box {
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    
+    .message-box.success {
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--brand-green);
+      border-left: 4px solid var(--brand-green);
+    }
+    
+    .message-box.error {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .char-counter {
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .publish-container {
+        padding-top: 80px;
+      }
+      
+      .publish-header h1 {
+        font-size: 2rem;
+      }
+      
+      .form-card {
+        padding: 1.5rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+      
+      .btn-publish, .btn-cancel {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 <body class="page-container">
   <header class="nav-header">
@@ -24,37 +326,160 @@
         <a href="/noticias">Notícias</a>
         <a href="/perfil-empresa">Meu Perfil</a>
         <a href="/publicar-vaga" class="active">Publicar Vaga</a>
+        <button onclick="logout()" class="btn btn-secondary">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
       </div>
     </nav>
   </header>
   
   <main class="main-content">
-  <div class="container" style="padding-top:100px;">
-    <section class="card" style="max-width:800px;margin:40px auto;">
-      <h2>Publicar Vaga</h2>
+    <div class="publish-container">
+      <!-- Header -->
+      <div class="publish-header">
+        <h1><i class="fas fa-briefcase"></i> Publicar Nova Vaga</h1>
+        <p>Preencha os detalhes da vaga para encontrar os melhores candidatos</p>
+      </div>
+
+      <!-- Message Box -->
+      <div id="messageBox" class="message-box"></div>
+
+      <!-- Form -->
       <form id="jobForm">
-        <div id="step1">
-          <div class="form-group"><label>Título</label><input name="title" class="form-control" required></div>
-          <div class="form-group"><label>Localização</label><input name="location" class="form-control"></div>
-          <button type="button" id="toStep2" class="btn btn-primary">Próximo</button>
+        <!-- Informações Básicas -->
+        <div class="form-card">
+          <div class="form-section">
+            <h2 class="section-title">
+              <i class="fas fa-info-circle"></i>
+              Informações Básicas
+            </h2>
+            
+            <div class="form-group">
+              <label for="title">Título da Vaga <span class="required">*</span></label>
+              <input type="text" id="title" name="title" class="form-control" placeholder="Ex: Desenvolvedor Full Stack Júnior" required>
+              <span class="form-hint">Um título claro e objetivo atrai mais candidatos qualificados</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="location">Localização <span class="required">*</span></label>
+                <input type="text" id="location" name="location" class="form-control" placeholder="Ex: São Paulo - SP" required>
+              </div>
+
+              <div class="form-group">
+                <label for="workModel">Modelo de Trabalho <span class="required">*</span></label>
+                <select id="workModel" name="workModel" class="form-select" required>
+                  <option value="">Selecione...</option>
+                  <option value="Presencial">Presencial</option>
+                  <option value="Remoto">Remoto</option>
+                  <option value="Híbrido">Híbrido</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="workload">Carga Horária</label>
+                <input type="text" id="workload" name="workload" class="form-control" placeholder="Ex: 40 horas/semana">
+              </div>
+
+              <div class="form-group">
+                <label for="salary">Salário/Faixa Salarial</label>
+                <input type="text" id="salary" name="salary" class="form-control" placeholder="Ex: R$ 3.000 - R$ 5.000">
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="startDate">Data de Início</label>
+                <input type="date" id="startDate" name="startDate" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="expiresAt">Data de Expiração</label>
+                <input type="date" id="expiresAt" name="expiresAt" class="form-control">
+                <span class="form-hint">Quando a vaga não estará mais disponível</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="step2" style="display:none;">
-          <div class="form-group"><label>Requisitos</label><textarea name="requirements" class="form-control"></textarea></div>
-          <div class="form-group"><label>Benefícios</label><textarea name="benefits" class="form-control"></textarea></div>
-          <button type="button" id="toStep1" class="btn">Voltar</button>
-          <button type="button" id="toStep3" class="btn btn-primary">Próximo</button>
+
+        <!-- Descrição -->
+        <div class="form-card">
+          <div class="form-section">
+            <h2 class="section-title">
+              <i class="fas fa-align-left"></i>
+              Descrição da Vaga
+            </h2>
+            
+            <div class="form-group">
+              <label for="description">Descrição Detalhada <span class="required">*</span></label>
+              <textarea id="description" name="description" class="form-textarea" rows="8" placeholder="Descreva as responsabilidades, atividades do dia a dia, projetos em que o candidato irá trabalhar, cultura da empresa, equipe, tecnologias utilizadas, etc.
+
+Exemplo:
+- Desenvolver e manter aplicações web usando React e Node.js
+- Participar de reuniões de planejamento e revisão de código
+- Trabalhar em equipe com designers e outros desenvolvedores
+- Criar soluções inovadoras para problemas complexos" required></textarea>
+              <div class="char-counter">
+                <span id="descriptionCounter">0</span> caracteres
+              </div>
+              <span class="form-hint">Seja detalhado e específico. Descrições completas atraem candidatos mais qualificados.</span>
+            </div>
+          </div>
         </div>
-        <div id="step3" style="display:none;">
-          <h4>Revisão</h4>
-          <div id="review"></div>
-          <button type="button" id="toStep2b" class="btn">Voltar</button>
-          <button type="submit" class="btn btn-primary">Publicar</button>
+
+        <!-- Requisitos -->
+        <div class="form-card">
+          <div class="form-section">
+            <h2 class="section-title">
+              <i class="fas fa-check-circle"></i>
+              Requisitos e Qualificações
+            </h2>
+            
+            <div class="form-group">
+              <label for="requirementsInput">Requisitos <span class="required">*</span></label>
+              <div class="tag-input-container" id="requirementsContainer">
+                <input type="text" id="requirementsInput" class="tag-input" placeholder="Digite um requisito e pressione Enter">
+              </div>
+              <span class="form-hint">Pressione Enter após cada requisito. Exemplo: "Ensino médio completo", "Conhecimento em Excel", etc.</span>
+              <input type="hidden" id="requirements" name="requirements">
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefícios -->
+        <div class="form-card">
+          <div class="form-section">
+            <h2 class="section-title">
+              <i class="fas fa-gift"></i>
+              Benefícios e Vantagens
+            </h2>
+            
+            <div class="form-group">
+              <label for="benefitsInput">Benefícios</label>
+              <div class="tag-input-container" id="benefitsContainer">
+                <input type="text" id="benefitsInput" class="tag-input" placeholder="Digite um benefício e pressione Enter">
+              </div>
+              <span class="form-hint">Pressione Enter após cada benefício. Exemplo: "Vale-transporte", "Vale-refeição", "Plano de saúde", etc.</span>
+              <input type="hidden" id="benefits" name="benefits">
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" onclick="window.location.href='/perfil-empresa'">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button type="submit" id="btnSubmit" class="btn-publish">
+            <i class="fas fa-paper-plane"></i> Publicar Vaga
+          </button>
         </div>
       </form>
-    </section>
-  </div>
+    </div>
   </main>
 
-  <script src="/public/js/publicar-vaga.js" defer></script>
+  <script src="/public/js/publicar-vaga.js?v=2.0" defer></script>
 </body>
 </html>

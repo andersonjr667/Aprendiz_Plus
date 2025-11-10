@@ -163,6 +163,16 @@ body {
     gap: 2rem;
 }
 
+.profile-avatar-wrapper {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.profile-avatar-wrapper:hover .avatar-upload-overlay {
+    opacity: 1;
+}
+
 .profile-avatar {
     width: 150px;
     height: 150px;
@@ -180,34 +190,34 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     background-size: cover;
     background-position: center;
-    flex-shrink: 0;
+    overflow: hidden;
 }
 
-.avatar-upload-btn {
+.avatar-upload-overlay {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
-    width: 45px;
-    height: 45px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: var(--transition);
-    border: 3px solid white;
 }
 
-.avatar-upload-btn:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-lg);
+.avatar-upload-overlay i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
 }
 
-.avatar-upload-btn i {
-    color: white;
-    font-size: 1.2rem;
+.avatar-upload-overlay span {
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .profile-header h1 {
@@ -254,6 +264,12 @@ body {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
+}
+
+.profile-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 /* ===== PROFILE CARDS ===== */
@@ -320,6 +336,12 @@ body {
 }
 
 /* ===== INFO GRID ===== */
+.personal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -340,7 +362,7 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.info-card-full {
+.info-card-full, .bio-card {
     grid-column: 1 / -1;
 }
 
@@ -774,6 +796,33 @@ body {
 }
 
 /* ===== MESSAGES ===== */
+.message-container {
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    display: none;
+    font-weight: 500;
+    animation: slideDown 0.3s;
+}
+
+.message-container.success {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary-green);
+    border-left: 4px solid var(--primary-green);
+}
+
+.message-container.error {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border-left: 4px solid #e74c3c;
+}
+
+.message-container.info {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border-left: 4px solid #3498db;
+}
+
 .message {
     padding: 1rem 1.5rem;
     border-radius: 10px;
