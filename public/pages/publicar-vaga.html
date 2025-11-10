@@ -27,6 +27,8 @@
       margin: 0 auto;
       padding: 2rem 1rem;
       padding-top: 100px;
+      padding-bottom: 4rem;
+      min-height: calc(100vh - 100px);
     }
     
     .publish-header {
@@ -143,7 +145,7 @@
     }
     
     .tag {
-      background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+      background: linear-gradient(135deg, #2ECC71, #27AE60);
       color: white;
       padding: 0.4rem 0.8rem;
       border-radius: 50px;
@@ -152,6 +154,18 @@
       gap: 0.5rem;
       font-size: 0.9rem;
       font-weight: 500;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
     
     .tag button {
@@ -190,7 +204,7 @@
     }
     
     .btn-publish {
-      background: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+      background: linear-gradient(135deg, #2ECC71, #27AE60);
       color: white;
       padding: 1rem 2.5rem;
       border-radius: 50px;
@@ -241,6 +255,7 @@
       gap: 1rem;
       justify-content: center;
       margin-top: 2.5rem;
+      margin-bottom: 3rem;
       padding-top: 2rem;
       border-top: 2px solid var(--bg-light);
     }
@@ -283,9 +298,85 @@
       margin-top: 0.5rem;
     }
     
+    .image-upload-container {
+      margin-top: 0.5rem;
+    }
+    
+    .image-preview-wrapper {
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .image-preview-wrapper:hover {
+      border-color: var(--brand-green);
+    }
+    
+    .image-upload-placeholder {
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      background: var(--bg-light);
+      transition: all 0.3s ease;
+    }
+    
+    .image-upload-placeholder:hover {
+      background: rgba(46, 204, 113, 0.05);
+    }
+    
+    .image-upload-placeholder i {
+      font-size: 3rem;
+      color: var(--brand-green);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    
+    .image-upload-placeholder p {
+      font-size: 1rem;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    .image-preview {
+      position: relative;
+      width: 100%;
+      max-height: 400px;
+    }
+    
+    .image-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .remove-image-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(231, 76, 60, 0.9);
+      color: white;
+      border: none;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+    
+    .remove-image-btn:hover {
+      background: #e74c3c;
+      transform: scale(1.1);
+    }
+    
     @media (max-width: 768px) {
       .publish-container {
         padding-top: 80px;
+        padding-bottom: 3rem;
       }
       
       .publish-header h1 {
@@ -302,6 +393,7 @@
       
       .form-actions {
         flex-direction: column;
+        margin-bottom: 2rem;
       }
       
       .btn-publish, .btn-cancel {
@@ -400,6 +492,27 @@
                 <input type="date" id="expiresAt" name="expiresAt" class="form-control">
                 <span class="form-hint">Quando a vaga não estará mais disponível</span>
               </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="jobImage">Imagem da Vaga (Opcional)</label>
+              <div class="image-upload-container">
+                <input type="file" id="jobImage" name="jobImage" accept="image/*" class="form-control" style="display: none;">
+                <div class="image-preview-wrapper" id="imagePreviewWrapper">
+                  <div class="image-upload-placeholder" id="uploadPlaceholder">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique ou arraste uma imagem</p>
+                    <span class="form-hint">JPG, PNG ou GIF até 5MB</span>
+                  </div>
+                  <div class="image-preview" id="imagePreview" style="display: none;">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button type="button" class="remove-image-btn" id="removeImageBtn">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <span class="form-hint">Adicione uma imagem atrativa para destacar sua vaga (1200x630px recomendado)</span>
             </div>
           </div>
         </div>

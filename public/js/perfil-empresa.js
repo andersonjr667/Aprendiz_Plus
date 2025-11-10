@@ -658,13 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadJobs();
   loadRecentApplications();
 
-  // Edit toggle
-  const editToggle = document.getElementById('btnEdit');
-  if (editToggle) {
-    editToggle.addEventListener('click', toggleEditMode);
-  } else {
-    console.warn('Edit button not found');
-  }
+  // Edit toggle - removido listener duplicado pois o botão já tem onclick no HTML
   
   // Form submission
   const profileForm = document.getElementById('profileForm');

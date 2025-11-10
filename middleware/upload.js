@@ -9,12 +9,12 @@ function fileFilter(req, file, cb) {
   const allowedImages = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
   
-  if (file.fieldname === 'profilePhoto') {
-    // For profile photos, only allow images
+  if (file.fieldname === 'profilePhoto' || file.fieldname === 'jobImage') {
+    // For profile photos and job images, only allow images
     if (allowedImages.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Apenas imagens são permitidas para foto de perfil (JPG, PNG, GIF, WEBP)'));
+      cb(new Error('Apenas imagens são permitidas (JPG, PNG, GIF, WEBP)'));
     }
   } else if (file.fieldname === 'resume') {
     // For resume, only allow documents

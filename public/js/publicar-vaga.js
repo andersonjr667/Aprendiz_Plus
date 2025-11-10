@@ -30,7 +30,13 @@ function initTagInput(inputId, containerId, tagsArray) {
   const input = document.getElementById(inputId);
   const container = document.getElementById(containerId);
   
-  if (!input || !container) return;
+  console.log('Initializing tag input:', inputId, 'Container:', containerId);
+  console.log('Input found:', !!input, 'Container found:', !!container);
+  
+  if (!input || !container) {
+    console.error('Input or container not found!');
+    return;
+  }
   
   // Handle Enter key
   input.addEventListener('keydown', function(e) {
@@ -38,11 +44,16 @@ function initTagInput(inputId, containerId, tagsArray) {
       e.preventDefault();
       const value = this.value.trim();
       
+      console.log('Enter pressed, value:', value);
+      
       if (value && !tagsArray.includes(value)) {
         tagsArray.push(value);
+        console.log('Tag added to array:', tagsArray);
         addTag(value, container, tagsArray);
         this.value = '';
         updateHiddenInput(inputId, tagsArray);
+      } else if (tagsArray.includes(value)) {
+        console.log('Tag already exists:', value);
       }
     }
   });
@@ -52,6 +63,7 @@ function initTagInput(inputId, containerId, tagsArray) {
     const value = this.value.trim();
     if (value && !tagsArray.includes(value)) {
       tagsArray.push(value);
+      console.log('Tag added on blur:', tagsArray);
       addTag(value, container, tagsArray);
       this.value = '';
       updateHiddenInput(inputId, tagsArray);
@@ -61,6 +73,8 @@ function initTagInput(inputId, containerId, tagsArray) {
 
 // Add tag to container
 function addTag(text, container, tagsArray) {
+  console.log('Adding tag:', text, 'to container:', container.id);
+  
   const tag = document.createElement('div');
   tag.className = 'tag';
   tag.innerHTML = `
@@ -71,18 +85,26 @@ function addTag(text, container, tagsArray) {
   `;
   
   // Remove tag on click
-  tag.querySelector('button').addEventListener('click', function() {
+  tag.querySelector('button').addEventListener('click', function(e) {
+    e.preventDefault();
     const index = tagsArray.indexOf(text);
     if (index > -1) {
       tagsArray.splice(index, 1);
     }
     tag.remove();
     updateHiddenInput(container.id.replace('Container', 'Input'), tagsArray);
+    console.log('Tag removed:', text, 'Remaining:', tagsArray);
   });
   
   // Insert before input
   const input = container.querySelector('.tag-input');
-  container.insertBefore(tag, input);
+  if (input) {
+    container.insertBefore(tag, input);
+    console.log('Tag inserted successfully');
+  } else {
+    console.error('Input not found in container!');
+    container.appendChild(tag);
+  }
 }
 
 // Update hidden input with tags array
@@ -170,25 +192,30 @@ async function handleSubmit(e) {
     return;
   }
   
-  // Get form data
-  const formData = new FormData(e.target);
+  // Use FormData to handle file upload
+  const formData = new FormData();
   
-  // Build payload
-  const payload = {
-    title: formData.get('title'),
-    location: formData.get('location'),
-    workModel: formData.get('workModel'),
-    workload: formData.get('workload') || '',
-    salary: formData.get('salary') || '',
-    startDate: formData.get('startDate') || null,
-    expiresAt: formData.get('expiresAt') || null,
-    description: formData.get('description'),
-    requirements: requirements,
-    benefits: benefits,
-    status: 'aberta'
-  };
+  // Add all form fields
+  formData.append('title', document.getElementById('title').value);
+  formData.append('location', document.getElementById('location').value);
+  formData.append('workModel', document.getElementById('workModel').value);
+  formData.append('workload', document.getElementById('workload').value || '');
+  formData.append('salary', document.getElementById('salary').value || '');
+  formData.append('startDate', document.getElementById('startDate').value || '');
+  formData.append('expiresAt', document.getElementById('expiresAt').value || '');
+  formData.append('description', document.getElementById('description').value);
+  formData.append('requirements', JSON.stringify(requirements));
+  formData.append('benefits', JSON.stringify(benefits));
+  formData.append('status', 'aberta');
   
-  console.log('Payload:', payload);
+  // Add job image if selected
+  const jobImageInput = document.getElementById('jobImage');
+  if (jobImageInput.files && jobImageInput.files[0]) {
+    formData.append('jobImage', jobImageInput.files[0]);
+    console.log('Job image added to form:', jobImageInput.files[0].name);
+  }
+  
+  console.log('FormData prepared with image');
   
   // Disable submit button
   const btnSubmit = document.getElementById('btnSubmit');
@@ -201,11 +228,8 @@ async function handleSubmit(e) {
     
     const res = await fetch('/api/jobs', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       credentials: 'include',
-      body: JSON.stringify(payload)
+      body: formData // Send FormData instead of JSON
     });
     
     console.log('Response status:', res.status);
@@ -245,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize character counter
   initCharCounter();
   
+  // Initialize image upload
+  initImageUpload();
+  
   // Handle form submission
   const jobForm = document.getElementById('jobForm');
   if (jobForm) {
@@ -280,3 +307,94 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(err => console.log('Could not auto-fill location:', err));
 });
+
+// Initialize image upload functionality
+function initImageUpload() {
+  const jobImageInput = document.getElementById('jobImage');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImg = document.getElementById('previewImg');
+  const removeImageBtn = document.getElementById('removeImageBtn');
+  const imagePreviewWrapper = document.getElementById('imagePreviewWrapper');
+  
+  if (!jobImageInput || !uploadPlaceholder || !imagePreview) {
+    console.warn('Image upload elements not found');
+    return;
+  }
+  
+  // Click to upload
+  uploadPlaceholder.addEventListener('click', function() {
+    jobImageInput.click();
+  });
+  
+  // Handle file selection
+  jobImageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageFile(file);
+    }
+  });
+  
+  // Drag and drop
+  imagePreviewWrapper.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.borderColor = '#2ECC71';
+  });
+  
+  imagePreviewWrapper.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.borderColor = '';
+  });
+  
+  imagePreviewWrapper.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.borderColor = '';
+    
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      jobImageInput.files = e.dataTransfer.files;
+      handleImageFile(file);
+    } else {
+      showMessage('Por favor, selecione uma imagem válida', 'error');
+    }
+  });
+  
+  // Remove image
+  removeImageBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    jobImageInput.value = '';
+    uploadPlaceholder.style.display = 'block';
+    imagePreview.style.display = 'none';
+    previewImg.src = '';
+  });
+  
+  // Handle image file
+  function handleImageFile(file) {
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showMessage('Formato não suportado. Use JPG, PNG, GIF ou WEBP', 'error');
+      jobImageInput.value = '';
+      return;
+    }
+    
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('Imagem muito grande. Tamanho máximo: 5MB', 'error');
+      jobImageInput.value = '';
+      return;
+    }
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      uploadPlaceholder.style.display = 'none';
+      imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}

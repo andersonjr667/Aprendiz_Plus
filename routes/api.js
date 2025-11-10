@@ -178,6 +178,11 @@ router.put('/users/me', authMiddleware, upload.single('profilePhoto'), async (re
     if (req.body.phone) updates.phone = req.body.phone;
     if (req.body.bio !== undefined) updates.bio = req.body.bio; // Allow empty string
     
+    // Company-specific fields
+    if (req.body.cnpj) updates.cnpj = req.body.cnpj;
+    if (req.body.website !== undefined) updates.website = req.body.website;
+    if (req.body.description !== undefined) updates.description = req.body.description;
+    
     // Handle profile photo upload
     if (req.file) {
       console.log('Uploading profile photo to Cloudinary...');
@@ -524,6 +529,49 @@ router.get('/jobs', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Get jobs created by the logged-in company (MUST come before /jobs/:id)
+router.get('/jobs/my-jobs', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    console.log('Fetching jobs for company:', req.user._id);
+    
+    const jobs = await Job.find({ company: req.user._id })
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    console.log(`Found ${jobs.length} jobs for company`);
+    
+    // Get application counts for each job
+    const jobsWithCounts = await Promise.all(
+      jobs.map(async (job) => {
+        const applicantsCount = await Application.countDocuments({ job: job._id });
+        
+        // Get applications with details
+        const applications = await Application.find({ job: job._id })
+          .populate('user', 'name email')
+          .lean();
+        
+        // Format applications
+        const formattedApplications = applications.map(app => ({
+          ...app,
+          user_name: app.user?.name,
+          user_email: app.user?.email
+        }));
+        
+        return {
+          ...job,
+          applicants_count: applicantsCount,
+          applications: formattedApplications
+        };
+      })
+    );
+    
+    res.json(jobsWithCounts);
+  } catch (err) {
+    console.error('Error fetching company jobs:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/jobs/:id', async (req, res) => {
   try { 
     const { id } = req.params;
@@ -545,14 +593,72 @@ router.get('/jobs/:id', async (req, res) => {
   }
 });
 
-router.post('/jobs', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+router.post('/jobs', authMiddleware, roleCheck(['empresa']), upload.single('jobImage'), async (req, res) => {
   try {
+    console.log('Creating new job...');
     const data = req.body;
     data.company = req.user._id;
+    
+    // Parse arrays if they come as JSON strings
+    if (typeof data.requirements === 'string') {
+      try {
+        data.requirements = JSON.parse(data.requirements);
+      } catch (e) {
+        console.error('Error parsing requirements:', e);
+      }
+    }
+    
+    if (typeof data.benefits === 'string') {
+      try {
+        data.benefits = JSON.parse(data.benefits);
+      } catch (e) {
+        console.error('Error parsing benefits:', e);
+      }
+    }
+    
+    // Upload job image to Cloudinary if provided
+    if (req.file) {
+      console.log('Uploading job image to Cloudinary...');
+      
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'aprendiz_plus/job_images',
+            public_id: `job_${req.user._id}_${Date.now()}`,
+            transformation: [
+              { width: 1200, height: 630, crop: 'limit' },
+              { quality: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('Cloudinary upload success:', result.secure_url);
+              resolve(result);
+            }
+          }
+        );
+        
+        uploadStream.end(req.file.buffer);
+      });
+      
+      const cloudinaryResult = await uploadPromise;
+      data.imageUrl = cloudinaryResult.secure_url;
+      data.imageCloudinaryId = cloudinaryResult.public_id;
+      console.log('Job image uploaded:', data.imageUrl);
+    }
+    
     const job = await Job.create(data);
+    console.log('Job created successfully:', job._id);
+    
     await logAction({ action: 'create_job', userId: req.user._id, resourceType: 'Job', resourceId: job._id, details: { title: job.title } });
     res.json(job);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error('Error creating job:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.put('/jobs/:id', authMiddleware, roleCheck(['empresa']), async (req, res) => {
