@@ -413,29 +413,36 @@ function updateHiddenSkillsInput() {
   console.log('Hidden input updated:', selectedSkills.join(', '));
 }
 
-// Toggle edit mode// Toggle edit mode
+// Toggle edit mode
 function toggleEditMode() {
+  console.log('toggleEditMode called, current isEditMode:', isEditMode);
+  
   const viewMode = document.getElementById('viewMode');
   const editMode = document.getElementById('editMode');
   const editButton = document.getElementById('btnEdit');
   const editText = document.getElementById('editText');
 
+  console.log('Elements found:', { viewMode: !!viewMode, editMode: !!editMode, editButton: !!editButton, editText: !!editText });
+
   isEditMode = !isEditMode;
+  console.log('New isEditMode:', isEditMode);
 
   if (isEditMode) {
-    viewMode.style.display = 'none';
-    editMode.style.display = 'block';
-    editText.textContent = 'Cancelar';
-    editButton.className = 'btn-edit';
+    if (viewMode) viewMode.style.display = 'none';
+    if (editMode) editMode.style.display = 'block';
+    if (editText) editText.textContent = 'Cancelar';
+    if (editButton) editButton.classList.add('editing');
+    console.log('Entered edit mode');
   } else {
-    viewMode.style.display = 'block';
-    editMode.style.display = 'none';
-    editText.textContent = 'Editar';
-    editButton.className = 'btn-edit';
+    if (viewMode) viewMode.style.display = 'block';
+    if (editMode) editMode.style.display = 'none';
+    if (editText) editText.textContent = 'Editar';
+    if (editButton) editButton.classList.remove('editing');
     // Reset form to current data
     if (currentUser) {
       displayProfile(currentUser);
     }
+    console.log('Exited edit mode');
   }
 }
 

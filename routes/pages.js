@@ -41,6 +41,7 @@ router.get('/dashboard-empresa', (req, res) => sendPage(res, 'dashboard-empresa.
 router.get('/profile', (req, res) => sendPage(res, 'profile.html'));
 router.get('/perfil-candidato', (req, res) => sendPage(res, 'perfil-candidato.html'));
 router.get('/perfil-empresa', (req, res) => sendPage(res, 'perfil-empresa.html'));
+router.get('/painel-empresa', (req, res) => sendPage(res, 'painel-empresa.html'));
 
 // Admin
 router.get('/admin-panel', (req, res) => sendPage(res, 'admin-panel.html'));

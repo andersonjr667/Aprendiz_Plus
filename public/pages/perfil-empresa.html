@@ -7,7 +7,7 @@
     <title>Perfil da Empresa - Aprendiz+</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Gerencie o perfil da sua empresa e vagas publicadas no Aprendiz+">
+    <meta name="description" content="Gerencie o perfil da sua empresa, publique vagas e acompanhe candidaturas no Aprendiz+">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- Fonts -->
@@ -63,6 +63,7 @@
                 <a href="/">Início</a>
                 <a href="/vagas">Vagas</a>
                 <a href="/noticias">Notícias</a>
+                <a href="/painel-empresa">Painel de Vagas</a>
                 <a href="/perfil-empresa" class="active">Meu Perfil</a>
                 <a href="/publicar-vaga">Publicar Vaga</a>
                 <button onclick="logout()" class="btn btn-secondary">
@@ -250,6 +251,22 @@
                             </div>
                         </div>
                     </section>
+
+                    <!-- Benefits Section -->
+                    <section class="profile-card">
+                        <div class="card-header-profile">
+                            <h2 class="card-title-profile">
+                                <i class="fas fa-star"></i>
+                                Por que trabalhar conosco?
+                            </h2>
+                        </div>
+                        <div id="benefitsSection">
+                            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: #e0e0e0;"></i>
+                                Complete seu perfil para adicionar benefícios e diferenciais da sua empresa
+                            </p>
+                        </div>
+                    </section>
                 </div>
 
                 <!-- Sidebar -->
@@ -288,14 +305,17 @@
                             Ações Rápidas
                         </h3>
                         <div class="quick-actions">
-                            <a href="/publicar-vaga" class="btn btn-primary">
-                                <i class="fas fa-plus-circle"></i> Publicar Nova Vaga
+                            <a href="/painel-empresa" class="btn btn-primary">
+                                <i class="fas fa-chart-line"></i> Painel de Vagas
                             </a>
-                            <a href="/vagas" class="btn btn-outline">
-                                <i class="fas fa-search"></i> Ver Todas as Vagas
+                            <a href="/publicar-vaga" class="btn btn-outline">
+                                <i class="fas fa-plus-circle"></i> Publicar Nova Vaga
                             </a>
                             <a href="/candidatos" class="btn btn-outline">
                                 <i class="fas fa-users"></i> Buscar Candidatos
+                            </a>
+                            <a href="/noticias" class="btn btn-outline">
+                                <i class="fas fa-newspaper"></i> Ver Notícias
                             </a>
                         </div>
                     </section>
@@ -332,30 +352,31 @@
                 </div>
             </div>
             <div class="footer-section">
-                <h4>Links Rápidos</h4>
+                <h4>Para Empresas</h4>
                 <ul>
-                    <li><a href="/">Início</a></li>
-                    <li><a href="/vagas">Vagas</a></li>
-                    <li><a href="/noticias">Notícias</a></li>
                     <li><a href="/publicar-vaga">Publicar Vaga</a></li>
+                    <li><a href="/candidatos">Buscar Candidatos</a></li>
+                    <li><a href="/perfil-empresa">Meu Perfil</a></li>
+                    <li><a href="/vagas">Vagas Publicadas</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h4>Suporte</h4>
                 <ul>
                     <li><a href="/contato">Contato</a></li>
-                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">FAQ Empresas</a></li>
                     <li><a href="#">Termos de Uso</a></li>
                     <li><a href="#">Política de Privacidade</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>Newsletter</h4>
-                <p>Receba as melhores vagas no seu email</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Seu email" required>
-                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                </form>
+                <h4>Recursos</h4>
+                <ul>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Guias de Recrutamento</a></li>
+                    <li><a href="#">Central de Ajuda</a></li>
+                </ul>
             </div>
         </div>
         <div class="footer-bottom">

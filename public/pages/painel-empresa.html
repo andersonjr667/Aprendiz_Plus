@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Painel de Vagas - Aprendiz+</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Gerencie suas vagas e candidaturas no Aprendiz+">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/painel-empresa.css">
+    
+    <script src="/public/js/auth.js" defer></script>
+    <script src="/public/js/api.js" defer></script>
+    <script src="/public/js/hamburger-menu.js" defer></script>
+    <script src="/public/js/painel-empresa.js" defer></script>
+</head>
+<body class="page-container">
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo">
+                <a href="/">Aprendiz+</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links">
+                <a href="/">Início</a>
+                <a href="/vagas">Vagas</a>
+                <a href="/noticias">Notícias</a>
+                <a href="/painel-empresa" class="active">Painel de Vagas</a>
+                <a href="/perfil-empresa">Meu Perfil</a>
+                <a href="/publicar-vaga">Publicar Vaga</a>
+                <button onclick="logout()" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content" style="padding-top: 75px;">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-briefcase"></i>
+                        Painel de Vagas
+                    </h1>
+                    <p class="page-subtitle">Gerencie suas vagas e candidaturas</p>
+                </div>
+                <a href="/publicar-vaga" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Nova Vaga
+                </a>
+            </div>
+
+            <!-- Message Container -->
+            <div id="messageContainer" class="message-container" style="display: none;">
+                <span id="messageText"></span>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vagas Ativas</span>
+                        <span class="stat-value" id="statsActiveJobs">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total de Candidaturas</span>
+                        <span class="stat-value" id="statsTotalApplications">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Pendentes</span>
+                        <span class="stat-value" id="statsPending">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Aceitas</span>
+                        <span class="stat-value" id="statsAccepted">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jobs List -->
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <h2 class="panel-card-title">
+                        <i class="fas fa-list"></i>
+                        Minhas Vagas
+                    </h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">
+                            Todas <span class="tab-badge" id="badgeAll">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="active">
+                            Ativas <span class="tab-badge" id="badgeActive">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="inactive">
+                            Inativas <span class="tab-badge" id="badgeInactive">0</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-card-body">
+                    <div id="jobsList">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando vagas...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Candidaturas -->
+    <div id="applicationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-users"></i>
+                    <span id="modalJobTitle">Candidaturas</span>
+                </h2>
+                <button class="modal-close" onclick="closeApplicationsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="applicationsContent">
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando candidaturas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmTitle">Confirmar ação</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-primary" id="confirmButton">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Aprendiz+</h3>
+                <p>Conectando jovens talentos com as melhores oportunidades do mercado de trabalho.</p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Para Empresas</h4>
+                <ul>
+                    <li><a href="/publicar-vaga">Publicar Vaga</a></li>
+                    <li><a href="/candidatos">Buscar Candidatos</a></li>
+                    <li><a href="/painel-empresa">Painel de Vagas</a></li>
+                    <li><a href="/perfil-empresa">Meu Perfil</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="/contato">Contato</a></li>
+                    <li><a href="#">FAQ Empresas</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Recursos</h4>
+                <ul>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Guias de Recrutamento</a></li>
+                    <li><a href="#">Central de Ajuda</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
