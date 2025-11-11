@@ -81,7 +81,7 @@
     .color-banner i {
       font-size: 4rem;
       position: relative;
-      z-index: 1;
+      z-index: 10;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
     
@@ -149,6 +149,35 @@
     .dono-banner {
       background: linear-gradient(135deg, #0D9488 0%, #115E59 100%);
       position: relative;
+      overflow: hidden;
+    }
+    
+    /* Círculos decorativos */
+    .dono-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        /* Círculos dourados grandes */
+        radial-gradient(circle 80px at 15% 25%, rgba(255, 215, 0, 0.35), rgba(255, 215, 0, 0.15) 50%, transparent 100%),
+        radial-gradient(circle 100px at 85% 70%, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1) 50%, transparent 100%),
+        radial-gradient(circle 60px at 92% 18%, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.08) 50%, transparent 100%),
+        
+        /* Círculos verdes médios */
+        radial-gradient(circle 70px at 50% 50%, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.08) 50%, transparent 100%),
+        radial-gradient(circle 55px at 25% 75%, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05) 50%, transparent 100%),
+        radial-gradient(circle 65px at 78% 35%, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.06) 50%, transparent 100%),
+        
+        /* Círculos pretos pequenos */
+        radial-gradient(circle 50px at 60% 40%, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.15) 50%, transparent 100%),
+        radial-gradient(circle 45px at 32% 55%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.12) 50%, transparent 100%),
+        radial-gradient(circle 55px at 70% 88%, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.1) 50%, transparent 100%),
+        radial-gradient(circle 40px at 42% 12%, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.08) 50%, transparent 100%);
+      pointer-events: none;
+      z-index: 1;
     }
     
     .dono-banner::after {
@@ -158,8 +187,9 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(45deg, rgba(255, 215, 0, 0.2) 0%, transparent 50%);
+      background: linear-gradient(45deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
       pointer-events: none;
+      z-index: 2;
     }
     
     .comparison {

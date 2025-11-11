@@ -116,8 +116,18 @@ function updateProfileHeader() {
   
   // Aplicar classe especial se for o dono do sistema
   const profileHeader = document.querySelector('.profile-header');
+  console.log('Verificando se é dono do sistema:', {
+    userId: currentUser._id,
+    ownerId: OWNER_ID,
+    isDono: currentUser._id === OWNER_ID
+  });
+  
   if (profileHeader && currentUser._id === OWNER_ID) {
+    console.log('✅ Usuário é o DONO DO SISTEMA! Aplicando decorações...');
     profileHeader.classList.add('owner-profile');
+    
+    // Adicionar círculos decorativos com logos
+    addOwnerDecorations(profileHeader);
     
     // Adicionar badge de dono
     const profileBadges = document.querySelector('.profile-badges');
@@ -130,7 +140,54 @@ function updateProfileHeader() {
       ownerBadge.style.fontWeight = '600';
       profileBadges.insertBefore(ownerBadge, profileBadges.firstChild);
     }
+  } else {
+    console.log('ℹ️ Usuário não é o dono do sistema');
   }
+}
+
+// Adicionar decorações especiais para o dono do sistema
+function addOwnerDecorations(headerElement) {
+  // Verificar se já existem decorações
+  if (headerElement.querySelector('.owner-profile-decorations')) {
+    console.log('Decorações já existem, pulando...');
+    return;
+  }
+  
+  console.log('Adicionando decorações de dono do sistema...');
+  
+  const decorations = document.createElement('div');
+  decorations.className = 'owner-profile-decorations';
+  
+  // Criar 5 círculos com logo
+  for (let i = 0; i < 5; i++) {
+    const circle = document.createElement('div');
+    circle.className = 'owner-logo-circle';
+    
+    // Adicionar logo
+    const logoImg = document.createElement('img');
+    logoImg.src = '/images/logo.png';
+    logoImg.alt = 'Logo Aprendiz+';
+    
+    logoImg.onload = function() {
+      console.log(`Logo carregada com sucesso no círculo ${i + 1}`);
+    };
+    
+    logoImg.onerror = function() {
+      // Se a logo não carregar, usar ícone ao invés
+      console.warn(`Falha ao carregar logo no círculo ${i + 1}, usando fallback`);
+      this.style.display = 'none';
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-briefcase';
+      circle.appendChild(icon);
+    };
+    
+    circle.appendChild(logoImg);
+    decorations.appendChild(circle);
+  }
+  
+  // Inserir no início do header (antes do content)
+  headerElement.insertBefore(decorations, headerElement.firstChild);
+  console.log('Decorações adicionadas com sucesso!');
 }
 
 // Compartilhar perfil
