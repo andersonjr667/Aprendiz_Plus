@@ -312,7 +312,9 @@ class AIAssistant {
     
     // Admin
     if (msg.includes('admin') || msg.includes('painel') && msg.includes('administr')) {
-      if (this.userRole === 'admin') {
+      if (this.userRole === 'owner') {
+        return `**Painel do Proprietário** 👑\n\nVocê tem **ACESSO TOTAL** ao sistema:\n\n🔧 **Gerenciamento**\n   - Usuários (/admin-usuarios)\n   - Notícias (/admin-noticia)\n   - Monitoramento IA (/admin-monitoramento)\n   - **Gerenciar Admins (/admin-manage-admins)** 🌟\n\n📊 **Estatísticas**\n   - Dashboard completo\n   - Métricas em tempo real\n   - Relatórios de atividade\n\n🤖 **IA Avançada**\n   - Detecção de anomalias\n   - Análise de risco\n   - Tendências e padrões\n\n👑 **Funções Exclusivas**\n   - Promover/rebaixar administradores\n   - Acesso irrestrito\n   - Proteção total (não pode ser banido)\n\nQual área deseja acessar?`;
+      } else if (this.userRole === 'admin') {
         return `**Painel Administrativo** 👨‍💼\n\nVocê tem acesso a:\n\n🔧 **Gerenciamento**\n   - Usuários (/admin-usuarios)\n   - Notícias (/admin-noticia)\n   - Monitoramento IA (/admin-monitoramento)\n\n📊 **Estatísticas**\n   - Dashboard completo\n   - Métricas em tempo real\n   - Relatórios de atividade\n\n🤖 **IA Avançada**\n   - Detecção de anomalias\n   - Análise de risco\n   - Tendências e padrões\n\nQual área deseja acessar?`;
       } else {
         return `Área administrativa disponível apenas para administradores do sistema.\n\nSe você precisa de suporte administrativo, entre em contato: admin@aprendizmais.com`;

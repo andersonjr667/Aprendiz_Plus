@@ -79,8 +79,8 @@ async function loadCurrentUser() {
     
     currentUser = await response.json();
     
-    // Verificar se é admin
-    if (currentUser.type !== 'admin') {
+    // Verificar se é admin ou owner
+    if (currentUser.type !== 'admin' && currentUser.type !== 'owner') {
       showMessage('Acesso negado. Apenas administradores podem acessar esta página.', 'error');
       setTimeout(() => window.location.href = '/', 2000);
       return;
@@ -107,6 +107,14 @@ function updateProfileHeader() {
   
   document.getElementById('profileName').textContent = currentUser.name;
   document.getElementById('profileEmail').textContent = currentUser.email;
+  
+  // Atualizar badge para owner
+  const adminBadge = document.querySelector('.admin-badge-special');
+  if (adminBadge && currentUser.type === 'owner') {
+    adminBadge.innerHTML = '<i class="fas fa-crown"></i> Proprietário do Sistema';
+    adminBadge.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    adminBadge.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+  }
   
   const joinedDate = new Date(currentUser.createdAt).toLocaleDateString('pt-BR', {
     month: 'long',

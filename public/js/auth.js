@@ -77,7 +77,17 @@
              </a>
              <a href="/perfil-empresa">Minha Empresa</a>
              <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
-            (user.type === 'admin' || user.type === 'owner') ? 
+            user.type === 'owner' ? 
+            `<a href="/perfil-admin">
+              <i class="fas fa-crown"></i> Meu Perfil
+             </a>
+             <a href="/admin">
+              <i class="fas fa-tachometer-alt"></i> Painel Admin
+             </a>
+             <a href="/admin-manage-admins" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <i class="fas fa-user-shield"></i> Gerenciar Admins
+             </a>` :
+            user.type === 'admin' ? 
             `<a href="/perfil-admin">Meu Perfil</a>
              <a href="/admin">Painel Admin</a>` : ''
           }

@@ -213,6 +213,35 @@
         document.getElementById('adminJoined').textContent = joinedDate;
         document.getElementById('memberSince').textContent = new Date(user.createdAt).toLocaleDateString('pt-BR');
         
+        // Atualizar badge e título se for owner
+        if (user.type === 'owner') {
+          const adminBadge = document.querySelector('.admin-badge');
+          const profileRole = document.querySelector('.profile-role-public');
+          
+          if (adminBadge) {
+            adminBadge.innerHTML = '<i class="fas fa-crown"></i> PROPRIETÁRIO';
+            adminBadge.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            adminBadge.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+          }
+          
+          if (profileRole) {
+            profileRole.innerHTML = '<i class="fas fa-crown"></i> Proprietário do Aprendiz+';
+          }
+          
+          // Atualizar lista de responsabilidades
+          const responsibilities = document.querySelector('.responsibilities-list');
+          if (responsibilities) {
+            responsibilities.innerHTML = `
+              <li><i class="fas fa-check"></i> Proprietário e fundador da plataforma</li>
+              <li><i class="fas fa-check"></i> Gerenciamento completo do sistema</li>
+              <li><i class="fas fa-check"></i> Administração de administradores</li>
+              <li><i class="fas fa-check"></i> Definição de políticas e diretrizes</li>
+              <li><i class="fas fa-check"></i> Supervisão de todas as operações</li>
+              <li><i class="fas fa-check"></i> Decisões estratégicas da plataforma</li>
+            `;
+          }
+        }
+        
         // Bio
         if (user.bio) {
           document.getElementById('adminBio').innerHTML = `<p>${user.bio}</p>`;
