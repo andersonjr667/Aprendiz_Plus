@@ -473,8 +473,10 @@
         if (response.ok) {
           const user = await response.json();
           
-          // Se for o dono, mostrar o card de gerenciar admins
-          if (user._id === OWNER_ID) {
+          // Se for o dono (por ID ou por type 'owner'), mostrar o card de gerenciar admins
+          const isOwner = user._id === OWNER_ID || user.type === 'owner';
+          
+          if (isOwner) {
             const manageAdminsCard = document.getElementById('manage-admins-card');
             if (manageAdminsCard) {
               manageAdminsCard.style.display = 'flex';

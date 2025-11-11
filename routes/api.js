@@ -50,8 +50,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 const OWNER_ID = '691256819ab90a9899d0d05d';
 
 // Função auxiliar para verificar se é o dono
-function isOwner(userId) {
-  return userId && userId.toString() === OWNER_ID;
+// Aceita tanto um ID (string) quanto um objeto user completo
+function isOwner(userOrId) {
+  if (!userOrId) return false;
+  
+  // Se for um objeto user com a propriedade type
+  if (typeof userOrId === 'object' && userOrId.type) {
+    // Verifica se o type é 'owner' OU se o ID é o OWNER_ID fixo
+    return userOrId.type === 'owner' || userOrId._id?.toString() === OWNER_ID;
+  }
+  
+  // Se for apenas um ID (string)
+  return userOrId.toString() === OWNER_ID;
 }
 
 // ----- AUTH -----
