@@ -3334,8 +3334,8 @@ router.post('/users/:id/promote-admin', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
     
-    // Verificar se já é admin
-    if (user.type === 'admin') {
+    // Verificar se já é admin ou owner
+    if (user.type === 'admin' || user.type === 'owner') {
       return res.status(400).json({ error: 'Este usuário já é um administrador' });
     }
     
@@ -3519,8 +3519,8 @@ router.post('/admin/promote-by-email', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Você já é o dono do sistema' });
     }
     
-    // Verificar se já é admin
-    if (user.type === 'admin') {
+    // Verificar se já é admin ou owner
+    if (user.type === 'admin' || user.type === 'owner') {
       return res.status(400).json({ 
         error: 'Este usuário já é um administrador',
         user: {
@@ -3696,8 +3696,8 @@ router.post('/admin/promote-multiple', authMiddleware, async (req, res) => {
           continue;
         }
         
-        // Verificar se já é admin
-        if (user.type === 'admin') {
+        // Verificar se já é admin ou owner
+        if (user.type === 'admin' || user.type === 'owner') {
           results.alreadyAdmin.push({
             id: user._id,
             name: user.name,
@@ -3790,8 +3790,8 @@ router.get('/admin/user-info/:identifier', authMiddleware, async (req, res) => {
     }
     
     // Informações adicionais
-    const canBePromoted = user.type !== 'admin' && user._id.toString() !== req.user._id.toString();
-    const isCurrentAdmin = user.type === 'admin';
+    const canBePromoted = user.type !== 'admin' && user.type !== 'owner' && user._id.toString() !== req.user._id.toString();
+    const isCurrentAdmin = user.type === 'admin' || user.type === 'owner';
     const isSelf = user._id.toString() === req.user._id.toString();
     
     res.json({

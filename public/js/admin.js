@@ -65,7 +65,7 @@ async function loadAdminSummary() {
       const totalUsers = users.length;
       const candidatos = users.filter(u => u.type === 'candidato').length;
       const empresas = users.filter(u => u.type === 'empresa').length;
-      const admins = users.filter(u => u.type === 'admin').length;
+      const admins = users.filter(u => u.type === 'admin' || u.type === 'owner').length;
 
       statsHTML += `
         <div class="stat-box">

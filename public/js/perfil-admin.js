@@ -660,7 +660,7 @@ function viewUserProfile(userId) {
     url = `/perfil-publico-candidato?id=${userId}`;
   } else if (user.type === 'empresa') {
     url = `/perfil-publico-empresa?id=${userId}`;
-  } else if (user.type === 'admin') {
+  } else if (user.type === 'admin' || user.type === 'owner') {
     url = `/perfil-publico-admin?id=${userId}`;
   }
   

@@ -77,7 +77,7 @@
              </a>
              <a href="/perfil-empresa">Minha Empresa</a>
              <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
-            user.type === 'admin' ? 
+            (user.type === 'admin' || user.type === 'owner') ? 
             `<a href="/perfil-admin">Meu Perfil</a>
              <a href="/admin">Painel Admin</a>` : ''
           }
