@@ -67,9 +67,15 @@
           <a href="/vagas">Vagas</a>
           <a href="/noticias">Notícias</a>
           ${user.type === 'candidato' ? 
-            `<a href="/perfil-candidato">Meu Perfil</a>` : 
+            `<a href="/dashboard-candidato">
+              <i class="fas fa-chart-line"></i> Dashboard
+             </a>
+             <a href="/perfil-candidato">Meu Perfil</a>` : 
             user.type === 'empresa' ? 
-            `<a href="/perfil-empresa">Minha Empresa</a>
+            `<a href="/painel-empresa">
+              <i class="fas fa-chart-line"></i> Painel
+             </a>
+             <a href="/perfil-empresa">Minha Empresa</a>
              <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
             user.type === 'admin' ? 
             `<a href="/perfil-admin">Meu Perfil</a>

@@ -1,5 +1,14 @@
 /* perfil-admin.css - Estilos para perfil do administrador */
 
+/* Variables - Verde Admin (tom escuro profissional) */
+:root {
+  --admin-green: #16A085;
+  --admin-green-dark: #117A65;
+  /* Verde Dono - Tom dourado/verde luxuoso */
+  --owner-green: #0D9488;
+  --owner-green-dark: #115E59;
+}
+
 /* Container Principal */
 .profile-container {
   max-width: 1400px;
@@ -9,9 +18,26 @@
 
 /* Profile Header - Similar ao perfil candidato/empresa */
 .profile-header {
-  background: linear-gradient(135deg, var(--brand-green, #2ECC71), var(--brand-green-dark, #27AE60));
+  background: linear-gradient(135deg, var(--admin-green), var(--admin-green-dark));
   padding: 3rem 0 2rem;
   margin-bottom: 2rem;
+}
+
+/* Profile Header - Dono do Sistema (overlay dourado sutil) */
+.profile-header.owner-profile {
+  background: linear-gradient(135deg, var(--owner-green), var(--owner-green-dark));
+  position: relative;
+}
+
+.profile-header.owner-profile::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .profile-header-content {

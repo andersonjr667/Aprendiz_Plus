@@ -1,5 +1,8 @@
 // perfil-admin.js - Funcionalidades do perfil do administrador
 
+// ID do dono do sistema
+const OWNER_ID = '691256819ab90a9899d0d05d';
+
 let currentUser = null;
 let allUsers = [];
 let allJobs = [];
@@ -110,6 +113,24 @@ function updateProfileHeader() {
     year: 'numeric'
   });
   document.getElementById('memberSince').textContent = joinedDate;
+  
+  // Aplicar classe especial se for o dono do sistema
+  const profileHeader = document.querySelector('.profile-header');
+  if (profileHeader && currentUser._id === OWNER_ID) {
+    profileHeader.classList.add('owner-profile');
+    
+    // Adicionar badge de dono
+    const profileBadges = document.querySelector('.profile-badges');
+    if (profileBadges && !profileBadges.querySelector('.owner-badge')) {
+      const ownerBadge = document.createElement('span');
+      ownerBadge.className = 'badge owner-badge';
+      ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Dono do Sistema';
+      ownerBadge.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+      ownerBadge.style.color = '#000';
+      ownerBadge.style.fontWeight = '600';
+      profileBadges.insertBefore(ownerBadge, profileBadges.firstChild);
+    }
+  }
 }
 
 // Compartilhar perfil
@@ -645,7 +666,7 @@ async function deleteUser(userId) {
 
 // Ações de vaga
 function viewJob(jobId) {
-  window.open(`/vaga-detalhes?id=${jobId}`, '_blank');
+  window.open(`/vaga/${jobId}`, '_blank');
 }
 
 async function deleteJob(jobId) {

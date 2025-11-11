@@ -191,7 +191,7 @@ function displayRecommendations(recommendations) {
       
       <div class="job-header">
         <h3 class="job-title">
-          <a href="/vaga-detalhes?id=${job._id}">${job.title}</a>
+          <a href="/vaga/${job._id}">${job.title}</a>
         </h3>
         <div class="company-name">
           <i class="fas fa-building"></i>
@@ -234,7 +234,7 @@ function displayRecommendations(recommendations) {
           <i class="fas fa-clock"></i>
           Publicada ${formatDate(job.createdAt)}
         </div>
-        <a href="/vaga-detalhes?id=${job._id}" class="btn btn-primary btn-sm">
+        <a href="/vaga/${job._id}" class="btn btn-primary btn-sm">
           Ver Detalhes
           <i class="fas fa-arrow-right"></i>
         </a>

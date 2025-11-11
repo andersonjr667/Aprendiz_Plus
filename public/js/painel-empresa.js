@@ -5,6 +5,8 @@ let allJobs = [];
 let currentFilter = 'all';
 let currentJobId = null;
 let currentApplicationId = null;
+let currentApplications = []; // Armazena as candidaturas atuais
+let currentStatusFilter = 'all'; // Filtro de status atual
 
 // Show message function
 function showMessage(message, type = 'info') {
@@ -232,7 +234,7 @@ function createJobCard(job) {
           <i class="fas fa-users"></i>
           Ver Candidaturas (${applicantsCount})
         </button>
-        <a href="/vaga-detalhes?id=${job._id || job.id}" class="btn btn-outline btn-sm" target="_blank">
+        <a href="/vaga/${job._id || job.id}" class="btn btn-outline btn-sm" target="_blank">
           <i class="fas fa-eye"></i>
           Ver Vaga
         </a>
@@ -287,6 +289,10 @@ async function viewApplications(jobId) {
     const applications = await res.json();
     console.log('Applications loaded:', applications);
     
+    // Armazenar candidaturas
+    currentApplications = applications;
+    currentStatusFilter = 'all';
+    
     displayApplications(applications);
     
   } catch (error) {
@@ -305,7 +311,7 @@ async function viewApplications(jobId) {
 }
 
 // Display applications
-function displayApplications(applications) {
+function displayApplications(applications, filterStatus = 'all') {
   const content = document.getElementById('applicationsContent');
   
   if (!applications || applications.length === 0) {
@@ -319,7 +325,51 @@ function displayApplications(applications) {
     return;
   }
   
-  content.innerHTML = applications.map(app => createApplicationCard(app)).join('');
+  // Contar por status
+  const pendingCount = applications.filter(app => app.status === 'pending').length;
+  const acceptedCount = applications.filter(app => app.status === 'accepted').length;
+  const rejectedCount = applications.filter(app => app.status === 'rejected').length;
+  
+  // Filtrar candidaturas
+  const filteredApplications = filterStatus === 'all' 
+    ? applications 
+    : applications.filter(app => app.status === filterStatus);
+  
+  // HTML dos filtros
+  const filtersHTML = `
+    <div class="applications-filters">
+      <button class="filter-btn ${filterStatus === 'all' ? 'active' : ''}" 
+              onclick="filterApplications('all')">
+        <i class="fas fa-list"></i> Todas (${applications.length})
+      </button>
+      <button class="filter-btn ${filterStatus === 'pending' ? 'active' : ''}" 
+              onclick="filterApplications('pending')">
+        <i class="fas fa-clock"></i> Pendentes (${pendingCount})
+      </button>
+      <button class="filter-btn ${filterStatus === 'accepted' ? 'active' : ''}" 
+              onclick="filterApplications('accepted')">
+        <i class="fas fa-check-circle"></i> Aceitas (${acceptedCount})
+      </button>
+      <button class="filter-btn ${filterStatus === 'rejected' ? 'active' : ''}" 
+              onclick="filterApplications('rejected')">
+        <i class="fas fa-times-circle"></i> Recusadas (${rejectedCount})
+      </button>
+    </div>
+  `;
+  
+  // Verificar se há candidaturas após filtro
+  if (filteredApplications.length === 0) {
+    content.innerHTML = filtersHTML + `
+      <div class="empty-state">
+        <i class="fas fa-filter"></i>
+        <h3>Nenhuma candidatura ${filterStatus !== 'all' ? 'com este status' : ''}</h3>
+        <p>Não há candidaturas ${filterStatus !== 'all' ? filterStatus : ''} para esta vaga.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  content.innerHTML = filtersHTML + filteredApplications.map(app => createApplicationCard(app)).join('');
 }
 
 // Create application card HTML
@@ -638,6 +688,12 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Filter applications by status
+function filterApplications(status) {
+  currentStatusFilter = status;
+  displayApplications(currentApplications, status);
+}
+
 // Global functions
 window.viewApplications = viewApplications;
 window.viewResume = viewResume;
@@ -645,6 +701,7 @@ window.confirmUpdateApplicationStatus = confirmUpdateApplicationStatus;
 window.toggleJobStatus = toggleJobStatus;
 window.confirmDeleteJob = confirmDeleteJob;
 window.deleteJob = deleteJob;
+window.filterApplications = filterApplications;
 window.closeApplicationsModal = closeApplicationsModal;
 window.closeConfirmModal = closeConfirmModal;
 window.filterJobs = filterJobs;

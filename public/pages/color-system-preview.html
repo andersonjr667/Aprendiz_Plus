@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprendiz+ - Paleta de Cores por Usuário</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 50px;
+      font-size: 1.1rem;
+    }
+    
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+    
+    .color-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .color-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    
+    .color-banner {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .color-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 60%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+    
+    .color-banner i {
+      font-size: 4rem;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    .color-info {
+      padding: 25px;
+    }
+    
+    .user-type {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .description {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .color-values {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .color-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+    
+    .color-swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      border: 2px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    
+    .color-code {
+      font-family: 'Courier New', monospace;
+      background: #f5f5f5;
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    /* Cores específicas */
+    .candidato-banner {
+      background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    }
+    
+    .empresa-banner {
+      background: linear-gradient(135deg, #00A896 0%, #028174 100%);
+    }
+    
+    .admin-banner {
+      background: linear-gradient(135deg, #16A085 0%, #117A65 100%);
+    }
+    
+    .dono-banner {
+      background: linear-gradient(135deg, #0D9488 0%, #115E59 100%);
+      position: relative;
+    }
+    
+    .dono-banner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255, 215, 0, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .comparison {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .comparison h2 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .comparison-grid {
+      display: flex;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    
+    .comparison-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: flex 0.3s;
+    }
+    
+    .comparison-item:hover {
+      flex: 1.2;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0f0f0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 10px;
+    }
+    
+    .owner-badge {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-palette"></i> Aprendiz+ Color System</h1>
+    <p class="subtitle">Sistema de cores diferenciadas por tipo de usuário</p>
+    
+    <div class="color-grid">
+      <!-- Candidato -->
+      <div class="color-card">
+        <div class="color-banner candidato-banner">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="color-info">
+          <h3 class="user-type">👤 Candidato</h3>
+          <p class="description">Verde vibrante que transmite energia, crescimento e novas oportunidades profissionais.</p>
+          <div class="color-values">
+            <div class="color-item">
+              <div class="color-swatch" style="background: #2ECC71;"></div>
+              <span class="color-code">#2ECC71</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch" style="background: #27AE60;"></div>
+              <span class="color-code">#27AE60</span>
+            </div>
+          </div>
+          <span class="badge"><i class="fas fa-seedling"></i> Fresh Green</span>
+        </div>
+      </div>
+      
+      <!-- Empresa -->
+      <div class="color-card">
+        <div class="color-banner empresa-banner">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="color-info">
+          <h3 class="user-type">🏢 Empresa</h3>
+          <p class="description">Verde esmeralda profissional que transmite confiança, estabilidade e corporativismo.</p>
+          <div class="color-values">
+            <div class="color-item">
+              <div class="color-swatch" style="background: #00A896;"></div>
+              <span class="color-code">#00A896</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch" style="background: #028174;"></div>
+              <span class="color-code">#028174</span>
+            </div>
+          </div>
+          <span class="badge"><i class="fas fa-gem"></i> Teal Green</span>
+        </div>
+      </div>
+      
+      <!-- Admin -->
+      <div class="color-card">
+        <div class="color-banner admin-banner">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="color-info">
+          <h3 class="user-type">👨‍💼 Administrador</h3>
+          <p class="description">Verde profundo que transmite autoridade, controle e profissionalismo na gestão.</p>
+          <div class="color-values">
+            <div class="color-item">
+              <div class="color-swatch" style="background: #16A085;"></div>
+              <span class="color-code">#16A085</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch" style="background: #117A65;"></div>
+              <span class="color-code">#117A65</span>
+            </div>
+          </div>
+          <span class="badge"><i class="fas fa-shield-alt"></i> Deep Green</span>
+        </div>
+      </div>
+      
+      <!-- Dono -->
+      <div class="color-card">
+        <div class="color-banner dono-banner">
+          <i class="fas fa-crown"></i>
+        </div>
+        <div class="color-info">
+          <h3 class="user-type">👑 Dono do Sistema</h3>
+          <p class="description">Verde teal luxuoso com overlay dourado que transmite exclusividade e poder máximo.</p>
+          <div class="color-values">
+            <div class="color-item">
+              <div class="color-swatch" style="background: #0D9488;"></div>
+              <span class="color-code">#0D9488</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch" style="background: #115E59;"></div>
+              <span class="color-code">#115E59</span>
+            </div>
+          </div>
+          <span class="badge owner-badge"><i class="fas fa-crown"></i> Premium Teal</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comparação -->
+    <div class="comparison">
+      <h2><i class="fas fa-th"></i> Comparação Visual</h2>
+      <p style="text-align: center; color: #666; margin-bottom: 20px;">
+        Passe o mouse sobre cada seção para destacar
+      </p>
+      <div class="comparison-grid">
+        <div class="comparison-item candidato-banner">Candidato</div>
+        <div class="comparison-item empresa-banner">Empresa</div>
+        <div class="comparison-item admin-banner">Admin</div>
+        <div class="comparison-item dono-banner">Dono</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

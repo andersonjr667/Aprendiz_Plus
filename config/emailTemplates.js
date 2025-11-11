@@ -542,20 +542,25 @@ const emailTemplates = {
         message: 'Sua candidatura está sendo analisada pela empresa.',
         color: '#3498db'
       },
-      'entrevista': {
+      'interview': {
         title: '🎯 Convocado para Entrevista!',
         message: 'Parabéns! A empresa tem interesse em conhecê-lo melhor.',
         color: '#27ae60'
       },
-      'aprovado': {
+      'accepted': {
         title: '🎉 Parabéns! Você foi aprovado!',
         message: 'Sua candidatura foi aprovada! A empresa entrará em contato em breve.',
         color: '#27ae60'
       },
-      'rejeitado': {
+      'rejected': {
         title: '😔 Candidatura não aprovada',
         message: 'Infelizmente, nesta vez sua candidatura não foi aprovada.',
         color: '#e74c3c'
+      },
+      'pending': {
+        title: '⏳ Candidatura em Análise',
+        message: 'Sua candidatura está sendo analisada pela empresa.',
+        color: '#f39c12'
       }
     };
 

@@ -353,7 +353,7 @@ async function loadJobs() {
       jobEl.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
           <h4 class="job-title">
-            <a href="/vaga-detalhes?id=${job._id || job.id}" style="color: var(--text-dark); text-decoration: none;">
+            <a href="/vaga/${job._id || job.id}" style="color: var(--text-dark); text-decoration: none;">
               ${job.title}
             </a>
           </h4>
@@ -376,7 +376,7 @@ async function loadJobs() {
           </span>
         </div>
         <div class="job-actions">
-          <a href="/vaga-detalhes?id=${job._id || job.id}" class="btn btn-outline">
+          <a href="/vaga/${job._id || job.id}" class="btn btn-outline">
             <i class="fas fa-eye"></i> Ver Detalhes
           </a>
           <button onclick="toggleJobStatus('${job._id || job.id}', '${job.status}')" class="btn btn-secondary">
@@ -489,7 +489,7 @@ async function loadRecentApplications() {
             <i class="fas fa-calendar"></i>
             ${new Date(app.appliedAt || app.applied_at).toLocaleDateString('pt-BR')}
           </span>
-          <a href="/vaga-detalhes?id=${app.job_id}" class="btn-link">
+          <a href="/vaga/${app.job_id}" class="btn-link">
             Ver detalhes <i class="fas fa-arrow-right"></i>
           </a>
         </div>

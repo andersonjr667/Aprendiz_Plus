@@ -118,7 +118,7 @@ async function loadAdminSummary() {
     if (applicationsRes.ok) {
       const applications = await applicationsRes.json();
       const totalApps = applications.length;
-      const pendingApps = applications.filter(a => a.status === 'pendente').length;
+      const pendingApps = applications.filter(a => a.status === 'pending').length;
 
       statsHTML += `
         <div class="stat-box">

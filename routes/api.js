@@ -736,14 +736,14 @@ router.get('/jobs/my-jobs', authMiddleware, roleCheck(['empresa']), async (req, 
         
         // Get applications with details
         const applications = await Application.find({ job: job._id })
-          .populate('user', 'name email')
+          .populate('candidate', 'name email')
           .lean();
         
         // Format applications
         const formattedApplications = applications.map(app => ({
           ...app,
-          user_name: app.user?.name,
-          user_email: app.user?.email
+          user_name: app.candidate?.name,
+          user_email: app.candidate?.email
         }));
         
         return {
@@ -1159,11 +1159,31 @@ router.post('/jobs/:id/apply', authMiddleware, roleCheck(['candidato']), upload.
 
 router.get('/jobs/:id/applications', authMiddleware, roleCheck(['empresa']), async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id).populate({ path: 'applications', populate: { path: 'candidate', select: 'name email candidateProfile resumeUrl' } });
+    const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
-    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-    res.json(job.applications);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    const applications = await Application.find({ job: req.params.id })
+      .populate('candidate', 'name email candidateProfile resumeUrl')
+      .lean();
+    
+    // Format applications with candidate info
+    const formattedApplications = applications.map(app => ({
+      ...app,
+      user_name: app.candidate?.name,
+      user_email: app.candidate?.email,
+      candidate_name: app.candidate?.name,
+      candidate_email: app.candidate?.email,
+      resume_url: app.resumeUrl || app.candidate?.resumeUrl
+    }));
+    
+    res.json(formattedApplications);
+  } catch (err) { 
+    console.error('Error fetching applications:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 router.put('/jobs/:id/applications/:appId', authMiddleware, roleCheck(['empresa']), async (req, res) => {
@@ -1205,6 +1225,66 @@ router.put('/jobs/:id/applications/:appId', authMiddleware, roleCheck(['empresa'
     
     res.json(app);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Update application status (simplified route for frontend)
+router.put('/applications/:appId/status', authMiddleware, roleCheck(['empresa', 'admin']), async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { status, feedback } = req.body;
+    
+    const app = await Application.findById(appId);
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+    
+    // Get the job to verify ownership
+    const job = await Job.findById(app.job);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    
+    // Check if user is the job owner or admin
+    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    const oldStatus = app.status;
+    
+    // Update application
+    if (status) app.status = status;
+    if (feedback) app.feedback = feedback;
+    await app.save();
+    
+    await logAction({ 
+      action: 'update_application', 
+      userId: req.user._id, 
+      resourceType: 'Application', 
+      resourceId: app._id, 
+      details: { status: app.status } 
+    });
+    
+    // Send email notification to candidate
+    if (status && status !== oldStatus) {
+      try {
+        const candidate = await User.findById(app.candidate);
+        const company = await User.findById(job.company);
+        
+        if (candidate && candidate.emailNotifications !== false) {
+          await emailService.sendApplicationStatusUpdateEmail(
+            candidate,
+            job,
+            company,
+            app.status,
+            app.feedback
+          );
+        }
+      } catch (emailError) {
+        console.error('Error sending status update email:', emailError);
+      }
+    }
+    
+    res.json(app);
+  } catch (err) { 
+    console.error('Error updating application status:', err);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 // ----- COMPANIES (convenience endpoints) -----
@@ -1871,11 +1951,41 @@ router.delete('/news/:id', authMiddleware, roleCheck(['admin']), async (req, res
   }
 });
 
+// Get my applications (candidate)
+router.get('/applications/me', authMiddleware, async (req, res) => {
+  try {
+    const applications = await Application.find({ candidate: req.user._id })
+      .populate({
+        path: 'job',
+        select: 'title company location salary type',
+        populate: {
+          path: 'company',
+          select: 'name'
+        }
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // Format applications
+    const formattedApplications = applications.map(app => ({
+      ...app,
+      jobTitle: app.job?.title,
+      companyName: app.job?.company?.name,
+      jobId: app.job?._id
+    }));
+    
+    res.json(formattedApplications);
+  } catch (err) {
+    console.error('Error fetching candidate applications:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all applications (admin only)
 router.get('/applications/all', authMiddleware, roleCheck(['admin']), async (req, res) => {
   try {
     const applications = await Application.find()
-      .populate('user', 'name email')
+      .populate('candidate', 'name email')
       .populate('job', 'title')
       .sort({ createdAt: -1 });
     

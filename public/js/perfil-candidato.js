@@ -577,7 +577,7 @@ async function loadApplications() {
       appEl.innerHTML = `
         <div class="flex justify-between items-start">
           <div>
-            <h4><a href="/vaga-detalhes?id=${app.job_id}">${app.job_title || 'Vaga'}</a></h4>
+            <h4><a href="/vaga/${app.job_id}">${app.job_title || 'Vaga'}</a></h4>
             <p class="text-gray-500">Candidatura enviada em ${new Date(app.appliedAt).toLocaleDateString('pt-BR')}</p>
           </div>
           <span class="application-status ${statusClass}">${app.status}</span>
@@ -770,7 +770,7 @@ async function loadRecommendations() {
       jobEl.innerHTML = `
         <div class="p-md" style="border-left: 3px solid var(--brand-green); background: white; border-radius: 4px;">
           <h5 style="margin-bottom: var(--spacing-xs);">
-            <a href="/vaga-detalhes?id=${job._id}" style="color: var(--text-primary);">${job.title}</a>
+            <a href="/vaga/${job._id}" style="color: var(--text-primary);">${job.title}</a>
           </h5>
           <p class="text-sm text-gray-500" style="margin: 0;">${job.company_name || 'Empresa'}</p>
         </div>

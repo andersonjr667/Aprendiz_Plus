@@ -6,8 +6,9 @@
 :root {
     --primary-green: #2ECC71;
     --primary-dark: #27AE60;
-    --secondary-purple: #667eea;
-    --secondary-purple-dark: #764ba2;
+    /* Verde Empresa - Tom esmeralda profissional */
+    --company-green: #00A896;
+    --company-green-dark: #028174;
     --navy: #1A2B4D;
     --text-dark: #2c3e50;
     --text-gray: #666;
@@ -133,7 +134,7 @@ body {
 
 /* ===== PROFILE HEADER ===== */
 .profile-header {
-    background: linear-gradient(135deg, var(--secondary-purple) 0%, var(--secondary-purple-dark) 100%);
+    background: linear-gradient(135deg, var(--company-green) 0%, var(--company-green-dark) 100%);
     color: white;
     padding: 4rem 0 3rem;
     position: relative;

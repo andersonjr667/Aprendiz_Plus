@@ -143,7 +143,7 @@ async function loadFeaturedJobs() {
     }
 
     container.innerHTML = jobs.map(job => `
-      <div class="job-card-mini" onclick="window.location.href='/vaga-detalhes?id=${job._id}'" role="button" tabindex="0">
+      <div class="job-card-mini" onclick="window.location.href='/vaga/${job._id}'" role="button" tabindex="0">
         <div class="job-company">
           <i class="fas fa-building"></i> ${job.company?.name || 'Empresa Confidencial'}
         </div>
