@@ -73,6 +73,11 @@ router.get('/not-found', (req, res) => sendPage(res, '404.html'));
 router.get('/teste-api', (req, res) => sendPage(res, 'teste-api.html'));
 router.get('/ai-test', (req, res) => sendPage(res, 'ai-test.html'));
 
+// New features pages
+router.get('/chat', (req, res) => sendPage(res, 'chat.html'));
+router.get('/favoritos', (req, res) => sendPage(res, 'favoritos.html'));
+router.get('/mapa-vagas', (req, res) => sendPage(res, 'mapa-vagas.html'));
+
 // Fallback for unknown routes -> 404 page
 router.get('*', (req, res) => { res.status(404); sendPage(res, '404.html'); });
 

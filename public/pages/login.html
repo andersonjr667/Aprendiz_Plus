@@ -7,6 +7,7 @@
     <title>Login | Aprendiz+</title>
     <link rel="stylesheet" href="/public/css/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/public/js/hamburger-menu.js" defer></script>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
@@ -47,10 +48,15 @@
                                    placeholder="seu@email.com">
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="position: relative;">
                             <label for="password">Senha</label>
                             <input type="password" id="password" name="password" class="form-control" required
-                                   placeholder="Digite sua senha">
+                                   placeholder="Digite sua senha" style="padding-right: 45px;">
+                            <button type="button" id="togglePassword" 
+                                    style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
+                                    aria-label="Mostrar/Ocultar senha">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block btn-lg">
@@ -60,8 +66,8 @@
                 </div>
 
                 <div class="card-footer text-center">
-                    <p><a href="/forgot-password">Esqueceu sua senha?</a></p>
-                    <p>Não tem uma conta? <a href="/register" class="font-semibold">Cadastre-se</a></p>
+                    <p><a href="/forgot-password">Esqueceu sua senha? Recuperar</a></p>
+                    <p>Ainda não tem conta? <a href="/register" class="font-semibold">Cadastre-se</a></p>
                 </div>
             </div>
         </div>
@@ -73,98 +79,23 @@
     <script src="/public/js/login.js" defer></script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
-</body>
-</html>
-        </form>
-
-        <div class="login-footer">
-            <p>Esqueceu sua senha? <a href="/forgot-password">Recuperar</a></p>
-            <p>Ainda não tem conta? <a href="/register">Cadastre-se</a></p>
-        </div>
-    </div>
-
-    <!-- Toast container para mensagens -->
-    <div id="toast" style="display:none; position:fixed; top:20px; right:20px; padding:15px; border-radius:4px; background:#333; color:white; z-index:1000"></div>
-
-    <script>
-        // Função global para mostrar mensagens
-        function showMessage(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            toast.style.background = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-        window.showMessage = showMessage;
-    </script>
-    <!-- Toast container para mensagens -->
-    <div id="toast" style="display:none; position:fixed; top:20px; right:20px; padding:15px; border-radius:4px; background:#333; color:white; z-index:1000"></div>
-
-    <!-- Carrega os scripts necessários -->
-    <script>
-        // Função global para mostrar mensagens
-        function showMessage(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            toast.style.background = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-        window.showMessage = showMessage;
-    </script>
-    <!-- Footer -->
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3>Aprendiz+</h3>
-                <p>Conectando jovens talentos com as melhores oportunidades do mercado de trabalho.</p>
-                <div class="social-links">
-                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h4>Links Rápidos</h4>
-                <ul>
-                    <li><a href="/">Início</a></li>
-                    <li><a href="/vagas">Vagas</a></li>
-                    <li><a href="/noticias">Notícias</a></li>
-                    <li><a href="/register">Cadastre-se</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Suporte</h4>
-                <ul>
-                    <li><a href="/contato">Contato</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Termos de Uso</a></li>
-                    <li><a href="#">Política de Privacidade</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Newsletter</h4>
-                <p>Receba as melhores vagas no seu email</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Seu email" required>
-                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                </form>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Aprendiz+. Todos os direitos reservados.</p>
-        </div>
-    </footer>
     
-    <!-- Floating Help Button -->
-    <a href="/contato" class="help-link" title="Precisa de ajuda? Clique aqui">?</a>
-
-    <script src="/public/js/auth.js"></script>
-    <script src="/public/js/api.js"></script>
-    <script src="/public/js/global.js"></script>
-    <script src="/public/js/login.js"></script>
-    <!-- AI Assistant -->
-    <script src="/public/js/ai-assistant.js"></script>
+    <!-- Toggle Password Visibility -->
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

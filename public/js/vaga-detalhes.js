@@ -7,6 +7,11 @@ let currentJob = null;
 let isFavorited = false;
 let hasApplied = false;
 
+// Helper function to get job ID (supports both MongoDB _id and id)
+function getJobId(job) {
+    return job._id || job.id;
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     const jobId = getJobIdFromUrl();
@@ -290,10 +295,12 @@ async function loadSimilarJobs(currentJob) {
         const response = await fetch('/api/jobs');
         const allJobs = await response.json();
         
+        const jobId = getJobId(currentJob);
+        
         // Filter similar jobs (same category or location, exclude current)
         const similarJobs = allJobs
             .filter(job => 
-                job.id !== currentJob.id && 
+                getJobId(job) !== jobId && 
                 (job.category === currentJob.category || job.location === currentJob.location)
             )
             .slice(0, 3);
@@ -382,14 +389,23 @@ async function handleApply() {
     btnApply.disabled = true;
     btnApply.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
     
+    const jobId = getJobId(currentJob);
+    
+    if (!jobId) {
+        alert('ID da vaga não encontrado');
+        btnApply.disabled = false;
+        btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
+        return;
+    }
+    
     try {
-        const response = await fetch(`/api/jobs/${currentJob.id}/apply`, {
+        const response = await fetch(`/api/jobs/${jobId}/apply`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                jobId: currentJob.id
+                jobId: jobId
             })
         });
         
@@ -397,7 +413,7 @@ async function handleApply() {
         
         if (response.ok) {
             hasApplied = true;
-            localStorage.setItem(`applied_${currentJob.id}`, 'true');
+            localStorage.setItem(`applied_${jobId}`, 'true');
             
             btnApply.innerHTML = '<i class="fas fa-check"></i> Candidatura Enviada';
             btnApply.classList.add('applied');
@@ -419,11 +435,17 @@ async function handleApply() {
 // Handle favorite
 function handleFavorite() {
     const btnFavorite = document.getElementById('btnFavorite');
+    const jobId = getJobId(currentJob);
+    
+    if (!jobId) {
+        alert('ID da vaga não encontrado');
+        return;
+    }
     
     if (isFavorited) {
         // Remove from favorites
         const favorites = JSON.parse(localStorage.getItem('favoriteJobs') || '[]');
-        const updatedFavorites = favorites.filter(id => id !== currentJob.id);
+        const updatedFavorites = favorites.filter(id => id !== jobId);
         localStorage.setItem('favoriteJobs', JSON.stringify(updatedFavorites));
         
         isFavorited = false;
@@ -437,7 +459,7 @@ function handleFavorite() {
     } else {
         // Add to favorites
         const favorites = JSON.parse(localStorage.getItem('favoriteJobs') || '[]');
-        favorites.push(currentJob.id);
+        favorites.push(jobId);
         localStorage.setItem('favoriteJobs', JSON.stringify(favorites));
         
         isFavorited = true;

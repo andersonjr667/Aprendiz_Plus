@@ -34,8 +34,16 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   candidateProfile: { type: CandidateProfileSchema, default: () => ({}) },
   companyProfile: { type: CompanyProfileSchema, default: () => ({}) },
+  // Email verification
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationToken: String,
+  emailVerificationExpires: Date,
+  // Password reset
   resetToken: String,
   resetExpires: Date,
+  // Email preferences
+  emailNotifications: { type: Boolean, default: true },
+  jobAlerts: { type: Boolean, default: true },
   // Ban/Suspension fields
   banReason: String,
   banMessage: String,

@@ -15,7 +15,19 @@ const Application = require('../models/Application');
 const News = require('../models/News');
 const Upload = require('../models/Upload');
 const ProfileLike = require('../models/ProfileLike');
+const ContactMessage = require('../models/ContactMessage');
+const Chat = require('../models/Chat');
+const Message = require('../models/Message');
+const Notification = require('../models/Notification');
+const { Favorite, FavoriteList } = require('../models/Favorite');
+const Review = require('../models/Review');
+const Gamification = require('../models/Gamification');
+const Verification = require('../models/Verification');
+const AntiSpam = require('../models/AntiSpam');
+const GeoLocation = require('../models/GeoLocation');
 const { logAction } = require('../middleware/audit');
+const emailService = require('../services/emailService');
+const jobAlertService = require('../services/jobAlertService');
 
 const authMiddleware = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
@@ -33,6 +45,14 @@ mongoose.connection.once('open', () => {
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
+
+// DONO DO SISTEMA - Usuário com permissões irrestritas
+const OWNER_ID = '691256819ab90a9899d0d05d';
+
+// Função auxiliar para verificar se é o dono
+function isOwner(userId) {
+  return userId && userId.toString() === OWNER_ID;
+}
 
 // ----- AUTH -----
 router.post('/auth/register',
@@ -83,6 +103,21 @@ router.post('/auth/register',
         resourceId: user._id, 
         details: { type: user.type } 
       });
+      
+      // Gera token de confirmação de email
+      const emailToken = crypto.randomBytes(32).toString('hex');
+      user.emailVerificationToken = emailToken;
+      user.emailVerificationExpires = Date.now() + 24 * 3600000; // 24 horas
+      await user.save();
+      
+      // Envia email de boas-vindas e confirmação
+      try {
+        await emailService.sendWelcomeEmail(user);
+        await emailService.sendConfirmationEmail(user, emailToken);
+      } catch (emailError) {
+        console.error('Error sending welcome emails:', emailError);
+        // Não bloqueia o registro se o email falhar
+      }
       
       // Retorna resposta de sucesso
       res.json({ 
@@ -166,13 +201,22 @@ router.post('/auth/forgot', body('email').isEmail(), async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.json({ ok: true }); // don't reveal
-    const token = crypto.randomBytes(20).toString('hex');
+    if (!user) return res.json({ ok: true }); // don't reveal if user exists
+    
+    const token = crypto.randomBytes(32).toString('hex');
     user.resetToken = token;
     user.resetExpires = Date.now() + 3600000; // 1h
     await user.save();
-    // Ideally send email. For MVP return token in response for development
-    res.json({ ok: true, resetToken: token });
+    
+    // Envia email de recuperação de senha
+    try {
+      await emailService.sendPasswordResetEmail(user, token);
+      console.log('Password reset email sent to:', user.email);
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+    }
+    
+    res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -187,6 +231,95 @@ router.post('/auth/reset', body('token').exists(), body('password').isLength({ m
     await user.save();
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Confirmar email
+router.get('/auth/confirm-email/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({ 
+      emailVerificationToken: token, 
+      emailVerificationExpires: { $gt: Date.now() } 
+    });
+    
+    if (!user) {
+      return res.status(400).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Link Inválido</title>
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            .error { color: #e74c3c; }
+          </style>
+        </head>
+        <body>
+          <h1 class="error">❌ Link Inválido ou Expirado</h1>
+          <p>Este link de confirmação não é válido ou já expirou.</p>
+          <a href="/pages/login.html">Voltar para Login</a>
+        </body>
+        </html>
+      `);
+    }
+    
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Email Confirmado</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+          .success { color: #27ae60; }
+          .button { 
+            display: inline-block; 
+            padding: 12px 30px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1 class="success">✅ Email Confirmado com Sucesso!</h1>
+        <p>Sua conta foi verificada. Agora você pode fazer login.</p>
+        <a href="/pages/login.html" class="button">Fazer Login</a>
+      </body>
+      </html>
+    `);
+  } catch (err) { 
+    res.status(500).send('Erro ao confirmar email'); 
+  }
+});
+
+// Reenviar email de confirmação
+router.post('/auth/resend-confirmation', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email já verificado' });
+    }
+    
+    const emailToken = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationToken = emailToken;
+    user.emailVerificationExpires = Date.now() + 24 * 3600000; // 24 horas
+    await user.save();
+    
+    await emailService.sendConfirmationEmail(user, emailToken);
+    
+    res.json({ ok: true, message: 'Email de confirmação reenviado' });
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 // ----- USERS -----
@@ -485,6 +618,19 @@ router.get('/users/:id', authMiddleware, async (req, res) => {
 router.put('/users/:id', authMiddleware, upload.single('resume'), async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // PROTEÇÃO: Impedir edição do dono por outros admins
+    if (isOwner(id) && !isOwner(req.user._id)) {
+      await logAction({
+        action: 'edit_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: id,
+        details: { reason: 'Tentativa de editar o dono do sistema', blockedBy: 'system' }
+      });
+      return res.status(403).json({ error: 'Este usuário é o dono do sistema e não pode ser editado por outros' });
+    }
+    
     if (req.user._id.toString() !== id && req.user.type !== 'admin') return res.status(403).json({ error: 'Forbidden' });
     const updates = { ...req.body };
     
@@ -822,6 +968,15 @@ router.post('/jobs', authMiddleware, roleCheck(['empresa']), upload.single('jobI
     console.log('Job created successfully:', job._id);
     
     await logAction({ action: 'create_job', userId: req.user._id, resourceType: 'Job', resourceId: job._id, details: { title: job.title } });
+    
+    // Envia email de confirmação de publicação para a empresa
+    try {
+      const company = await User.findById(req.user._id);
+      await emailService.sendJobPublishedEmail(company, job);
+    } catch (emailError) {
+      console.error('Error sending job published email:', emailError);
+    }
+    
     res.json(job);
   } catch (err) { 
     console.error('Error creating job:', err);
@@ -979,6 +1134,22 @@ router.post('/jobs/:id/apply', authMiddleware, roleCheck(['candidato']), upload.
       details: { jobId: job._id } 
     });
     
+    // Envia emails de notificação
+    try {
+      const candidate = await User.findById(req.user._id);
+      const company = await User.findById(job.company);
+      
+      // Email de confirmação para o candidato
+      await emailService.sendApplicationConfirmationEmail(candidate, job, company);
+      
+      // Email de notificação para a empresa
+      if (company && company.emailNotifications !== false) {
+        await emailService.sendNewApplicationEmail(company, candidate, job, app);
+      }
+    } catch (emailError) {
+      console.error('Error sending application emails:', emailError);
+    }
+    
     res.json(app);
   } catch (err) { 
     console.error('Error applying to job:', err);
@@ -1003,10 +1174,35 @@ router.put('/jobs/:id/applications/:appId', authMiddleware, roleCheck(['empresa'
     if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') return res.status(403).json({ error: 'Forbidden' });
     const app = await Application.findById(appId);
     if (!app) return res.status(404).json({ error: 'Application not found' });
+    
+    const oldStatus = app.status;
+    
     if (req.body.status) app.status = req.body.status;
     if (req.body.feedback) app.feedback = req.body.feedback;
     await app.save();
+    
     await logAction({ action: 'update_application', userId: req.user._id, resourceType: 'Application', resourceId: app._id, details: { status: app.status } });
+    
+    // Envia email de atualização de status para o candidato
+    if (req.body.status && req.body.status !== oldStatus) {
+      try {
+        const candidate = await User.findById(app.candidate);
+        const company = await User.findById(job.company);
+        
+        if (candidate && candidate.emailNotifications !== false) {
+          await emailService.sendApplicationStatusUpdateEmail(
+            candidate,
+            job,
+            company,
+            app.status,
+            app.feedback
+          );
+        }
+      } catch (emailError) {
+        console.error('Error sending status update email:', emailError);
+      }
+    }
+    
     res.json(app);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -1091,6 +1287,20 @@ router.post('/news', authMiddleware, roleCheck(['admin','empresa']), upload.sing
     data.author = req.user._id;
     const n = await News.create(data);
     const populatedNews = await News.findById(n._id).populate('author', 'name');
+    
+    // Envia newsletter para usuários interessados (opcional, pode ser feito via job agendado)
+    // Para não bloquear a resposta, fazemos isso em background
+    if (data.sendNewsletter === 'true' || data.sendNewsletter === true) {
+      setImmediate(async () => {
+        try {
+          await emailService.sendNewsletterToAll(populatedNews, data.targetAudience);
+          console.log('Newsletter enviada para notícia:', populatedNews.title);
+        } catch (emailError) {
+          console.error('Erro ao enviar newsletter:', emailError);
+        }
+      });
+    }
+    
     res.json(populatedNews);
   } catch (err) { 
     console.error('News creation error:', err);
@@ -1491,13 +1701,26 @@ router.get('/users/:id/public', async (req, res) => {
 router.put('/users/:id/status', authMiddleware, roleCheck(['admin']), async (req, res) => {
   try {
     const { status } = req.body;
+    const userId = req.params.id;
     
     if (!['active', 'inactive'].includes(status)) {
       return res.status(400).json({ error: 'Status inválido' });
     }
     
+    // PROTEÇÃO: Impedir mudança de status do dono
+    if (isOwner(userId) && !isOwner(req.user._id)) {
+      await logAction({
+        action: 'status_change_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { reason: 'Tentativa de alterar status do dono do sistema', blockedBy: 'system' }
+      });
+      return res.status(403).json({ error: 'Este usuário é o dono do sistema e não pode ter seu status alterado' });
+    }
+    
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      userId,
       { status },
       { new: true }
     ).select('-passwordHash');
@@ -1531,13 +1754,25 @@ router.delete('/users/:id', authMiddleware, roleCheck(['admin']), async (req, re
       return res.status(400).json({ error: 'Você não pode excluir sua própria conta' });
     }
     
+    // PROTEÇÃO: Impedir exclusão do dono
+    if (isOwner(userId)) {
+      await logAction({
+        action: 'delete_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { reason: 'Tentativa de excluir o dono do sistema', blockedBy: 'system' }
+      });
+      return res.status(403).json({ error: 'Este usuário é o dono do sistema e não pode ser excluído' });
+    }
+    
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
     
-    // Prevent deleting other admins
-    if (user.type === 'admin') {
+    // Prevent deleting other admins (unless you are owner)
+    if (user.type === 'admin' && !isOwner(req.user._id)) {
       return res.status(403).json({ error: 'Não é possível excluir outros administradores' });
     }
     
@@ -1703,12 +1938,25 @@ router.post('/users/:id/ban', authMiddleware, roleCheck(['admin']), async (req, 
       return res.status(400).json({ error: 'Você não pode banir sua própria conta' });
     }
     
+    // PROTEÇÃO: Impedir banimento do dono
+    if (isOwner(userId)) {
+      await logAction({
+        action: 'ban_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { reason: 'Tentativa de banir o dono do sistema', blockedBy: 'system' }
+      });
+      return res.status(403).json({ error: 'Este usuário é o dono do sistema e não pode ser banido' });
+    }
+    
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
     
-    if (user.type === 'admin') {
+    // Prevent banning other admins (unless you are owner)
+    if (user.type === 'admin' && !isOwner(req.user._id)) {
       return res.status(403).json({ error: 'Não é possível banir outros administradores' });
     }
     
@@ -1744,12 +1992,25 @@ router.post('/users/:id/kick', authMiddleware, roleCheck(['admin']), async (req,
       return res.status(400).json({ error: 'Você não pode expulsar sua própria conta' });
     }
     
+    // PROTEÇÃO: Impedir suspensão do dono
+    if (isOwner(userId)) {
+      await logAction({
+        action: 'kick_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { reason: 'Tentativa de suspender o dono do sistema', blockedBy: 'system' }
+      });
+      return res.status(403).json({ error: 'Este usuário é o dono do sistema e não pode ser suspenso' });
+    }
+    
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
     
-    if (user.type === 'admin') {
+    // Prevent kicking other admins (unless you are owner)
+    if (user.type === 'admin' && !isOwner(req.user._id)) {
       return res.status(403).json({ error: 'Não é possível expulsar outros administradores' });
     }
     
@@ -1817,5 +2078,1094 @@ router.post('/users/:id/unban', authMiddleware, roleCheck(['admin']), async (req
   }
 });
 
+// ----- EMAIL & JOB ALERTS -----
+
+// Formulário de contato
+router.post('/contact', 
+  body('name').trim().notEmpty().withMessage('Nome é obrigatório'),
+  body('email').isEmail().withMessage('Email inválido'),
+  body('subject').trim().notEmpty().withMessage('Assunto é obrigatório'),
+  body('message').trim().notEmpty().withMessage('Mensagem é obrigatória'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { name, email, subject, message, phone } = req.body;
+      
+      // Salva mensagem no banco de dados
+      const contactMessage = await ContactMessage.create({
+        name,
+        email,
+        subject,
+        message,
+        phone
+      });
+      
+      // Envia email para o admin
+      await emailService.sendContactFormEmail({
+        name,
+        email,
+        subject,
+        message,
+        phone
+      });
+      
+      // Envia confirmação para o usuário
+      await emailService.sendContactConfirmationEmail(name, email);
+      
+      // Log da ação
+      await logAction({
+        action: 'contact_form',
+        resourceType: 'ContactMessage',
+        resourceId: contactMessage._id,
+        details: { email, subject }
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Mensagem enviada com sucesso! Retornaremos em breve.' 
+      });
+    } catch (err) {
+      console.error('Contact form error:', err);
+      res.status(500).json({ error: 'Erro ao enviar mensagem. Tente novamente.' });
+    }
+  }
+);
+
+// Listar mensagens de contato (admin)
+router.get('/contact-messages', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { status, limit = 50 } = req.query;
+    
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
+    
+    const messages = await ContactMessage.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .populate('respondedBy', 'name email');
+    
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Atualizar status de mensagem de contato (admin)
+router.put('/contact-messages/:id', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { status, response } = req.body;
+    
+    const message = await ContactMessage.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ error: 'Mensagem não encontrada' });
+    }
+    
+    if (status) {
+      message.status = status;
+    }
+    
+    if (response) {
+      message.response = response;
+      message.respondedAt = new Date();
+      message.respondedBy = req.user._id;
+      
+      // TODO: Opcionalmente enviar email de resposta para o usuário
+    }
+    
+    await message.save();
+    
+    res.json(message);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Enviar newsletter manualmente (admin)
+router.post('/news/:id/send-newsletter', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const news = await News.findById(req.params.id).populate('author', 'name');
+    if (!news) {
+      return res.status(404).json({ error: 'Notícia não encontrada' });
+    }
+    
+    const { targetAudience } = req.body; // 'candidato', 'empresa', ou null para todos
+    
+    const results = await emailService.sendNewsletterToAll(news, targetAudience);
+    
+    res.json({
+      success: true,
+      totalSent: results.filter(r => r.success).length,
+      totalFailed: results.filter(r => !r.success).length,
+      results
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verificar perfil e enviar lembrete se incompleto (admin ou self-check)
+router.post('/users/:id/check-profile', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    // Verifica se é admin ou o próprio usuário
+    if (req.user.type !== 'admin' && req.user._id.toString() !== userId) {
+      return res.status(403).json({ error: 'Não autorizado' });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    const missingFields = [];
+    
+    // Campos essenciais para todos
+    if (!user.phone) missingFields.push('Telefone');
+    if (!user.bio) missingFields.push('Bio/Descrição');
+    
+    if (user.type === 'candidato') {
+      if (!user.skills || user.skills.length === 0) missingFields.push('Habilidades');
+      if (!user.education) missingFields.push('Escolaridade');
+      if (!user.resumeUrl) missingFields.push('Currículo');
+      if (!user.profilePhotoUrl) missingFields.push('Foto de perfil');
+    } else if (user.type === 'empresa') {
+      if (!user.cnpj) missingFields.push('CNPJ');
+      if (!user.website) missingFields.push('Site da empresa');
+      if (!user.description) missingFields.push('Descrição da empresa');
+    }
+    
+    const isComplete = missingFields.length === 0;
+    
+    // Se não está completo e foi solicitado envio de email
+    if (!isComplete && req.body.sendReminder) {
+      await emailService.sendProfileIncompleteReminderEmail(user, missingFields);
+    }
+    
+    res.json({
+      isComplete,
+      missingFields,
+      completionPercentage: Math.round(((10 - missingFields.length) / 10) * 100)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Atualizar preferências de email
+router.put('/users/me/email-preferences', authMiddleware, async (req, res) => {
+  try {
+    const { emailNotifications, jobAlerts } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (emailNotifications !== undefined) {
+      user.emailNotifications = emailNotifications;
+    }
+    
+    if (jobAlerts !== undefined) {
+      user.jobAlerts = jobAlerts;
+    }
+    
+    await user.save();
+    
+    res.json({ 
+      success: true, 
+      preferences: {
+        emailNotifications: user.emailNotifications,
+        jobAlerts: user.jobAlerts
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Obter vagas compatíveis para o candidato atual
+router.get('/job-alerts/matching-jobs', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const matchingJobs = await jobAlertService.findMatchingJobsForCandidate(req.user._id);
+    res.json({ jobs: matchingJobs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Enviar alertas de vagas manualmente (admin)
+router.post('/job-alerts/send-all', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const results = await jobAlertService.sendJobAlertsToActiveCandidates();
+    res.json({ success: true, ...results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Testar email (admin ou para si mesmo)
+router.post('/email/test', authMiddleware, async (req, res) => {
+  try {
+    const { type } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    let result;
+    
+    switch (type) {
+      case 'welcome':
+        result = await emailService.sendWelcomeEmail(user);
+        break;
+      case 'confirmation':
+        const token = 'test-token-123';
+        result = await emailService.sendConfirmationEmail(user, token);
+        break;
+      case 'job-alert':
+        const jobs = await jobAlertService.findMatchingJobsForCandidate(user._id, 3);
+        if (jobs.length === 0) {
+          return res.status(400).json({ error: 'Nenhuma vaga compatível encontrada' });
+        }
+        result = await emailService.sendJobAlertEmail(user, jobs);
+        break;
+      default:
+        return res.status(400).json({ error: 'Tipo de email inválido' });
+    }
+    
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== SISTEMA DE CHAT E MENSAGENS =====
+
+// Listar conversas do usuário
+router.get('/chats', authMiddleware, async (req, res) => {
+  try {
+    const userType = req.user.type === 'candidato' ? 'candidate' : 'company';
+    const chats = await Chat.findByUserId(req.user._id.toString(), userType);
+    
+    // Enriquecer com informações do outro participante e última mensagem
+    const enrichedChats = await Promise.all(chats.map(async (chat) => {
+      const otherUserId = userType === 'candidate' ? chat.companyId : chat.candidateId;
+      const otherUser = await User.findById(otherUserId);
+      
+      const messages = await Message.findByChatId(chat.id, 1);
+      const lastMessage = messages[0];
+      
+      const unreadCount = await Message.getUnreadCount(req.user._id.toString(), chat.id);
+      
+      return {
+        ...chat,
+        otherUser: otherUser ? {
+          id: otherUser._id,
+          name: otherUser.name,
+          profilePhoto: otherUser.profilePhoto,
+          type: otherUser.type
+        } : null,
+        lastMessage,
+        unreadCount
+      };
+    }));
+    
+    res.json(enrichedChats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Criar ou obter chat
+router.post('/chats', authMiddleware, async (req, res) => {
+  try {
+    const { otherUserId, jobId } = req.body;
+    const user = req.user;
+    
+    let candidateId, companyId;
+    if (user.type === 'candidato') {
+      candidateId = user._id.toString();
+      companyId = otherUserId;
+    } else {
+      candidateId = otherUserId;
+      companyId = user._id.toString();
+    }
+    
+    // Verificar se já existe chat
+    let chat = await Chat.findByParticipants(candidateId, companyId, jobId);
+    
+    if (!chat) {
+      chat = await Chat.create({ candidateId, companyId, jobId });
+    }
+    
+    res.json(chat);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Obter mensagens de um chat
+router.get('/chats/:chatId/messages', authMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const { limit = 50, offset = 0 } = req.query;
+    
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat não encontrado' });
+    }
+    
+    // Verificar se usuário participa do chat
+    const userId = req.user._id.toString();
+    if (chat.candidateId !== userId && chat.companyId !== userId) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    
+    const messages = await Message.findByChatId(chatId, parseInt(limit), parseInt(offset));
+    
+    // Marcar mensagens como lidas
+    await Message.markChatAsRead(chatId, userId);
+    
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Enviar mensagem
+router.post('/chats/:chatId/messages', authMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const { content, attachments } = req.body;
+    const userId = req.user._id.toString();
+    
+    // Verificar anti-spam
+    const spamCheck = await AntiSpam.checkRateLimit(userId, 'message');
+    if (!spamCheck.allowed) {
+      return res.status(429).json({ error: spamCheck.reason });
+    }
+    
+    const contentCheck = await AntiSpam.checkContentSpam(content, userId);
+    if (contentCheck.isSpam) {
+      return res.status(400).json({ 
+        error: 'Conteúdo identificado como spam', 
+        reasons: contentCheck.reasons 
+      });
+    }
+    
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat não encontrado' });
+    }
+    
+    // Verificar se usuário participa do chat
+    if (chat.candidateId !== userId && chat.companyId !== userId) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    
+    const senderType = req.user.type === 'candidato' ? 'candidate' : 'company';
+    
+    const message = await Message.create({
+      chatId,
+      senderId: userId,
+      senderType,
+      content,
+      attachments: attachments || []
+    });
+    
+    // Notificar outro usuário
+    const otherUserId = chat.candidateId === userId ? chat.companyId : chat.candidateId;
+    await Notification.create({
+      userId: otherUserId,
+      type: 'message',
+      title: 'Nova mensagem',
+      message: `${req.user.name} enviou uma mensagem`,
+      link: `/chat/${chatId}`,
+      metadata: { chatId, messageId: message.id }
+    });
+    
+    // Adicionar pontos de gamificação (primeira mensagem)
+    const userMessages = await Message.findByChatId(chatId);
+    if (userMessages.filter(m => m.senderId === userId).length === 1) {
+      await Gamification.addPoints(userId, 'FIRST_MESSAGE');
+    }
+    
+    res.json(message);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Arquivar chat
+router.put('/chats/:chatId/archive', authMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user._id.toString();
+    
+    const chat = await Chat.archive(chatId, userId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat não encontrado' });
+    }
+    
+    res.json({ message: 'Chat arquivado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== NOTIFICAÇÕES =====
+
+// Listar notificações
+router.get('/notifications', authMiddleware, async (req, res) => {
+  try {
+    const { limit = 20, unreadOnly } = req.query;
+    const userId = req.user._id.toString();
+    
+    const notifications = await Notification.findByUserId(
+      userId, 
+      parseInt(limit), 
+      unreadOnly === 'true'
+    );
+    
+    res.json(notifications);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Marcar notificação como lida
+router.put('/notifications/:id/read', authMiddleware, async (req, res) => {
+  try {
+    const notification = await Notification.markAsRead(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ error: 'Notificação não encontrada' });
+    }
+    res.json(notification);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Marcar todas como lidas
+router.put('/notifications/read-all', authMiddleware, async (req, res) => {
+  try {
+    const count = await Notification.markAllAsRead(req.user._id.toString());
+    res.json({ message: `${count} notificações marcadas como lidas` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Contar não lidas
+router.get('/notifications/unread-count', authMiddleware, async (req, res) => {
+  try {
+    const count = await Notification.getUnreadCount(req.user._id.toString());
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== SISTEMA DE FAVORITOS =====
+
+// Adicionar favorito
+router.post('/favorites', authMiddleware, async (req, res) => {
+  try {
+    const { targetId, targetType, listId, notes } = req.body;
+    const userId = req.user._id.toString();
+    
+    // Verificar anti-spam
+    const spamCheck = await AntiSpam.checkRateLimit(userId, 'favorite');
+    if (!spamCheck.allowed) {
+      return res.status(429).json({ error: spamCheck.reason });
+    }
+    
+    const favorite = await Favorite.create({
+      userId,
+      targetId,
+      targetType,
+      listId,
+      notes
+    });
+    
+    res.json(favorite);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Listar favoritos
+router.get('/favorites', authMiddleware, async (req, res) => {
+  try {
+    const { targetType } = req.query;
+    const userId = req.user._id.toString();
+    
+    const favorites = await Favorite.findByUserId(userId, targetType);
+    res.json(favorites);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verificar se é favorito
+router.get('/favorites/check/:targetId', authMiddleware, async (req, res) => {
+  try {
+    const { targetId } = req.params;
+    const { targetType } = req.query;
+    const userId = req.user._id.toString();
+    
+    const isFavorite = await Favorite.isFavorite(userId, targetId, targetType);
+    res.json({ isFavorite });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remover favorito
+router.delete('/favorites/:targetId', authMiddleware, async (req, res) => {
+  try {
+    const { targetId } = req.params;
+    const { targetType } = req.query;
+    const userId = req.user._id.toString();
+    
+    const deleted = await Favorite.delete(userId, targetId, targetType);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Favorito não encontrado' });
+    }
+    
+    res.json({ message: 'Favorito removido' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Criar lista de favoritos
+router.post('/favorite-lists', authMiddleware, async (req, res) => {
+  try {
+    const { name, description, type, isPublic } = req.body;
+    const userId = req.user._id.toString();
+    
+    const list = await FavoriteList.create({
+      userId,
+      name,
+      description,
+      type,
+      isPublic
+    });
+    
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Listar listas de favoritos
+router.get('/favorite-lists', authMiddleware, async (req, res) => {
+  try {
+    const lists = await FavoriteList.findByUserId(req.user._id.toString());
+    res.json(lists);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== SISTEMA DE AVALIAÇÕES =====
+
+// Criar avaliação
+router.post('/reviews', authMiddleware, async (req, res) => {
+  try {
+    const { targetId, targetType, jobId, rating, comment, pros, cons, anonymous } = req.body;
+    const userId = req.user._id.toString();
+    
+    // Verificar anti-spam
+    const spamCheck = await AntiSpam.checkRateLimit(userId, 'review');
+    if (!spamCheck.allowed) {
+      return res.status(429).json({ error: spamCheck.reason });
+    }
+    
+    if (comment) {
+      const contentCheck = await AntiSpam.checkContentSpam(comment, userId);
+      if (contentCheck.isSpam) {
+        return res.status(400).json({ 
+          error: 'Comentário identificado como spam', 
+          reasons: contentCheck.reasons 
+        });
+      }
+    }
+    
+    const reviewerType = req.user.type === 'candidato' ? 'candidate' : 'company';
+    
+    const review = await Review.create({
+      reviewerId: userId,
+      reviewerType,
+      targetId,
+      targetType,
+      jobId,
+      rating,
+      comment,
+      pros,
+      cons,
+      anonymous
+    });
+    
+    // Notificar usuário avaliado
+    await Notification.create({
+      userId: targetId,
+      type: 'review',
+      title: 'Nova avaliação recebida',
+      message: `Você recebeu uma nova avaliação de ${rating} estrelas`,
+      metadata: { reviewId: review.id, rating }
+    });
+    
+    // Adicionar pontos
+    await Gamification.addPoints(userId, 'REVIEW_GIVEN');
+    await Gamification.addPoints(targetId, 'REVIEW_RECEIVED');
+    
+    res.json(review);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Listar avaliações de um usuário/empresa
+router.get('/reviews/:targetId', async (req, res) => {
+  try {
+    const { targetId } = req.params;
+    const { status = 'approved' } = req.query;
+    
+    const reviews = await Review.findByTargetId(targetId, status);
+    const stats = await Review.getAverageRating(targetId);
+    
+    res.json({ reviews, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Denunciar avaliação
+router.post('/reviews/:reviewId/report', authMiddleware, async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { reason } = req.body;
+    const userId = req.user._id.toString();
+    
+    const review = await Review.reportReview(reviewId, userId, reason);
+    if (!review) {
+      return res.status(404).json({ error: 'Avaliação não encontrada' });
+    }
+    
+    res.json({ message: 'Avaliação denunciada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Moderar avaliações (admin)
+router.get('/reviews/pending/moderation', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const reviews = await Review.findPending();
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/reviews/:reviewId/moderate', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { status, notes } = req.body;
+    
+    const review = await Review.updateStatus(reviewId, status, notes);
+    if (!review) {
+      return res.status(404).json({ error: 'Avaliação não encontrada' });
+    }
+    
+    res.json(review);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== SISTEMA DE GAMIFICAÇÃO =====
+
+// Obter estatísticas do usuário
+router.get('/gamification/stats', authMiddleware, async (req, res) => {
+  try {
+    const stats = await Gamification.getUserStats(req.user._id.toString());
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Ranking/Leaderboard
+router.get('/gamification/leaderboard', async (req, res) => {
+  try {
+    const { limit = 100, userType } = req.query;
+    const leaderboard = await Gamification.getLeaderboard(parseInt(limit), userType);
+    res.json(leaderboard);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== SISTEMA DE VERIFICAÇÃO =====
+
+// Solicitar verificação de email
+router.post('/verification/email/request', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email já verificado' });
+    }
+    
+    const { token } = await Verification.createEmailVerification(
+      user._id.toString(), 
+      user.email
+    );
+    
+    // Enviar email
+    await emailService.sendConfirmationEmail(user, token);
+    
+    res.json({ message: 'Email de verificação enviado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verificar email
+router.get('/verification/email/:token', async (req, res) => {
+  try {
+    const result = await Verification.verifyEmail(req.params.token);
+    
+    if (result.success) {
+      res.json({ message: 'Email verificado com sucesso!' });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Enviar documento para verificação
+router.post('/verification/document', authMiddleware, upload.array('documents', 5), async (req, res) => {
+  try {
+    const { documentType, documentNumber } = req.body;
+    const userId = req.user._id.toString();
+    
+    const documentImages = req.files ? req.files.map(f => f.path) : [];
+    
+    const verification = await Verification.createDocumentVerification(userId, documentType, {
+      number: documentNumber,
+      images: documentImages
+    });
+    
+    res.json(verification);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Listar verificações pendentes (admin)
+router.get('/verification/pending', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const verifications = await Verification.getPendingVerifications();
+    res.json(verifications);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Revisar documento (admin)
+router.put('/verification/:verificationId', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { verificationId } = req.params;
+    const { status, notes } = req.body;
+    
+    const verification = await Verification.reviewDocument(
+      verificationId, 
+      status, 
+      req.user._id.toString(), 
+      notes
+    );
+    
+    if (!verification) {
+      return res.status(404).json({ error: 'Verificação não encontrada' });
+    }
+    
+    res.json(verification);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Validar CNPJ
+router.post('/verification/cnpj/validate', async (req, res) => {
+  try {
+    const { cnpj } = req.body;
+    const isValid = await Verification.verifyCNPJ(cnpj);
+    res.json({ valid: isValid });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Status de verificações do usuário
+router.get('/verification/status', authMiddleware, async (req, res) => {
+  try {
+    const status = await Verification.getUserVerifications(req.user._id.toString());
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== DASHBOARDS =====
+
+// Dashboard do candidato
+router.get('/dashboard/candidate', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    // Estatísticas de candidaturas
+    const applications = await Application.find({ candidateId: userId });
+    const applicationStats = {
+      total: applications.length,
+      pending: applications.filter(a => a.status === 'pending').length,
+      reviewing: applications.filter(a => a.status === 'reviewing').length,
+      accepted: applications.filter(a => a.status === 'accepted').length,
+      rejected: applications.filter(a => a.status === 'rejected').length
+    };
+    
+    // Visualizações do perfil (últimos 30 dias)
+    const profileLikes = await ProfileLike.find({ 
+      profileId: userId,
+      createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+    });
+    
+    // Gamificação
+    const gamificationStats = await Gamification.getUserStats(userId.toString());
+    
+    // Mensagens não lidas
+    const unreadMessages = await Message.getUnreadCount(userId.toString());
+    
+    // Avaliações
+    const reviewStats = await Review.getAverageRating(userId.toString());
+    
+    res.json({
+      applications: applicationStats,
+      profileViews: profileLikes.length,
+      gamification: gamificationStats,
+      unreadMessages,
+      rating: reviewStats
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Dashboard da empresa
+router.get('/dashboard/company', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    // Vagas publicadas
+    const jobs = await Job.find({ companyId: userId });
+    const jobStats = {
+      total: jobs.length,
+      active: jobs.filter(j => j.status === 'active').length,
+      closed: jobs.filter(j => j.status === 'closed').length
+    };
+    
+    // Candidaturas recebidas
+    const jobIds = jobs.map(j => j._id);
+    const applications = await Application.find({ jobId: { $in: jobIds } });
+    const applicationStats = {
+      total: applications.length,
+      pending: applications.filter(a => a.status === 'pending').length,
+      reviewing: applications.filter(a => a.status === 'reviewing').length,
+      accepted: applications.filter(a => a.status === 'accepted').length,
+      rejected: applications.filter(a => a.status === 'rejected').length
+    };
+    
+    // Visualizações do perfil
+    const profileViews = await ProfileLike.find({ 
+      profileId: userId,
+      createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+    });
+    
+    // Mensagens não lidas
+    const unreadMessages = await Message.getUnreadCount(userId.toString());
+    
+    // Avaliações
+    const reviewStats = await Review.getAverageRating(userId.toString());
+    
+    res.json({
+      jobs: jobStats,
+      applications: applicationStats,
+      profileViews: profileViews.length,
+      unreadMessages,
+      rating: reviewStats
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== RELATÓRIOS ANTI-SPAM (ADMIN) =====
+
+router.get('/admin/spam-reports', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const reports = await AntiSpam.getSpamReports();
+    res.json(reports);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== BUSCA POR LOCALIZAÇÃO E MAPA =====
+
+// Buscar vagas próximas
+router.get('/geo/jobs/nearby', async (req, res) => {
+  try {
+    const { latitude, longitude, maxDistance = 50, title, category, type } = req.query;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude e longitude são obrigatórias' });
+    }
+
+    const filters = {};
+    if (title) filters.title = title;
+    if (category) filters.category = category;
+    if (type) filters.type = type;
+
+    const jobs = await GeoLocation.findNearbyJobs(
+      parseFloat(latitude),
+      parseFloat(longitude),
+      parseInt(maxDistance),
+      filters
+    );
+
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Buscar candidatos próximos (para empresas)
+router.get('/geo/candidates/nearby', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const { latitude, longitude, maxDistance = 50, skills, experience } = req.query;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude e longitude são obrigatórias' });
+    }
+
+    const filters = {};
+    if (skills) filters.skills = skills.split(',');
+    if (experience) filters.experience = experience;
+
+    const candidates = await GeoLocation.findNearbyCandidates(
+      parseFloat(latitude),
+      parseFloat(longitude),
+      parseInt(maxDistance),
+      filters
+    );
+
+    res.json(candidates);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Obter clusters de vagas para o mapa
+router.get('/geo/jobs/clusters', async (req, res) => {
+  try {
+    const { north, south, east, west, zoom } = req.query;
+    
+    let bounds = null;
+    if (north && south && east && west) {
+      bounds = {
+        north: parseFloat(north),
+        south: parseFloat(south),
+        east: parseFloat(east),
+        west: parseFloat(west)
+      };
+    }
+
+    const clusters = await GeoLocation.getJobClusters(bounds, parseInt(zoom) || 10);
+    res.json(clusters);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Geocodificar endereço
+router.post('/geo/geocode', async (req, res) => {
+  try {
+    const { address } = req.body;
+    
+    if (!address) {
+      return res.status(400).json({ error: 'Endereço é obrigatório' });
+    }
+
+    const coords = await GeoLocation.geocodeAddress(address);
+    res.json(coords);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Atualizar localização de vaga
+router.put('/geo/jobs/:jobId/location', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const { latitude, longitude } = req.body;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude e longitude são obrigatórias' });
+    }
+
+    // Verificar se a vaga pertence ao usuário
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Vaga não encontrada' });
+    }
+
+    if (job.companyId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+
+    const updated = await GeoLocation.updateJobLocation(jobId, latitude, longitude);
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Atualizar localização do usuário
+router.put('/geo/users/me/location', authMiddleware, async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude e longitude são obrigatórias' });
+    }
+
+    const updated = await GeoLocation.updateUserLocation(
+      req.user._id.toString(), 
+      latitude, 
+      longitude
+    );
+    
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
+
 

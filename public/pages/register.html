@@ -7,6 +7,7 @@
     <title>Cadastro | Aprendiz+</title>
     <link rel="stylesheet" href="/public/css/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .register-container {
             max-width: 600px;
@@ -153,13 +154,23 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" class="form-control" required minlength="6">
+                    <input type="password" id="password" name="password" class="form-control" required minlength="6" style="padding-right: 45px;">
+                    <button type="button" id="togglePassword" 
+                            style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
+                            aria-label="Mostrar/Ocultar senha">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label for="confirmPassword">Confirmar Senha</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required style="padding-right: 45px;">
+                    <button type="button" id="toggleConfirmPassword" 
+                            style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
+                            aria-label="Mostrar/Ocultar confirmação de senha">
+                        <i class="fas fa-eye" id="eyeIconConfirm"></i>
+                    </button>
                 </div>
             </div>
 
@@ -244,5 +255,40 @@
     <script src="/public/js/register.js"></script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
+    
+    <!-- Toggle Password Visibility -->
+    <script>
+        // Toggle password
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+        
+        // Toggle confirm password
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                eyeIconConfirm.classList.remove('fa-eye');
+                eyeIconConfirm.classList.add('fa-eye-slash');
+            } else {
+                confirmPasswordInput.type = 'password';
+                eyeIconConfirm.classList.remove('fa-eye-slash');
+                eyeIconConfirm.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

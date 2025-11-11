@@ -4,5 +4,15 @@
   "jobs": [],
   "comments": [],
   "auditLogs": [],
-  "images_perfil_candidato": []
+  "images_perfil_candidato": [],
+  "chats": [],
+  "messages": [],
+  "notifications": [],
+  "favorites": [],
+  "favoriteLists": [],
+  "reviews": [],
+  "verifications": [],
+  "documentVerifications": [],
+  "rateLimits": {},
+  "spamAttempts": []
 }
