@@ -1,11 +1,4 @@
 // Helpers para autenticação (armazenamento de JWT)
-// Inicializa o header quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.Auth && window.Auth.updateHeader) {
-    window.Auth.updateHeader();
-  }
-});
-
 (function(window){
   const STORAGE_KEY = 'aprendizplus_token';
 
@@ -31,6 +24,28 @@ document.addEventListener('DOMContentLoaded', () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (res.status === 403) {
+        // User is banned or suspended
+        const data = await res.json();
+        
+        if (data.banned) {
+          removeToken();
+          alert(`Sua conta foi BANIDA.\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          window.location.href = '/';
+          return null;
+        }
+        
+        if (data.suspended) {
+          removeToken();
+          const suspendedUntil = new Date(data.suspendedUntil);
+          const days = Math.ceil((suspendedUntil - new Date()) / (1000 * 60 * 60 * 24));
+          alert(`Sua conta está SUSPENSA até ${suspendedUntil.toLocaleDateString('pt-BR')} (${days} dias).\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          window.location.href = '/';
+          return null;
+        }
+      }
+      
       if (res.ok) {
         return await res.json();
       }
@@ -57,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `<a href="/perfil-empresa">Minha Empresa</a>
              <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
             user.type === 'admin' ? 
-            `<a href="/admin">Admin</a>` : ''
+            `<a href="/perfil-admin">Meu Perfil</a>
+             <a href="/admin">Painel Admin</a>` : ''
           }
           <button onclick="logout()" class="btn btn-logout">
             <i class="fas fa-sign-out-alt"></i> Sair
@@ -82,6 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
     getCurrentUser, updateHeader
   };
 })(window);
+
+// Inicializa o header quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.Auth && window.Auth.updateHeader) {
+    window.Auth.updateHeader();
+  }
+});
+
 async function login(event) {
   event.preventDefault();
   const form = event.target;
@@ -111,6 +135,20 @@ async function login(event) {
       credentials: 'include' 
     });
     const json = await res.json();
+    
+    // Handle banned/suspended users
+    if (res.status === 403) {
+      if (json.banned) {
+        showMessage(`Sua conta foi BANIDA. Motivo: ${json.reason}. ${json.message}`, 'error');
+        return;
+      }
+      if (json.suspended) {
+        const days = json.daysLeft || 0;
+        showMessage(`Sua conta está SUSPENSA por mais ${days} dia(s). Motivo: ${json.reason}. ${json.message}`, 'error');
+        return;
+      }
+    }
+    
     if (res.ok && json.ok) {
       if (json.token) window.Auth.setToken(json.token);
       showMessage('Login realizado com sucesso', 'success');
@@ -191,15 +229,27 @@ async function logout() {
   if (!confirmed) return;
 
   try {
+    const token = window.Auth.getToken();
     await fetch('/api/auth/logout', {
       method: 'POST',
-      credentials: 'include'
+      credentials: 'include',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
     });
-    localStorage.removeItem('token');
+    
+    // Remove token and user data
+    window.Auth.removeToken();
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    
     showMessage('Logout realizado com sucesso', 'success');
     setTimeout(() => window.location.href = '/', 1000);
   } catch (error) {
-    showMessage('Erro ao fazer logout', 'error');
+    // Even if server fails, clear local data
+    window.Auth.removeToken();
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    showMessage('Logout realizado', 'success');
+    setTimeout(() => window.location.href = '/', 1000);
   }
 }
 

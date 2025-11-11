@@ -129,9 +129,10 @@ async function loadFeaturedJobs() {
 
   try {
     const response = await fetch('/api/jobs?limit=6');
-    const jobs = await response.json();
+    const data = await response.json();
+    const jobs = data.items || data;
     
-    if (jobs.length === 0) {
+    if (!jobs || jobs.length === 0) {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px; color: var(--gray-600);">
           <i class="fas fa-briefcase" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
@@ -144,13 +145,13 @@ async function loadFeaturedJobs() {
     container.innerHTML = jobs.map(job => `
       <div class="job-card-mini" onclick="window.location.href='/vaga-detalhes?id=${job._id}'" role="button" tabindex="0">
         <div class="job-company">
-          <i class="fas fa-building"></i> ${job.company || 'Empresa Confidencial'}
+          <i class="fas fa-building"></i> ${job.company?.name || 'Empresa Confidencial'}
         </div>
         <h3 class="job-title-mini">${job.title}</h3>
         <div class="job-tags">
           ${job.location ? `<span class="job-tag"><i class="fas fa-map-marker-alt"></i> ${job.location}</span>` : ''}
-          ${job.type ? `<span class="job-tag"><i class="fas fa-clock"></i> ${job.type}</span>` : ''}
-          ${job.salary ? `<span class="job-tag"><i class="fas fa-dollar-sign"></i> ${job.salary}</span>` : ''}
+          ${job.workModel ? `<span class="job-tag"><i class="fas fa-clock"></i> ${job.workModel}</span>` : ''}
+          ${job.salary ? `<span class="job-tag"><i class="fas fa-dollar-sign"></i> R$ ${job.salary}</span>` : ''}
         </div>
       </div>
     `).join('');

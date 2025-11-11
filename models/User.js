@@ -35,7 +35,17 @@ const UserSchema = new mongoose.Schema({
   candidateProfile: { type: CandidateProfileSchema, default: () => ({}) },
   companyProfile: { type: CompanyProfileSchema, default: () => ({}) },
   resetToken: String,
-  resetExpires: Date
+  resetExpires: Date,
+  // Ban/Suspension fields
+  banReason: String,
+  banMessage: String,
+  bannedAt: Date,
+  bannedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  suspensionReason: String,
+  suspensionMessage: String,
+  suspendedAt: Date,
+  suspendedUntil: Date,
+  suspendedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 module.exports = mongoose.model('User', UserSchema);

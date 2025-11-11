@@ -21,9 +21,9 @@
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
   <script src="/public/js/hamburger-menu.js" defer></script>
-  <script src="/public/js/vagas-recommendations.js" defer></script>
-  <!-- Temporarily disabled old AI system: <script src="/public/js/ai-recommendations.js"></script> -->
   <script src="/public/js/vagas.js" defer></script>
+    <!-- AI Assistant -->
+    <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
   <header class="nav-header">
@@ -54,29 +54,6 @@
     </div>
 
     <section class="container">
-      <!-- AI Recommendations Section -->
-      <div id="aiRecommendations" class="ai-section" style="display: none;">
-        <div class="ai-header">
-          <div class="ai-title">
-            <i class="fas fa-brain"></i>
-            <h2>Vagas Recomendadas para Você</h2>
-          </div>
-          <div class="ai-info">
-            <button id="aiInfoBtn" class="btn-ai-info" title="Como funciona a IA?">
-              <i class="fas fa-info-circle"></i>
-            </button>
-          </div>
-        </div>
-        <div class="ai-profile-strength">
-          <div class="strength-label">Força do perfil:</div>
-          <div class="strength-bar">
-            <div id="strengthFill" class="strength-fill" style="width: 0%"></div>
-          </div>
-          <div id="strengthText" class="strength-text">0% completo</div>
-        </div>
-        <div id="aiJobsGrid" class="jobs-grid"></div>
-      </div>
-
       <!-- Filters Card -->
       <div class="filters-card">
         <h2><i class="fas fa-filter"></i> Filtros de Busca</h2>
@@ -194,6 +171,7 @@
   <!-- Floating Help Button -->
   <a href="/contato" class="help-link" title="Precisa de ajuda? Clique aqui">?</a>
 
-  <script src="/public/js/vagas.js" defer></script>
+  <!-- AI Assistant -->
+  <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>

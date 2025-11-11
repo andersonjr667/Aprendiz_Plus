@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>Perfil da Empresa - Aprendiz+</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Visualize o perfil público de empresa no Aprendiz+">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,13 +25,6 @@
     <script src="/public/js/hamburger-menu.js" defer></script>
     
     <style>
-        .public-profile-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            padding-top: 100px;
-        }
-        
         .like-button {
             background: linear-gradient(135deg, #E74C3C, #C0392B);
             color: white;
@@ -76,7 +73,48 @@
             font-weight: 600;
             text-decoration: underline;
         }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(46, 204, 113, 0.2);
+            border-top-color: var(--brand-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 1.5rem;
+        }
     </style>
+    <!-- AI Assistant -->
+    <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
     <!-- Navigation -->
@@ -98,96 +136,146 @@
         </nav>
     </header>
 
-    <main class="main-content">
-        <div class="public-profile-container">
-            <!-- Loading State -->
-            <div id="loadingState" style="text-align: center; padding: 3rem;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--brand-green);"></i>
-                <p style="margin-top: 1rem; color: var(--text-gray);">Carregando perfil...</p>
-            </div>
+    <main class="main-content" style="padding-top: 75px;">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 1.5rem; color: var(--text-gray); font-size: 1.1rem;">Carregando perfil...</p>
+        </div>
 
-            <!-- Profile Content -->
-            <div id="profileContent" style="display: none;">
-                <!-- Profile Header -->
-                <section class="profile-header">
-                    <div class="container profile-header-content">
-                        <div class="profile-avatar-wrapper">
-                            <div class="profile-avatar" id="profileAvatar">
-                                <i class="fas fa-building"></i>
-                            </div>
-                        </div>
-                        <h1 id="profileName">Nome da Empresa</h1>
-                        <p class="profile-subtitle" id="profileEmail">email@empresa.com</p>
-                        <div class="profile-badges">
-                            <span class="profile-badge">
-                                <i class="fas fa-briefcase"></i> <span id="jobsCount">0</span> Vagas Ativas
-                            </span>
-                            <span class="profile-badge" id="likesBadge">
-                                <i class="fas fa-heart"></i> <span id="likesCount">0</span> Curtidas
-                            </span>
-                        </div>
-                        
-                        <!-- Like Button (only for logged users) -->
-                        <div class="profile-actions" id="likeSection" style="display: none;">
-                            <button class="like-button" id="likeButton" onclick="toggleLike()">
-                                <i class="fas fa-heart"></i>
-                                <span id="likeText">Curtir Empresa</span>
-                            </button>
-                        </div>
-                        
-                        <!-- Login Prompt (for non-logged users) -->
-                        <div class="login-prompt" id="loginPrompt" style="display: none;">
-                            <p>
-                                <i class="fas fa-info-circle"></i>
-                                <a href="/login">Faça login</a> para curtir esta empresa
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Company Info -->
-                <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
+        <!-- Profile Content -->
+        <div id="profileContent" style="display: none;">
+            <!-- Profile Header -->
+            <section class="profile-header">
+                <div class="container profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar" id="profileAvatar">
                             <i class="fas fa-building"></i>
-                            Sobre a Empresa
-                        </h2>
+                        </div>
                     </div>
-                    <div class="profile-info-grid">
-                        <div class="info-item">
-                            <span class="info-label"><i class="fas fa-envelope"></i> Email</span>
-                            <span class="info-value" id="profileEmailValue">-</span>
-                        </div>
-                        <div class="info-item" id="phoneSection" style="display: none;">
-                            <span class="info-label"><i class="fas fa-phone"></i> Telefone</span>
-                            <span class="info-value" id="profilePhone">-</span>
-                        </div>
-                        <div class="info-item" id="websiteSection" style="display: none;">
-                            <span class="info-label"><i class="fas fa-globe"></i> Website</span>
-                            <span class="info-value">
-                                <a href="#" id="profileWebsite" target="_blank" style="color: var(--brand-green); text-decoration: none;">-</a>
-                            </span>
-                        </div>
+                    <h1 id="profileName">Nome da Empresa</h1>
+                    <p class="profile-subtitle" id="profileEmail">email@empresa.com</p>
+                    <div class="profile-badges">
+                        <span class="profile-badge">
+                            <i class="fas fa-briefcase"></i> <span id="jobsCount">0</span> Vagas Ativas
+                        </span>
+                        <span class="profile-badge" id="likesBadge">
+                            <i class="fas fa-heart"></i> <span id="likesCount">0</span> Curtidas
+                        </span>
                     </div>
                     
-                    <div class="bio-section" id="descSection" style="display: none; margin-top: 1.5rem;">
-                        <h3 style="margin-bottom: 0.75rem; color: var(--text-dark);">
-                            <i class="fas fa-info-circle"></i> Descrição
-                        </h3>
-                        <p id="profileDescription" style="color: var(--text-gray); line-height: 1.6;"></p>
+                    <!-- Like Button (only for logged users) -->
+                    <div class="profile-actions" id="likeSection" style="display: none;">
+                        <button class="like-button" id="likeButton" onclick="toggleLike()">
+                            <i class="far fa-heart"></i>
+                            <span id="likeText">Curtir Empresa</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Login Prompt (for non-logged users) -->
+                    <div class="login-prompt" id="loginPrompt" style="display: none;">
+                        <p>
+                            <i class="fas fa-info-circle"></i>
+                            <a href="/login">Faça login</a> para curtir esta empresa
+                        </p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Error State -->
-            <div id="errorState" style="display: none; text-align: center; padding: 3rem;">
-                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #e74c3c;"></i>
-                <h2 style="margin-top: 1rem; color: var(--text-dark);">Empresa não encontrada</h2>
-                <p style="margin-top: 0.5rem; color: var(--text-gray);">O perfil que você está procurando não existe ou foi removido.</p>
-                <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">
-                    <i class="fas fa-home"></i> Voltar ao Início
-                </a>
+            <!-- Main Content -->
+            <div class="container profile-container">
+                <div class="profile-grid">
+                    <!-- Main Content -->
+                    <div class="profile-main">
+                        <!-- Company Info Card -->
+                        <div class="profile-card">
+                            <div class="card-header-profile">
+                                <h2 class="card-title-profile">
+                                    <i class="fas fa-building"></i>
+                                    Informações da Empresa
+                                </h2>
+                            </div>
+
+                            <div id="viewMode">
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <div class="info-header">
+                                            <div class="info-icon"><i class="fas fa-building"></i></div>
+                                            <span class="info-label">Nome da Empresa</span>
+                                        </div>
+                                        <p class="info-value" id="displayName">-</p>
+                                    </div>
+
+                                    <div class="info-card">
+                                        <div class="info-header">
+                                            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                                            <span class="info-label">E-mail</span>
+                                        </div>
+                                        <p class="info-value" id="displayEmail">-</p>
+                                    </div>
+
+                                    <div class="info-card" id="phoneSection" style="display: none;">
+                                        <div class="info-header">
+                                            <div class="info-icon"><i class="fas fa-phone"></i></div>
+                                            <span class="info-label">Telefone</span>
+                                        </div>
+                                        <p class="info-value" id="displayPhone">Não informado</p>
+                                    </div>
+
+                                    <div class="info-card" id="websiteSection" style="display: none;">
+                                        <div class="info-header">
+                                            <div class="info-icon"><i class="fas fa-globe"></i></div>
+                                            <span class="info-label">Website</span>
+                                        </div>
+                                        <p class="info-value">
+                                            <a href="#" id="displayWebsite" target="_blank" style="color: var(--brand-green); text-decoration: none;">-</a>
+                                        </p>
+                                    </div>
+
+                                    <div class="info-card info-card-full" id="descSection" style="display: none;">
+                                        <div class="info-header">
+                                            <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                                            <span class="info-label">Sobre a Empresa</span>
+                                        </div>
+                                        <p class="info-bio" id="displayDescription"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <aside class="profile-sidebar">
+                        <!-- Quick Actions -->
+                        <div class="profile-card">
+                            <div class="card-header-profile">
+                                <h3 class="card-title-profile" style="font-size: 1.3rem;">
+                                    <i class="fas fa-bolt"></i>
+                                    Ações
+                                </h3>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="/vagas" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Ver Vagas
+                                </a>
+                                <a href="/empresas" class="btn btn-outline">
+                                    <i class="fas fa-building"></i> Ver Empresas
+                                </a>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <i class="fas fa-exclamation-circle error-icon"></i>
+            <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Empresa não encontrada</h2>
+            <p style="color: var(--text-gray); margin-bottom: 2rem;">O perfil que você está procurando não existe ou foi removido.</p>
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> Voltar ao Início
+            </a>
         </div>
     </main>
 
@@ -196,7 +284,39 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <h3>Aprendiz+</h3>
-                <p>Conectando jovens talentos com as melhores oportunidades.</p>
+                <p>Conectando jovens talentos com as melhores oportunidades do mercado de trabalho.</p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/vagas">Vagas</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/empresas">Empresas</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="/contato">Contato</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Receba as melhores vagas no seu email</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Seu email" required>
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
             </div>
         </div>
         <div class="footer-bottom">
@@ -249,28 +369,29 @@
             // Basic info
             document.getElementById('profileName').textContent = user.name || 'Empresa';
             document.getElementById('profileEmail').textContent = user.email || '';
-            document.getElementById('profileEmailValue').textContent = user.email || '-';
+            document.getElementById('displayName').textContent = user.name || 'Empresa';
+            document.getElementById('displayEmail').textContent = user.email || '-';
             document.getElementById('likesCount').textContent = user.likesCount || 0;
             document.getElementById('jobsCount').textContent = user.activeJobsCount || 0;
 
             // Avatar
             const avatar = document.getElementById('profileAvatar');
             if (user.profilePhotoUrl) {
-                avatar.innerHTML = `<img src="${user.profilePhotoUrl}" alt="${user.name}">`;
+                avatar.innerHTML = `<img src="${user.profilePhotoUrl}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             } else {
                 avatar.innerHTML = `<i class="fas fa-building"></i>`;
             }
 
             // Phone
             if (user.phone) {
-                document.getElementById('phoneSection').style.display = 'flex';
-                document.getElementById('profilePhone').textContent = user.phone;
+                document.getElementById('phoneSection').style.display = 'block';
+                document.getElementById('displayPhone').textContent = user.phone;
             }
 
             // Website
             if (user.website) {
-                document.getElementById('websiteSection').style.display = 'flex';
-                const websiteLink = document.getElementById('profileWebsite');
+                document.getElementById('websiteSection').style.display = 'block';
+                const websiteLink = document.getElementById('displayWebsite');
                 websiteLink.href = user.website.startsWith('http') ? user.website : `https://${user.website}`;
                 websiteLink.textContent = user.website;
             }
@@ -278,7 +399,7 @@
             // Description
             if (user.description) {
                 document.getElementById('descSection').style.display = 'block';
-                document.getElementById('profileDescription').textContent = user.description;
+                document.getElementById('displayDescription').textContent = user.description;
             }
 
             // Update page title
@@ -382,12 +503,14 @@
         // Show error
         function showError() {
             document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorState').style.display = 'flex';
         }
 
         // Initialize
         window.toggleLike = toggleLike;
         document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
+    <!-- AI Assistant -->
+    <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>

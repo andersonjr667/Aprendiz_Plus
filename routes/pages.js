@@ -46,12 +46,15 @@ router.get('/painel-empresa', (req, res) => sendPage(res, 'painel-empresa.html')
 // Public profiles (shareable)
 router.get('/perfil-publico-candidato', (req, res) => sendPage(res, 'perfil-publico-candidato.html'));
 router.get('/perfil-publico-empresa', (req, res) => sendPage(res, 'perfil-publico-empresa.html'));
+router.get('/perfil-publico-admin', (req, res) => sendPage(res, 'perfil-publico-admin.html'));
 
 // Admin
 router.get('/admin-panel', (req, res) => sendPage(res, 'admin-panel.html'));
 router.get('/admin', (req, res) => sendPage(res, 'admin.html'));
 router.get('/admin-usuarios', (req, res) => sendPage(res, 'admin-usuarios.html'));
 router.get('/admin-noticia', (req, res) => sendPage(res, 'admin-noticia.html'));
+router.get('/admin-monitoramento', (req, res) => sendPage(res, 'admin-monitoramento.html'));
+router.get('/perfil-admin', (req, res) => sendPage(res, 'perfil-admin.html'));
 
 // News
 router.get('/news', (req, res) => sendPage(res, 'news.html'));

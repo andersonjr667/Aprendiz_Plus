@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil Público - Administrador - Aprendiz+</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/variables.css">
+  <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="/public/css/perfil-admin.css">
+  
+  <script src="/public/js/auth.js" defer></script>
+  <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/hamburger-menu.js" defer></script>
+    <!-- AI Assistant -->
+    <link rel="stylesheet" href="/public/css/ai-assistant.css">
+</head>
+<body class="page-container">
+  <!-- Navigation -->
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo">
+        <a href="/">Aprendiz+</a>
+      </div>
+      <button class="mobile-menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <div id="authButtons"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content" style="padding-top: 75px;">
+    <!-- Header do Perfil Público -->
+    <div class="public-profile-header">
+      <div class="profile-cover-public">
+        <div class="profile-avatar-wrapper-public">
+          <img src="" alt="Avatar" class="profile-avatar-public" id="adminAvatar">
+          <div class="admin-badge">
+            <i class="fas fa-shield-alt"></i> ADMINISTRADOR
+          </div>
+        </div>
+      </div>
+      <div class="public-profile-info">
+        <h1 id="adminName">Carregando...</h1>
+        <p class="profile-role-public">
+          <i class="fas fa-shield-alt"></i> Administrador do Aprendiz+
+        </p>
+        <div class="profile-meta">
+          <span id="adminEmail"></span>
+          <span class="separator">•</span>
+          <span>Membro desde <span id="adminJoined"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo do Perfil Público -->
+    <div class="public-profile-content">
+      <div class="content-grid">
+        <!-- Coluna Principal -->
+        <div class="main-column">
+          <!-- Sobre -->
+          <div class="profile-section">
+            <h2><i class="fas fa-info-circle"></i> Sobre</h2>
+            <div id="adminBio" class="bio-content">
+              <p class="no-content">Este administrador ainda não adicionou uma biografia.</p>
+            </div>
+          </div>
+
+          <!-- Responsabilidades -->
+          <div class="profile-section">
+            <h2><i class="fas fa-tasks"></i> Responsabilidades</h2>
+            <ul class="responsibilities-list">
+              <li><i class="fas fa-check"></i> Gerenciamento de usuários e permissões</li>
+              <li><i class="fas fa-check"></i> Moderação de conteúdo e vagas</li>
+              <li><i class="fas fa-check"></i> Publicação de notícias oficiais</li>
+              <li><i class="fas fa-check"></i> Monitoramento do sistema</li>
+              <li><i class="fas fa-check"></i> Suporte à comunidade</li>
+            </ul>
+          </div>
+
+          <!-- Notícias Publicadas -->
+          <div class="profile-section">
+            <h2><i class="fas fa-newspaper"></i> Notícias Publicadas</h2>
+            <div id="adminNews" class="news-grid">
+              <p class="loading">Carregando notícias...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-column">
+          <!-- Contato -->
+          <div class="profile-card">
+            <h3><i class="fas fa-envelope"></i> Contato</h3>
+            <div class="contact-info">
+              <div class="contact-item" id="emailContact">
+                <i class="fas fa-envelope"></i>
+                <span>E-mail não disponível</span>
+              </div>
+              <div class="contact-item" id="phoneContact" style="display: none;">
+                <i class="fas fa-phone"></i>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estatísticas -->
+          <div class="profile-card">
+            <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
+            <div class="stats-list">
+              <div class="stat-item">
+                <i class="fas fa-newspaper"></i>
+                <div>
+                  <strong id="newsCount">0</strong>
+                  <span>Notícias Publicadas</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-calendar"></i>
+                <div>
+                  <strong id="memberSince">-</strong>
+                  <span>Membro desde</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ações Rápidas -->
+          <div class="profile-card">
+            <h3><i class="fas fa-bolt"></i> Ações Rápidas</h3>
+            <div class="quick-actions">
+              <a href="/noticias" class="action-btn">
+                <i class="fas fa-newspaper"></i>
+                Ver Todas as Notícias
+              </a>
+              <a href="/contato" class="action-btn">
+                <i class="fas fa-envelope"></i>
+                Entrar em Contato
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="messageContainer"></div>
+
+  <script>
+    // Initialize auth buttons
+    window.addEventListener('DOMContentLoaded', () => {
+      const authButtons = document.getElementById('authButtons');
+      const token = Auth.getToken();
+      
+      if (token) {
+        authButtons.innerHTML = `
+          <a href="/perfil-admin">Meu Perfil</a>
+          <button onclick="logout()" class="btn btn-secondary">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        `;
+      } else {
+        authButtons.innerHTML = `
+          <a href="/login">Login</a>
+          <a href="/register" class="btn btn-primary">Cadastrar</a>
+        `;
+      }
+    });
+
+    // Script para carregar dados do perfil público
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+
+    async function loadPublicProfile() {
+      try {
+        const response = await fetch(`/api/users/${userId}/public`);
+        if (!response.ok) {
+          throw new Error('Erro ao carregar perfil');
+        }
+        
+        const user = await response.json();
+        
+        // Preencher informações básicas
+        document.getElementById('adminName').textContent = user.name;
+        document.getElementById('adminEmail').textContent = user.email;
+        
+        // Avatar
+        const avatar = user.avatarUrl || user.profilePhotoUrl || '/images/default-avatar.png';
+        document.getElementById('adminAvatar').src = avatar;
+        
+        // Data de entrada
+        const joinedDate = new Date(user.createdAt).toLocaleDateString('pt-BR', { 
+          month: 'long', 
+          year: 'numeric' 
+        });
+        document.getElementById('adminJoined').textContent = joinedDate;
+        document.getElementById('memberSince').textContent = new Date(user.createdAt).toLocaleDateString('pt-BR');
+        
+        // Bio
+        if (user.bio) {
+          document.getElementById('adminBio').innerHTML = `<p>${user.bio}</p>`;
+        }
+        
+        // Contato
+        document.getElementById('emailContact').innerHTML = `
+          <i class="fas fa-envelope"></i>
+          <span>${user.email}</span>
+        `;
+        
+        if (user.phone) {
+          document.getElementById('phoneContact').style.display = 'flex';
+          document.getElementById('phoneContact').querySelector('span').textContent = user.phone;
+        }
+        
+        // Carregar notícias do admin
+        loadAdminNews(userId);
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        showMessage('Erro ao carregar perfil do administrador', 'error');
+      }
+    }
+
+    async function loadAdminNews(adminId) {
+      try {
+        const response = await fetch(`/api/news?authorId=${adminId}`);
+        if (!response.ok) throw new Error('Erro ao carregar notícias');
+        
+        const news = await response.json();
+        const newsContainer = document.getElementById('adminNews');
+        document.getElementById('newsCount').textContent = news.length;
+        
+        if (news.length === 0) {
+          newsContainer.innerHTML = '<p class="no-content">Nenhuma notícia publicada ainda.</p>';
+          return;
+        }
+        
+        newsContainer.innerHTML = news.slice(0, 6).map(item => `
+          <div class="news-card">
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.title}">` : ''}
+            <div class="news-card-content">
+              <h4>${item.title}</h4>
+              <p class="news-date">
+                <i class="fas fa-calendar"></i> 
+                ${new Date(item.createdAt).toLocaleDateString('pt-BR')}
+              </p>
+              <a href="/news-detail?id=${item._id}" class="news-link">Ler mais →</a>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        document.getElementById('adminNews').innerHTML = 
+          '<p class="error">Erro ao carregar notícias</p>';
+      }
+    }
+
+    function showMessage(message, type = 'info') {
+      const container = document.getElementById('messageContainer');
+      const messageEl = document.createElement('div');
+      messageEl.className = `message message-${type}`;
+      messageEl.textContent = message;
+      container.appendChild(messageEl);
+      
+      setTimeout(() => {
+        messageEl.remove();
+      }, 5000);
+    }
+
+    // Verificar se o ID foi fornecido
+    if (!userId) {
+      showMessage('ID do administrador não fornecido', 'error');
+    } else {
+      loadPublicProfile();
+    }
+  </script>
+    <!-- AI Assistant -->
+    <script src="/public/js/ai-assistant.js"></script>
+</body>
+</html>

@@ -3,18 +3,516 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin - Usuários</title>
+  <title>Gerenciar Usuários - Aprendiz+</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/variables.css">
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="/public/css/perfil-admin.css">
+  
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/hamburger-menu.js" defer></script>
+  <script src="/public/js/admin-usuarios.js" defer></script>
+    <!-- AI Assistant -->
+    <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
-    <h1>Gerenciar Usuários</h1>
-    <div style="margin-bottom:12px;"><input id="filterType" class="form-control" placeholder="Filtrar por tipo (candidato/empresa)" style="width:240px;display:inline-block;"> <button id="loadBtn" class="btn btn-primary">Buscar</button></div>
-    <table id="usersTable" style="width:100%;border-collapse:collapse;"></table>
+<body class="page-container">
+  <!-- Navigation -->
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo">
+        <a href="/">Aprendiz+</a>
+      </div>
+      <button class="mobile-menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/admin">Painel Admin</a>
+        <a href="/perfil-admin">Meu Perfil</a>
+        <button onclick="logout()" class="btn btn-secondary">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content" style="padding-top: 75px;">
+    <div class="container" style="padding: 2rem;">
+      <div class="page-header">
+        <h1><i class="fas fa-users"></i> Gerenciar Usuários</h1>
+        <p>Visualize e modere todos os usuários da plataforma</p>
+      </div>
+
+      <div class="profile-card" style="margin-top: 2rem;">
+        <div class="card-body-profile">
+          <div class="filter-section" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <div class="form-group" style="flex: 2; min-width: 250px; margin: 0; position: relative;">
+              <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;"></i>
+              <input 
+                type="text" 
+                id="searchInput" 
+                class="form-control" 
+                placeholder="Pesquisar por nome ou email..." 
+                style="width: 100%; padding-left: 40px; padding-right: 35px;"
+              >
+              <button 
+                id="clearSearch" 
+                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #999; cursor: pointer; padding: 5px; display: none;"
+                title="Limpar pesquisa"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 200px; margin: 0;">
+              <select id="filterType" class="form-control" style="width: 100%;">
+                <option value="">Todos os usuários</option>
+                <option value="candidato">Candidatos</option>
+                <option value="empresa">Empresas</option>
+                <option value="admin">Administradores</option>
+              </select>
+            </div>
+            <button id="loadBtn" class="btn btn-primary">
+              <i class="fas fa-sync-alt"></i> Atualizar
+            </button>
+          </div>
+
+          <div id="resultsCount" style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">
+            <!-- Contador de resultados será inserido aqui via JS -->
+          </div>
+
+          <div class="table-responsive">
+            <table id="usersTable" class="data-table" style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <script src="/public/js/admin-usuarios.js" defer></script>
+  <div id="messageContainer"></div>
+  
+  <!-- Modal de Moderação -->
+  <div id="moderationModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Moderar Usuário</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="userInfo"></p>
+        <div class="form-group">
+          <label for="moderationReason">Motivo:</label>
+          <select id="moderationReason" class="form-control">
+            <option value="">Selecione um motivo</option>
+            <option value="Violação dos termos de uso">Violação dos termos de uso</option>
+            <option value="Comportamento inadequado">Comportamento inadequado</option>
+            <option value="Spam ou conteúdo malicioso">Spam ou conteúdo malicioso</option>
+            <option value="Informações falsas">Informações falsas</option>
+            <option value="Assédio ou bullying">Assédio ou bullying</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group" id="durationGroup" style="display: none;">
+          <label for="moderationDuration">Duração da suspensão (dias):</label>
+          <input type="number" id="moderationDuration" class="form-control" value="7" min="1" max="365">
+        </div>
+        <div class="form-group">
+          <label for="moderationMessage">Mensagem para o usuário:</label>
+          <textarea id="moderationMessage" class="form-control" rows="4" placeholder="Explique o motivo da ação..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
+        <button class="btn btn-primary" id="modalConfirm">Confirmar</button>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #333;
+      margin: 0 0 0.5rem;
+    }
+
+    .page-header p {
+      color: #666;
+      margin: 0;
+    }
+
+    .filter-section {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .data-table thead tr {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .data-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .data-table .btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.875rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+
+    .data-table .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .data-table td {
+      white-space: nowrap;
+    }
+
+    .data-table td:last-child {
+      white-space: normal;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-badge.active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-badge.inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-badge.banned {
+      background: #343a40;
+      color: white;
+    }
+
+    .status-badge.suspended {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.35em 0.65em;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      border-radius: 0.375rem;
+    }
+
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .modal-close:hover {
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .page-header p {
+        font-size: 0.9rem;
+      }
+
+      .filter-section {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+      }
+
+      .filter-section .form-group {
+        flex: 1 !important;
+        min-width: 100% !important;
+        width: 100% !important;
+      }
+
+      #loadBtn {
+        width: 100%;
+        padding: 0.75rem 1rem !important;
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .data-table {
+        font-size: 0.8rem;
+        min-width: 800px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .data-table .btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .data-table .btn i {
+        font-size: 0.85rem;
+      }
+
+      /* Simplificar botões em mobile */
+      .data-table .btn span {
+        display: none;
+      }
+
+      .status-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      #resultsCount {
+        font-size: 0.85rem;
+        text-align: center;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 1rem auto;
+      }
+
+      .modal-header h2 {
+        font-size: 1.25rem;
+      }
+
+      .modal-body {
+        padding: 1rem;
+      }
+
+      .modal-footer {
+        padding: 1rem;
+        flex-direction: column-reverse;
+      }
+
+      .modal-footer button {
+        width: 100%;
+        margin: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem !important;
+      }
+
+      .page-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .page-header h1 {
+        font-size: 1.25rem;
+        gap: 0.5rem;
+      }
+
+      .page-header h1 i {
+        font-size: 1.5rem;
+      }
+
+      .profile-card {
+        margin-top: 1rem !important;
+      }
+
+      .card-body-profile {
+        padding: 1rem;
+      }
+
+      .filter-section {
+        padding: 1rem !important;
+      }
+
+      .data-table {
+        font-size: 0.75rem;
+        min-width: 700px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.5rem 0.35rem;
+      }
+
+      .data-table .btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      /* Esconder texto dos botões, manter apenas ícones */
+      .data-table .btn {
+        min-width: auto;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+      }
+
+      .modal-content {
+        width: 98%;
+        max-height: 95vh;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-header h2 {
+        font-size: 1.1rem;
+      }
+
+      .form-group label {
+        font-size: 0.9rem;
+      }
+
+      .form-control {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+    <!-- AI Assistant -->
+    <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>

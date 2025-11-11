@@ -3,20 +3,298 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin - Notícias</title>
+  <title>Gerenciar Notícias - Aprendiz+</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/variables.css">
   <link rel="stylesheet" href="/public/css/main.css">
+  <link rel="stylesheet" href="/public/css/perfil-admin.css">
+  
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/hamburger-menu.js" defer></script>
+  <script src="/public/js/admin-noticia.js" defer></script>
+    <!-- AI Assistant -->
+    <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
-<body>
-  <main class="container" style="padding-top:100px;">
-    <h1>Gerenciar Notícias</h1>
-    <div class="card" style="margin-bottom:16px;"><h3>Criar notícia</h3>
-      <form id="newsForm"><div class="form-group"><label>Título</label><input name="title" class="form-control" required></div><div class="form-group"><label>Conteúdo</label><textarea name="content" class="form-control" required></textarea></div><button class="btn btn-primary">Criar</button></form>
+<body class="page-container">
+  <!-- Navigation -->
+  <header class="nav-header">
+    <nav class="top-nav">
+      <div class="nav-logo">
+        <a href="/">Aprendiz+</a>
+      </div>
+      <button class="mobile-menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="/">Início</a>
+        <a href="/vagas">Vagas</a>
+        <a href="/noticias">Notícias</a>
+        <a href="/admin">Painel Admin</a>
+        <a href="/perfil-admin">Meu Perfil</a>
+        <button onclick="logout()" class="btn btn-secondary">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content" style="padding-top: 75px;">
+    <div class="container" style="padding: 2rem;">
+      <div class="page-header">
+        <h1><i class="fas fa-newspaper"></i> Gerenciar Notícias</h1>
+        <p>Crie e gerencie notícias da plataforma</p>
+      </div>
+
+      <!-- Criar Notícia -->
+      <div class="profile-card" style="margin-top: 2rem;">
+        <div class="card-header-profile">
+          <h2 class="card-title-profile">
+            <i class="fas fa-plus-circle"></i>
+            Criar Nova Notícia
+          </h2>
+        </div>
+        <div class="card-body-profile">
+          <form id="newsForm" class="profile-form">
+            <div class="form-group">
+              <label for="title">Título da Notícia</label>
+              <input type="text" id="title" name="title" class="form-control" required placeholder="Digite o título da notícia">
+            </div>
+            <div class="form-group">
+              <label for="content">Conteúdo</label>
+              <textarea id="content" name="content" class="form-control" required rows="8" placeholder="Digite o conteúdo completo da notícia..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Publicar Notícia
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lista de Notícias -->
+      <div class="profile-card" style="margin-top: 2rem;">
+        <div class="card-header-profile">
+          <h2 class="card-title-profile">
+            <i class="fas fa-list"></i>
+            Notícias Publicadas
+          </h2>
+        </div>
+        <div class="card-body-profile">
+          <div id="list" class="news-list"></div>
+        </div>
+      </div>
     </div>
-    <div id="list"></div>
   </main>
 
-  <script src="/public/js/admin-noticia.js" defer></script>
+  <div id="messageContainer"></div>
+  
+  <style>
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #333;
+      margin: 0 0 0.5rem;
+    }
+
+    .page-header p {
+      color: #666;
+      margin: 0;
+    }
+
+    .profile-form {
+      max-width: 100%;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--brand-green, #2ECC71);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-start;
+    }
+
+    .news-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .news-item {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--brand-green, #2ECC71);
+      transition: all 0.3s;
+    }
+
+    .news-item:hover {
+      background: #e9ecef;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .news-item h4 {
+      margin: 0 0 1rem;
+      color: #333;
+      font-size: 1.25rem;
+    }
+
+    .news-item p {
+      color: #666;
+      margin: 0 0 1rem;
+      line-height: 1.6;
+    }
+
+    .news-item .news-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .news-item .btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.875rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem !important;
+      }
+
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .page-header p {
+        font-size: 0.875rem;
+      }
+
+      .profile-card {
+        margin-top: 1rem !important;
+      }
+
+      .card-title-profile {
+        font-size: 1.1rem;
+      }
+
+      .form-control {
+        font-size: 0.875rem;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .news-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .news-item h3 {
+        font-size: 1rem;
+      }
+
+      .news-meta {
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding-top: 60px !important;
+      }
+
+      .container {
+        padding: 0.5rem !important;
+      }
+
+      .page-header h1 {
+        font-size: 1.25rem;
+      }
+
+      .card-body-profile {
+        padding: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .news-item {
+        padding: 1rem;
+      }
+
+      textarea {
+        min-height: 150px;
+      }
+    }
+  </style>
+    <!-- AI Assistant -->
+    <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>
+```

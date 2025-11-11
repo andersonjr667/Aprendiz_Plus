@@ -53,6 +53,25 @@ function initHamburgerMenu() {
   }
 }
 
+// Global function to check user status and handle bans/suspensions
+async function checkUserStatus() {
+  if (!window.Auth || !window.Auth.getToken()) {
+    return true; // Not logged in, no need to check
+  }
+
+  try {
+    const user = await window.Auth.getCurrentUser();
+    // getCurrentUser already handles bans/suspensions and redirects
+    return !!user;
+  } catch (err) {
+    console.error('Error checking user status:', err);
+    return false;
+  }
+}
+
+// Expose globally
+window.checkUserStatus = checkUserStatus;
+
 // Call on DOM loaded
 document.addEventListener('DOMContentLoaded', () => {
   injectHeader();
@@ -60,5 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // If auth.js is loaded, it will handle updating the header
   if (window.Auth && window.Auth.updateHeader) {
     window.Auth.updateHeader();
+  }
+  
+  // Check user status on every page load
+  if (window.Auth && window.Auth.isAuthenticated()) {
+    checkUserStatus();
   }
 });

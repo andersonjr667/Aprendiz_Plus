@@ -64,12 +64,13 @@ router.post('/auth/register',
       // Faz hash da senha
       const hash = await bcrypt.hash(password, 10);
       
-      // Cria novo usuario
+      // Cria novo usuario com status ativo por padrão
       const user = await User.create({ 
         name: name.trim(), 
         email: email.toLowerCase(), 
         passwordHash: hash, 
-        type: type || 'candidato' 
+        type: type || 'candidato',
+        status: 'active'
       });
       
       console.log('User created successfully:', user._id);
@@ -107,9 +108,48 @@ router.post('/auth/login', async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     console.log('User found:', user ? 'yes' : 'no');
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    
     const match = await bcrypt.compare(password, user.passwordHash);
     console.log('Password match:', match ? 'yes' : 'no');
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
+    
+    // Check if user is banned
+    if (user.status === 'banned') {
+      return res.status(403).json({ 
+        error: 'Sua conta foi banida e não pode fazer login',
+        reason: user.banReason || 'Violação dos termos de uso',
+        message: user.banMessage || '',
+        banned: true
+      });
+    }
+    
+    // Check if user is suspended
+    if (user.status === 'suspended') {
+      // Check if suspension has expired
+      if (user.suspendedUntil && new Date() > user.suspendedUntil) {
+        // Suspension expired, reactivate user
+        user.status = 'active';
+        user.suspensionReason = undefined;
+        user.suspensionMessage = undefined;
+        user.suspendedAt = undefined;
+        user.suspendedUntil = undefined;
+        user.suspendedBy = undefined;
+        await user.save();
+        console.log('User suspension expired, reactivated');
+      } else {
+        // Still suspended
+        const daysLeft = Math.ceil((new Date(user.suspendedUntil) - new Date()) / (1000 * 60 * 60 * 24));
+        return res.status(403).json({ 
+          error: 'Sua conta está suspensa',
+          reason: user.suspensionReason || 'Comportamento inadequado',
+          message: user.suspensionMessage || '',
+          suspendedUntil: user.suspendedUntil,
+          daysLeft: daysLeft,
+          suspended: true
+        });
+      }
+    }
+    
     const token = jwt.sign({ id: user._id, type: user.type }, JWT_SECRET, { expiresIn: '7d' });
     // Set httpOnly cookie for server-side auth and also return token in response for client convenience
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
@@ -575,6 +615,131 @@ router.get('/jobs/my-jobs', authMiddleware, roleCheck(['empresa']), async (req, 
   }
 });
 
+// AI Job Recommendations using TensorFlow.js
+// IMPORTANTE: Esta rota deve vir ANTES de /jobs/:id para evitar conflitos
+const { getModel } = require('../models/JobRecommendationModel');
+
+router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
+  try {
+    console.log('=== AI Recommendations Request (TensorFlow) ===');
+    console.log('User ID:', req.user._id);
+    console.log('User type:', req.user.type);
+    
+    // Only candidates can get AI recommendations
+    if (req.user.type !== 'candidato') {
+      return res.status(400).json({ 
+        error: 'AI recommendations are only available for candidates',
+        hasRecommendations: false,
+        completeness: 0,
+        message: 'As recomendações de IA estão disponíveis apenas para candidatos.'
+      });
+    }
+    
+    // Get full user profile
+    const user = await User.findById(req.user._id).select('-passwordHash');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log('User profile:', {
+      name: user.name,
+      email: user.email,
+      cpf: user.cpf,
+      phone: user.phone,
+      bio: user.bio ? 'yes' : 'no',
+      skills: user.skills?.length || 0,
+      interests: user.interests?.length || 0,
+      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl ? 'yes' : 'no'
+    });
+    
+    // Calculate profile completeness
+    const requiredFields = ['name', 'email'];
+    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
+    const allFields = [...requiredFields, ...optionalFields];
+    
+    const completedFields = allFields.filter(field => {
+      if (field === 'skills') {
+        return user.skills && user.skills.length > 0;
+      }
+      if (field === 'interests') {
+        return user.interests && user.interests.length >= 3;
+      }
+      if (field === 'profilePhotoUrl') {
+        return !!(user.profilePhotoUrl || user.avatarUrl);
+      }
+      return user[field] && user[field].toString().trim().length > 0;
+    });
+    
+    const completeness = Math.round((completedFields.length / allFields.length) * 100);
+    console.log('Profile completeness:', completeness + '%');
+    
+    // Only provide AI recommendations if profile is 100% complete
+    if (completeness < 100) {
+      return res.json({
+        hasRecommendations: false,
+        completeness,
+        message: 'Complete seu perfil para receber recomendações personalizadas de vagas.',
+        missingFields: allFields.filter(f => !completedFields.includes(f))
+      });
+    }
+    
+    // Get all active jobs
+    const allJobs = await Job.find({ status: 'active' })
+      .populate('company', 'name')
+      .sort({ createdAt: -1 })
+      .limit(100); // Mais vagas para melhor seleção
+    
+    console.log('🤖 Total active jobs:', allJobs.length);
+    
+    if (allJobs.length === 0) {
+      return res.json({
+        hasRecommendations: false,
+        completeness,
+        message: 'Não há vagas disponíveis no momento.',
+        recommendations: []
+      });
+    }
+    
+    // Get TensorFlow model and generate recommendations
+    console.log('🧠 Inicializando modelo TensorFlow...');
+    const model = await getModel();
+    
+    const userProfile = {
+      bio: user.bio,
+      skills: user.skills || [],
+      interests: user.interests || [],
+      address: user.address,
+      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl
+    };
+    
+    console.log('🔮 Gerando recomendações com Machine Learning...');
+    const recommendations = await model.recommend(allJobs, userProfile, 6);
+    
+    console.log('✅ Recommendations found:', recommendations.length);
+    
+    res.json({
+      hasRecommendations: true,
+      completeness,
+      usedTensorFlow: true,
+      recommendations: recommendations.map(item => ({
+        ...item.job,
+        aiScore: Math.round(item.score),
+        matchReasons: item.reasons
+      })),
+      userProfile: {
+        skills: user.skills,
+        interests: user.interests,
+        bio: user.bio
+      }
+    });
+    
+  } catch (err) {
+    console.error('❌ AI Recommendations error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/jobs/:id', async (req, res) => {
   try { 
     const { id } = req.params;
@@ -885,182 +1050,6 @@ router.get('/news', async (req, res) => {
   }
 });
 
-// AI Job Recommendations based on user profile
-router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
-  try {
-    console.log('=== AI Recommendations Request ===');
-    console.log('User ID:', req.user._id);
-    
-    // Get full user profile
-    const user = await User.findById(req.user._id).select('-passwordHash');
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    console.log('User profile:', {
-      name: user.name,
-      email: user.email,
-      cpf: user.cpf,
-      phone: user.phone,
-      bio: user.bio ? 'yes' : 'no',
-      skills: user.skills?.length || 0,
-      interests: user.interests?.length || 0,
-      profilePhotoUrl: user.profilePhotoUrl || user.avatarUrl ? 'yes' : 'no'
-    });
-    
-    // Calculate profile completeness - SAME as frontend
-    const requiredFields = ['name', 'email'];
-    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
-    const allFields = [...requiredFields, ...optionalFields];
-    
-    const completedFields = allFields.filter(field => {
-      if (field === 'skills') {
-        const completed = user.skills && user.skills.length > 0;
-        console.log('  skills check:', completed, user.skills);
-        return completed;
-      }
-      if (field === 'interests') {
-        const completed = user.interests && user.interests.length >= 3;
-        console.log('  interests check:', completed, user.interests);
-        return completed;
-      }
-      if (field === 'profilePhotoUrl') {
-        const completed = !!(user.profilePhotoUrl || user.avatarUrl);
-        console.log('  photo check:', completed);
-        return completed;
-      }
-      const completed = user[field] && user[field].toString().trim().length > 0;
-      console.log(`  ${field} check:`, completed);
-      return completed;
-    });
-    
-    console.log('Completed fields:', completedFields);
-    console.log('Total fields:', allFields.length);
-    
-    const completeness = Math.round((completedFields.length / allFields.length) * 100);
-    console.log('Profile completeness:', completeness + '%');
-    
-    // Only provide AI recommendations if profile is 100% complete
-    if (completeness < 100) {
-      return res.json({
-        hasRecommendations: false,
-        completeness,
-        message: 'Complete seu perfil para receber recomendações personalizadas de vagas.',
-        missingFields: allFields.filter(f => !completedFields.includes(f))
-      });
-    }
-    
-    // Get all active jobs
-    const allJobs = await Job.find({ status: 'active' })
-      .populate('company', 'name')
-      .sort({ createdAt: -1 })
-      .limit(50);
-    
-    console.log('Total active jobs:', allJobs.length);
-    
-    // Score each job based on user profile
-    const scoredJobs = allJobs.map(job => {
-      let score = 0;
-      const reasons = [];
-      
-      // 1. Skills match (30%)
-      if (user.skills && user.skills.length > 0 && job.requirements) {
-        const userSkillsLower = user.skills.map(s => s.toLowerCase());
-        const jobReqLower = job.requirements.toLowerCase();
-        const matchingSkills = userSkillsLower.filter(skill => 
-          jobReqLower.includes(skill.toLowerCase())
-        );
-        
-        if (matchingSkills.length > 0) {
-          const skillScore = (matchingSkills.length / user.skills.length) * 30;
-          score += skillScore;
-          reasons.push(`${matchingSkills.length} habilidade(s) compatível(is): ${matchingSkills.join(', ')}`);
-        }
-      }
-      
-      // 2. Interests match (30%)
-      if (user.interests && user.interests.length > 0) {
-        const jobText = `${job.title} ${job.description} ${job.requirements}`.toLowerCase();
-        const matchingInterests = user.interests.filter(interest => {
-          const interestLower = interest.toLowerCase();
-          return jobText.includes(interestLower) || 
-                 jobText.includes(interestLower.replace('-', ' '));
-        });
-        
-        if (matchingInterests.length > 0) {
-          const interestScore = (matchingInterests.length / user.interests.length) * 30;
-          score += interestScore;
-          reasons.push(`Área de interesse: ${matchingInterests.join(', ')}`);
-        }
-      }
-      
-      // 3. Bio keywords match (20%)
-      if (user.bio) {
-        const bioWords = user.bio.toLowerCase().split(/\s+/).filter(w => w.length > 4);
-        const jobText = `${job.title} ${job.description}`.toLowerCase();
-        const matchingWords = bioWords.filter(word => jobText.includes(word));
-        
-        if (matchingWords.length > 0) {
-          score += Math.min(20, matchingWords.length * 2);
-          reasons.push('Compatível com seu perfil profissional');
-        }
-      }
-      
-      // 4. Recent job bonus (10%)
-      const daysSincePosted = (Date.now() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24);
-      if (daysSincePosted < 7) {
-        score += 10;
-        reasons.push('Vaga recente');
-      } else if (daysSincePosted < 14) {
-        score += 5;
-      }
-      
-      // 5. Location match (10%)
-      if (user.address && job.location) {
-        if (user.address.toLowerCase().includes(job.location.toLowerCase()) ||
-            job.location.toLowerCase().includes(user.address.toLowerCase())) {
-          score += 10;
-          reasons.push('Localização próxima');
-        }
-      }
-      
-      return {
-        job: job.toObject(),
-        score,
-        reasons
-      };
-    });
-    
-    // Sort by score and get top recommendations
-    const recommendations = scoredJobs
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
-    
-    console.log('Recommendations found:', recommendations.length);
-    
-    res.json({
-      hasRecommendations: true,
-      completeness,
-      recommendations: recommendations.map(item => ({
-        ...item.job,
-        aiScore: Math.round(item.score),
-        matchReasons: item.reasons
-      })),
-      userProfile: {
-        skills: user.skills,
-        interests: user.interests,
-        bio: user.bio
-      }
-    });
-    
-  } catch (err) {
-    console.error('AI Recommendations error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.post('/news', authMiddleware, roleCheck(['admin','empresa']), upload.single('image'), async (req, res) => {
   try {
     const data = req.body;
@@ -1122,8 +1111,24 @@ router.get('/news/:id', async (req, res) => {
 // ----- AUDIT LOGS -----
 router.get('/logs', authMiddleware, roleCheck(['admin']), async (req, res) => {
   try {
-    const logs = await require('../models/AuditLog').find().sort({ timestamp: -1 }).limit(200);
-    res.json(logs);
+    const limit = parseInt(req.query.limit) || 200;
+    const AuditLog = require('../models/AuditLog');
+    const logs = await AuditLog.find()
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .populate('userId', 'name email type')
+      .lean();
+    
+    // Add user info to logs
+    const logsWithUserInfo = logs.map(log => ({
+      ...log,
+      userName: log.userId?.name || 'Sistema',
+      userEmail: log.userId?.email || '',
+      userType: log.userId?.type || 'system',
+      createdAt: log.timestamp
+    }));
+    
+    res.json(logsWithUserInfo);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -1467,4 +1472,350 @@ router.get('/profiles/:id/liked', authMiddleware, async (req, res) => {
   }
 });
 
+// ----- ADMIN ROUTES -----
+
+// Get user by ID for public profile
+router.get('/users/:id/public', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-passwordHash -resetToken -resetExpires');
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update user status (activate/deactivate)
+router.put('/users/:id/status', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    if (!['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    ).select('-passwordHash');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    await logAction({
+      action: 'update',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: user._id,
+      details: { status }
+    });
+    
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete user (admin only)
+router.delete('/users/:id', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { reason, message } = req.body;
+    
+    // Prevent admin from deleting themselves
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você não pode excluir sua própria conta' });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Prevent deleting other admins
+    if (user.type === 'admin') {
+      return res.status(403).json({ error: 'Não é possível excluir outros administradores' });
+    }
+    
+    // Delete user's applications
+    await Application.deleteMany({ user: userId });
+    
+    // Delete user's jobs if company
+    if (user.type === 'empresa') {
+      await Job.deleteMany({ company: userId });
+    }
+    
+    // Delete user's profile likes
+    await ProfileLike.deleteMany({ $or: [{ liker: userId }, { profileUser: userId }] });
+    
+    // Delete user
+    await User.findByIdAndDelete(userId);
+    
+    await logAction({
+      action: 'delete',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { 
+        userName: user.name, 
+        userType: user.type,
+        reason: reason || 'Não especificado',
+        message: message || ''
+      }
+    });
+    
+    res.json({ success: true, message: 'Usuário excluído com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete job (admin only)
+router.delete('/jobs/:id', authMiddleware, roleCheck(['admin', 'empresa']), async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const job = await Job.findById(jobId);
+    
+    if (!job) {
+      return res.status(404).json({ error: 'Vaga não encontrada' });
+    }
+    
+    // Companies can only delete their own jobs
+    if (req.user.type === 'empresa' && job.company.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Você não tem permissão para excluir esta vaga' });
+    }
+    
+    // Delete job applications
+    await Application.deleteMany({ job: jobId });
+    
+    // Delete job
+    await Job.findByIdAndDelete(jobId);
+    
+    await logAction({
+      action: 'delete',
+      userId: req.user._id,
+      resourceType: 'Job',
+      resourceId: jobId,
+      details: { jobTitle: job.title }
+    });
+    
+    res.json({ success: true, message: 'Vaga excluída com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete news (admin only)
+router.delete('/news/:id', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const newsId = req.params.id;
+    const news = await News.findById(newsId);
+    
+    if (!news) {
+      return res.status(404).json({ error: 'Notícia não encontrada' });
+    }
+    
+    // Delete news
+    await News.findByIdAndDelete(newsId);
+    
+    await logAction({
+      action: 'delete',
+      userId: req.user._id,
+      resourceType: 'News',
+      resourceId: newsId,
+      details: { newsTitle: news.title }
+    });
+    
+    res.json({ success: true, message: 'Notícia excluída com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all applications (admin only)
+router.get('/applications/all', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const applications = await Application.find()
+      .populate('user', 'name email')
+      .populate('job', 'title')
+      .sort({ createdAt: -1 });
+    
+    res.json(applications);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update user password
+router.put('/users/me/password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'A nova senha deve ter no mínimo 6 caracteres' });
+    }
+    
+    // Get user with password hash
+    const user = await User.findById(req.user._id);
+    
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Senha atual incorreta' });
+    }
+    
+    // Hash new password
+    const hash = await bcrypt.hash(newPassword, 10);
+    
+    // Update password
+    user.passwordHash = hash;
+    await user.save();
+    
+    await logAction({
+      action: 'update',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: req.user._id,
+      details: { field: 'password' }
+    });
+    
+    res.json({ success: true, message: 'Senha alterada com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Ban user (admin only)
+router.post('/users/:id/ban', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { reason, message } = req.body;
+    const userId = req.params.id;
+    
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você não pode banir sua própria conta' });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    if (user.type === 'admin') {
+      return res.status(403).json({ error: 'Não é possível banir outros administradores' });
+    }
+    
+    user.status = 'banned';
+    user.banReason = reason || 'Violação dos termos de uso';
+    user.banMessage = message || '';
+    user.bannedAt = new Date();
+    user.bannedBy = req.user._id;
+    
+    await user.save();
+    
+    await logAction({
+      action: 'ban',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { reason, message, userName: user.name }
+    });
+    
+    res.json({ success: true, message: 'Usuário banido com sucesso', user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Kick user (admin only) - temporary suspension
+router.post('/users/:id/kick', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { reason, message, duration } = req.body; // duration in days
+    const userId = req.params.id;
+    
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você não pode expulsar sua própria conta' });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    if (user.type === 'admin') {
+      return res.status(403).json({ error: 'Não é possível expulsar outros administradores' });
+    }
+    
+    const kickDuration = parseInt(duration) || 7; // default 7 days
+    const kickUntil = new Date();
+    kickUntil.setDate(kickUntil.getDate() + kickDuration);
+    
+    user.status = 'suspended';
+    user.suspensionReason = reason || 'Comportamento inadequado';
+    user.suspensionMessage = message || '';
+    user.suspendedAt = new Date();
+    user.suspendedUntil = kickUntil;
+    user.suspendedBy = req.user._id;
+    
+    await user.save();
+    
+    await logAction({
+      action: 'kick',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { reason, message, duration: kickDuration, userName: user.name }
+    });
+    
+    res.json({ success: true, message: `Usuário suspenso por ${kickDuration} dias`, user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Unban/Unsuspend user (admin only)
+router.post('/users/:id/unban', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    user.status = 'active';
+    user.banReason = undefined;
+    user.banMessage = undefined;
+    user.bannedAt = undefined;
+    user.bannedBy = undefined;
+    user.suspensionReason = undefined;
+    user.suspensionMessage = undefined;
+    user.suspendedAt = undefined;
+    user.suspendedUntil = undefined;
+    user.suspendedBy = undefined;
+    
+    await user.save();
+    
+    await logAction({
+      action: 'unban',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { userName: user.name }
+    });
+    
+    res.json({ success: true, message: 'Restrições removidas com sucesso', user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
+
