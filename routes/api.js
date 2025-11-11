@@ -763,7 +763,8 @@ router.get('/jobs/my-jobs', authMiddleware, roleCheck(['empresa']), async (req, 
 
 // AI Job Recommendations using TensorFlow.js
 // IMPORTANTE: Esta rota deve vir ANTES de /jobs/:id para evitar conflitos
-const { getModel } = require('../models/JobRecommendationModel');
+// TEMPORARIAMENTE COMENTADO: Problema com TensorFlow no Windows
+// const { getModel } = require('../models/JobRecommendationModel');
 
 router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
   try {
@@ -771,6 +772,15 @@ router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
     console.log('User ID:', req.user._id);
     console.log('User type:', req.user.type);
     
+    // TEMPORÁRIO: Retornar aviso que o TensorFlow está desabilitado
+    return res.json({
+      hasRecommendations: false,
+      completeness: 100,
+      message: 'Recomendações de IA temporariamente indisponíveis. Configure o TensorFlow para habilitar.',
+      recommendations: []
+    });
+    
+    /* CÓDIGO ORIGINAL COMENTADO TEMPORARIAMENTE
     // Only candidates can get AI recommendations
     if (req.user.type !== 'candidato') {
       return res.status(400).json({ 
@@ -787,7 +797,9 @@ router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    */
     
+    /* CÓDIGO ORIGINAL COMENTADO - RESTO DA FUNÇÃO
     console.log('User profile:', {
       name: user.name,
       email: user.email,
@@ -879,6 +891,7 @@ router.get('/jobs/ai-recommendations', authMiddleware, async (req, res) => {
         bio: user.bio
       }
     });
+    FIM DO CÓDIGO COMENTADO */
     
   } catch (err) {
     console.error('❌ AI Recommendations error:', err);
@@ -3276,6 +3289,524 @@ router.put('/geo/users/me/location', authMiddleware, async (req, res) => {
   }
 });
 
+// ===== PROMOÇÃO DE ADMINISTRADORES (APENAS DONO) =====
+
+// Promover usuário a administrador (apenas dono do sistema)
+router.post('/users/:id/promote-admin', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      await logAction({
+        action: 'promote_admin_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { 
+          reason: 'Tentativa de promover administrador sem ser o dono', 
+          blockedBy: 'system' 
+        }
+      });
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode promover usuários a administrador' 
+      });
+    }
+    
+    // Verificar se não está tentando promover a si mesmo
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você já é o dono do sistema' });
+    }
+    
+    // Buscar usuário
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Verificar se já é admin
+    if (user.type === 'admin') {
+      return res.status(400).json({ error: 'Este usuário já é um administrador' });
+    }
+    
+    // Promover a admin
+    const oldType = user.type;
+    user.type = 'admin';
+    await user.save();
+    
+    await logAction({
+      action: 'promote_to_admin',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { 
+        userName: user.name,
+        userEmail: user.email,
+        oldType: oldType,
+        newType: 'admin',
+        promotedBy: req.user.name
+      }
+    });
+    
+    // Enviar email de notificação ao usuário promovido
+    try {
+      await emailService.sendAdminPromotionEmail(user);
+    } catch (emailError) {
+      console.error('Erro ao enviar email de promoção:', emailError);
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `${user.name} foi promovido(a) a administrador com sucesso`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        type: user.type
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao promover administrador:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remover permissões de administrador (apenas dono do sistema)
+router.post('/users/:id/demote-admin', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { newType } = req.body; // 'candidato' ou 'empresa'
+    
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      await logAction({
+        action: 'demote_admin_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        resourceId: userId,
+        details: { 
+          reason: 'Tentativa de remover administrador sem ser o dono', 
+          blockedBy: 'system' 
+        }
+      });
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode remover permissões de administrador' 
+      });
+    }
+    
+    // Impedir que remova a si mesmo
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você não pode remover suas próprias permissões de dono' });
+    }
+    
+    // Buscar usuário
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Verificar se é admin
+    if (user.type !== 'admin') {
+      return res.status(400).json({ error: 'Este usuário não é um administrador' });
+    }
+    
+    // Validar novo tipo
+    if (!newType || !['candidato', 'empresa'].includes(newType)) {
+      return res.status(400).json({ 
+        error: 'Tipo de usuário inválido. Use "candidato" ou "empresa"' 
+      });
+    }
+    
+    // Rebaixar de admin
+    const oldType = user.type;
+    user.type = newType;
+    await user.save();
+    
+    await logAction({
+      action: 'demote_from_admin',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: userId,
+      details: { 
+        userName: user.name,
+        userEmail: user.email,
+        oldType: oldType,
+        newType: newType,
+        demotedBy: req.user.name
+      }
+    });
+    
+    res.json({ 
+      success: true, 
+      message: `${user.name} foi rebaixado(a) de administrador para ${newType}`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        type: user.type
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao remover administrador:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Listar todos os administradores (apenas admin ou dono)
+router.get('/admin/administrators', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const admins = await User.find({ type: 'admin' })
+      .select('-passwordHash -resetToken -resetExpires')
+      .sort({ createdAt: -1 });
+    
+    // Marcar qual é o dono
+    const adminsWithOwnerFlag = admins.map(admin => ({
+      ...admin.toObject(),
+      isOwner: isOwner(admin._id),
+      canBeModified: !isOwner(admin._id) // Apenas o dono não pode ser modificado
+    }));
+    
+    res.json(adminsWithOwnerFlag);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Promover usuário por email a administrador (apenas dono do sistema)
+router.post('/admin/promote-by-email', authMiddleware, async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      await logAction({
+        action: 'promote_admin_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        details: { 
+          reason: 'Tentativa de promover administrador por email sem ser o dono', 
+          blockedBy: 'system',
+          attemptedEmail: email
+        }
+      });
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode promover usuários a administrador' 
+      });
+    }
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email é obrigatório' });
+    }
+    
+    // Buscar usuário por email
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado com este email' });
+    }
+    
+    // Verificar se não está tentando promover a si mesmo
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Você já é o dono do sistema' });
+    }
+    
+    // Verificar se já é admin
+    if (user.type === 'admin') {
+      return res.status(400).json({ 
+        error: 'Este usuário já é um administrador',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          type: user.type
+        }
+      });
+    }
+    
+    // Promover a admin
+    const oldType = user.type;
+    user.type = 'admin';
+    await user.save();
+    
+    await logAction({
+      action: 'promote_to_admin',
+      userId: req.user._id,
+      resourceType: 'User',
+      resourceId: user._id,
+      details: { 
+        userName: user.name,
+        userEmail: user.email,
+        oldType: oldType,
+        newType: 'admin',
+        promotedBy: req.user.name,
+        method: 'email'
+      }
+    });
+    
+    // Enviar email de notificação ao usuário promovido
+    try {
+      await emailService.sendAdminPromotionEmail(user);
+    } catch (emailError) {
+      console.error('Erro ao enviar email de promoção:', emailError);
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `${user.name} foi promovido(a) a administrador com sucesso`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        type: user.type
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao promover administrador por email:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Buscar usuários para promoção (apenas dono do sistema)
+router.get('/admin/search-users-for-promotion', authMiddleware, async (req, res) => {
+  try {
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode acessar esta funcionalidade' 
+      });
+    }
+    
+    const { search, type, limit = 20 } = req.query;
+    
+    const query = {
+      type: { $ne: 'admin' }, // Excluir usuários que já são admin
+      _id: { $ne: req.user._id } // Excluir o próprio dono
+    };
+    
+    // Filtro de busca por nome ou email
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Filtro por tipo de usuário
+    if (type && ['candidato', 'empresa'].includes(type)) {
+      query.type = type;
+    }
+    
+    const users = await User.find(query)
+      .select('name email type status createdAt profilePhotoUrl')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+    
+    // Adicionar informação útil sobre cada usuário
+    const usersWithInfo = users.map(user => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      type: user.type,
+      status: user.status,
+      profilePhotoUrl: user.profilePhotoUrl,
+      createdAt: user.createdAt,
+      canBePromoted: true
+    }));
+    
+    res.json({
+      total: users.length,
+      users: usersWithInfo
+    });
+  } catch (err) {
+    console.error('Erro ao buscar usuários:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Promover múltiplos usuários de uma vez (apenas dono do sistema)
+router.post('/admin/promote-multiple', authMiddleware, async (req, res) => {
+  try {
+    const { userIds } = req.body; // Array de IDs ou emails
+    
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      await logAction({
+        action: 'promote_admin_attempt_blocked',
+        userId: req.user._id,
+        resourceType: 'User',
+        details: { 
+          reason: 'Tentativa de promover múltiplos administradores sem ser o dono', 
+          blockedBy: 'system'
+        }
+      });
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode promover usuários a administrador' 
+      });
+    }
+    
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ error: 'Lista de usuários é obrigatória' });
+    }
+    
+    if (userIds.length > 20) {
+      return res.status(400).json({ error: 'Máximo de 20 usuários por vez' });
+    }
+    
+    const results = {
+      success: [],
+      failed: [],
+      alreadyAdmin: []
+    };
+    
+    for (const identifier of userIds) {
+      try {
+        let user;
+        
+        // Tentar buscar por ID primeiro, depois por email
+        if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
+          user = await User.findById(identifier);
+        } else {
+          user = await User.findOne({ email: identifier.toLowerCase() });
+        }
+        
+        if (!user) {
+          results.failed.push({
+            identifier,
+            reason: 'Usuário não encontrado'
+          });
+          continue;
+        }
+        
+        // Verificar se é o próprio dono
+        if (user._id.toString() === req.user._id.toString()) {
+          results.failed.push({
+            identifier,
+            user: { id: user._id, name: user.name, email: user.email },
+            reason: 'Não pode promover a si mesmo'
+          });
+          continue;
+        }
+        
+        // Verificar se já é admin
+        if (user.type === 'admin') {
+          results.alreadyAdmin.push({
+            id: user._id,
+            name: user.name,
+            email: user.email
+          });
+          continue;
+        }
+        
+        // Promover a admin
+        const oldType = user.type;
+        user.type = 'admin';
+        await user.save();
+        
+        await logAction({
+          action: 'promote_to_admin',
+          userId: req.user._id,
+          resourceType: 'User',
+          resourceId: user._id,
+          details: { 
+            userName: user.name,
+            userEmail: user.email,
+            oldType: oldType,
+            newType: 'admin',
+            promotedBy: req.user.name,
+            method: 'batch'
+          }
+        });
+        
+        // Enviar email de notificação
+        try {
+          await emailService.sendAdminPromotionEmail(user);
+        } catch (emailError) {
+          console.error('Erro ao enviar email de promoção:', emailError);
+        }
+        
+        results.success.push({
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          oldType: oldType
+        });
+        
+      } catch (error) {
+        results.failed.push({
+          identifier,
+          reason: error.message
+        });
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `${results.success.length} usuário(s) promovido(s) com sucesso`,
+      results: {
+        promoted: results.success.length,
+        failed: results.failed.length,
+        alreadyAdmin: results.alreadyAdmin.length,
+        details: results
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao promover múltiplos administradores:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Obter informações de um usuário específico (para verificação antes de promover)
+router.get('/admin/user-info/:identifier', authMiddleware, async (req, res) => {
+  try {
+    // PROTEÇÃO: Verificar se é o dono do sistema
+    if (!isOwner(req.user._id)) {
+      return res.status(403).json({ 
+        error: 'Apenas o dono do sistema pode acessar esta funcionalidade' 
+      });
+    }
+    
+    const { identifier } = req.params;
+    let user;
+    
+    // Tentar buscar por ID primeiro, depois por email
+    if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await User.findById(identifier).select('-passwordHash -resetToken -resetExpires');
+    } else {
+      user = await User.findOne({ email: identifier.toLowerCase() })
+        .select('-passwordHash -resetToken -resetExpires');
+    }
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Informações adicionais
+    const canBePromoted = user.type !== 'admin' && user._id.toString() !== req.user._id.toString();
+    const isCurrentAdmin = user.type === 'admin';
+    const isSelf = user._id.toString() === req.user._id.toString();
+    
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        status: user.status,
+        profilePhotoUrl: user.profilePhotoUrl,
+        createdAt: user.createdAt,
+        phone: user.phone,
+        bio: user.bio
+      },
+      permissions: {
+        canBePromoted,
+        isCurrentAdmin,
+        isSelf,
+        isOwner: isOwner(user._id)
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao buscar informações do usuário:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
-
-

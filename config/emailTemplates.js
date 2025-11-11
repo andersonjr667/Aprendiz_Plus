@@ -715,6 +715,76 @@ const emailTemplates = {
       </div>
     </body>
     </html>
+  `,
+
+  // Template de promoção a administrador
+  adminPromotion: (userName) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Você foi promovido a Administrador</title>
+      <style>${baseStyle}</style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+          <h1>🎉 Parabéns, ${userName}!</h1>
+        </div>
+        <div class="content">
+          <h2>Você foi promovido a Administrador!</h2>
+          <p>Temos o prazer de informar que você foi promovido ao cargo de <strong>Administrador</strong> na plataforma Aprendiz+.</p>
+          
+          <div class="info-box">
+            <strong>🔑 Suas novas permissões incluem:</strong>
+            <ul>
+              <li>Gerenciamento completo de usuários</li>
+              <li>Moderação de vagas e candidaturas</li>
+              <li>Publicação e edição de notícias</li>
+              <li>Acesso ao painel administrativo</li>
+              <li>Visualização de logs e auditoria</li>
+              <li>Gestão de mensagens de contato</li>
+              <li>Controle de banimentos e suspensões</li>
+            </ul>
+          </div>
+          
+          <div class="warning-box">
+            <strong>⚠️ Importante:</strong>
+            <p style="margin: 10px 0;">
+              Com grandes poderes vêm grandes responsabilidades. Use suas permissões administrativas 
+              com cautela e sempre seguindo as diretrizes da plataforma.
+            </p>
+          </div>
+          
+          <center>
+            <a href="${process.env.APP_URL || 'http://localhost:3000'}/pages/admin.html" class="button">
+              Acessar Painel Administrativo
+            </a>
+          </center>
+          
+          <p style="margin-top: 30px;">
+            <strong>Primeiros passos:</strong>
+          </p>
+          <ol>
+            <li>Faça login novamente para ativar suas novas permissões</li>
+            <li>Familiarize-se com o painel administrativo</li>
+            <li>Revise as políticas e diretrizes da plataforma</li>
+            <li>Entre em contato com outros administradores se tiver dúvidas</li>
+          </ol>
+          
+          <p>
+            Se você acredita que recebeu este email por engano ou tem alguma dúvida, 
+            entre em contato com a equipe de suporte imediatamente.
+          </p>
+        </div>
+        <div class="footer">
+          <p>© 2025 Aprendiz+ - Painel Administrativo</p>
+          <p>Este é um email importante relacionado às suas permissões na plataforma.</p>
+        </div>
+      </div>
+    </body>
+    </html>
   `
 };
 

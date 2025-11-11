@@ -103,6 +103,11 @@
           <h3>IA Monitoramento</h3>
           <p>Análise inteligente e alertas</p>
         </a>
+        <a href="/admin-manage-admins" class="action-card" id="manage-admins-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; display: none;">
+          <i class="fas fa-crown"></i>
+          <h3>👑 Gerenciar Admins</h3>
+          <p>Promover usuários (Apenas Dono)</p>
+        </a>
       </div>
 
       <!-- Estatísticas Resumidas -->
@@ -451,6 +456,37 @@
       }
     }
   </style>
+  
+  <script>
+    // Verificar se é o dono e mostrar card de gerenciar admins
+    const OWNER_ID = '691256819ab90a9899d0d05d';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch('/api/users/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const user = await response.json();
+          
+          // Se for o dono, mostrar o card de gerenciar admins
+          if (user._id === OWNER_ID) {
+            const manageAdminsCard = document.getElementById('manage-admins-card');
+            if (manageAdminsCard) {
+              manageAdminsCard.style.display = 'flex';
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar permissões:', error);
+      }
+    });
+  </script>
+  
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
 </body>

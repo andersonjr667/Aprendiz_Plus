@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Administradores - Aprendiz+</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/perfil-admin.css">
+    <style>
+        .admin-management-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .user-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .user-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .badge-candidato {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-empresa {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-admin {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .owner-badge {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .quick-promote {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .promote-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .promote-card h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-management-container">
+        <div class="page-header">
+            <h1>👑 Gerenciar Administradores</h1>
+            <p>Promova usuários a administrador ou gerencie permissões (Apenas para o Dono do Sistema)</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('promote')">🎯 Promover Usuários</button>
+            <button class="tab" onclick="switchTab('admins')">👥 Administradores Atuais</button>
+        </div>
+
+        <!-- Tab: Promover Usuários -->
+        <div id="promote-tab" class="tab-content active">
+            <div class="quick-promote">
+                <!-- Por ID -->
+                <div class="promote-card">
+                    <h3>🔑 Promover por ID</h3>
+                    <form onsubmit="promoteById(event)">
+                        <div class="form-group">
+                            <label>ID do Usuário</label>
+                            <input type="text" id="user-id" placeholder="507f1f77bcf86cd799439011" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="margin-top: 15px; width: 100%;">
+                            Promover por ID
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Por Email -->
+                <div class="promote-card">
+                    <h3>📧 Promover por Email</h3>
+                    <form onsubmit="promoteByEmail(event)">
+                        <div class="form-group">
+                            <label>Email do Usuário</label>
+                            <input type="email" id="user-email" placeholder="usuario@example.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="margin-top: 15px; width: 100%;">
+                            Promover por Email
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Buscar e Promover -->
+            <div class="search-section">
+                <h3 style="margin-top: 0;">🔍 Buscar Usuários para Promover</h3>
+                <div class="search-form">
+                    <div class="form-group">
+                        <label>Buscar por Nome ou Email</label>
+                        <input type="text" id="search-input" placeholder="Digite nome ou email...">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="searchUsers()">
+                        Buscar
+                    </button>
+                </div>
+
+                <div id="search-results" style="margin-top: 30px;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔎</div>
+                        <p>Digite um nome ou email para buscar usuários</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Administradores Atuais -->
+        <div id="admins-tab" class="tab-content">
+            <div class="search-section">
+                <h3 style="margin-top: 0;">👥 Lista de Administradores</h3>
+                <div id="admins-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Carregando administradores...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentToken = null;
+
+        // Carregar token ao iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            currentToken = localStorage.getItem('token');
+            if (!currentToken) {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+            loadAdministrators();
+        });
+
+        // Trocar tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            if (tabName === 'admins') {
+                loadAdministrators();
+            }
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Promover por ID
+        async function promoteById(event) {
+            event.preventDefault();
+            const userId = document.getElementById('user-id').value.trim();
+            
+            if (!userId) {
+                showAlert('Por favor, insira um ID válido', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${userId}/promote-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('user-id').value = '';
+                    loadAdministrators();
+                } else {
+                    showAlert(data.error || 'Erro ao promover usuário', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Promover por Email
+        async function promoteByEmail(event) {
+            event.preventDefault();
+            const email = document.getElementById('user-email').value.trim();
+            
+            if (!email) {
+                showAlert('Por favor, insira um email válido', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/promote-by-email', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('user-email').value = '';
+                    loadAdministrators();
+                } else {
+                    showAlert(data.error || 'Erro ao promover usuário', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Buscar usuários
+        async function searchUsers() {
+            const searchInput = document.getElementById('search-input').value.trim();
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!searchInput) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔎</div>
+                        <p>Digite um nome ou email para buscar usuários</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Buscando usuários...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`/api/admin/search-users-for-promotion?search=${encodeURIComponent(searchInput)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.users.length === 0) {
+                        resultsContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">😕</div>
+                                <p>Nenhum usuário encontrado</p>
+                            </div>
+                        `;
+                    } else {
+                        renderUsersList(data.users, resultsContainer);
+                    }
+                } else {
+                    showAlert(data.error || 'Erro ao buscar usuários', 'error');
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚠️</div>
+                            <p>Erro ao buscar usuários</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Renderizar lista de usuários
+        function renderUsersList(users, container) {
+            const html = `
+                <div class="users-list">
+                    ${users.map(user => `
+                        <div class="user-card">
+                            <div class="user-avatar">
+                                ${user.profilePhotoUrl 
+                                    ? `<img src="${user.profilePhotoUrl}" alt="${user.name}">` 
+                                    : user.name.charAt(0).toUpperCase()
+                                }
+                            </div>
+                            <div class="user-info">
+                                <h3>${user.name}</h3>
+                                <p>${user.email}</p>
+                                <span class="user-type-badge badge-${user.type}">${user.type}</span>
+                            </div>
+                            <button class="btn btn-success" onclick="promoteUser('${user.id}', '${user.name}')">
+                                ⬆️ Promover a Admin
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Promover usuário da lista
+        async function promoteUser(userId, userName) {
+            if (!confirm(`Deseja promover ${userName} a administrador?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${userId}/promote-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    searchUsers(); // Atualizar lista
+                    loadAdministrators(); // Atualizar admins
+                } else {
+                    showAlert(data.error || 'Erro ao promover usuário', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Carregar administradores
+        async function loadAdministrators() {
+            const container = document.getElementById('admins-list');
+            
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Carregando administradores...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/admin/administrators', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                const admins = await response.json();
+
+                if (response.ok) {
+                    const html = `
+                        <div class="users-list">
+                            ${admins.map(admin => `
+                                <div class="user-card">
+                                    <div class="user-avatar">
+                                        ${admin.profilePhotoUrl 
+                                            ? `<img src="${admin.profilePhotoUrl}" alt="${admin.name}">` 
+                                            : admin.name.charAt(0).toUpperCase()
+                                        }
+                                    </div>
+                                    <div class="user-info">
+                                        <h3>${admin.name} ${admin.isOwner ? '<span class="owner-badge">👑 DONO</span>' : ''}</h3>
+                                        <p>${admin.email}</p>
+                                        <span class="user-type-badge badge-admin">Administrador</span>
+                                    </div>
+                                    ${admin.canBeModified ? `
+                                        <button class="btn btn-danger" onclick="demoteAdmin('${admin._id}', '${admin.name}')">
+                                            ⬇️ Remover Admin
+                                        </button>
+                                    ` : '<span style="color: #999;">Não pode ser modificado</span>'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.innerHTML = html;
+                } else {
+                    showAlert('Erro ao carregar administradores', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Rebaixar admin
+        async function demoteAdmin(userId, userName) {
+            const newType = prompt(`Para qual tipo deseja converter ${userName}?\n\nDigite: candidato ou empresa`);
+            
+            if (!newType || !['candidato', 'empresa'].includes(newType.toLowerCase())) {
+                showAlert('Tipo inválido! Use "candidato" ou "empresa"', 'error');
+                return;
+            }
+
+            if (!confirm(`Confirma remover ${userName} de administrador e converter para ${newType}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${userId}/demote-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newType: newType.toLowerCase() })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    loadAdministrators();
+                } else {
+                    showAlert(data.error || 'Erro ao remover administrador', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao conectar com o servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        // Permitir buscar com Enter
+        document.getElementById('search-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchUsers();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -271,6 +271,16 @@ class EmailService {
     
     return await this.sendEmail(adminEmail, subject, html);
   }
+
+  /**
+   * Email de promoção a administrador
+   */
+  async sendAdminPromotionEmail(user) {
+    const subject = '🎉 Você foi promovido a Administrador - Aprendiz+';
+    const html = emailTemplates.adminPromotion(user.name);
+    
+    return await this.sendEmail(user.email, subject, html);
+  }
 }
 
 // Exportar instância singleton
