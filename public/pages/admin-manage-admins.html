@@ -388,13 +388,42 @@
         let currentToken = null;
 
         // Carregar token ao iniciar
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             currentToken = localStorage.getItem('token');
             if (!currentToken) {
-                window.location.href = '/pages/login.html';
+                window.location.href = '/login';
                 return;
             }
-            loadAdministrators();
+            
+            // Verificar se é owner
+            try {
+                const response = await fetch('/api/users/me', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const user = await response.json();
+                
+                // Apenas owners podem acessar
+                if (user.type !== 'owner') {
+                    showAlert('Acesso negado. Apenas o proprietário do sistema pode acessar esta página.', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/admin';
+                    }, 2000);
+                    return;
+                }
+                
+                loadAdministrators();
+            } catch (error) {
+                console.error('Erro ao verificar permissões:', error);
+                window.location.href = '/login';
+            }
         });
 
         // Trocar tabs
