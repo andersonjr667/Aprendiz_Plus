@@ -46,6 +46,9 @@
                 <a href="/">Início</a>
                 <a href="/vagas">Vagas</a>
                 <a href="/noticias">Notícias</a>
+                <a href="/pages/chat.html">
+                    <i class="fas fa-comments"></i> Chat
+                </a>
                 <a href="/perfil-candidato" class="active">Meu Perfil</a>
                 <button onclick="logout()" class="btn btn-secondary">
                     <i class="fas fa-sign-out-alt"></i> Sair
@@ -159,6 +162,222 @@
                                 <div class="skills-container" id="displaySkills">
                                     <span style="color: #999;">Nenhuma habilidade adicionada</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Dados Pessoais Adicionais -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2ECC71;">
+                            <i class="fas fa-address-card"></i> Dados Pessoais
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
+                                    <span class="info-label">Data de Nascimento</span>
+                                </div>
+                                <p class="info-value" id="displayBirthDate">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-id-badge"></i></div>
+                                    <span class="info-label">RG</span>
+                                </div>
+                                <p class="info-value" id="displayRG">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-venus-mars"></i></div>
+                                    <span class="info-label">Gênero</span>
+                                </div>
+                                <p class="info-value" id="displayGender">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-ring"></i></div>
+                                    <span class="info-label">Estado Civil</span>
+                                </div>
+                                <p class="info-value" id="displayMaritalStatus">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fab fa-whatsapp"></i></div>
+                                    <span class="info-label">WhatsApp</span>
+                                </div>
+                                <p class="info-value" id="displayWhatsapp">Não informado</p>
+                            </div>
+                        </div>
+
+                        <!-- Endereço -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2ECC71;">
+                            <i class="fas fa-map-marker-alt"></i> Endereço
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-mail-bulk"></i></div>
+                                    <span class="info-label">CEP</span>
+                                </div>
+                                <p class="info-value" id="displayCep">Não informado</p>
+                            </div>
+
+                            <div class="info-card info-card-full">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-road"></i></div>
+                                    <span class="info-label">Endereço Completo</span>
+                                </div>
+                                <p class="info-value" id="displayAddress">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-city"></i></div>
+                                    <span class="info-label">Cidade/Estado</span>
+                                </div>
+                                <p class="info-value" id="displayCityState">Não informado</p>
+                            </div>
+                        </div>
+
+                        <!-- Formação e Educação -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2ECC71;">
+                            <i class="fas fa-graduation-cap"></i> Formação e Educação
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-book"></i></div>
+                                    <span class="info-label">Escolaridade Atual</span>
+                                </div>
+                                <p class="info-value" id="displayCurrentEducation">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-school"></i></div>
+                                    <span class="info-label">Instituição de Ensino</span>
+                                </div>
+                                <p class="info-value" id="displayEducationInstitution">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-clock"></i></div>
+                                    <span class="info-label">Turno de Estudo</span>
+                                </div>
+                                <p class="info-value" id="displayStudyShift">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-tools"></i></div>
+                                    <span class="info-label">Curso Técnico</span>
+                                </div>
+                                <p class="info-value" id="displayTechnicalCourse">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-calendar-check"></i></div>
+                                    <span class="info-label">Previsão de Formatura</span>
+                                </div>
+                                <p class="info-value" id="displayExpectedGraduation">Não informado</p>
+                            </div>
+
+                            <div class="info-card info-card-full">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-certificate"></i></div>
+                                    <span class="info-label">Cursos Extracurriculares</span>
+                                </div>
+                                <p class="info-value" id="displayExtracurricularCourses">Não informado</p>
+                            </div>
+                        </div>
+
+                        <!-- Experiência e Interesses -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2ECC71;">
+                            <i class="fas fa-briefcase"></i> Experiência e Interesses
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-card info-card-full">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-star"></i></div>
+                                    <span class="info-label">Áreas de Interesse</span>
+                                </div>
+                                <div class="skills-container" id="displayAreasOfInterest">
+                                    <span style="color: #999;">Nenhuma área informada</span>
+                                </div>
+                            </div>
+
+                            <div class="info-card info-card-full">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-history"></i></div>
+                                    <span class="info-label">Experiência Anterior</span>
+                                </div>
+                                <p class="info-value" id="displayPreviousExperience">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
+                                    <span class="info-label">Disponibilidade</span>
+                                </div>
+                                <p class="info-value" id="displayAvailability">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-wheelchair"></i></div>
+                                    <span class="info-label">PCD</span>
+                                </div>
+                                <p class="info-value" id="displayPCD">Não</p>
+                            </div>
+
+                            <div class="info-card" id="pcdDescriptionCard" style="display: none;">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                                    <span class="info-label">Descrição PCD</span>
+                                </div>
+                                <p class="info-value" id="displayPCDDescription">-</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-user-graduate"></i></div>
+                                    <span class="info-label">Programa de Aprendizagem</span>
+                                </div>
+                                <p class="info-value" id="displayApprenticeshipProgram">Não</p>
+                            </div>
+
+                            <div class="info-card" id="apprenticeshipNameCard" style="display: none;">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-file-signature"></i></div>
+                                    <span class="info-label">Nome do Programa</span>
+                                </div>
+                                <p class="info-value" id="displayApprenticeshipProgramName">-</p>
+                            </div>
+                        </div>
+
+                        <!-- Links Profissionais -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #2ECC71;">
+                            <i class="fas fa-link"></i> Links Profissionais
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fab fa-linkedin"></i></div>
+                                    <span class="info-label">LinkedIn</span>
+                                </div>
+                                <p class="info-value" id="displayLinkedin">Não informado</p>
+                            </div>
+
+                            <div class="info-card">
+                                <div class="info-header">
+                                    <div class="info-icon"><i class="fas fa-folder-open"></i></div>
+                                    <span class="info-label">Portfólio</span>
+                                </div>
+                                <p class="info-value" id="displayPortfolio">Não informado</p>
                             </div>
                         </div>
                     </div>

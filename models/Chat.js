@@ -1,87 +1,90 @@
-const db = require('../data/db.json');
-const fs = require('fs').promises;
-const path = require('path');
+const mongoose = require('mongoose');
 
-const dbPath = path.join(__dirname, '../data/db.json');
+const ChatSchema = new mongoose.Schema({
+  candidateId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  companyId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  jobId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Job' 
+  },
+  applicationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Application'
+  },
+  lastMessage: String,
+  lastMessageAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  unreadCount: {
+    candidate: { type: Number, default: 0 },
+    company: { type: Number, default: 0 }
+  },
+  archived: { 
+    type: Boolean, 
+    default: false 
+  },
+  archivedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  status: {
+    type: String,
+    enum: ['active', 'archived', 'closed'],
+    default: 'active'
+  },
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  updatedAt: { 
+    type: Date, 
+    default: Date.now 
+  }
+});
 
-// Modelo de Chat (Conversação entre candidato e empresa)
-class Chat {
-  static async create(data) {
-    const chat = {
-      id: Date.now().toString(),
-      candidateId: data.candidateId,
-      companyId: data.companyId,
-      jobId: data.jobId || null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      lastMessageAt: new Date().toISOString(),
-      archived: false,
-      archivedBy: []
-    };
+// Índices para melhor performance
+ChatSchema.index({ candidateId: 1, companyId: 1, jobId: 1 });
+ChatSchema.index({ candidateId: 1, status: 1 });
+ChatSchema.index({ companyId: 1, status: 1 });
+ChatSchema.index({ lastMessageAt: -1 });
 
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    if (!dbData.chats) dbData.chats = [];
-    
-    dbData.chats.push(chat);
-    await fs.writeFile(dbPath, JSON.stringify(dbData, null, 2));
-    
-    return chat;
+// Método para marcar mensagens como lidas
+ChatSchema.methods.markAsRead = function(userType) {
+  if (userType === 'candidato') {
+    this.unreadCount.candidate = 0;
+  } else if (userType === 'empresa') {
+    this.unreadCount.company = 0;
+  }
+  return this.save();
+};
+
+// Método estático para encontrar ou criar chat
+ChatSchema.statics.findOrCreate = async function(candidateId, companyId, jobId, applicationId) {
+  let chat = await this.findOne({
+    candidateId,
+    companyId,
+    jobId
+  });
+
+  if (!chat) {
+    chat = await this.create({
+      candidateId,
+      companyId,
+      jobId,
+      applicationId
+    });
   }
 
-  static async findById(id) {
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    return dbData.chats?.find(chat => chat.id === id);
-  }
+  return chat;
+};
 
-  static async findByParticipants(candidateId, companyId, jobId = null) {
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    return dbData.chats?.find(chat => 
-      chat.candidateId === candidateId && 
-      chat.companyId === companyId &&
-      (!jobId || chat.jobId === jobId)
-    );
-  }
-
-  static async findByUserId(userId, userType) {
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    if (!dbData.chats) return [];
-
-    const field = userType === 'candidate' ? 'candidateId' : 'companyId';
-    return dbData.chats.filter(chat => 
-      chat[field] === userId && 
-      !chat.archivedBy.includes(userId)
-    ).sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
-  }
-
-  static async update(id, updates) {
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    const index = dbData.chats?.findIndex(chat => chat.id === id);
-    
-    if (index === -1) return null;
-    
-    dbData.chats[index] = {
-      ...dbData.chats[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    
-    await fs.writeFile(dbPath, JSON.stringify(dbData, null, 2));
-    return dbData.chats[index];
-  }
-
-  static async archive(chatId, userId) {
-    const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    const index = dbData.chats?.findIndex(chat => chat.id === chatId);
-    
-    if (index === -1) return null;
-    
-    if (!dbData.chats[index].archivedBy.includes(userId)) {
-      dbData.chats[index].archivedBy.push(userId);
-    }
-    
-    await fs.writeFile(dbPath, JSON.stringify(dbData, null, 2));
-    return dbData.chats[index];
-  }
-}
-
-module.exports = Chat;
+module.exports = mongoose.model('Chat', ChatSchema);

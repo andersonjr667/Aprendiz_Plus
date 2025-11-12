@@ -1349,6 +1349,42 @@ router.put('/applications/:appId/status', authMiddleware, roleCheck(['empresa', 
             app.feedback
           );
         }
+        
+        // Se a candidatura foi aceita, criar chat automaticamente
+        if (status === 'aceito' || status === 'accepted') {
+          try {
+            await Chat.findOrCreate(
+              app.candidate,
+              job.company,
+              app.job,
+              app._id
+            );
+            
+            // Notificar ambos sobre o chat disponível
+            await Notification.create({
+              userId: app.candidate,
+              type: 'chat',
+              title: 'Chat disponível',
+              message: `Você agora pode conversar com ${company.name} sobre a vaga ${job.title}`,
+              link: `/pages/chat.html`,
+              metadata: { applicationId: app._id, jobId: app.job }
+            });
+            
+            await Notification.create({
+              userId: job.company,
+              type: 'chat',
+              title: 'Chat disponível',
+              message: `Você agora pode conversar com ${candidate.name} sobre a vaga ${job.title}`,
+              link: `/pages/chat.html`,
+              metadata: { applicationId: app._id, jobId: app.job }
+            });
+            
+            console.log('Chat criado automaticamente para candidatura aceita:', appId);
+          } catch (chatError) {
+            console.error('Erro ao criar chat automaticamente:', chatError);
+            // Não interromper o fluxo se houver erro ao criar chat
+          }
+        }
       } catch (emailError) {
         console.error('Error sending status update email:', emailError);
       }
@@ -2529,62 +2565,94 @@ router.post('/email/test', authMiddleware, async (req, res) => {
 // Listar conversas do usuário
 router.get('/chats', authMiddleware, async (req, res) => {
   try {
-    const userType = req.user.type === 'candidato' ? 'candidate' : 'company';
-    const chats = await Chat.findByUserId(req.user._id.toString(), userType);
+    const userId = req.user._id;
+    const userType = req.user.type;
     
-    // Enriquecer com informações do outro participante e última mensagem
-    const enrichedChats = await Promise.all(chats.map(async (chat) => {
-      const otherUserId = userType === 'candidate' ? chat.companyId : chat.candidateId;
-      const otherUser = await User.findById(otherUserId);
-      
-      const messages = await Message.findByChatId(chat.id, 1);
-      const lastMessage = messages[0];
-      
-      const unreadCount = await Message.getUnreadCount(req.user._id.toString(), chat.id);
-      
+    // Buscar chats onde o usuário participa
+    const query = userType === 'candidato' 
+      ? { candidateId: userId, status: 'active' }
+      : { companyId: userId, status: 'active' };
+    
+    const chats = await Chat.find(query)
+      .populate('candidateId', 'name email profilePhotoUrl type')
+      .populate('companyId', 'name email profilePhotoUrl type')
+      .populate('jobId', 'title company')
+      .sort({ lastMessageAt: -1 });
+    
+    // Formatar resposta com informações do outro participante
+    const formattedChats = chats.map(chat => {
+      const otherUser = userType === 'candidato' ? chat.companyId : chat.candidateId;
       return {
-        ...chat,
-        otherUser: otherUser ? {
-          id: otherUser._id,
+        _id: chat._id,
+        otherUser: {
+          _id: otherUser._id,
           name: otherUser.name,
-          profilePhoto: otherUser.profilePhoto,
+          profilePhoto: otherUser.profilePhotoUrl,
           type: otherUser.type
-        } : null,
-        lastMessage,
-        unreadCount
+        },
+        job: chat.jobId,
+        lastMessage: chat.lastMessage,
+        lastMessageAt: chat.lastMessageAt,
+        unreadCount: userType === 'candidato' ? chat.unreadCount.candidate : chat.unreadCount.company,
+        createdAt: chat.createdAt
       };
-    }));
+    });
     
-    res.json(enrichedChats);
+    res.json(formattedChats);
   } catch (err) {
+    console.error('Error fetching chats:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Criar ou obter chat
+// Criar ou obter chat entre candidato e empresa (após aprovação de candidatura)
 router.post('/chats', authMiddleware, async (req, res) => {
   try {
-    const { otherUserId, jobId } = req.body;
+    const { applicationId } = req.body;
     const user = req.user;
     
-    let candidateId, companyId;
-    if (user.type === 'candidato') {
-      candidateId = user._id.toString();
-      companyId = otherUserId;
-    } else {
-      candidateId = otherUserId;
-      companyId = user._id.toString();
+    if (!applicationId) {
+      return res.status(400).json({ error: 'ID da candidatura é obrigatório' });
     }
     
-    // Verificar se já existe chat
-    let chat = await Chat.findByParticipants(candidateId, companyId, jobId);
+    // Buscar a candidatura
+    const application = await Application.findById(applicationId)
+      .populate('jobId')
+      .populate('userId');
     
-    if (!chat) {
-      chat = await Chat.create({ candidateId, companyId, jobId });
+    if (!application) {
+      return res.status(404).json({ error: 'Candidatura não encontrada' });
     }
+    
+    // Verificar se a candidatura foi aceita
+    if (application.status !== 'aceito') {
+      return res.status(403).json({ error: 'Chat disponível apenas para candidaturas aceitas' });
+    }
+    
+    const candidateId = application.userId._id;
+    const companyId = application.jobId.company;
+    const jobId = application.jobId._id;
+    
+    // Verificar se o usuário tem permissão (é o candidato ou a empresa)
+    const isCandidate = user._id.toString() === candidateId.toString();
+    const isCompany = user._id.toString() === companyId.toString();
+    
+    if (!isCandidate && !isCompany) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    
+    // Buscar ou criar chat
+    let chat = await Chat.findOrCreate(candidateId, companyId, jobId, applicationId);
+    
+    // Popular com informações
+    chat = await Chat.findById(chat._id)
+      .populate('candidateId', 'name email profilePhotoUrl type')
+      .populate('companyId', 'name email profilePhotoUrl type')
+      .populate('jobId', 'title company');
     
     res.json(chat);
   } catch (err) {
+    console.error('Error creating/fetching chat:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -2593,7 +2661,8 @@ router.post('/chats', authMiddleware, async (req, res) => {
 router.get('/chats/:chatId/messages', authMiddleware, async (req, res) => {
   try {
     const { chatId } = req.params;
-    const { limit = 50, offset = 0 } = req.query;
+    const { limit = 50, skip = 0 } = req.query;
+    const userId = req.user._id;
     
     const chat = await Chat.findById(chatId);
     if (!chat) {
@@ -2601,18 +2670,45 @@ router.get('/chats/:chatId/messages', authMiddleware, async (req, res) => {
     }
     
     // Verificar se usuário participa do chat
-    const userId = req.user._id.toString();
-    if (chat.candidateId !== userId && chat.companyId !== userId) {
+    const isParticipant = chat.candidateId.toString() === userId.toString() || 
+                         chat.companyId.toString() === userId.toString();
+    
+    if (!isParticipant) {
       return res.status(403).json({ error: 'Acesso negado' });
     }
     
-    const messages = await Message.findByChatId(chatId, parseInt(limit), parseInt(offset));
+    // Buscar mensagens
+    const messages = await Message.find({ chatId })
+      .sort({ createdAt: 1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .populate('senderId', 'name profilePhotoUrl');
     
-    // Marcar mensagens como lidas
-    await Message.markChatAsRead(chatId, userId);
+    // Marcar mensagens não lidas como lidas
+    const userType = req.user.type;
+    await Message.updateMany(
+      { 
+        chatId, 
+        senderId: { $ne: userId },
+        isRead: false 
+      },
+      { 
+        isRead: true, 
+        readAt: new Date() 
+      }
+    );
+    
+    // Resetar contador de não lidas no chat
+    if (userType === 'candidato') {
+      chat.unreadCount.candidate = 0;
+    } else {
+      chat.unreadCount.company = 0;
+    }
+    await chat.save();
     
     res.json(messages);
   } catch (err) {
+    console.error('Error fetching messages:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -2622,15 +2718,19 @@ router.post('/chats/:chatId/messages', authMiddleware, async (req, res) => {
   try {
     const { chatId } = req.params;
     const { content, attachments } = req.body;
-    const userId = req.user._id.toString();
+    const userId = req.user._id;
+    
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ error: 'Mensagem não pode estar vazia' });
+    }
     
     // Verificar anti-spam
-    const spamCheck = await AntiSpam.checkRateLimit(userId, 'message');
+    const spamCheck = await AntiSpam.checkRateLimit(userId.toString(), 'message');
     if (!spamCheck.allowed) {
       return res.status(429).json({ error: spamCheck.reason });
     }
     
-    const contentCheck = await AntiSpam.checkContentSpam(content, userId);
+    const contentCheck = await AntiSpam.checkContentSpam(content, userId.toString());
     if (contentCheck.isSpam) {
       return res.status(400).json({ 
         error: 'Conteúdo identificado como spam', 
@@ -2644,39 +2744,89 @@ router.post('/chats/:chatId/messages', authMiddleware, async (req, res) => {
     }
     
     // Verificar se usuário participa do chat
-    if (chat.candidateId !== userId && chat.companyId !== userId) {
+    const isParticipant = chat.candidateId.toString() === userId.toString() || 
+                         chat.companyId.toString() === userId.toString();
+    
+    if (!isParticipant) {
       return res.status(403).json({ error: 'Acesso negado' });
     }
     
-    const senderType = req.user.type === 'candidato' ? 'candidate' : 'company';
+    const senderType = req.user.type;
     
+    // Criar mensagem
     const message = await Message.create({
       chatId,
       senderId: userId,
       senderType,
-      content,
+      content: content.trim(),
       attachments: attachments || []
     });
     
+    // Popular informações do remetente
+    await message.populate('senderId', 'name profilePhotoUrl');
+    
     // Notificar outro usuário
-    const otherUserId = chat.candidateId === userId ? chat.companyId : chat.candidateId;
+    const otherUserId = chat.candidateId.toString() === userId.toString() 
+      ? chat.companyId 
+      : chat.candidateId;
+    
     await Notification.create({
       userId: otherUserId,
       type: 'message',
       title: 'Nova mensagem',
       message: `${req.user.name} enviou uma mensagem`,
-      link: `/chat/${chatId}`,
-      metadata: { chatId, messageId: message.id }
+      link: `/chat?chatId=${chatId}`,
+      metadata: { chatId, messageId: message._id }
     });
     
-    // Adicionar pontos de gamificação (primeira mensagem)
-    const userMessages = await Message.findByChatId(chatId);
-    if (userMessages.filter(m => m.senderId === userId).length === 1) {
-      await Gamification.addPoints(userId, 'FIRST_MESSAGE');
-    }
+    // Log da ação
+    await logAction({
+      action: 'send_message',
+      userId: userId,
+      resourceType: 'Message',
+      resourceId: message._id,
+      details: { chatId, contentLength: content.length }
+    });
     
     res.json(message);
   } catch (err) {
+    console.error('Error sending message:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Marcar chat como lido
+router.put('/chats/:chatId/read', authMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user._id;
+    const userType = req.user.type;
+    
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat não encontrado' });
+    }
+    
+    // Verificar participação
+    const isParticipant = chat.candidateId.toString() === userId.toString() || 
+                         chat.companyId.toString() === userId.toString();
+    
+    if (!isParticipant) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    
+    // Marcar mensagens como lidas
+    await Message.updateMany(
+      { chatId, senderId: { $ne: userId }, isRead: false },
+      { isRead: true, readAt: new Date() }
+    );
+    
+    // Resetar contador
+    await chat.markAsRead(userType);
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error marking chat as read:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -2685,15 +2835,30 @@ router.post('/chats/:chatId/messages', authMiddleware, async (req, res) => {
 router.put('/chats/:chatId/archive', authMiddleware, async (req, res) => {
   try {
     const { chatId } = req.params;
-    const userId = req.user._id.toString();
+    const userId = req.user._id;
     
-    const chat = await Chat.archive(chatId, userId);
+    const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ error: 'Chat não encontrado' });
     }
     
+    // Verificar participação
+    const isParticipant = chat.candidateId.toString() === userId.toString() || 
+                         chat.companyId.toString() === userId.toString();
+    
+    if (!isParticipant) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    
+    // Adicionar usuário à lista de arquivados
+    if (!chat.archivedBy.includes(userId)) {
+      chat.archivedBy.push(userId);
+      await chat.save();
+    }
+    
     res.json({ message: 'Chat arquivado' });
   } catch (err) {
+    console.error('Error archiving chat:', err);
     res.status(500).json({ error: err.message });
   }
 });

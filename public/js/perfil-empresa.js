@@ -167,6 +167,76 @@ function displayProfile(user) {
   const displayDescription = document.getElementById('displayDescription');
   if (displayDescription) displayDescription.textContent = user.description || 'Nenhuma descrição adicionada. Clique em "Editar" para adicionar informações sobre sua empresa.';
 
+  // Exibir dados adicionais do companyProfile
+  const profile = user.companyProfile || {};
+
+  // Nome Fantasia
+  const displayTradeName = document.getElementById('displayTradeName');
+  if (displayTradeName) {
+    displayTradeName.textContent = profile.tradeName || 'Não informado';
+  }
+
+  // Razão Social
+  const displayLegalName = document.getElementById('displayLegalName');
+  if (displayLegalName) {
+    displayLegalName.textContent = profile.legalName || 'Não informado';
+  }
+
+  // Área de Atuação
+  const displayBusinessArea = document.getElementById('displayBusinessArea');
+  if (displayBusinessArea) {
+    displayBusinessArea.textContent = profile.businessArea || 'Não informado';
+  }
+
+  // Número de Funcionários
+  const displayNumberOfEmployees = document.getElementById('displayNumberOfEmployees');
+  if (displayNumberOfEmployees) {
+    displayNumberOfEmployees.textContent = profile.numberOfEmployees ? profile.numberOfEmployees.toString() : 'Não informado';
+  }
+
+  // Telefone Comercial
+  const displayCommercialPhone = document.getElementById('displayCommercialPhone');
+  if (displayCommercialPhone) {
+    displayCommercialPhone.textContent = profile.commercialPhone ? formatPhone(profile.commercialPhone) : 'Não informado';
+  }
+
+  // E-mail Corporativo
+  const displayCorporateEmail = document.getElementById('displayCorporateEmail');
+  if (displayCorporateEmail) {
+    displayCorporateEmail.textContent = profile.corporateEmail || 'Não informado';
+  }
+
+  // CEP
+  const displayCep = document.getElementById('displayCep');
+  if (displayCep) {
+    displayCep.textContent = profile.cep ? formatCEP(profile.cep) : 'Não informado';
+  }
+
+  // Endereço completo
+  const displayAddress = document.getElementById('displayAddress');
+  if (displayAddress) {
+    if (profile.street && profile.neighborhood) {
+      const addressParts = [
+        profile.street,
+        profile.number ? `nº ${profile.number}` : 's/n',
+        profile.neighborhood
+      ].filter(Boolean);
+      displayAddress.textContent = addressParts.join(', ');
+    } else {
+      displayAddress.textContent = 'Não informado';
+    }
+  }
+
+  // Cidade/Estado
+  const displayCityState = document.getElementById('displayCityState');
+  if (displayCityState) {
+    if (profile.city && profile.state) {
+      displayCityState.textContent = `${profile.city} - ${profile.state}`;
+    } else {
+      displayCityState.textContent = 'Não informado';
+    }
+  }
+
   // Fill edit form
   const editName = document.getElementById('editName');
   if (editName) editName.value = user.name || '';
@@ -187,6 +257,13 @@ function displayProfile(user) {
   if (editDescription) editDescription.value = user.description || '';
   
   console.log('Profile displayed successfully');
+}
+
+// Função auxiliar para formatar CEP
+function formatCEP(value) {
+  if (!value) return '';
+  const numbers = value.replace(/\D/g, '');
+  return numbers.replace(/(\d{5})(\d{3})/, '$1-$2');
 }
 
 // Toggle edit mode

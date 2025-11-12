@@ -235,6 +235,213 @@ function displayProfile(user) {
     }
   }
 
+  // Exibir dados pessoais adicionais do candidateProfile
+  const profile = user.candidateProfile || {};
+
+  // Data de nascimento
+  const displayBirthDate = document.getElementById('displayBirthDate');
+  if (displayBirthDate) {
+    displayBirthDate.textContent = profile.birthDate ? formatDate(profile.birthDate) : 'Não informado';
+  }
+
+  // RG
+  const displayRG = document.getElementById('displayRG');
+  if (displayRG) {
+    displayRG.textContent = profile.rg || 'Não informado';
+  }
+
+  // Gênero
+  const displayGender = document.getElementById('displayGender');
+  if (displayGender) {
+    const genderLabels = {
+      'masculino': 'Masculino',
+      'feminino': 'Feminino',
+      'outro': 'Outro',
+      'nao-informar': 'Prefiro não informar'
+    };
+    displayGender.textContent = genderLabels[profile.gender] || 'Não informado';
+  }
+
+  // Estado civil
+  const displayMaritalStatus = document.getElementById('displayMaritalStatus');
+  if (displayMaritalStatus) {
+    const maritalLabels = {
+      'solteiro': 'Solteiro(a)',
+      'casado': 'Casado(a)',
+      'divorciado': 'Divorciado(a)',
+      'viuvo': 'Viúvo(a)',
+      'uniao-estavel': 'União Estável'
+    };
+    displayMaritalStatus.textContent = maritalLabels[profile.maritalStatus] || 'Não informado';
+  }
+
+  // WhatsApp
+  const displayWhatsapp = document.getElementById('displayWhatsapp');
+  if (displayWhatsapp) {
+    displayWhatsapp.textContent = profile.whatsapp ? formatPhone(profile.whatsapp) : 'Não informado';
+  }
+
+  // CEP
+  const displayCep = document.getElementById('displayCep');
+  if (displayCep) {
+    displayCep.textContent = profile.cep ? formatCEP(profile.cep) : 'Não informado';
+  }
+
+  // Endereço completo
+  const displayAddress = document.getElementById('displayAddress');
+  if (displayAddress) {
+    if (profile.street && profile.neighborhood) {
+      const addressParts = [
+        profile.street,
+        profile.number ? `nº ${profile.number}` : 's/n',
+        profile.neighborhood
+      ].filter(Boolean);
+      displayAddress.textContent = addressParts.join(', ');
+    } else {
+      displayAddress.textContent = 'Não informado';
+    }
+  }
+
+  // Cidade/Estado
+  const displayCityState = document.getElementById('displayCityState');
+  if (displayCityState) {
+    if (profile.city && profile.state) {
+      displayCityState.textContent = `${profile.city} - ${profile.state}`;
+    } else {
+      displayCityState.textContent = 'Não informado';
+    }
+  }
+
+  // Escolaridade atual
+  const displayCurrentEducation = document.getElementById('displayCurrentEducation');
+  if (displayCurrentEducation) {
+    const educationLabels = {
+      'fundamental-cursando': 'Ensino Fundamental (Cursando)',
+      'fundamental-completo': 'Ensino Fundamental Completo',
+      'medio-cursando': 'Ensino Médio (Cursando)',
+      'medio-completo': 'Ensino Médio Completo',
+      'superior-cursando': 'Ensino Superior (Cursando)',
+      'superior-completo': 'Ensino Superior Completo',
+      'pos-graduacao': 'Pós-Graduação'
+    };
+    displayCurrentEducation.textContent = educationLabels[profile.currentEducation] || 'Não informado';
+  }
+
+  // Instituição de ensino
+  const displayEducationInstitution = document.getElementById('displayEducationInstitution');
+  if (displayEducationInstitution) {
+    displayEducationInstitution.textContent = profile.educationInstitution || 'Não informado';
+  }
+
+  // Turno de estudo
+  const displayStudyShift = document.getElementById('displayStudyShift');
+  if (displayStudyShift) {
+    const shiftLabels = {
+      'manha': 'Manhã',
+      'tarde': 'Tarde',
+      'noite': 'Noite',
+      'ead': 'EAD'
+    };
+    displayStudyShift.textContent = shiftLabels[profile.studyShift] || 'Não informado';
+  }
+
+  // Curso técnico
+  const displayTechnicalCourse = document.getElementById('displayTechnicalCourse');
+  if (displayTechnicalCourse) {
+    displayTechnicalCourse.textContent = profile.technicalCourse || 'Não informado';
+  }
+
+  // Previsão de formatura
+  const displayExpectedGraduation = document.getElementById('displayExpectedGraduation');
+  if (displayExpectedGraduation) {
+    displayExpectedGraduation.textContent = profile.expectedGraduation ? formatDate(profile.expectedGraduation) : 'Não informado';
+  }
+
+  // Cursos extracurriculares
+  const displayExtracurricularCourses = document.getElementById('displayExtracurricularCourses');
+  if (displayExtracurricularCourses) {
+    displayExtracurricularCourses.textContent = profile.extracurricularCourses || 'Não informado';
+  }
+
+  // Áreas de interesse
+  const displayAreasOfInterest = document.getElementById('displayAreasOfInterest');
+  if (displayAreasOfInterest) {
+    if (profile.areasOfInterest && profile.areasOfInterest.length > 0) {
+      displayAreasOfInterest.innerHTML = profile.areasOfInterest.map(area => 
+        `<span class="skill-tag">${area}</span>`
+      ).join('');
+    } else {
+      displayAreasOfInterest.innerHTML = '<span style="color: #999;">Nenhuma área informada</span>';
+    }
+  }
+
+  // Experiência anterior
+  const displayPreviousExperience = document.getElementById('displayPreviousExperience');
+  if (displayPreviousExperience) {
+    displayPreviousExperience.textContent = profile.previousExperience || 'Não informado';
+  }
+
+  // Disponibilidade
+  const displayAvailability = document.getElementById('displayAvailability');
+  if (displayAvailability) {
+    const availabilityLabels = {
+      'manha': 'Manhã',
+      'tarde': 'Tarde',
+      'noite': 'Noite',
+      'integral': 'Período Integral',
+      'flexivel': 'Flexível'
+    };
+    displayAvailability.textContent = availabilityLabels[profile.availability] || 'Não informado';
+  }
+
+  // PCD
+  const displayPCD = document.getElementById('displayPCD');
+  const pcdDescriptionCard = document.getElementById('pcdDescriptionCard');
+  const displayPCDDescription = document.getElementById('displayPCDDescription');
+  if (displayPCD) {
+    displayPCD.textContent = profile.isPCD ? 'Sim' : 'Não';
+    if (profile.isPCD && profile.pcdDescription) {
+      if (pcdDescriptionCard) pcdDescriptionCard.style.display = 'block';
+      if (displayPCDDescription) displayPCDDescription.textContent = profile.pcdDescription;
+    } else {
+      if (pcdDescriptionCard) pcdDescriptionCard.style.display = 'none';
+    }
+  }
+
+  // Programa de Aprendizagem
+  const displayApprenticeshipProgram = document.getElementById('displayApprenticeshipProgram');
+  const apprenticeshipNameCard = document.getElementById('apprenticeshipNameCard');
+  const displayApprenticeshipProgramName = document.getElementById('displayApprenticeshipProgramName');
+  if (displayApprenticeshipProgram) {
+    displayApprenticeshipProgram.textContent = profile.isInApprenticeshipProgram ? 'Sim' : 'Não';
+    if (profile.isInApprenticeshipProgram && profile.apprenticeshipProgramName) {
+      if (apprenticeshipNameCard) apprenticeshipNameCard.style.display = 'block';
+      if (displayApprenticeshipProgramName) displayApprenticeshipProgramName.textContent = profile.apprenticeshipProgramName;
+    } else {
+      if (apprenticeshipNameCard) apprenticeshipNameCard.style.display = 'none';
+    }
+  }
+
+  // LinkedIn
+  const displayLinkedin = document.getElementById('displayLinkedin');
+  if (displayLinkedin) {
+    if (profile.linkedinUrl) {
+      displayLinkedin.innerHTML = `<a href="${profile.linkedinUrl}" target="_blank" rel="noopener noreferrer">${profile.linkedinUrl}</a>`;
+    } else {
+      displayLinkedin.textContent = 'Não informado';
+    }
+  }
+
+  // Portfólio
+  const displayPortfolio = document.getElementById('displayPortfolio');
+  if (displayPortfolio) {
+    if (profile.portfolioUrl) {
+      displayPortfolio.innerHTML = `<a href="${profile.portfolioUrl}" target="_blank" rel="noopener noreferrer">${profile.portfolioUrl}</a>`;
+    } else {
+      displayPortfolio.textContent = 'Não informado';
+    }
+  }
+
   // Fill edit form
   const editName = document.getElementById('editName');
   if (editName) editName.value = user.name || '';
@@ -258,6 +465,20 @@ function displayProfile(user) {
   updateHiddenSkillsInput();
   
   console.log('Profile displayed successfully');
+}
+
+// Função auxiliar para formatar datas
+function formatDate(dateString) {
+  if (!dateString) return 'Não informado';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pt-BR');
+}
+
+// Função auxiliar para formatar CEP
+function formatCEP(value) {
+  if (!value) return '';
+  const numbers = value.replace(/\D/g, '');
+  return numbers.replace(/(\d{5})(\d{3})/, '$1-$2');
 }
 
 // Skills management functions

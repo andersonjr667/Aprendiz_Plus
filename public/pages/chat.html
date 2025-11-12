@@ -1,360 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <link rel="icon" type="image/png" href="/public/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Aprendiz Plus</title>
+    <title>Chat - Aprendiz+</title>
     <link rel="stylesheet" href="../css/main.css">
-    <style>
-        .chat-container {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            height: calc(100vh - 80px);
-            gap: 0;
-        }
-        
-        .chat-list {
-            border-right: 1px solid #ddd;
-            overflow-y: auto;
-        }
-        
-        .chat-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .chat-item:hover, .chat-item.active {
-            background: #f5f5f5;
-        }
-        
-        .chat-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .chat-info {
-            flex: 1;
-        }
-        
-        .chat-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .chat-last-message {
-            font-size: 0.9em;
-            color: #666;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .chat-unread {
-            background: #007bff;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 0.8em;
-        }
-        
-        .chat-window {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-header {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            background: white;
-        }
-        
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f9f9f9;
-        }
-        
-        .message {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .message.sent {
-            flex-direction: row-reverse;
-        }
-        
-        .message img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        
-        .message-content {
-            max-width: 60%;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .message.sent .message-content {
-            background: #007bff;
-            color: white;
-        }
-        
-        .message-time {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .message.sent .message-time {
-            color: rgba(255,255,255,0.8);
-        }
-        
-        .message-read {
-            font-size: 0.7em;
-            color: #28a745;
-        }
-        
-        .chat-input {
-            padding: 15px;
-            border-top: 1px solid #ddd;
-            background: white;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .chat-input textarea {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            resize: none;
-            font-family: inherit;
-        }
-        
-        .chat-input button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        
-        .empty-chat {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="container">
-            <a href="/" class="logo">Aprendiz Plus</a>
-            <div class="nav-links">
-                <a href="/vagas">Vagas</a>
-                <a href="/empresas">Empresas</a>
-                <a href="/chat" class="active">Chat</a>
-                <a href="/perfil-candidato">Meu Perfil</a>
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="../index.html">
+                    <img src="../images/logo.png" alt="Aprendiz+" class="logo-img">
+                    Aprendiz+
+                </a>
             </div>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home"></i> Início
+                </a>
+                <a href="vagas.html" class="nav-link">
+                    <i class="fas fa-briefcase"></i> Vagas
+                </a>
+                <a href="noticias.html" class="nav-link">
+                    <i class="fas fa-newspaper"></i> Notícias
+                </a>
+                <a href="chat.html" class="nav-link active">
+                    <i class="fas fa-comments"></i> Chat
+                </a>
+                <a href="#" id="userProfileLink" class="nav-link">
+                    <i class="fas fa-user"></i> Meu Perfil
+                </a>
+                <button id="logoutBtn" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <span class="hamburger"></span>
+            </button>
         </div>
     </nav>
 
     <div class="chat-container">
-        <div class="chat-list" id="chatList">
-            <!-- Chat items will be loaded here -->
-        </div>
-        
-        <div class="chat-window">
-            <div id="emptyChat" class="empty-chat">
-                <p>Selecione uma conversa para começar</p>
+        <!-- Lista de conversas -->
+        <div class="chat-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-comments"></i> Conversas</h2>
             </div>
             
-            <div id="chatContent" style="display: none; height: 100%; display: flex; flex-direction: column;">
+            <div class="chat-list" id="chatList">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando conversas...
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de mensagens -->
+        <div class="chat-main">
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-comments fa-3x"></i>
+                <h3>Selecione uma conversa</h3>
+                <p>Escolha uma conversa ao lado para começar a trocar mensagens</p>
+            </div>
+
+            <div class="chat-area" id="chatArea" style="display: none;">
+                <!-- Cabeçalho do chat -->
                 <div class="chat-header">
-                    <h3 id="chatUserName"></h3>
+                    <div class="chat-header-info">
+                        <img src="../images/default-avatar.png" alt="" class="chat-avatar" id="chatAvatar">
+                        <div class="chat-header-text">
+                            <h3 id="chatUserName">Usuário</h3>
+                            <p id="chatJobTitle">Vaga</p>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="btn-icon" id="archiveChatBtn" title="Arquivar conversa">
+                            <i class="fas fa-archive"></i>
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="messages-container" id="messagesContainer">
-                    <!-- Messages will be loaded here -->
+
+                <!-- Mensagens -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Carregando mensagens...
+                    </div>
                 </div>
-                
-                <div class="chat-input">
-                    <textarea id="messageInput" rows="1" placeholder="Digite sua mensagem..."></textarea>
-                    <button onclick="sendMessage()">Enviar</button>
+
+                <!-- Input de mensagem -->
+                <div class="chat-input-container">
+                    <form id="messageForm" class="chat-input-form">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Digite sua mensagem..." 
+                            rows="1"
+                            maxlength="2000"
+                        ></textarea>
+                        <button type="submit" class="btn-send" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div class="char-counter">
+                        <span id="charCount">0</span>/2000
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../js/global.js"></script>
-    <script>
-        let currentChatId = null;
-        let currentUser = null;
-        let chats = [];
-
-        async function loadChats() {
-            try {
-                const response = await fetch('/api/chats', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.ok) {
-                    chats = await response.json();
-                    renderChats();
-                }
-            } catch (error) {
-                console.error('Erro ao carregar conversas:', error);
-            }
-        }
-
-        function renderChats() {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-            
-            chats.forEach(chat => {
-                const div = document.createElement('div');
-                div.className = 'chat-item';
-                div.onclick = () => openChat(chat.id);
-                
-                const photoUrl = chat.otherUser?.profilePhoto || '/images/default-avatar.png';
-                
-                div.innerHTML = `
-                    <img src="${photoUrl}" alt="${chat.otherUser?.name}">
-                    <div class="chat-info">
-                        <div class="chat-name">${chat.otherUser?.name || 'Usuário'}</div>
-                        <div class="chat-last-message">
-                            ${chat.lastMessage ? chat.lastMessage.content.substring(0, 50) : 'Nenhuma mensagem'}
-                        </div>
-                    </div>
-                    ${chat.unreadCount > 0 ? `<span class="chat-unread">${chat.unreadCount}</span>` : ''}
-                `;
-                
-                chatList.appendChild(div);
-            });
-        }
-
-        async function openChat(chatId) {
-            currentChatId = chatId;
-            const chat = chats.find(c => c.id === chatId);
-            
-            document.getElementById('emptyChat').style.display = 'none';
-            document.getElementById('chatContent').style.display = 'flex';
-            document.getElementById('chatUserName').textContent = chat.otherUser?.name || 'Chat';
-            
-            // Mark chat items as active
-            document.querySelectorAll('.chat-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.closest('.chat-item').classList.add('active');
-            
-            await loadMessages(chatId);
-        }
-
-        async function loadMessages(chatId) {
-            try {
-                const response = await fetch(`/api/chats/${chatId}/messages`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const messages = await response.json();
-                    renderMessages(messages);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar mensagens:', error);
-            }
-        }
-
-        function renderMessages(messages) {
-            const container = document.getElementById('messagesContainer');
-            container.innerHTML = '';
-            
-            const user = JSON.parse(localStorage.getItem('user'));
-            
-            messages.forEach(msg => {
-                const div = document.createElement('div');
-                const isSent = msg.senderId === user.id;
-                div.className = `message ${isSent ? 'sent' : 'received'}`;
-                
-                const time = new Date(msg.createdAt).toLocaleTimeString('pt-BR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                
-                const readStatus = msg.readBy.length > 1 ? '<span class="message-read">✓✓ Lido</span>' : '';
-                
-                div.innerHTML = `
-                    <div class="message-content">
-                        <div>${msg.content}</div>
-                        <div class="message-time">${time} ${readStatus}</div>
-                    </div>
-                `;
-                
-                container.appendChild(div);
-            });
-            
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const content = input.value.trim();
-            
-            if (!content || !currentChatId) return;
-            
-            try {
-                const response = await fetch(`/api/chats/${currentChatId}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ content })
-                });
-                
-                if (response.ok) {
-                    input.value = '';
-                    await loadMessages(currentChatId);
-                    await loadChats(); // Refresh chat list
-                } else {
-                    const error = await response.json();
-                    window.alert(error.error || 'Erro ao enviar mensagem');
-                }
-            } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                window.alert('Erro ao enviar mensagem');
-            }
-        }
-
-        // Auto-refresh messages every 5 seconds
-        setInterval(() => {
-            if (currentChatId) {
-                loadMessages(currentChatId);
-            }
-            loadChats();
-        }, 5000);
-
-        // Load chats on page load
-        loadChats();
-    </script>
+    <script src="../js/api.js"></script>
+    <script src="../js/hamburger-menu.js"></script>
+    <script src="../js/chat.js"></script>
 </body>
 </html>
