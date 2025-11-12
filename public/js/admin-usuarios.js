@@ -27,7 +27,7 @@ async function checkAdminAccess() {
 
     currentUser = await response.json();
 
-    if (currentUser.type !== 'admin') {
+    if (currentUser.type !== 'admin' && currentUser.type !== 'owner') {
       showMessage('Acesso negado. Apenas administradores podem acessar esta página.', 'error');
       setTimeout(() => window.location.href = '/', 2000);
       return false;

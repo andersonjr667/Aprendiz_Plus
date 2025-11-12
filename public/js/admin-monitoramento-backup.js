@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkAdminAccess() {
   try {
     const user = await Auth.getCurrentUser();
-    if (!user || user.type !== 'admin') {
+    if (!user || (user.type !== 'admin' && user.type !== 'owner')) {
       showMessage('Acesso negado. Apenas administradores.', 'error');
       setTimeout(() => window.location.href = '/admin', 2000);
     }

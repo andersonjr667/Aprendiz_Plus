@@ -12,6 +12,7 @@ async function seed(){
   console.log('Connected');
   await Promise.all([User.deleteMany(), Job.deleteMany(), News.deleteMany()]);
   const password = await bcrypt.hash('password123', 10);
+  const owner = await User.create({ name: 'Dono do Sistema', email: 'dono@local', passwordHash: password, type: 'owner' });
   const admin = await User.create({ name: 'Admin', email: 'admin@local', passwordHash: password, type: 'admin' });
   const companyA = await User.create({ name: 'Empresa A', email: 'a@empresa', passwordHash: password, type: 'empresa', companyProfile: { website: 'https://empresa-a.local' } });
   const companyB = await User.create({ name: 'Empresa B', email: 'b@empresa', passwordHash: password, type: 'empresa', companyProfile: { website: 'https://empresa-b.local' } });
@@ -73,62 +74,72 @@ async function seed(){
       title: 'Mercado de Trabalho Aquecido para Desenvolvedores Junior',
       content: 'O mercado de tecnologia continua em expansão, criando diversas oportunidades para desenvolvedores iniciantes. Empresas estão investindo pesadamente em programas de trainee e estágio, oferecendo salários competitivos e benefícios atrativos. As tecnologias mais procuradas incluem JavaScript, Python, React e Node.js. Para se destacar, é importante ter um portfólio sólido no GitHub e conhecimento em metodologias ágeis.',
       category: 'Mercado de Trabalho',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-11-01')
     },
     {
       title: 'Dicas Essenciais para Entrevistas de Emprego Online',
       content: 'Com o crescimento do trabalho remoto, as entrevistas online se tornaram padrão no processo seletivo. Algumas dicas importantes: teste sua conexão de internet e equipamentos antecipadamente, escolha um ambiente bem iluminado e silencioso, vista-se adequadamente, prepare-se para perguntas técnicas e comportamentais, e tenha uma cópia do seu currículo em mãos. Lembre-se de manter contato visual com a câmera e demonstrar entusiasmo pela oportunidade.',
       category: 'Carreira',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-28')
     },
     {
       title: 'Novas Tecnologias que Todo Jovem Profissional Deve Conhecer',
       content: 'A tecnologia evolui rapidamente e é crucial se manter atualizado. Em 2024, algumas tecnologias ganham destaque: Inteligência Artificial e Machine Learning estão revolucionando diversos setores, desenvolvimento mobile com Flutter e React Native oferece ótimas oportunidades, cloud computing (AWS, Azure, Google Cloud) é essencial para infraestrutura moderna, e cybersecurity se torna cada vez mais importante. Investir tempo em aprender essas tecnologias pode abrir muitas portas.',
       category: 'Tecnologia',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-25')
     },
     {
       title: 'Lei do Jovem Aprendiz: Benefícios e Oportunidades',
       content: 'A Lei do Jovem Aprendiz (Lei 10.097/2000) determina que empresas de médio e grande porte contratem entre 5% e 15% de aprendizes do total de funcionários. Este programa oferece experiência profissional real, capacitação técnica, registro em carteira, salário mínimo/hora, vale-transporte e 13º salário. É uma excelente porta de entrada no mercado de trabalho, especialmente para jovens entre 14 e 24 anos que buscam sua primeira oportunidade profissional.',
       category: 'Legislação',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-22')
     },
     {
       title: 'Como Criar um Currículo Atrativo para Recém-Formados',
       content: 'Para recém-formados sem experiência profissional, o currículo deve destacar outros pontos fortes: formação acadêmica com projetos relevantes, estágios e trabalhos voluntários, cursos complementares e certificações, habilidades técnicas e linguagens de programação, participação em eventos e hackathons, e projetos pessoais no GitHub. Mantenha o design limpo e profissional, use palavras-chave da área, e personalize o currículo para cada vaga. Um bom currículo pode compensar a falta de experiência formal.',
       category: 'Carreira',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-20')
     },
     {
       title: 'Programa de Estágios 2025: Principais Empresas Abertas',
       content: 'O período de inscrições para programas de estágio 2025 já começou em várias empresas. Grandes corporações como Banco do Brasil, Petrobras, Vale, Ambev, e diversas fintechs estão com processos seletivos abertos. Os programas geralmente oferecem bolsa-auxílio competitiva, vale-refeição, vale-transporte, seguro de vida, e oportunidades de efetivação. É importante ficar atento aos prazos e requisitos específicos de cada empresa. Prepare-se para testes online, dinâmicas de grupo e entrevistas comportamentais.',
       category: 'Oportunidades',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-18')
     },
     {
       title: 'Soft Skills: Competências Essenciais para o Mercado Atual',
       content: 'Além das habilidades técnicas, as soft skills são fundamentais para o sucesso profissional. As mais valorizadas incluem: comunicação eficaz, trabalho em equipe, adaptabilidade, resolução de problemas, liderança, gestão de tempo, pensamento crítico, e inteligência emocional. Desenvolva essas competências através de projetos em grupo, atividades extracurriculares, voluntariado, e feedback constante. Muitas empresas valorizam mais candidatos com boas soft skills do que apenas conhecimento técnico.',
       category: 'Desenvolvimento',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-15')
     },
     {
       title: 'Tendências do Mercado de Trabalho para 2025',
       content: 'O mercado de trabalho continua evoluindo rapidamente. As principais tendências para 2025 incluem: crescimento do trabalho híbrido e remoto, maior foco em sustentabilidade e ESG, automatização de processos repetitivos, valorização da diversidade e inclusão, uso de IA no recrutamento, upskilling e reskilling contínuos, e flexibilidade de horários. Profissionais que se adaptarem a essas mudanças terão vantagem competitiva. É importante desenvolver habilidades digitais e manter-se atualizado com as transformações do setor.',
       category: 'Mercado de Trabalho',
-      author: admin._id,
+      author: owner._id,
       createdAt: new Date('2024-10-12')
     }
   ];
 
   await News.insertMany(newsData);
   console.log('News created');
+
+  console.log('\n=== Seed concluído com sucesso! ===');
+  console.log('\n📧 Contas de teste criadas:');
+  console.log('👑 DONO: dono@local / password123');
+  console.log('👤 ADMIN: admin@local / password123');
+  console.log('🏢 EMPRESA A: a@empresa / password123');
+  console.log('🏢 EMPRESA B: b@empresa / password123');
+  console.log('👨 CANDIDATO 1: c1@local / password123');
+  console.log('👨 CANDIDATO 2: c2@local / password123');
+  console.log('👨 CANDIDATO 3: c3@local / password123\n');
 
   console.log('Seed done');
   process.exit(0);

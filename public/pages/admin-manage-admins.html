@@ -6,6 +6,7 @@
     <title>Gerenciar Administradores - Aprendiz+</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/perfil-admin.css">
+    <script src="/js/auth.js"></script>
     <style>
         .admin-management-container {
             max-width: 1200px;
@@ -389,7 +390,14 @@
 
         // Carregar token ao iniciar
         document.addEventListener('DOMContentLoaded', async () => {
-            currentToken = localStorage.getItem('token');
+            // Esperar o Auth.js carregar
+            if (!window.Auth || !window.Auth.getToken) {
+                console.error('Auth.js não foi carregado corretamente');
+                setTimeout(() => window.location.href = '/login', 100);
+                return;
+            }
+            
+            currentToken = window.Auth.getToken();
             if (!currentToken) {
                 window.location.href = '/login';
                 return;
@@ -409,6 +417,7 @@
                 }
                 
                 const user = await response.json();
+                console.log('User type:', user.type); // Debug
                 
                 // Apenas owners podem acessar
                 if (user.type !== 'owner') {
