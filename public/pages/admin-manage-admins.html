@@ -4,9 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Administradores - Aprendiz+</title>
+    <link rel="icon" type="image/png" href="/public/images/logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/public/css/variables.css">
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/perfil-admin.css">
+    
     <script src="/public/js/auth.js"></script>
+    <script src="/public/js/hamburger-menu.js" defer></script>
     <style>
         .admin-management-container {
             max-width: 1200px;
@@ -15,7 +29,7 @@
         }
 
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
             padding: 30px;
             border-radius: 10px;
@@ -52,8 +66,8 @@
         }
 
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #27ae60;
+            border-bottom-color: #27ae60;
         }
 
         .tab-content {
@@ -103,7 +117,7 @@
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #27ae60;
         }
 
         .btn {
@@ -117,13 +131,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
         }
 
         .btn-success {
@@ -167,7 +181,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -267,7 +281,7 @@
 
         .promote-card h3 {
             margin-top: 0;
-            color: #667eea;
+            color: #27ae60;
         }
 
         .loading {
@@ -278,7 +292,7 @@
 
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid #27ae60;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -303,7 +317,33 @@
         }
     </style>
 </head>
-<body>
+<body class="page-container">
+    <!-- Navigation -->
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo">
+                <a href="/">Aprendiz+</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links">
+                <a href="/">Início</a>
+                <a href="/vagas">Vagas</a>
+                <a href="/noticias">Notícias</a>
+                <a href="/admin">Painel Admin</a>
+                <a href="/admin-manage-admins" class="active">Gerenciar Admins</a>
+                <a href="/perfil-admin">Meu Perfil</a>
+                <button onclick="logout()" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content" style="padding-top: 75px;">
     <div class="admin-management-container">
         <div class="page-header">
             <h1><i class="fas fa-crown"></i> Gerenciar Administradores</h1>
@@ -793,5 +833,6 @@
         });
     </script>
     <script src="/public/js/ui-dialogs.js"></script>
+    </main>
 </body>
 </html>
