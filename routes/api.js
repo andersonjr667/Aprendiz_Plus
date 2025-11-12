@@ -8,6 +8,7 @@ const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
 const mongoose = require('mongoose');
 const { GridFSBucket } = require('mongodb');
+const { cpf, cnpj } = require('cpf-cnpj-validator');
 
 const User = require('../models/User');
 const Job = require('../models/Job');
@@ -77,11 +78,35 @@ router.post('/auth/register',
       return res.status(400).json({ errors: errors.array() });
     }
     try {
-      const { name, email, password, type } = req.body;
+      const { name, email, password, type, cpf: userCpf, cnpj: userCnpj } = req.body;
       
       // Validacao adicional
       if (!name || !email || !password) {
         return res.status(400).json({ error: 'Nome, email e senha sao obrigatorios' });
+      }
+      
+      // Validar CPF para candidatos
+      if (type === 'candidato' && userCpf) {
+        if (!cpf.isValid(userCpf)) {
+          return res.status(400).json({ error: 'CPF inválido' });
+        }
+        // Verificar se CPF já está em uso
+        const existingCpf = await User.findOne({ cpf: cpf.strip(userCpf) });
+        if (existingCpf) {
+          return res.status(400).json({ error: 'CPF já cadastrado' });
+        }
+      }
+      
+      // Validar CNPJ para empresas
+      if (type === 'empresa' && userCnpj) {
+        if (!cnpj.isValid(userCnpj)) {
+          return res.status(400).json({ error: 'CNPJ inválido' });
+        }
+        // Verificar se CNPJ já está em uso
+        const existingCnpj = await User.findOne({ cnpj: cnpj.strip(userCnpj) });
+        if (existingCnpj) {
+          return res.status(400).json({ error: 'CNPJ já cadastrado' });
+        }
       }
       
       // Verifica se email ja existe (case-insensitive)
@@ -94,14 +119,25 @@ router.post('/auth/register',
       // Faz hash da senha
       const hash = await bcrypt.hash(password, 10);
       
-      // Cria novo usuario com status ativo por padrão
-      const user = await User.create({ 
+      // Prepara dados do usuário
+      const userData = { 
         name: name.trim(), 
         email: email.toLowerCase(), 
         passwordHash: hash, 
         type: type || 'candidato',
         status: 'active'
-      });
+      };
+      
+      // Adiciona CPF ou CNPJ formatado (apenas números)
+      if (type === 'candidato' && userCpf) {
+        userData.cpf = cpf.strip(userCpf);
+      }
+      if (type === 'empresa' && userCnpj) {
+        userData.cnpj = cnpj.strip(userCnpj);
+      }
+      
+      // Cria novo usuario com status ativo por padrão
+      const user = await User.create(userData);
       
       console.log('User created successfully:', user._id);
       

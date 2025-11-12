@@ -157,12 +157,18 @@ function validateForm(formData) {
   const cpf = formData.get('cpf');
   const cnpj = formData.get('cnpj');
 
-  if (type === 'candidato' && cpf && cpf.trim() && !cpf.match(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/)) {
-    throw new Error('CPF inválido. Use o formato: 000.000.000-00');
+  if (type === 'candidato' && cpf && cpf.trim()) {
+    const cpfClean = cpf.replace(/\D/g, '');
+    if (!isValidCPF(cpfClean)) {
+      throw new Error('CPF inválido');
+    }
   }
   
-  if (type === 'empresa' && cnpj && cnpj.trim() && !cnpj.match(/^\d{2}\.?\d{3}\.?\d{3}\/?[0-9]{4}-?\d{2}$/)) {
-    throw new Error('CNPJ inválido. Use o formato: 00.000.000/0000-00');
+  if (type === 'empresa' && cnpj && cnpj.trim()) {
+    const cnpjClean = cnpj.replace(/\D/g, '');
+    if (!isValidCNPJ(cnpjClean)) {
+      throw new Error('CNPJ inválido');
+    }
   }
 }
 
@@ -279,4 +285,83 @@ function formatCNPJ(e) {
   v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
   v = v.replace(/(\d{4})(\d)/, '$1-$2');
   e.target.value = v;
+}
+
+// Validação de CPF
+function isValidCPF(cpf) {
+  if (!cpf || typeof cpf !== 'string') return false;
+  
+  // Remove caracteres não numéricos
+  cpf = cpf.replace(/\D/g, '');
+  
+  // Verifica se tem 11 dígitos
+  if (cpf.length !== 11) return false;
+  
+  // Verifica se todos os dígitos são iguais (CPF inválido)
+  if (/^(\d)\1+$/.test(cpf)) return false;
+  
+  // Validação do primeiro dígito verificador
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cpf.charAt(i)) * (10 - i);
+  }
+  let digit1 = 11 - (sum % 11);
+  if (digit1 > 9) digit1 = 0;
+  if (parseInt(cpf.charAt(9)) !== digit1) return false;
+  
+  // Validação do segundo dígito verificador
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(cpf.charAt(i)) * (11 - i);
+  }
+  let digit2 = 11 - (sum % 11);
+  if (digit2 > 9) digit2 = 0;
+  if (parseInt(cpf.charAt(10)) !== digit2) return false;
+  
+  return true;
+}
+
+// Validação de CNPJ
+function isValidCNPJ(cnpj) {
+  if (!cnpj || typeof cnpj !== 'string') return false;
+  
+  // Remove caracteres não numéricos
+  cnpj = cnpj.replace(/\D/g, '');
+  
+  // Verifica se tem 14 dígitos
+  if (cnpj.length !== 14) return false;
+  
+  // Verifica se todos os dígitos são iguais (CNPJ inválido)
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+  
+  // Validação do primeiro dígito verificador
+  let length = cnpj.length - 2;
+  let numbers = cnpj.substring(0, length);
+  let digits = cnpj.substring(length);
+  let sum = 0;
+  let pos = length - 7;
+  
+  for (let i = length; i >= 1; i--) {
+    sum += parseInt(numbers.charAt(length - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  
+  let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  if (result !== parseInt(digits.charAt(0))) return false;
+  
+  // Validação do segundo dígito verificador
+  length = length + 1;
+  numbers = cnpj.substring(0, length);
+  sum = 0;
+  pos = length - 7;
+  
+  for (let i = length; i >= 1; i--) {
+    sum += parseInt(numbers.charAt(length - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  
+  result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  if (result !== parseInt(digits.charAt(1))) return false;
+  
+  return true;
 }
