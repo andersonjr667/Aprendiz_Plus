@@ -148,11 +148,11 @@
                         updateNearbyJobs();
                     },
                     error => {
-                        alert('Não foi possível obter sua localização');
+                        window.alert('Não foi possível obter sua localização');
                     }
                 );
             } else {
-                alert('Geolocalização não suportada pelo navegador');
+                window.alert('Geolocalização não suportada pelo navegador');
             }
         }
         

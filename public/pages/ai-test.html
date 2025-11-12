@@ -362,7 +362,7 @@
             <button onclick="this.closest('[style*=fixed]').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
           </div>
           <pre style="background: #f8f9fa; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${formatted}</pre>
-          <button onclick="navigator.clipboard.writeText('${formatted.replace(/'/g, "\\'")}').then(() => alert('Copiado!'))" class="btn" style="margin-top: 15px;">
+          <button onclick="navigator.clipboard.writeText('${formatted.replace(/'/g, "\\'")}').then(() => window.alert('Copiado!'))" class="btn" style="margin-top: 15px;">
             <i class="fas fa-copy"></i> Copiar JSON
           </button>
         </div>
@@ -373,8 +373,8 @@
       log('Perfil completo exibido');
     }
 
-    function resetAI() {
-      if (confirm('Tem certeza que deseja resetar todos os dados da IA?')) {
+    async function resetAI() {
+      if (await window.confirm('Tem certeza que deseja resetar todos os dados da IA?')) {
         jobAI.resetProfile();
         updateProfileUI();
         document.getElementById('recommendations').innerHTML = '<p style="color: #666;">IA resetada. Simule interações para começar!</p>';

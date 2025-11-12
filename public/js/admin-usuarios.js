@@ -253,7 +253,7 @@ async function loadUsers() {
         const id = e.currentTarget.dataset.id;
         const name = e.currentTarget.dataset.name;
         
-        if (!confirm(`Tem certeza que deseja desbanir ${name}?`)) {
+        if (!(await window.confirm(`Tem certeza que deseja desbanir ${name}?`))) {
           return;
         }
 
@@ -397,7 +397,7 @@ async function confirmModeration() {
   }
 
   if (currentModerationAction === 'delete') {
-    if (!confirm(`ATENÇÃO: Você está prestes a DELETAR permanentemente o usuário ${currentModerationUserName}. Esta ação NÃO PODE ser desfeita. Tem certeza?`)) {
+    if (!(await window.confirm(`ATENÇÃO: Você está prestes a DELETAR permanentemente o usuário ${currentModerationUserName}. Esta ação NÃO PODE ser desfeita. Tem certeza?`))) {
       return;
     }
 

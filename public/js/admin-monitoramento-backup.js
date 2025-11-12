@@ -1776,7 +1776,7 @@ async function quickAction(action) {
       input.value = 'O que aconteceu de importante hoje?';
       break;
     case 'limpar':
-      if (confirm('Deseja limpar o histórico deste chat?')) {
+      if (await window.confirm('Deseja limpar o histórico deste chat?')) {
         chatHistory[currentAssistant] = [];
         document.getElementById('aiChatMessages').innerHTML = '';
         addWelcomeMessage(currentAssistant);

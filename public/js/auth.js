@@ -241,8 +241,14 @@ async function register(event) {
 
 async function logout() {
   // Adicionar confirmação antes de fazer logout
-  const confirmed = confirm('Tem certeza que deseja sair?');
-  if (!confirmed) return;
+  try {
+    const confirmed = (window.confirm && window.confirm instanceof Function) ? await window.confirm('Tem certeza que deseja sair?') : confirm('Tem certeza que deseja sair?');
+    if (!confirmed) return;
+  } catch (e) {
+    // fallback to native confirm
+    const confirmed = window._nativeConfirm ? window._nativeConfirm('Tem certeza que deseja sair?') : true;
+    if (!confirmed) return;
+  }
 
   try {
     const token = window.Auth.getToken();

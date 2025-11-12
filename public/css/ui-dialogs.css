@@ -1,0 +1,46 @@
+/* Simple styles for UI dialogs */
+#ui-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+  opacity: 1;
+}
+#ui-overlay.ui-hidden { display: none; }
+#ui-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+#ui-modal.ui-hidden { display: none; }
+.ui-modal-card {
+  width: 480px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  overflow: hidden;
+  font-family: Poppins, sans-serif;
+}
+.ui-modal-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
+.ui-modal-header h3 { margin: 0; font-size: 18px; }
+.ui-modal-body { padding: 18px 20px; color: #333; }
+.ui-modal-actions { padding: 12px 18px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #f1f1f1; }
+.ui-modal-actions .btn { min-width: 110px; }
+
+#ui-toast-container { position: fixed; right: 16px; top: 16px; z-index: 10000; display:flex; flex-direction:column; gap:8px; }
+.ui-toast { background: #2563eb; color: #fff; padding: 10px 14px; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.12); }
+.ui-toast-hide { opacity:0; transform: translateY(-6px); transition: all .3s ease; }
+.ui-toast-success { background: #16a34a; }
+.ui-toast-error { background: #dc2626; }
+.ui-toast-info { background: #2563eb; }
+
+/* Buttons (using existing .btn classes likely) fallback */
+.btn { padding: 8px 12px; border-radius:6px; border:none; cursor:pointer; }
+.btn-primary { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
+.btn-secondary { background: #e5e7eb; color:#111827; }
+
+/* small responsive */
+@media (max-width: 520px){ .ui-modal-card{ width: 92vw; } }

@@ -138,7 +138,7 @@ async function loadNewsList() {
     // Adicionar event listeners aos botões de remoção
     document.querySelectorAll('.remove').forEach(b => {
       b.addEventListener('click', async e => {
-        if (!confirm('Tem certeza que deseja remover esta notícia?')) return;
+        if (!(await window.confirm('Tem certeza que deseja remover esta notícia?'))) return;
         
         const id = e.currentTarget.dataset.id;
         

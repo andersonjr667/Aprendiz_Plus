@@ -337,11 +337,11 @@
                     await loadChats(); // Refresh chat list
                 } else {
                     const error = await response.json();
-                    alert(error.error || 'Erro ao enviar mensagem');
+                    window.alert(error.error || 'Erro ao enviar mensagem');
                 }
             } catch (error) {
                 console.error('Erro ao enviar mensagem:', error);
-                alert('Erro ao enviar mensagem');
+                window.alert('Erro ao enviar mensagem');
             }
         }
 

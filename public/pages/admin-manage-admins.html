@@ -394,42 +394,42 @@
             
             // Esperar o Auth.js carregar
             if (!window.Auth || !window.Auth.getToken) {
-                console.error('❌ Auth.js não foi carregado corretamente');
+                console.error('[ERROR] Auth.js não foi carregado corretamente');
                 console.log('window.Auth:', window.Auth);
                 setTimeout(() => window.location.href = '/login', 100);
                 return;
             }
             
-            console.log('✅ Auth.js carregado com sucesso');
+            console.log('[SUCCESS] Auth.js carregado com sucesso');
             
             currentToken = window.Auth.getToken();
-            console.log('Token obtido:', currentToken ? 'SIM (' + currentToken.substring(0, 20) + '...)' : 'NÃO');
+            console.log('[DEBUG] Token obtido:', currentToken ? 'SIM (' + currentToken.substring(0, 20) + '...)' : 'NÃO');
             
             if (!currentToken) {
-                console.error('❌ Nenhum token encontrado');
+                console.error('[ERROR] Nenhum token encontrado');
                 window.location.href = '/login';
                 return;
             }
             
             // Verificar se é owner
             try {
-                console.log('📡 Fazendo requisição para /api/users/me...');
+                console.log('[DEBUG] Fazendo requisição para /api/users/me...');
                 const response = await fetch('/api/users/me', {
                     headers: {
                         'Authorization': `Bearer ${currentToken}`
                     }
                 });
                 
-                console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+                console.log('[DEBUG] Resposta recebida - Status:', response.status, response.statusText);
                 
                 if (!response.ok) {
-                    console.error('❌ Resposta não OK:', response.status);
+                    console.error('[ERROR] Resposta não OK:', response.status);
                     window.location.href = '/login';
                     return;
                 }
                 
                 const user = await response.json();
-                console.log('👤 Dados do usuário:', {
+                console.log('[DEBUG] Dados do usuário:', {
                     name: user.name,
                     email: user.email,
                     type: user.type,
@@ -438,7 +438,7 @@
                 
                 // Apenas owners podem acessar
                 if (user.type !== 'owner') {
-                    console.error('❌ Usuário não é owner. Tipo atual:', user.type);
+                    console.error('[ERROR] Usuário não é owner. Tipo atual:', user.type);
                     showAlert('Acesso negado. Apenas o proprietário do sistema pode acessar esta página.', 'error');
                     setTimeout(() => {
                         window.location.href = '/admin';
@@ -446,10 +446,10 @@
                     return;
                 }
                 
-                console.log('✅ Acesso permitido! Usuário é owner.');
+                console.log('[SUCCESS] Acesso permitido! Usuário é owner.');
                 loadAdministrators();
             } catch (error) {
-                console.error('❌ Erro ao verificar permissões:', error);
+                console.error('[ERROR] Erro ao verificar permissões:', error);
                 window.location.href = '/login';
             }
         });
@@ -641,7 +641,7 @@
 
         // Promover usuário da lista
         async function promoteUser(userId, userName) {
-            if (!confirm(`Deseja promover ${userName} a administrador?`)) {
+            if (!(await window.confirm(`Deseja promover ${userName} a administrador?`))) {
                 return;
             }
 
@@ -731,14 +731,13 @@
 
         // Rebaixar admin
         async function demoteAdmin(userId, userName) {
-            const newType = prompt(`Para qual tipo deseja converter ${userName}?\n\nDigite: candidato ou empresa`);
+            const newType = await window.prompt(`Para qual tipo deseja converter ${userName}?\n\nDigite: candidato ou empresa`);
             
             if (!newType || !['candidato', 'empresa'].includes(newType.toLowerCase())) {
                 showAlert('Tipo inválido! Use "candidato" ou "empresa"', 'error');
                 return;
             }
-
-            if (!confirm(`Confirma remover ${userName} de administrador e converter para ${newType}?`)) {
+            if (!(await window.confirm(`Confirma remover ${userName} de administrador e converter para ${newType}?`))) {
                 return;
             }
 
@@ -793,5 +792,6 @@
             }
         });
     </script>
+    <script src="/public/js/ui-dialogs.js"></script>
 </body>
 </html>
