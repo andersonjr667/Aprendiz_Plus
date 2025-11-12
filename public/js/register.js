@@ -382,9 +382,13 @@ async function handleRegister(event) {
     // Envia para API (usa o wrapper API.fetch definido em /public/js/api.js)
     const result = await API.fetch('/auth/register', { method: 'POST', body: userData });
     
-    if (result && (result.ok || result.success)) {
-      showRegisterMessage('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
-      setTimeout(() => { window.location.href = '/login?registered=true'; }, 2000);
+    if (result && (result.ok || result.success || result.user || result.token)) {
+      showRegisterMessage('✅ Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
+      
+      // Redirecionar imediatamente para o login
+      setTimeout(() => { 
+        window.location.href = '/login?registered=true'; 
+      }, 1500);
       return;
     }
 

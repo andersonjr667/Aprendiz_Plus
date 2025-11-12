@@ -16,14 +16,45 @@
     const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
     if(token){ opts.headers['Authorization'] = 'Bearer ' + token; }
 
-      // ensure cookies (httpOnly token) are sent for same-site auth
-      if (!opts.credentials) opts.credentials = 'include';
+    // ensure cookies (httpOnly token) are sent for same-site auth
+    if (!opts.credentials) opts.credentials = 'include';
 
+    try {
       const res = await fetch(url, opts);
-    let payload = null;
-    try{ payload = await res.json(); }catch(e){ payload = null; }
-    if(!res.ok){ const err = new Error(payload && payload.error ? payload.error : ('HTTP '+res.status)); err.response = res; err.payload = payload; throw err; }
-    return payload;
+      let payload = null;
+      try{ payload = await res.json(); }catch(e){ payload = null; }
+      
+      if(!res.ok){ 
+        // Mensagens de erro mais específicas
+        let errorMsg = payload && payload.error ? payload.error : ('HTTP '+res.status);
+        
+        if (res.status === 502) {
+          errorMsg = 'Servidor temporariamente indisponível. Verifique se o servidor está rodando.';
+        } else if (res.status === 500) {
+          errorMsg = 'Erro interno do servidor. Por favor, tente novamente.';
+        } else if (res.status === 404) {
+          errorMsg = 'Endpoint não encontrado: ' + url;
+        } else if (res.status === 401) {
+          errorMsg = 'Não autorizado. Faça login novamente.';
+        } else if (res.status === 403) {
+          errorMsg = 'Acesso negado.';
+        }
+        
+        const err = new Error(errorMsg); 
+        err.response = res; 
+        err.payload = payload; 
+        throw err; 
+      }
+      return payload;
+    } catch (error) {
+      // Se for erro de rede (servidor não responde)
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        const networkErr = new Error('Não foi possível conectar ao servidor. Verifique se o servidor está rodando em http://localhost:3000');
+        networkErr.isNetworkError = true;
+        throw networkErr;
+      }
+      throw error;
+    }
   }
 
   window.apiFetch = apiFetch;
