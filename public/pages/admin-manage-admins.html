@@ -624,9 +624,14 @@
                                 <p>${user.email}</p>
                                 <span class="user-type-badge badge-${user.type}">${user.type}</span>
                             </div>
-                            <button class="btn btn-success" onclick="promoteUser('${user.id}', '${user.name}')">
-                                ⬆️ Promover a Admin
-                            </button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="viewProfile('${user.id}', '${user.type}')" title="Ver perfil público">
+                                    👁️ Ver Perfil
+                                </button>
+                                <button class="btn btn-success" onclick="promoteUser('${user.id}', '${user.name}')">
+                                    ⬆️ Promover a Admin
+                                </button>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -700,11 +705,16 @@
                                         <p>${admin.email}</p>
                                         <span class="user-type-badge badge-admin">Administrador</span>
                                     </div>
-                                    ${admin.canBeModified ? `
-                                        <button class="btn btn-danger" onclick="demoteAdmin('${admin._id}', '${admin.name}')">
-                                            ⬇️ Remover Admin
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="viewProfile('${admin._id}', 'admin')" title="Ver perfil público">
+                                            👁️ Ver Perfil
                                         </button>
-                                    ` : '<span style="color: #999;">Não pode ser modificado</span>'}
+                                        ${admin.canBeModified ? `
+                                            <button class="btn btn-danger" onclick="demoteAdmin('${admin._id}', '${admin.name}')">
+                                                ⬇️ Remover Admin
+                                            </button>
+                                        ` : '<span style="color: #999;">Não pode ser modificado</span>'}
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -754,6 +764,26 @@
                 showAlert('Erro ao conectar com o servidor', 'error');
                 console.error(error);
             }
+        }
+
+        // Ver perfil público do usuário
+        function viewProfile(userId, userType) {
+            let profileUrl = '';
+            
+            // Determinar a URL do perfil baseado no tipo
+            if (userType === 'candidato') {
+                profileUrl = `/perfil-publico-candidato?id=${userId}`;
+            } else if (userType === 'empresa') {
+                profileUrl = `/perfil-publico-empresa?id=${userId}`;
+            } else if (userType === 'admin' || userType === 'owner') {
+                profileUrl = `/perfil-publico-admin?id=${userId}`;
+            } else {
+                showAlert('Tipo de usuário desconhecido', 'error');
+                return;
+            }
+            
+            // Abrir em nova aba
+            window.open(profileUrl, '_blank');
         }
 
         // Permitir buscar com Enter
