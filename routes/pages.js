@@ -54,6 +54,7 @@ router.get('/admin', (req, res) => sendPage(res, 'admin.html'));
 router.get('/admin-usuarios', (req, res) => sendPage(res, 'admin-usuarios.html'));
 router.get('/admin-noticia', (req, res) => sendPage(res, 'admin-noticia.html'));
 router.get('/admin-monitoramento', (req, res) => sendPage(res, 'admin-monitoramento.html'));
+router.get('/admin-manage-admins', (req, res) => sendPage(res, 'admin-manage-admins.html'));
 router.get('/perfil-admin', (req, res) => sendPage(res, 'perfil-admin.html'));
 
 // News
