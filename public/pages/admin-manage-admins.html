@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Administradores - Aprendiz+</title>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/perfil-admin.css">
-    <script src="/js/auth.js"></script>
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/perfil-admin.css">
+    <script src="/public/js/auth.js"></script>
     <style>
         .admin-management-container {
             max-width: 1200px;
@@ -390,37 +390,55 @@
 
         // Carregar token ao iniciar
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('=== INICIANDO VERIFICAÇÃO DE ACESSO ===');
+            
             // Esperar o Auth.js carregar
             if (!window.Auth || !window.Auth.getToken) {
-                console.error('Auth.js não foi carregado corretamente');
+                console.error('❌ Auth.js não foi carregado corretamente');
+                console.log('window.Auth:', window.Auth);
                 setTimeout(() => window.location.href = '/login', 100);
                 return;
             }
             
+            console.log('✅ Auth.js carregado com sucesso');
+            
             currentToken = window.Auth.getToken();
+            console.log('Token obtido:', currentToken ? 'SIM (' + currentToken.substring(0, 20) + '...)' : 'NÃO');
+            
             if (!currentToken) {
+                console.error('❌ Nenhum token encontrado');
                 window.location.href = '/login';
                 return;
             }
             
             // Verificar se é owner
             try {
+                console.log('📡 Fazendo requisição para /api/users/me...');
                 const response = await fetch('/api/users/me', {
                     headers: {
                         'Authorization': `Bearer ${currentToken}`
                     }
                 });
                 
+                console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+                
                 if (!response.ok) {
+                    console.error('❌ Resposta não OK:', response.status);
                     window.location.href = '/login';
                     return;
                 }
                 
                 const user = await response.json();
-                console.log('User type:', user.type); // Debug
+                console.log('👤 Dados do usuário:', {
+                    name: user.name,
+                    email: user.email,
+                    type: user.type,
+                    _id: user._id
+                });
                 
                 // Apenas owners podem acessar
                 if (user.type !== 'owner') {
+                    console.error('❌ Usuário não é owner. Tipo atual:', user.type);
                     showAlert('Acesso negado. Apenas o proprietário do sistema pode acessar esta página.', 'error');
                     setTimeout(() => {
                         window.location.href = '/admin';
@@ -428,9 +446,10 @@
                     return;
                 }
                 
+                console.log('✅ Acesso permitido! Usuário é owner.');
                 loadAdministrators();
             } catch (error) {
-                console.error('Erro ao verificar permissões:', error);
+                console.error('❌ Erro ao verificar permissões:', error);
                 window.location.href = '/login';
             }
         });
