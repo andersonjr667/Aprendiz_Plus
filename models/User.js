@@ -3,12 +3,52 @@ const mongoose = require('mongoose');
 const CandidateProfileSchema = new mongoose.Schema({
   skills: { type: [String], default: [] },
   bio: String,
-  education: String
+  education: String,
+  // Novos campos para candidato
+  birthDate: Date,
+  rg: String,
+  gender: { type: String, enum: ['masculino', 'feminino', 'outro', 'nao-informar'] },
+  maritalStatus: { type: String, enum: ['solteiro', 'casado', 'divorciado', 'viuvo', 'uniao-estavel'] },
+  street: String,
+  number: String,
+  neighborhood: String,
+  city: String,
+  state: String,
+  cep: String,
+  whatsapp: String,
+  areasOfInterest: [String],
+  previousExperience: String,
+  extracurricularCourses: String,
+  availability: { type: String, enum: ['manha', 'tarde', 'noite', 'integral', 'flexivel'] },
+  isPCD: { type: Boolean, default: false },
+  pcdDescription: String,
+  isInApprenticeshipProgram: { type: Boolean, default: false },
+  apprenticeshipProgramName: String,
+  linkedinUrl: String,
+  portfolioUrl: String,
+  currentEducation: { type: String, enum: ['fundamental-cursando', 'fundamental-completo', 'medio-cursando', 'medio-completo', 'superior-cursando', 'superior-completo', 'pos-graduacao'] },
+  educationInstitution: String,
+  studyShift: { type: String, enum: ['manha', 'tarde', 'noite', 'ead'] },
+  technicalCourse: String,
+  expectedGraduation: Date
 }, { _id: false });
 
 const CompanyProfileSchema = new mongoose.Schema({
   website: String,
-  description: String
+  description: String,
+  // Novos campos para empresa
+  tradeName: String, // Nome fantasia
+  legalName: String, // Razão social
+  businessArea: String, // Área de atuação
+  numberOfEmployees: Number,
+  commercialPhone: String,
+  corporateEmail: String,
+  street: String,
+  number: String,
+  neighborhood: String,
+  city: String,
+  state: String,
+  cep: String
 }, { _id: false });
 
 const UserSchema = new mongoose.Schema({

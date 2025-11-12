@@ -136,6 +136,21 @@ router.post('/auth/register',
         userData.cnpj = cnpj.strip(userCnpj);
       }
       
+      // Processar candidateProfile se for candidato
+      if (type === 'candidato' && req.body.candidateProfile) {
+        userData.candidateProfile = req.body.candidateProfile;
+      }
+      
+      // Processar companyProfile se for empresa
+      if (type === 'empresa' && req.body.companyProfile) {
+        userData.companyProfile = req.body.companyProfile;
+      }
+      
+      // Adicionar skills se fornecido
+      if (req.body.skills && Array.isArray(req.body.skills)) {
+        userData.skills = req.body.skills;
+      }
+      
       // Cria novo usuario com status ativo por padrão
       const user = await User.create(userData);
       

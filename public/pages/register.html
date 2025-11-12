@@ -176,19 +176,341 @@
             </div>
 
             <div id="candidateFields" class="dynamic-fields">
+                <h3 style="margin-top: 0; color: var(--brand-green); font-size: 1.25rem;">Dados Pessoais</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="birthDate">Data de Nascimento <span style="color: var(--brand-red);">*</span></label>
+                        <input type="date" id="birthDate" name="birthDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="cpf">CPF <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="cpf" name="cpf" class="form-control" placeholder="000.000.000-00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rg">RG (opcional)</label>
+                        <input type="text" id="rg" name="rg" class="form-control" placeholder="00.000.000-0">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gênero (opcional)</label>
+                        <select id="gender" name="gender" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Outro</option>
+                            <option value="nao-informar">Prefiro não informar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maritalStatus">Estado Civil (opcional)</label>
+                        <select id="maritalStatus" name="maritalStatus" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="solteiro">Solteiro(a)</option>
+                            <option value="casado">Casado(a)</option>
+                            <option value="divorciado">Divorciado(a)</option>
+                            <option value="viuvo">Viúvo(a)</option>
+                            <option value="uniao-estavel">União Estável</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsapp">Telefone / WhatsApp <span style="color: var(--brand-red);">*</span></label>
+                        <input type="tel" id="whatsapp" name="whatsapp" class="form-control" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; color: var(--brand-green); font-size: 1.25rem;">Endereço</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cep">CEP <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="cep" name="cep" class="form-control" placeholder="00000-000">
+                    </div>
+                    <div class="form-group">
+                        <label for="street">Rua <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="street" name="street" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="number">Número <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="number" name="number" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="neighborhood">Bairro <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="neighborhood" name="neighborhood" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">Cidade <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="city" name="city" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">Estado <span style="color: var(--brand-red);">*</span></label>
+                        <select id="state" name="state" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; color: var(--brand-green); font-size: 1.25rem;">Formação e Qualificações</h3>
+
                 <div class="form-group">
-                    <label for="cpf">CPF (opcional)</label>
-                    <input type="text" id="cpf" name="cpf" class="form-control" placeholder="000.000.000-00">
+                    <label for="areasOfInterest">Áreas de Interesse <span style="color: var(--brand-red);">*</span></label>
+                    <input type="text" id="areasOfInterest" name="areasOfInterest" class="form-control" placeholder="Ex: Administração, Informática, Atendimento (separar por vírgula)">
+                    <small style="color: #666;">Separe as áreas por vírgula</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="currentEducation">Escolaridade Atual <span style="color: var(--brand-red);">*</span></label>
+                    <select id="currentEducation" name="currentEducation" class="form-control">
+                        <option value="">Selecione</option>
+                        <option value="fundamental-cursando">Ensino Fundamental - Cursando</option>
+                        <option value="fundamental-completo">Ensino Fundamental - Completo</option>
+                        <option value="medio-cursando">Ensino Médio - Cursando</option>
+                        <option value="medio-completo">Ensino Médio - Completo</option>
+                        <option value="superior-cursando">Ensino Superior - Cursando</option>
+                        <option value="superior-completo">Ensino Superior - Completo</option>
+                        <option value="pos-graduacao">Pós-Graduação</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="educationInstitution">Instituição de Ensino <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="educationInstitution" name="educationInstitution" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="studyShift">Turno de Estudo <span style="color: var(--brand-red);">*</span></label>
+                        <select id="studyShift" name="studyShift" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="manha">Manhã</option>
+                            <option value="tarde">Tarde</option>
+                            <option value="noite">Noite</option>
+                            <option value="ead">EAD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="technicalCourse">Curso Técnico (opcional)</label>
+                        <input type="text" id="technicalCourse" name="technicalCourse" class="form-control" placeholder="Ex: Técnico em Informática">
+                    </div>
+                    <div class="form-group">
+                        <label for="expectedGraduation">Previsão de Conclusão</label>
+                        <input type="month" id="expectedGraduation" name="expectedGraduation" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">Habilidades <span style="color: var(--brand-red);">*</span></label>
+                    <input type="text" id="skills" name="skills" class="form-control" placeholder="Ex: Informática básica, Pacote Office, Atendimento ao cliente">
+                    <small style="color: #666;">Separe as habilidades por vírgula</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="previousExperience">Experiência Anterior (opcional)</label>
+                    <textarea id="previousExperience" name="previousExperience" class="form-control" rows="3" placeholder="Descreva suas experiências profissionais anteriores"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="extracurricularCourses">Cursos Extracurriculares (opcional)</label>
+                    <textarea id="extracurricularCourses" name="extracurricularCourses" class="form-control" rows="2" placeholder="Liste seus cursos extracurriculares"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="availability">Disponibilidade de Horário <span style="color: var(--brand-red);">*</span></label>
+                    <select id="availability" name="availability" class="form-control">
+                        <option value="">Selecione</option>
+                        <option value="manha">Manhã</option>
+                        <option value="tarde">Tarde</option>
+                        <option value="noite">Noite</option>
+                        <option value="integral">Período Integral</option>
+                        <option value="flexivel">Flexível</option>
+                    </select>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; color: var(--brand-green); font-size: 1.25rem;">Informações Adicionais</h3>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="isPCD" name="isPCD" style="margin-right: 8px;">
+                        Possui deficiência (PCD)
+                    </label>
+                </div>
+
+                <div class="form-group" id="pcdDescriptionGroup" style="display: none;">
+                    <label for="pcdDescription">Descreva sua deficiência</label>
+                    <input type="text" id="pcdDescription" name="pcdDescription" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="isInApprenticeshipProgram" name="isInApprenticeshipProgram" style="margin-right: 8px;">
+                        Vinculado a programa de aprendizagem
+                    </label>
+                </div>
+
+                <div class="form-group" id="apprenticeshipProgramGroup" style="display: none;">
+                    <label for="apprenticeshipProgramName">Nome do programa</label>
+                    <input type="text" id="apprenticeshipProgramName" name="apprenticeshipProgramName" class="form-control">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="linkedinUrl">LinkedIn (opcional)</label>
+                        <input type="url" id="linkedinUrl" name="linkedinUrl" class="form-control" placeholder="https://linkedin.com/in/seu-perfil">
+                    </div>
+                    <div class="form-group">
+                        <label for="portfolioUrl">Portfólio/Site (opcional)</label>
+                        <input type="url" id="portfolioUrl" name="portfolioUrl" class="form-control" placeholder="https://seu-portfolio.com">
+                    </div>
                 </div>
             </div>
 
             <div id="companyFields" class="dynamic-fields" style="display: none;">
-                <div class="form-group">
-                    <label for="cnpj">CNPJ (opcional)</label>
-                    <input type="text" id="cnpj" name="cnpj" class="form-control" placeholder="00.000.000/0000-00">
+                <h3 style="margin-top: 0; color: var(--brand-green); font-size: 1.25rem;">Dados da Empresa</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cnpj">CNPJ <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="cnpj" name="cnpj" class="form-control" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="tradeName">Nome Fantasia</label>
+                        <input type="text" id="tradeName" name="tradeName" class="form-control">
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="website">Website (opcional)</label>
+                    <label for="legalName">Razão Social <span style="color: var(--brand-red);">*</span></label>
+                    <input type="text" id="legalName" name="legalName" class="form-control">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="businessArea">Área de Atuação <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="businessArea" name="businessArea" class="form-control" placeholder="Ex: Tecnologia, Comércio, Serviços">
+                    </div>
+                    <div class="form-group">
+                        <label for="numberOfEmployees">Número de Funcionários (opcional)</label>
+                        <input type="number" id="numberOfEmployees" name="numberOfEmployees" class="form-control" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="commercialPhone">Telefone Comercial <span style="color: var(--brand-red);">*</span></label>
+                        <input type="tel" id="commercialPhone" name="commercialPhone" class="form-control" placeholder="(00) 0000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label for="corporateEmail">E-mail Corporativo <span style="color: var(--brand-red);">*</span></label>
+                        <input type="email" id="corporateEmail" name="corporateEmail" class="form-control">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; color: var(--brand-green); font-size: 1.25rem;">Endereço da Empresa</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="companyCep">CEP <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="companyCep" name="companyCep" class="form-control" placeholder="00000-000">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyStreet">Rua <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="companyStreet" name="companyStreet" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="companyNumber">Número <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="companyNumber" name="companyNumber" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyNeighborhood">Bairro <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="companyNeighborhood" name="companyNeighborhood" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="companyCity">Cidade <span style="color: var(--brand-red);">*</span></label>
+                        <input type="text" id="companyCity" name="companyCity" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyState">Estado <span style="color: var(--brand-red);">*</span></label>
+                        <select id="companyState" name="companyState" class="form-control">
+                            <option value="">Selecione</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Site da Empresa (opcional)</label>
                     <input type="url" id="website" name="website" class="form-control" placeholder="https://www.empresa.com">
                 </div>
             </div>
@@ -290,6 +612,68 @@
                 eyeIconConfirm.classList.add('fa-eye');
             }
         });
+
+        // Toggle PCD description field
+        const isPCDCheckbox = document.getElementById('isPCD');
+        const pcdDescriptionGroup = document.getElementById('pcdDescriptionGroup');
+        if (isPCDCheckbox) {
+            isPCDCheckbox.addEventListener('change', function() {
+                pcdDescriptionGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Toggle apprenticeship program field
+        const isInApprenticeshipCheckbox = document.getElementById('isInApprenticeshipProgram');
+        const apprenticeshipProgramGroup = document.getElementById('apprenticeshipProgramGroup');
+        if (isInApprenticeshipCheckbox) {
+            isInApprenticeshipCheckbox.addEventListener('change', function() {
+                apprenticeshipProgramGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // CEP lookup for candidate
+        const cepInput = document.getElementById('cep');
+        if (cepInput) {
+            cepInput.addEventListener('blur', async function() {
+                const cep = this.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    try {
+                        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                        const data = await response.json();
+                        if (!data.erro) {
+                            document.getElementById('street').value = data.logradouro || '';
+                            document.getElementById('neighborhood').value = data.bairro || '';
+                            document.getElementById('city').value = data.localidade || '';
+                            document.getElementById('state').value = data.uf || '';
+                        }
+                    } catch (error) {
+                        console.error('Erro ao buscar CEP:', error);
+                    }
+                }
+            });
+        }
+
+        // CEP lookup for company
+        const companyCepInput = document.getElementById('companyCep');
+        if (companyCepInput) {
+            companyCepInput.addEventListener('blur', async function() {
+                const cep = this.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    try {
+                        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                        const data = await response.json();
+                        if (!data.erro) {
+                            document.getElementById('companyStreet').value = data.logradouro || '';
+                            document.getElementById('companyNeighborhood').value = data.bairro || '';
+                            document.getElementById('companyCity').value = data.localidade || '';
+                            document.getElementById('companyState').value = data.uf || '';
+                        }
+                    } catch (error) {
+                        console.error('Erro ao buscar CEP:', error);
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
