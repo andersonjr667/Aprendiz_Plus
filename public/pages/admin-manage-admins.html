@@ -306,15 +306,15 @@
 <body>
     <div class="admin-management-container">
         <div class="page-header">
-            <h1>👑 Gerenciar Administradores</h1>
+            <h1><i class="fas fa-crown"></i> Gerenciar Administradores</h1>
             <p>Promova usuários a administrador ou gerencie permissões (Apenas para o Dono do Sistema)</p>
         </div>
 
         <div id="alert-container"></div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('promote')">🎯 Promover Usuários</button>
-            <button class="tab" onclick="switchTab('admins')">👥 Administradores Atuais</button>
+            <button class="tab active" onclick="switchTab('promote')"><i class="fas fa-bullseye"></i> Promover Usuários</button>
+            <button class="tab" onclick="switchTab('admins')"><i class="fas fa-users-cog"></i> Administradores Atuais</button>
         </div>
 
         <!-- Tab: Promover Usuários -->
@@ -322,7 +322,7 @@
             <div class="quick-promote">
                 <!-- Por ID -->
                 <div class="promote-card">
-                    <h3>🔑 Promover por ID</h3>
+                    <h3><i class="fas fa-key"></i> Promover por ID</h3>
                     <form onsubmit="promoteById(event)">
                         <div class="form-group">
                             <label>ID do Usuário</label>
@@ -336,7 +336,7 @@
 
                 <!-- Por Email -->
                 <div class="promote-card">
-                    <h3>📧 Promover por Email</h3>
+                    <h3><i class="fas fa-envelope"></i> Promover por Email</h3>
                     <form onsubmit="promoteByEmail(event)">
                         <div class="form-group">
                             <label>Email do Usuário</label>
@@ -351,7 +351,7 @@
 
             <!-- Buscar e Promover -->
             <div class="search-section">
-                <h3 style="margin-top: 0;">🔍 Buscar Usuários para Promover</h3>
+                <h3 style="margin-top: 0;"><i class="fas fa-search"></i> Buscar Usuários para Promover</h3>
                 <div class="search-form">
                     <div class="form-group">
                         <label>Buscar por Nome ou Email</label>
@@ -364,7 +364,7 @@
 
                 <div id="search-results" style="margin-top: 30px;">
                     <div class="empty-state">
-                        <div class="empty-state-icon">🔎</div>
+                        <div class="empty-state-icon"><i class="fas fa-search fa-3x"></i></div>
                         <p>Digite um nome ou email para buscar usuários</p>
                     </div>
                 </div>
@@ -374,7 +374,7 @@
         <!-- Tab: Administradores Atuais -->
         <div id="admins-tab" class="tab-content">
             <div class="search-section">
-                <h3 style="margin-top: 0;">👥 Lista de Administradores</h3>
+                <h3 style="margin-top: 0;"><i class="fas fa-users-cog"></i> Lista de Administradores</h3>
                 <div id="admins-list">
                     <div class="loading">
                         <div class="spinner"></div>
@@ -558,7 +558,7 @@
             if (!searchInput) {
                 resultsContainer.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🔎</div>
+                        <div class="empty-state-icon"><i class="fas fa-search fa-3x"></i></div>
                         <p>Digite um nome ou email para buscar usuários</p>
                     </div>
                 `;
@@ -585,7 +585,7 @@
                     if (data.users.length === 0) {
                         resultsContainer.innerHTML = `
                             <div class="empty-state">
-                                <div class="empty-state-icon">😕</div>
+                                <div class="empty-state-icon"><i class="fas fa-frown fa-3x"></i></div>
                                 <p>Nenhum usuário encontrado</p>
                             </div>
                         `;
@@ -596,7 +596,7 @@
                     showAlert(data.error || 'Erro ao buscar usuários', 'error');
                     resultsContainer.innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-state-icon">⚠️</div>
+                            <div class="empty-state-icon"><i class="fas fa-exclamation-triangle fa-3x"></i></div>
                             <p>Erro ao buscar usuários</p>
                         </div>
                     `;
@@ -626,10 +626,10 @@
                             </div>
                             <div style="display: flex; gap: 10px;">
                                 <button class="btn btn-secondary" onclick="viewProfile('${user.id}', '${user.type}')" title="Ver perfil público">
-                                    👁️ Ver Perfil
+                                    <i class="fas fa-eye"></i> Ver Perfil
                                 </button>
                                 <button class="btn btn-success" onclick="promoteUser('${user.id}', '${user.name}')">
-                                    ⬆️ Promover a Admin
+                                    <i class="fas fa-arrow-up"></i> Promover a Admin
                                 </button>
                             </div>
                         </div>
@@ -701,17 +701,17 @@
                                         }
                                     </div>
                                     <div class="user-info">
-                                        <h3>${admin.name} ${admin.isOwner ? '<span class="owner-badge">👑 DONO</span>' : ''}</h3>
+                                        <h3>${admin.name} ${admin.isOwner ? '<span class="owner-badge"><i class="fas fa-crown"></i> DONO</span>' : ''}</h3>
                                         <p>${admin.email}</p>
                                         <span class="user-type-badge badge-admin">Administrador</span>
                                     </div>
                                     <div style="display: flex; gap: 10px; align-items: center;">
                                         <button class="btn btn-secondary" onclick="viewProfile('${admin._id}', 'admin')" title="Ver perfil público">
-                                            👁️ Ver Perfil
+                                            <i class="fas fa-eye"></i> Ver Perfil
                                         </button>
                                         ${admin.canBeModified ? `
                                             <button class="btn btn-danger" onclick="demoteAdmin('${admin._id}', '${admin.name}')">
-                                                ⬇️ Remover Admin
+                                                <i class="fas fa-arrow-down"></i> Remover Admin
                                             </button>
                                         ` : '<span style="color: #999;">Não pode ser modificado</span>'}
                                     </div>
