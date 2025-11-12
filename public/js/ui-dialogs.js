@@ -1,204 +1,244 @@
-// Simple UI dialogs (cards/modals/toasts)
-(function(window){
+// Sistema de Diálogos UI - Cards personalizados para confirmações
+(function(window) {
   const UI = {};
+  let overlayElement = null;
+  let dialogElement = null;
+  let toastContainer = null;
 
-  // Inject modal HTML and CSS container
+  // Inicializar estrutura HTML
   function init() {
-    if (document.getElementById('ui-dialogs-root')) return;
+    if (overlayElement) return; // Já inicializado
 
-    const style = document.createElement('link');
-    style.rel = 'stylesheet';
-    style.href = '/public/css/ui-dialogs.css';
-    document.head.appendChild(style);
+    // Criar overlay
+    overlayElement = document.createElement('div');
+    overlayElement.className = 'ui-overlay';
+    overlayElement.addEventListener('click', function(e) {
+      if (e.target === overlayElement) {
+        closeDialog();
+      }
+    });
 
-    const root = document.createElement('div');
-    root.id = 'ui-dialogs-root';
-    root.innerHTML = `
-      <div id="ui-overlay" class="ui-hidden"></div>
-      <div id="ui-modal" class="ui-hidden" role="dialog" aria-modal="true">
-        <div class="ui-modal-card">
-          <div class="ui-modal-header"><h3 id="ui-modal-title"></h3></div>
-          <div class="ui-modal-body" id="ui-modal-body"></div>
-          <div class="ui-modal-actions" id="ui-modal-actions"></div>
+    // Criar container de toasts
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'ui-toast-container';
+
+    document.body.appendChild(overlayElement);
+    document.body.appendChild(toastContainer);
+  }
+
+  // Criar e mostrar diálogo
+  function showDialog(options) {
+    init();
+
+    const {
+      title = 'Confirmação',
+      message = '',
+      icon = 'confirm',
+      iconSymbol = '❓',
+      confirmText = 'Confirmar',
+      cancelText = 'Cancelar',
+      confirmClass = 'ui-dialog-btn-confirm',
+      showCancel = true,
+      onConfirm = null,
+      onCancel = null
+    } = options;
+
+    // Criar card do diálogo
+    dialogElement = document.createElement('div');
+    dialogElement.className = 'ui-dialog';
+    dialogElement.innerHTML = `
+      <div class="ui-dialog-header">
+        <div class="ui-dialog-icon ${icon}">
+          ${iconSymbol}
+        </div>
+        <div class="ui-dialog-title">
+          <h3>${escapeHtml(title)}</h3>
         </div>
       </div>
-      <div id="ui-toast-container"></div>
+      <div class="ui-dialog-body">
+        <p class="ui-dialog-message">${escapeHtml(message)}</p>
+      </div>
+      <div class="ui-dialog-footer">
+        ${showCancel ? `<button class="ui-dialog-btn ui-dialog-btn-cancel" data-action="cancel">${escapeHtml(cancelText)}</button>` : ''}
+        <button class="ui-dialog-btn ${confirmClass}" data-action="confirm">${escapeHtml(confirmText)}</button>
+      </div>
     `;
-    document.body.appendChild(root);
-  }
 
-  function showOverlay() {
-    const ov = document.getElementById('ui-overlay');
-    const modal = document.getElementById('ui-modal');
-    ov.classList.remove('ui-hidden');
-    modal.classList.remove('ui-hidden');
-  }
-  function hideOverlay() {
-    const ov = document.getElementById('ui-overlay');
-    const modal = document.getElementById('ui-modal');
-    ov.classList.add('ui-hidden');
-    modal.classList.add('ui-hidden');
-  }
-
-  // confirm returns a Promise<boolean>
-  UI.confirm = function(options){
-    // options: { title, message, acceptText, cancelText }
-    return new Promise((resolve) => {
-      init();
-      const title = options.title || 'Confirmação';
-      const message = options.message || '';
-      const acceptText = options.acceptText || 'Confirmar';
-      const cancelText = options.cancelText || 'Cancelar';
-
-      document.getElementById('ui-modal-title').textContent = title;
-      document.getElementById('ui-modal-body').innerHTML = `<p>${escapeHtml(message)}</p>`;
-
-      const actions = document.getElementById('ui-modal-actions');
-      actions.innerHTML = '';
-
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'btn btn-secondary ui-btn-cancel';
-      btnCancel.textContent = cancelText;
-      btnCancel.onclick = () => { hideOverlay(); resolve(false); };
-
-      const btnOk = document.createElement('button');
-      btnOk.className = 'btn btn-primary ui-btn-ok';
-      btnOk.textContent = acceptText;
-      btnOk.onclick = () => { hideOverlay(); resolve(true); };
-
-      actions.appendChild(btnCancel);
-      actions.appendChild(btnOk);
-
-      showOverlay();
+    // Adicionar event listeners
+    dialogElement.querySelector('[data-action="confirm"]').addEventListener('click', function() {
+      closeDialog();
+      if (onConfirm) onConfirm();
     });
-  };
 
-  // alertCard: simple info card, resolves when closed
-  UI.alertCard = function(options){
-    return new Promise((resolve) => {
-      init();
-      const title = options.title || '';
-      const message = options.message || '';
-      const okText = options.okText || 'OK';
-
-      document.getElementById('ui-modal-title').textContent = title;
-      document.getElementById('ui-modal-body').innerHTML = `<div>${escapeHtml(message)}</div>`;
-
-      const actions = document.getElementById('ui-modal-actions');
-      actions.innerHTML = '';
-
-      const btnOk = document.createElement('button');
-      btnOk.className = 'btn btn-primary ui-btn-ok';
-      btnOk.textContent = okText;
-      btnOk.onclick = () => { hideOverlay(); resolve(); };
-
-      actions.appendChild(btnOk);
-      showOverlay();
-    });
-  };
-
-  // select with multiple options, resolves selected value or null
-  UI.select = function(options){
-    return new Promise((resolve) => {
-      init();
-      const title = options.title || 'Escolha uma opção';
-      const message = options.message || '';
-      const items = options.items || [];
-
-      document.getElementById('ui-modal-title').textContent = title;
-      document.getElementById('ui-modal-body').innerHTML = `<div>${escapeHtml(message)}</div>`;
-      const actions = document.getElementById('ui-modal-actions');
-      actions.innerHTML = '';
-
-      items.forEach(it => {
-        const b = document.createElement('button');
-        b.className = 'btn btn-secondary';
-        b.textContent = it.label || it.value;
-        b.onclick = () => { hideOverlay(); resolve(it.value); };
-        actions.appendChild(b);
+    if (showCancel) {
+      dialogElement.querySelector('[data-action="cancel"]').addEventListener('click', function() {
+        closeDialog();
+        if (onCancel) onCancel();
       });
+    }
 
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'btn btn-secondary ui-btn-cancel';
-      btnCancel.textContent = options.cancelText || 'Cancelar';
-      btnCancel.onclick = () => { hideOverlay(); resolve(null); };
-      actions.appendChild(btnCancel);
+    // Adicionar ao overlay
+    overlayElement.innerHTML = '';
+    overlayElement.appendChild(dialogElement);
+    overlayElement.classList.add('active');
 
-      showOverlay();
-    });
-  };
-
-  // prompt (input) returns string or null
-  UI.prompt = function(options){
-    return new Promise((resolve) => {
-      init();
-      const title = options.title || '';
-      const message = options.message || '';
-      const placeholder = options.placeholder || '';
-      const defaultValue = options.defaultValue || '';
-
-      document.getElementById('ui-modal-title').textContent = title;
-      document.getElementById('ui-modal-body').innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;"><div>${escapeHtml(message)}</div><input id="ui-prompt-input" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(defaultValue)}" style="padding:8px;border:1px solid #ddd;border-radius:6px;"/></div>`;
-      const actions = document.getElementById('ui-modal-actions');
-      actions.innerHTML = '';
-
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'btn btn-secondary ui-btn-cancel';
-      btnCancel.textContent = options.cancelText || 'Cancelar';
-      btnCancel.onclick = () => { hideOverlay(); resolve(null); };
-
-      const btnOk = document.createElement('button');
-      btnOk.className = 'btn btn-primary ui-btn-ok';
-      btnOk.textContent = options.okText || 'OK';
-      btnOk.onclick = () => { const v = document.getElementById('ui-prompt-input').value; hideOverlay(); resolve(v); };
-
-      actions.appendChild(btnCancel);
-      actions.appendChild(btnOk);
-      showOverlay();
-      setTimeout(()=>{ const el = document.getElementById('ui-prompt-input'); if(el) el.focus(); },50);
-    });
-  };
-
-  // toast
-  UI.toast = function(message, type='info', timeout=4000){
-    init();
-    const container = document.getElementById('ui-toast-container');
-    const el = document.createElement('div');
-    el.className = `ui-toast ui-toast-${type}`;
-    el.textContent = message;
-    container.appendChild(el);
-    setTimeout(()=>{ el.classList.add('ui-toast-hide'); setTimeout(()=>el.remove(),300); }, timeout);
-  };
-
-  function escapeHtml(str){
-    if(!str) return '';
-    return String(str).replace(/[&<>"']/g, function(s){
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
-    });
+    // Focar no botão de confirmação
+    setTimeout(() => {
+      dialogElement.querySelector('[data-action="confirm"]').focus();
+    }, 100);
   }
 
+  // Fechar diálogo
+  function closeDialog() {
+    if (!overlayElement) return;
+
+    overlayElement.classList.add('hiding');
+    setTimeout(() => {
+      overlayElement.classList.remove('active', 'hiding');
+      if (dialogElement) {
+        dialogElement.remove();
+        dialogElement = null;
+      }
+    }, 300);
+  }
+
+  // UI.confirm - Retorna Promise
+  UI.confirm = function(options) {
+    if (typeof options === 'string') {
+      options = { message: options };
+    }
+
+    return new Promise((resolve) => {
+      showDialog({
+        ...options,
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false)
+      });
+    });
+  };
+
+  // UI.alert - Retorna Promise
+  UI.alert = function(options) {
+    if (typeof options === 'string') {
+      options = { message: options };
+    }
+
+    return new Promise((resolve) => {
+      showDialog({
+        title: 'Aviso',
+        icon: 'alert',
+        iconSymbol: '⚠️',
+        confirmText: 'OK',
+        confirmClass: 'ui-dialog-btn-primary',
+        showCancel: false,
+        ...options,
+        onConfirm: () => resolve()
+      });
+    });
+  };
+
+  // UI.success - Retorna Promise
+  UI.success = function(options) {
+    if (typeof options === 'string') {
+      options = { message: options };
+    }
+
+    return new Promise((resolve) => {
+      showDialog({
+        title: 'Sucesso',
+        icon: 'success',
+        iconSymbol: '✓',
+        confirmText: 'OK',
+        confirmClass: 'ui-dialog-btn-confirm',
+        showCancel: false,
+        ...options,
+        onConfirm: () => resolve()
+      });
+    });
+  };
+
+  // UI.danger - Retorna Promise (para ações perigosas como logout)
+  UI.danger = function(options) {
+    if (typeof options === 'string') {
+      options = { message: options };
+    }
+
+    return new Promise((resolve) => {
+      showDialog({
+        title: 'Atenção',
+        icon: 'alert',
+        iconSymbol: '⚠️',
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar',
+        confirmClass: 'ui-dialog-btn-danger',
+        showCancel: true,
+        ...options,
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false)
+      });
+    });
+  };
+
+  // UI.toast - Notificações não-bloqueantes
+  UI.toast = function(message, type = 'info', duration = 4000) {
+    init();
+
+    const icons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `ui-toast ${type}`;
+    toast.innerHTML = `
+      <div class="ui-toast-icon">${icons[type] || icons.info}</div>
+      <div class="ui-toast-content">
+        <p class="ui-toast-message">${escapeHtml(message)}</p>
+      </div>
+      <button class="ui-toast-close" aria-label="Fechar">×</button>
+    `;
+
+    const closeBtn = toast.querySelector('.ui-toast-close');
+    closeBtn.addEventListener('click', () => removeToast(toast));
+
+    toastContainer.appendChild(toast);
+
+    // Animar entrada
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Auto-remover
+    if (duration > 0) {
+      setTimeout(() => removeToast(toast), duration);
+    }
+
+    return toast;
+  };
+
+  function removeToast(toast) {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  }
+
+  // Escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Expor UI globalmente
   window.UI = UI;
-  // auto init if DOM ready
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
 
-  // Override native dialogs to route through UI (fallbacks included)
-  window._nativeAlert = window.alert;
-  window._nativeConfirm = window.confirm;
-  window._nativePrompt = window.prompt;
-
-  window.alert = function(msg){
-    if (window.UI && UI.alertCard) { UI.alertCard({message: String(msg)}); }
-    else window._nativeAlert(msg);
-  };
-
-  window.confirm = function(msg){
-    if (window.UI && UI.confirm) { return UI.confirm({message: String(msg)}); }
-    return Promise.resolve(window._nativeConfirm(msg));
-  };
-
-  window.prompt = function(msg, defaultVal){
-    if (window.UI && UI.prompt) { return UI.prompt({message: String(msg), defaultValue: defaultVal || ''}); }
-    return Promise.resolve(window._nativePrompt(msg, defaultVal));
-  };
+  // Inicializar quando DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })(window);

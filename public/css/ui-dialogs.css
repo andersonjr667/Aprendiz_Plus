@@ -1,46 +1,315 @@
-/* Simple styles for UI dialogs */
-#ui-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 9998;
-  opacity: 1;
-}
-#ui-overlay.ui-hidden { display: none; }
-#ui-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-}
-#ui-modal.ui-hidden { display: none; }
-.ui-modal-card {
-  width: 480px;
-  max-width: 92vw;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  overflow: hidden;
-  font-family: Poppins, sans-serif;
-}
-.ui-modal-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-.ui-modal-header h3 { margin: 0; font-size: 18px; }
-.ui-modal-body { padding: 18px 20px; color: #333; }
-.ui-modal-actions { padding: 12px 18px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #f1f1f1; }
-.ui-modal-actions .btn { min-width: 110px; }
+/* UI Dialogs - Sistema de diálogos personalizados */
 
-#ui-toast-container { position: fixed; right: 16px; top: 16px; z-index: 10000; display:flex; flex-direction:column; gap:8px; }
-.ui-toast { background: #2563eb; color: #fff; padding: 10px 14px; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.12); }
-.ui-toast-hide { opacity:0; transform: translateY(-6px); transition: all .3s ease; }
-.ui-toast-success { background: #16a34a; }
-.ui-toast-error { background: #dc2626; }
-.ui-toast-info { background: #2563eb; }
+/* Overlay de fundo */
+.ui-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
 
-/* Buttons (using existing .btn classes likely) fallback */
-.btn { padding: 8px 12px; border-radius:6px; border:none; cursor:pointer; }
-.btn-primary { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
-.btn-secondary { background: #e5e7eb; color:#111827; }
+.ui-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
 
-/* small responsive */
-@media (max-width: 520px){ .ui-modal-card{ width: 92vw; } }
+/* Card de diálogo */
+.ui-dialog {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    width: 90%;
+    transform: scale(0.7);
+    opacity: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.ui-overlay.active .ui-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Cabeçalho do diálogo */
+.ui-dialog-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ui-dialog-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.ui-dialog-icon.confirm {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ui-dialog-icon.alert {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.ui-dialog-icon.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ui-dialog-icon.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.ui-dialog-title {
+    flex: 1;
+}
+
+.ui-dialog-title h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Corpo do diálogo */
+.ui-dialog-body {
+    padding: 24px;
+}
+
+.ui-dialog-message {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Rodapé com botões */
+.ui-dialog-footer {
+    padding: 16px 24px;
+    background: #f8f9fa;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.ui-dialog-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.ui-dialog-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+}
+
+.ui-dialog-btn-cancel {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.ui-dialog-btn-cancel:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+.ui-dialog-btn-confirm {
+    background: #2ECC71;
+    color: white;
+}
+
+.ui-dialog-btn-confirm:hover {
+    background: #27ae60;
+}
+
+.ui-dialog-btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.ui-dialog-btn-danger:hover {
+    background: #c0392b;
+}
+
+.ui-dialog-btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.ui-dialog-btn-primary:hover {
+    background: #2980b9;
+}
+
+/* Toast Notifications */
+.ui-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.ui-toast {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: all;
+}
+
+.ui-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.ui-toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.ui-toast.success .ui-toast-icon {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ui-toast.error .ui-toast-icon {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.ui-toast.warning .ui-toast-icon {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ui-toast.info .ui-toast-icon {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.ui-toast-content {
+    flex: 1;
+}
+
+.ui-toast-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 4px 0;
+    color: #333;
+}
+
+.ui-toast-message {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.ui-toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.ui-toast-close:hover {
+    background: #f0f0f0;
+    color: #666;
+}
+
+/* Animação de saída */
+.ui-overlay.hiding {
+    opacity: 0;
+}
+
+.ui-overlay.hiding .ui-dialog {
+    transform: scale(0.7);
+    opacity: 0;
+}
+
+/* Responsivo */
+@media (max-width: 576px) {
+    .ui-dialog {
+        max-width: 95%;
+        margin: 20px;
+    }
+
+    .ui-dialog-header {
+        padding: 16px 20px;
+    }
+
+    .ui-dialog-body {
+        padding: 20px;
+    }
+
+    .ui-dialog-footer {
+        padding: 12px 20px;
+        flex-direction: column-reverse;
+    }
+
+    .ui-dialog-btn {
+        width: 100%;
+    }
+
+    .ui-toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .ui-toast {
+        min-width: auto;
+        max-width: 100%;
+    }
+}

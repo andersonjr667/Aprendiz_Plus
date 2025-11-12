@@ -240,13 +240,22 @@ async function register(event) {
 }
 
 async function logout() {
-  // Adicionar confirmação antes de fazer logout
+  // Usar UI.danger para confirmação de logout
   try {
-    const confirmed = (window.confirm && window.confirm instanceof Function) ? await window.confirm('Tem certeza que deseja sair?') : confirm('Tem certeza que deseja sair?');
+    const confirmed = window.UI && window.UI.danger 
+      ? await window.UI.danger({
+          title: 'Sair da Conta',
+          message: 'Tem certeza que deseja sair? Você precisará fazer login novamente para acessar sua conta.',
+          confirmText: 'Sim, sair',
+          cancelText: 'Cancelar'
+        })
+      : confirm('Tem certeza que deseja sair?');
+    
     if (!confirmed) return;
   } catch (e) {
+    console.error('Erro ao exibir confirmação:', e);
     // fallback to native confirm
-    const confirmed = window._nativeConfirm ? window._nativeConfirm('Tem certeza que deseja sair?') : true;
+    const confirmed = confirm('Tem certeza que deseja sair?');
     if (!confirmed) return;
   }
 
@@ -263,14 +272,22 @@ async function logout() {
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
     
-    showMessage('Logout realizado com sucesso', 'success');
+    // Mostrar toast de sucesso
+    if (window.UI && window.UI.toast) {
+      window.UI.toast('Logout realizado com sucesso!', 'success', 2000);
+    }
+    
     setTimeout(() => window.location.href = '/', 1000);
   } catch (error) {
     // Even if server fails, clear local data
     window.Auth.removeToken();
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
-    showMessage('Logout realizado', 'success');
+    
+    if (window.UI && window.UI.toast) {
+      window.UI.toast('Logout realizado', 'success', 2000);
+    }
+    
     setTimeout(() => window.location.href = '/', 1000);
   }
 }
