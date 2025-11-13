@@ -1388,7 +1388,7 @@ router.put('/applications/:appId/status', authMiddleware, roleCheck(['empresa', 
               type: 'chat',
               title: 'Chat disponível',
               message: `Você agora pode conversar com ${company.name} sobre a vaga ${job.title}`,
-              link: `/pages/chat.html`,
+              link: `/chat`,
               metadata: { applicationId: app._id, jobId: app.job }
             });
             
@@ -1397,7 +1397,7 @@ router.put('/applications/:appId/status', authMiddleware, roleCheck(['empresa', 
               type: 'chat',
               title: 'Chat disponível',
               message: `Você agora pode conversar com ${candidate.name} sobre a vaga ${job.title}`,
-              link: `/pages/chat.html`,
+              link: `/chat`,
               metadata: { applicationId: app._id, jobId: app.job }
             });
             

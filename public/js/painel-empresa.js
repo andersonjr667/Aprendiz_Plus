@@ -721,7 +721,7 @@ async function openChatWithCandidate(applicationId) {
     if (res.ok) {
       const chat = await res.json();
       // Redirect to chat page with chatId
-      window.location.href = `/pages/chat.html?chatId=${chat._id}`;
+      window.location.href = `/chat?chatId=${chat._id}`;
     } else {
       const error = await res.json();
       showMessage(error.error || 'Erro ao abrir chat', 'error');
@@ -759,16 +759,13 @@ async function openGroupChat(jobId) {
       return;
     }
     
-    // Para múltiplos candidatos, abre uma nova janela/tab com lista de chats
-    const chatUrls = acceptedApplications.map(app => 
-      `/pages/chat.html?applicationId=${app._id || app.id}`
-    ).join(',');
+    // Para múltiplos candidatos, abre chats individuais em novas abas
+    acceptedApplications.forEach(app => {
+      const chatUrl = `/chat?applicationId=${app._id || app.id}`;
+      window.open(chatUrl, '_blank');
+    });
     
-    // Abre uma página especial para chat em grupo
-    const groupChatUrl = `/pages/group-chat.html?jobId=${jobId}&chats=${encodeURIComponent(chatUrls)}`;
-    window.open(groupChatUrl, '_blank');
-    
-    showMessage('Chat em grupo aberto em nova aba', 'success');
+    showMessage(`${acceptedApplications.length} chats abertos em novas abas`, 'success');
     
   } catch (error) {
     console.error('Error opening group chat:', error);
