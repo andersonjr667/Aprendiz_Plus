@@ -36,6 +36,28 @@ const upload = require('../middleware/upload');
 
 const router = express.Router();
 
+// PATCH /api/users/:id/responsibilities - Apenas owner pode editar responsabilidades de admins
+router.patch('/users/:id/responsibilities', authMiddleware, async (req, res) => {
+  try {
+    // Só owner pode editar
+    if (!req.user || req.user.type !== 'owner') {
+      return res.status(403).json({ error: 'Apenas o proprietário pode editar responsabilidades.' });
+    }
+    const { id } = req.params;
+    const { responsibilities } = req.body;
+    if (!Array.isArray(responsibilities)) {
+      return res.status(400).json({ error: 'Responsabilidades devem ser um array de strings.' });
+    }
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    user.responsibilities = responsibilities;
+    await user.save();
+    res.json({ ok: true, responsibilities: user.responsibilities });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao atualizar responsabilidades.' });
+  }
+});
+
 // Initialize GridFS
 let gfsBucket;
 mongoose.connection.once('open', () => {

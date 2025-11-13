@@ -7,10 +7,62 @@
   "images_perfil_candidato": [],
   "chats": [],
   "messages": [],
-  "notifications": [],
-  "favorites": [],
+  "notifications": [
+    {
+      "id": "17629999050571an0fnbwy",
+      "userId": "69153e60a0a9d6155388bba4",
+      "type": "application",
+      "title": "Nova vaga disponível!",
+      "message": "Confira a vaga de Desenvolvedor Node.js Junior.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-13T02:11:45.057Z"
+    },
+    {
+      "id": "1762999905067keprz274j",
+      "userId": "69153e60a0a9d6155388bbae",
+      "type": "application",
+      "title": "Vaga PCD aberta",
+      "message": "Vaga exclusiva para PCD disponível.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-13T02:11:45.067Z"
+    }
+  ],
+  "favorites": [
+    {
+      "id": "17629999053946sglusq8m",
+      "userId": "69153e60a0a9d6155388bba4",
+      "targetId": "69153e60a0a9d6155388bbb2",
+      "targetType": "job",
+      "listId": "default",
+      "notes": "Quero acompanhar esta vaga",
+      "createdAt": "2025-11-13T02:11:45.395Z"
+    }
+  ],
   "favoriteLists": [],
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "1762999905383835ib9hfy",
+      "reviewerId": "69153e60a0a9d6155388bba4",
+      "reviewerType": "candidate",
+      "targetId": "69153e60a0a9d6155388bb9e",
+      "targetType": "company",
+      "jobId": "69153e60a0a9d6155388bbb2",
+      "rating": 5,
+      "comment": "Ótima empresa!",
+      "pros": [
+        "Ambiente saudável"
+      ],
+      "cons": [],
+      "anonymous": false,
+      "status": "pending",
+      "createdAt": "2025-11-13T02:11:45.383Z",
+      "updatedAt": "2025-11-13T02:11:45.383Z"
+    }
+  ],
   "verifications": [],
   "documentVerifications": [],
   "rateLimits": {},

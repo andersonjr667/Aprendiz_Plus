@@ -93,7 +93,9 @@ const UserSchema = new mongoose.Schema({
   suspensionMessage: String,
   suspendedAt: Date,
   suspendedUntil: Date,
-  suspendedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  suspendedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Responsabilidades customizadas (para admins/owner)
+  responsibilities: { type: [String], default: [] }
 });
 
 module.exports = mongoose.model('User', UserSchema);

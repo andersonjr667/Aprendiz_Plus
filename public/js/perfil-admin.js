@@ -126,17 +126,17 @@ function updateProfileHeader() {
   const profileHeader = document.querySelector('.profile-header');
   console.log('Verificando se é dono do sistema:', {
     userId: currentUser._id,
-    ownerId: OWNER_ID,
-    isDono: currentUser._id === OWNER_ID
+    type: currentUser.type,
+    isDono: currentUser.type === 'owner'
   });
-  
-  if (profileHeader && currentUser._id === OWNER_ID) {
+
+  if (profileHeader && currentUser.type === 'owner') {
     console.log('✅ Usuário é o DONO DO SISTEMA! Aplicando decorações...');
     profileHeader.classList.add('owner-profile');
-    
+
     // Adicionar círculos decorativos com logos
     addOwnerDecorations(profileHeader);
-    
+
     // Adicionar badge de dono
     const profileBadges = document.querySelector('.profile-badges');
     if (profileBadges && !profileBadges.querySelector('.owner-badge')) {
