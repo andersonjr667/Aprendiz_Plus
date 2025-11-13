@@ -354,6 +354,11 @@ function displayApplications(applications, filterStatus = 'all') {
               onclick="filterApplications('rejected')">
         <i class="fas fa-times-circle"></i> Recusadas (${rejectedCount})
       </button>
+      ${acceptedCount > 0 ? `
+        <button class="filter-btn group-chat-btn" onclick="openGroupChat('${currentJobId}')">
+          <i class="fas fa-users"></i> Conversar com Todos (${acceptedCount})
+        </button>
+      ` : ''}
     </div>
   `;
   
@@ -433,6 +438,13 @@ function createApplicationCard(app) {
             Sem Currículo
           </button>
         `}
+        
+        ${app.status === 'accepted' ? `
+          <button onclick="openChatWithCandidate('${app._id || app.id}')" class="btn btn-info btn-sm">
+            <i class="fas fa-comments"></i>
+            Conversar
+          </button>
+        ` : ''}
         
         ${app.status !== 'accepted' ? `
           <button onclick="confirmUpdateApplicationStatus('${app._id || app.id}', 'accepted')" class="btn btn-success btn-sm">
@@ -694,6 +706,50 @@ function filterApplications(status) {
   displayApplications(currentApplications, status);
 }
 
+// Open group chat with all accepted candidates
+async function openGroupChat(jobId) {
+  try {
+    showMessage('Carregando chats com candidatos aceitos...', 'info');
+    
+    const res = await fetch(`/api/jobs/${jobId}/applications`, { 
+      credentials: 'include' 
+    });
+    
+    if (!res.ok) {
+      throw new Error('Erro ao carregar candidaturas');
+    }
+    
+    const applications = await res.json();
+    const acceptedApplications = applications.filter(app => app.status === 'accepted');
+    
+    if (acceptedApplications.length === 0) {
+      showMessage('Não há candidaturas aceitas para esta vaga', 'warning');
+      return;
+    }
+    
+    if (acceptedApplications.length === 1) {
+      // Se só há um candidato, abre o chat diretamente
+      await openChatWithCandidate(acceptedApplications[0]._id || acceptedApplications[0].id);
+      return;
+    }
+    
+    // Para múltiplos candidatos, abre uma nova janela/tab com lista de chats
+    const chatUrls = acceptedApplications.map(app => 
+      `/pages/chat.html?applicationId=${app._id || app.id}`
+    ).join(',');
+    
+    // Abre uma página especial para chat em grupo
+    const groupChatUrl = `/pages/group-chat.html?jobId=${jobId}&chats=${encodeURIComponent(chatUrls)}`;
+    window.open(groupChatUrl, '_blank');
+    
+    showMessage('Chat em grupo aberto em nova aba', 'success');
+    
+  } catch (error) {
+    console.error('Error opening group chat:', error);
+    showMessage('Erro ao abrir chat em grupo', 'error');
+  }
+}
+
 // Global functions
 window.viewApplications = viewApplications;
 window.viewResume = viewResume;
@@ -705,3 +761,5 @@ window.filterApplications = filterApplications;
 window.closeApplicationsModal = closeApplicationsModal;
 window.closeConfirmModal = closeConfirmModal;
 window.filterJobs = filterJobs;
+window.openChatWithCandidate = openChatWithCandidate;
+window.openGroupChat = openGroupChat;

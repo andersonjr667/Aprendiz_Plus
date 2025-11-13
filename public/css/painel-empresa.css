@@ -603,6 +603,16 @@
     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
 
+.btn-info {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2980B9;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
 .btn-outline {
     background: white;
     color: var(--primary-color);
@@ -738,6 +748,24 @@
 
 .filter-btn.active i {
     color: white;
+}
+
+/* Group Chat Button */
+.group-chat-btn {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%) !important;
+    border-color: #9B59B6 !important;
+    color: white !important;
+    margin-left: auto;
+}
+
+.group-chat-btn:hover {
+    background: linear-gradient(135deg, #8E44AD 0%, #7D3C98 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3) !important;
+}
+
+.group-chat-btn i {
+    color: white !important;
 }
 
 /* Responsive Filters */
