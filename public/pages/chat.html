@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - Aprendiz+</title>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/chat.css">
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/chat.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <a href="../index.html">
-                    <img src="../images/logo.png" alt="Aprendiz+" class="logo-img">
+                <a href="/index.html">
+                    <img src="/public/images/logo.png" alt="Aprendiz+" class="logo-img">
                     Aprendiz+
                 </a>
             </div>
             
             <div class="nav-menu" id="navMenu">
-                <a href="../index.html" class="nav-link">
+                <a href="/index.html" class="nav-link">
                     <i class="fas fa-home"></i> Início
                 </a>
-                <a href="vagas.html" class="nav-link">
+                <a href="/vagas" class="nav-link">
                     <i class="fas fa-briefcase"></i> Vagas
                 </a>
-                <a href="noticias.html" class="nav-link">
+                <a href="/noticias" class="nav-link">
                     <i class="fas fa-newspaper"></i> Notícias
                 </a>
-                <a href="chat.html" class="nav-link active">
+                <a href="/chat" class="nav-link active">
                     <i class="fas fa-comments"></i> Chat
                 </a>
                 <a href="#" id="userProfileLink" class="nav-link">
@@ -80,7 +80,7 @@
                 <!-- Cabeçalho do chat -->
                 <div class="chat-header">
                     <div class="chat-header-info">
-                        <img src="../images/default-avatar.png" alt="" class="chat-avatar" id="chatAvatar">
+                        <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="chatAvatar">
                         <div class="chat-header-text">
                             <h3 id="chatUserName">Usuário</h3>
                             <p id="chatJobTitle">Vaga</p>
@@ -106,7 +106,7 @@
 
                 <!-- Indicador de digitação -->
                 <div class="typing-indicator" id="typingIndicator" style="display: none;">
-                    <img src="../images/default-avatar.png" alt="" class="chat-avatar" id="typingAvatar">
+                    <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="typingAvatar">
                     <span>digitando</span>
                     <div class="typing-dots">
                         <span></span>
@@ -136,8 +136,8 @@
         </div>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/hamburger-menu.js"></script>
-    <script src="../js/chat.js"></script>
+    <script src="/public/js/api.js"></script>
+    <script src="/public/js/hamburger-menu.js"></script>
+    <script src="/public/js/chat.js"></script>
 </body>
 </html>

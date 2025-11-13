@@ -189,7 +189,7 @@ async function loadChats() {
 
         chatListEl.innerHTML = chats.map(chat => `
             <div class="chat-item ${chat._id === currentChatId ? 'active' : ''}" onclick="openChat('${chat._id}')">
-                <img src="${chat.otherUser.profilePhoto || '../images/default-avatar.png'}"
+                <img src="${chat.otherUser.profilePhoto || '/public/images/default-avatar.png'}"
                      alt="${chat.otherUser.name}"
                      class="chat-item-avatar">
                 <div class="chat-item-content">
@@ -244,7 +244,7 @@ async function openChat(chatId) {
         // Encontrar dados do chat
         const chat = chats.find(c => c._id === chatId);
         if (chat) {
-            document.getElementById('chatAvatar').src = chat.otherUser.profilePhoto || '../images/default-avatar.png';
+            document.getElementById('chatAvatar').src = chat.otherUser.profilePhoto || '/public/images/default-avatar.png';
             document.getElementById('chatUserName').textContent = chat.otherUser.name;
             document.getElementById('chatJobTitle').textContent = chat.job ? chat.job.title : 'Chat';
         }
@@ -339,7 +339,7 @@ function renderMessages() {
 
         html += `
             <div class="message ${isSent ? 'sent' : 'received'}">
-                ${!isSent ? `<img src="${message.senderId.profilePhoto || '../images/default-avatar.png'}" alt="${message.senderId.name}" class="message-avatar">` : ''}
+                ${!isSent ? `<img src="${message.senderId.profilePhoto || '/public/images/default-avatar.png'}" alt="${message.senderId.name}" class="message-avatar">` : ''}
                 <div class="message-content">
                     <p class="message-text">${escapeHtml(message.content)}</p>
                     <div class="message-time">${formatTime(message.createdAt)}</div>
@@ -353,7 +353,7 @@ function renderMessages() {
         const otherUser = getOtherUser();
         html += `
             <div class="message received typing">
-                <img src="${otherUser?.profilePhoto || '../images/default-avatar.png'}" alt="Typing" class="message-avatar">
+                <img src="${otherUser?.profilePhoto || '/public/images/default-avatar.png'}" alt="Typing" class="message-avatar">
                 <div class="message-content">
                     <div class="typing-indicator">
                         <span></span>
