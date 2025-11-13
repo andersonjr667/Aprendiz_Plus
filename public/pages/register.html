@@ -1,6 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <style>
+        .toast-notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            min-width: 260px;
+            max-width: 350px;
+            z-index: 9999;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            font-weight: 500;
+            font-size: 1rem;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s, top 0.3s;
+        }
+        .toast-notification.show {
+            display: block;
+            opacity: 1;
+            top: 32px;
+        }
+        .toast-notification.success {
+            background: #f0fff4;
+            border: 1.5px solid #22c55e;
+            color: #16a34a;
+        }
+        .toast-notification.error {
+            background: #fef2f2;
+            border: 1.5px solid #ef4444;
+            color: #dc2626;
+        }
+        .toast-notification.info {
+            background: #eff6ff;
+            border: 1.5px solid #3b82f6;
+            color: #2563eb;
+        }
+    </style>
     <link rel="icon" type="image/png" href="/public/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -101,6 +139,7 @@
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
+    <div id="toastNotification" class="toast-notification"></div>
     <header class="nav-header">
         <nav class="top-nav">
             <div class="nav-logo"><a href="/">Aprendiz+</a></div>

@@ -49,15 +49,17 @@
   <main class="main-content" style="padding-top: 75px;">
     <!-- Header do Perfil Público -->
     <div class="public-profile-header">
-      <div class="profile-cover-public">
-        <div class="profile-avatar-wrapper-public">
+      <div class="profile-cover-public" id="profileCoverPublic">
+        <div class="profile-avatar-wrapper-public" id="avatarWrapperPublic" style="position:relative;">
+          <!-- Círculos decorativos do dono (inseridos via JS se owner) -->
+          <span id="ownerDecorCircles"></span>
           <img src="" alt="Avatar" class="profile-avatar-public" id="adminAvatar">
-          <div class="admin-badge">
+          <div class="admin-badge" id="adminBadge">
             <i class="fas fa-shield-alt"></i> ADMINISTRADOR
           </div>
         </div>
       </div>
-      <div class="public-profile-info">
+      <div class="public-profile-info" id="publicProfileInfo">
         <h1 id="adminName">Carregando...</h1>
         <p class="profile-role-public">
           <i class="fas fa-shield-alt"></i> Administrador do Aprendiz+
@@ -86,6 +88,9 @@
           <!-- Responsabilidades -->
           <div class="profile-section">
             <h2><i class="fas fa-tasks"></i> Responsabilidades</h2>
+            <button id="editResponsibilitiesBtn" class="btn btn-secondary" style="display:none; margin-bottom: 1rem;">
+              <i class="fas fa-edit"></i> Editar Responsabilidades
+            </button>
             <ul class="responsibilities-list">
               <li><i class="fas fa-check"></i> Gerenciamento de usuários e permissões</li>
               <li><i class="fas fa-check"></i> Moderação de conteúdo e vagas</li>
@@ -164,6 +169,65 @@
   <div id="messageContainer"></div>
 
   <script>
+    // Edição de responsabilidades (apenas frontend)
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('editResponsibilitiesBtn');
+      const list = document.querySelector('.responsibilities-list');
+      if (!btn || !list) return;
+      let editing = false;
+      let textarea, saveBtn, cancelBtn;
+
+      btn.addEventListener('click', () => {
+        if (editing) return;
+        editing = true;
+        // Pega texto atual
+        const items = Array.from(list.querySelectorAll('li')).map(li => li.textContent.trim());
+        // Cria textarea
+        textarea = document.createElement('textarea');
+        textarea.value = items.join('\n');
+        textarea.style.width = '100%';
+        textarea.style.minHeight = '120px';
+        textarea.style.marginBottom = '0.5rem';
+        textarea.style.fontSize = '1rem';
+        // Cria botões
+        saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Salvar';
+        saveBtn.className = 'btn btn-primary';
+        saveBtn.style.marginRight = '0.5rem';
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancelar';
+        cancelBtn.className = 'btn btn-secondary';
+        // Limpa lista e insere editor
+        list.innerHTML = '';
+        list.appendChild(textarea);
+        list.appendChild(saveBtn);
+        list.appendChild(cancelBtn);
+
+        saveBtn.onclick = () => {
+          const lines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+          list.innerHTML = lines.map(l => `<li><i class='fas fa-check'></i> ${l}</li>`).join('');
+          editing = false;
+        };
+        cancelBtn.onclick = () => {
+          list.innerHTML = items.map(l => `<li><i class='fas fa-check'></i> ${l}</li>`).join('');
+          editing = false;
+        };
+      });
+    });
+    // Exibe botão de editar responsabilidades se for owner logado
+    window.addEventListener('DOMContentLoaded', async () => {
+      const token = Auth.getToken();
+      if (!token) return;
+      try {
+        const res = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }, credentials: 'include' });
+        if (!res.ok) return;
+        const me = await res.json();
+        if (me.type === 'owner') {
+          const btn = document.getElementById('editResponsibilitiesBtn');
+          if (btn) btn.style.display = 'inline-block';
+        }
+      } catch (e) {}
+    });
     // Initialize auth buttons
     window.addEventListener('DOMContentLoaded', () => {
       const authButtons = document.getElementById('authButtons');
@@ -194,17 +258,13 @@
         if (!response.ok) {
           throw new Error('Erro ao carregar perfil');
         }
-        
         const user = await response.json();
-        
         // Preencher informações básicas
         document.getElementById('adminName').textContent = user.name;
         document.getElementById('adminEmail').textContent = user.email;
-        
         // Avatar
         const avatar = user.avatarUrl || user.profilePhotoUrl || '/images/default-avatar.png';
         document.getElementById('adminAvatar').src = avatar;
-        
         // Data de entrada
         const joinedDate = new Date(user.createdAt).toLocaleDateString('pt-BR', { 
           month: 'long', 
@@ -212,23 +272,42 @@
         });
         document.getElementById('adminJoined').textContent = joinedDate;
         document.getElementById('memberSince').textContent = new Date(user.createdAt).toLocaleDateString('pt-BR');
-        
-        // Atualizar badge e título se for owner
+        // Atualizar visual se for owner
         if (user.type === 'owner') {
-          const adminBadge = document.querySelector('.admin-badge');
-          const profileRole = document.querySelector('.profile-role-public');
-          
-          if (adminBadge) {
-            adminBadge.innerHTML = '<i class="fas fa-crown"></i> PROPRIETÁRIO';
-            adminBadge.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            adminBadge.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+          // Banner maior e colorido
+          const cover = document.getElementById('profileCoverPublic');
+          if (cover) {
+            cover.style.background = 'linear-gradient(120deg, #36E131 0%, #2E935B 25%, #18F535 55%, #88F677 80%, #5DBBC3 100%)';
+            cover.style.minHeight = '340px';
+            cover.style.paddingTop = '3.5rem';
+            cover.style.paddingBottom = '2.5rem';
+            cover.style.boxShadow = '0 8px 32px 0 rgba(24,245,53,0.12), 0 1.5px 0 0 #36E131';
+            cover.style.borderBottom = '6px solid #36E131';
+            cover.style.position = 'relative';
+            // Removido: círculos decorativos
+            adminBadge.style.color = '#fff';
+            adminBadge.style.fontWeight = '700';
+            adminBadge.style.fontSize = '1.1rem';
+            adminBadge.style.border = '2px solid #2E935B';
+            adminBadge.style.boxShadow = '0 2px 8px rgba(54,225,49,0.12)';
           }
-          
+          // Título
+          const profileRole = document.querySelector('.profile-role-public');
           if (profileRole) {
             profileRole.innerHTML = '<i class="fas fa-crown"></i> Proprietário do Aprendiz+';
+            profileRole.style.color = '#fff';
+            profileRole.style.fontSize = '1.15rem';
+            profileRole.style.opacity = '0.95';
           }
-          
-          // Atualizar lista de responsabilidades
+          // Nome destaque
+          const adminName = document.getElementById('adminName');
+          if (adminName) {
+            adminName.style.fontSize = '2.6rem';
+            adminName.style.letterSpacing = '1.5px';
+            adminName.style.color = '#fff';
+            adminName.style.textShadow = '0 2px 12px rgba(46,147,91,0.18)';
+          }
+          // Responsabilidades
           const responsibilities = document.querySelector('.responsibilities-list');
           if (responsibilities) {
             responsibilities.innerHTML = `
@@ -241,26 +320,21 @@
             `;
           }
         }
-        
         // Bio
         if (user.bio) {
           document.getElementById('adminBio').innerHTML = `<p>${user.bio}</p>`;
         }
-        
         // Contato
         document.getElementById('emailContact').innerHTML = `
           <i class="fas fa-envelope"></i>
           <span>${user.email}</span>
         `;
-        
         if (user.phone) {
           document.getElementById('phoneContact').style.display = 'flex';
           document.getElementById('phoneContact').querySelector('span').textContent = user.phone;
         }
-        
         // Carregar notícias do admin
         loadAdminNews(userId);
-        
       } catch (error) {
         console.error('Erro:', error);
         showMessage('Erro ao carregar perfil do administrador', 'error');
@@ -271,16 +345,13 @@
       try {
         const response = await fetch(`/api/news?authorId=${adminId}`);
         if (!response.ok) throw new Error('Erro ao carregar notícias');
-        
         const news = await response.json();
         const newsContainer = document.getElementById('adminNews');
         document.getElementById('newsCount').textContent = news.length;
-        
         if (news.length === 0) {
           newsContainer.innerHTML = '<p class="no-content">Nenhuma notícia publicada ainda.</p>';
           return;
         }
-        
         newsContainer.innerHTML = news.slice(0, 6).map(item => `
           <div class="news-card">
             ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.title}">` : ''}
@@ -294,24 +365,10 @@
             </div>
           </div>
         `).join('');
-        
       } catch (error) {
         console.error('Erro:', error);
-        document.getElementById('adminNews').innerHTML = 
-          '<p class="error">Erro ao carregar notícias</p>';
+        document.getElementById('adminNews').innerHTML = '<p class="error">Erro ao carregar notícias</p>';
       }
-    }
-
-    function showMessage(message, type = 'info') {
-      const container = document.getElementById('messageContainer');
-      const messageEl = document.createElement('div');
-      messageEl.className = `message message-${type}`;
-      messageEl.textContent = message;
-      container.appendChild(messageEl);
-      
-      setTimeout(() => {
-        messageEl.remove();
-      }, 5000);
     }
 
     // Verificar se o ID foi fornecido
@@ -320,6 +377,70 @@
     } else {
       loadPublicProfile();
     }
+    // Edição de responsabilidades (salva no backend)
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('editResponsibilitiesBtn');
+      const list = document.querySelector('.responsibilities-list');
+      if (!btn || !list) return;
+      let editing = false;
+      let textarea, saveBtn, cancelBtn;
+
+      btn.addEventListener('click', () => {
+        if (editing) return;
+        editing = true;
+        // Pega texto atual
+        const items = Array.from(list.querySelectorAll('li')).map(li => li.textContent.trim());
+        // Cria textarea
+        textarea = document.createElement('textarea');
+        textarea.value = items.join('\n');
+        textarea.style.width = '100%';
+        textarea.style.minHeight = '120px';
+        textarea.style.marginBottom = '0.5rem';
+        textarea.style.fontSize = '1rem';
+        // Cria botões
+        saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Salvar';
+        saveBtn.className = 'btn btn-primary';
+        saveBtn.style.marginRight = '0.5rem';
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancelar';
+        cancelBtn.className = 'btn btn-secondary';
+        // Limpa lista e insere editor
+        list.innerHTML = '';
+        list.appendChild(textarea);
+        list.appendChild(saveBtn);
+        list.appendChild(cancelBtn);
+
+        saveBtn.onclick = async () => {
+          const lines = textarea.value.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(function(l) { return l; });
+          // Salva no backend
+          const token = Auth.getToken();
+          try {
+            const res = await fetch('/api/users/' + userId + '/responsibilities', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              },
+              body: JSON.stringify({ responsibilities: lines })
+            });
+            if (!res.ok) throw new Error('Erro ao salvar responsabilidades');
+            // Recarrega responsabilidades do backend para garantir consistência
+            const updated = await res.json();
+            list.innerHTML = (updated.responsibilities || lines).map(function(l) { return '<li><i class="fas fa-check"></i> ' + l + '</li>'; }).join('');
+            editing = false;
+          } catch (e) {
+            alert('Erro ao salvar responsabilidades!');
+            list.innerHTML = items.map(function(l) { return '<li><i class="fas fa-check"></i> ' + l + '</li>'; }).join('');
+            editing = false;
+          }
+        };
+        cancelBtn.onclick = function() {
+          list.innerHTML = items.map(function(l) { return '<li><i class="fas fa-check"></i> ' + l + '</li>'; }).join('');
+          editing = false;
+        };
+      });
+    });
   </script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>

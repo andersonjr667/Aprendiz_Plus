@@ -1,26 +1,27 @@
 // Function to show messages in the register page
 function showRegisterMessage(message, type = 'info') {
+  // Exibe toast no canto superior direito
+  const toast = document.getElementById('toastNotification');
+  if (toast) {
+    toast.textContent = message;
+    toast.className = `toast-notification ${type} show`;
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 5000);
+  }
+  // Também exibe no messageContainer local (acima do formulário)
   const container = document.getElementById('messageContainer');
   const messageText = document.getElementById('messageText');
-  
   if (container && messageText) {
     messageText.textContent = message;
     container.className = `message-container ${type}`;
     container.style.display = 'block';
-    
-    // Auto-hide after 5 seconds for non-error messages
     if (type !== 'error') {
       setTimeout(() => {
         container.style.display = 'none';
       }, 5000);
-    }
-  } else {
-    // Fallback to global showMessage if elements not found
-    if (typeof showMessage === 'function') {
-      showMessage(message, type);
-    } else {
-      // Ultimate fallback - simple alert
-      alert(message);
     }
   }
 }
@@ -200,7 +201,7 @@ async function handleRegister(event) {
   }
 
   // Desabilitar o botão de submit para evitar múltiplos envios
-  const submitButton = event.target && event.target.querySelector
+  let submitButton = event.target && event.target.querySelector
     ? event.target.querySelector('button[type="submit"]')
     : null;
   if (submitButton) {
