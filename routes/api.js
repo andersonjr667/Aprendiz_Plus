@@ -3181,6 +3181,36 @@ router.get('/gamification/leaderboard', async (req, res) => {
   }
 });
 
+// Obter conquistas do usuário com progresso
+router.get('/gamification/achievements', authMiddleware, async (req, res) => {
+  try {
+    const achievements = await Gamification.getUserAchievementsWithProgress(req.user._id.toString());
+    const bannerAchievements = await Gamification.getBannerAchievements(req.user._id.toString());
+    res.json({
+      achievements: achievements,
+      bannerAchievements: bannerAchievements
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Salvar conquistas do banner
+router.put('/gamification/banner-achievements', authMiddleware, async (req, res) => {
+  try {
+    const { bannerAchievements } = req.body;
+    
+    if (!Array.isArray(bannerAchievements) || bannerAchievements.length > 3) {
+      return res.status(400).json({ error: 'Deve ser um array com no máximo 3 conquistas' });
+    }
+    
+    await Gamification.setBannerAchievements(req.user._id.toString(), bannerAchievements);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ===== SISTEMA DE VERIFICAÇÃO =====
 
 // Solicitar verificação de email

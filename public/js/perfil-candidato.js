@@ -1435,6 +1435,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadApplications();
   loadRecommendations();
   loadResume();
+  loadAchievements();
 
   // Edit toggle - removido listener duplicado pois o botão já tem onclick no HTML
   
@@ -2015,3 +2016,312 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 window.confirmDeleteResume = confirmDeleteResume;
 window.quickResumeAction = quickResumeAction;
+
+// ----- ACHIEVEMENTS MANAGEMENT -----
+
+let isAchievementsEditMode = false;
+let currentAchievements = [];
+let bannerAchievements = [];
+
+// Load achievements
+async function loadAchievements() {
+  const container = document.getElementById('achievementsSection');
+  
+  if (!container) {
+    console.error('Container #achievementsSection não encontrado');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/gamification/achievements', { credentials: 'include' });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
+    const data = await res.json();
+    console.log('Achievements data:', data);
+    
+    currentAchievements = data.achievements || [];
+    bannerAchievements = data.bannerAchievements || [];
+    
+    displayAchievements(data.achievements || [], data.bannerAchievements || []);
+    
+  } catch (error) {
+    console.error('Error loading achievements:', error);
+    if (container) {
+      container.innerHTML = `
+        <div class="text-center p-lg">
+          <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: var(--text-gray);">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <p class="text-gray-500">Não foi possível carregar suas conquistas</p>
+          <button onclick="loadAchievements()" class="btn btn-secondary" style="margin-top: var(--spacing-md);">
+            <i class="fas fa-redo"></i> Tentar novamente
+          </button>
+        </div>
+      `;
+    }
+  }
+}
+
+// Display achievements
+function displayAchievements(achievements, bannerAchievements) {
+  const container = document.getElementById('achievementsSection');
+  if (!container) return;
+  
+  if (!achievements || achievements.length === 0) {
+    container.innerHTML = `
+      <div class="text-center p-lg">
+        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: #FFD700;">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <h5 style="margin-bottom: var(--spacing-xs);">Nenhuma conquista ainda</h5>
+        <p class="text-gray-500">Complete ações para desbloquear suas primeiras conquistas!</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Separate obtained and near achievements
+  const obtained = achievements.filter(a => a.obtained);
+  const near = achievements.filter(a => !a.obtained && a.progress > 0).slice(0, 3); // Show top 3 near achievements
+  
+  let html = '';
+  
+  // Banner achievements (if any)
+  if (bannerAchievements && bannerAchievements.length > 0) {
+    html += '<div class="achievements-banner">';
+    html += '<h6 style="margin-bottom: 10px; color: #FFD700;"><i class="fas fa-star"></i> Destaques do Perfil</h6>';
+    html += '<div class="banner-achievements-grid">';
+    
+    bannerAchievements.forEach(achievementId => {
+      const achievement = achievements.find(a => a.id === achievementId);
+      if (achievement) {
+        html += `
+          <div class="banner-achievement-item">
+            <div class="banner-achievement-icon">
+              <i class="fas ${achievement.icon}"></i>
+            </div>
+            <div class="banner-achievement-info">
+              <div class="banner-achievement-name">${achievement.name}</div>
+              <div class="banner-achievement-desc">${achievement.description}</div>
+            </div>
+          </div>
+        `;
+      }
+    });
+    
+    html += '</div></div>';
+  }
+  
+  // Obtained achievements
+  if (obtained.length > 0) {
+    html += '<div class="achievements-obtained">';
+    html += '<h6 style="margin-bottom: 10px; color: #2ECC71;"><i class="fas fa-check-circle"></i> Conquistas Obtidas</h6>';
+    html += '<div class="achievements-grid">';
+    
+    obtained.forEach(achievement => {
+      html += `
+        <div class="achievement-item obtained">
+          <div class="achievement-icon">
+            <i class="fas ${achievement.icon}"></i>
+          </div>
+          <div class="achievement-info">
+            <div class="achievement-name">${achievement.name}</div>
+            <div class="achievement-desc">${achievement.description}</div>
+            <div class="achievement-date">Obtida em ${new Date(achievement.obtainedAt).toLocaleDateString('pt-BR')}</div>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += '</div></div>';
+  }
+  
+  // Near achievements
+  if (near.length > 0) {
+    html += '<div class="achievements-near">';
+    html += '<h6 style="margin-bottom: 10px; color: #F39C12;"><i class="fas fa-chart-line"></i> Quase Lá</h6>';
+    html += '<div class="achievements-grid">';
+    
+    near.forEach(achievement => {
+      const progressPercent = Math.min(100, Math.round(achievement.progress * 100));
+      html += `
+        <div class="achievement-item near">
+          <div class="achievement-icon">
+            <i class="fas ${achievement.icon}"></i>
+          </div>
+          <div class="achievement-info">
+            <div class="achievement-name">${achievement.name}</div>
+            <div class="achievement-desc">${achievement.description}</div>
+            <div class="achievement-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+              </div>
+              <span class="progress-text">${progressPercent}%</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Toggle achievements edit mode
+function toggleAchievementsEditMode() {
+  console.log('toggleAchievementsEditMode called, current isAchievementsEditMode:', isAchievementsEditMode);
+  
+  isAchievementsEditMode = !isAchievementsEditMode;
+  
+  const btnEdit = document.getElementById('btnEditAchievements');
+  const editText = document.getElementById('editAchievementsText');
+  
+  if (isAchievementsEditMode) {
+    // Entering edit mode
+    console.log('Entering achievements edit mode');
+    showAchievementsEditMode();
+    if (btnEdit) btnEdit.classList.add('active');
+    if (editText) editText.textContent = 'Cancelar';
+  } else {
+    // Exiting edit mode
+    console.log('Exiting achievements edit mode');
+    displayAchievements(currentAchievements, bannerAchievements);
+    if (btnEdit) btnEdit.classList.remove('active');
+    if (editText) editText.textContent = 'Editar Banner';
+  }
+}
+
+// Show achievements edit mode
+function showAchievementsEditMode() {
+  const container = document.getElementById('achievementsSection');
+  if (!container) return;
+  
+  if (!currentAchievements || currentAchievements.length === 0) {
+    container.innerHTML = `
+      <div class="text-center p-lg">
+        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: #FFD700;">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <h5 style="margin-bottom: var(--spacing-xs);">Nenhuma conquista disponível</h5>
+        <p class="text-gray-500">Complete ações para desbloquear conquistas e poder destacá-las no seu perfil!</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Only show obtained achievements for banner selection
+  const obtainedAchievements = currentAchievements.filter(a => a.obtained);
+  
+  if (obtainedAchievements.length === 0) {
+    container.innerHTML = `
+      <div class="text-center p-lg">
+        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm); color: #FFD700;">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <h5 style="margin-bottom: var(--spacing-xs);">Nenhuma conquista obtida</h5>
+        <p class="text-gray-500">Complete ações para obter conquistas e poder destacá-las no seu perfil!</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '<div class="achievements-edit-mode">';
+  html += '<p style="margin-bottom: 15px; font-size: 0.9rem; color: #7f8c8d;">Selecione até 3 conquistas para destacar no seu perfil:</p>';
+  html += '<div class="achievements-select-grid">';
+  
+  obtainedAchievements.forEach(achievement => {
+    const isSelected = bannerAchievements.includes(achievement.id);
+    const isDisabled = !isSelected && bannerAchievements.length >= 3;
+    
+    html += `
+      <div class="achievement-select-item ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" 
+           data-achievement-id="${achievement.id}" 
+           onclick="${isDisabled ? '' : 'toggleBannerAchievement(\'' + achievement.id + '\')'}">
+        <div class="achievement-select-check">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="achievement-select-icon">
+          <i class="fas ${achievement.icon}"></i>
+        </div>
+        <div class="achievement-select-info">
+          <div class="achievement-select-name">${achievement.name}</div>
+          <div class="achievement-select-desc">${achievement.description}</div>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  html += '<div class="achievements-edit-actions" style="margin-top: 20px; text-align: center;">';
+  html += '<button type="button" class="btn btn-primary" onclick="saveBannerAchievements()">';
+  html += '<i class="fas fa-save"></i> Salvar Seleção</button>';
+  html += '<button type="button" class="btn btn-secondary" onclick="toggleAchievementsEditMode()" style="margin-left: 10px;">';
+  html += '<i class="fas fa-times"></i> Cancelar</button>';
+  html += '</div></div>';
+  
+  container.innerHTML = html;
+}
+
+// Toggle banner achievement selection
+function toggleBannerAchievement(achievementId) {
+  console.log('Toggling banner achievement:', achievementId);
+  
+  const index = bannerAchievements.indexOf(achievementId);
+  if (index > -1) {
+    // Remove from selection
+    bannerAchievements.splice(index, 1);
+  } else {
+    // Add to selection (max 3)
+    if (bannerAchievements.length < 3) {
+      bannerAchievements.push(achievementId);
+    }
+  }
+  
+  // Update UI
+  showAchievementsEditMode();
+}
+
+// Save banner achievements
+async function saveBannerAchievements() {
+  try {
+    console.log('Saving banner achievements:', bannerAchievements);
+    showProfileMessage('Salvando destaques...', 'info');
+    
+    const res = await fetch('/api/gamification/banner-achievements', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bannerAchievements: bannerAchievements
+      })
+    });
+    
+    const result = await res.json();
+    console.log('Save banner achievements response:', result);
+    
+    if (res.ok) {
+      showProfileMessage('Destaques salvos com sucesso!', 'success');
+      toggleAchievementsEditMode();
+      // Reload achievements to show updated banner
+      loadAchievements();
+    } else {
+      console.error('Save failed:', result);
+      showProfileMessage(result.error || 'Erro ao salvar destaques', 'error');
+    }
+  } catch (error) {
+    console.error('Error saving banner achievements:', error);
+    showProfileMessage('Erro de conexão ao salvar destaques', 'error');
+  }
+}
+
+// Global achievements functions
+window.toggleAchievementsEditMode = toggleAchievementsEditMode;
+window.toggleBannerAchievement = toggleBannerAchievement;
+window.saveBannerAchievements = saveBannerAchievements;
