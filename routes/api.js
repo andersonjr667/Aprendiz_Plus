@@ -2639,21 +2639,21 @@ router.post('/chats', authMiddleware, async (req, res) => {
     
     // Buscar a candidatura
     const application = await Application.findById(applicationId)
-      .populate('jobId')
-      .populate('userId');
+      .populate('job')
+      .populate('candidate');
     
     if (!application) {
       return res.status(404).json({ error: 'Candidatura não encontrada' });
     }
     
     // Verificar se a candidatura foi aceita
-    if (application.status !== 'aceito') {
+    if (application.status !== 'accepted') {
       return res.status(403).json({ error: 'Chat disponível apenas para candidaturas aceitas' });
     }
     
-    const candidateId = application.userId._id;
-    const companyId = application.jobId.company;
-    const jobId = application.jobId._id;
+    const candidateId = application.candidate._id;
+    const companyId = application.job.company;
+    const jobId = application.job._id;
     
     // Verificar se o usuário tem permissão (é o candidato ou a empresa)
     const isCandidate = user._id.toString() === candidateId.toString();
@@ -2671,6 +2671,19 @@ router.post('/chats', authMiddleware, async (req, res) => {
       .populate('candidateId', 'name email profilePhotoUrl type')
       .populate('companyId', 'name email profilePhotoUrl type')
       .populate('jobId', 'title company');
+    
+    // Notificar o outro usuário sobre o novo chat
+    const otherUserId = user._id.toString() === candidateId.toString() ? companyId : candidateId;
+    const otherUserType = user._id.toString() === candidateId.toString() ? 'empresa' : 'candidato';
+    
+    await Notification.create({
+      userId: otherUserId,
+      type: 'message',
+      title: 'Novo chat iniciado',
+      message: `${req.user.name} iniciou uma conversa sobre a vaga "${application.job.title}"`,
+      link: `/chat?chatId=${chat._id}`,
+      metadata: { chatId: chat._id, jobId: jobId, applicationId: applicationId }
+    });
     
     res.json(chat);
   } catch (err) {
