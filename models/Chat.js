@@ -49,6 +49,8 @@ const ChatSchema = new mongoose.Schema({
     type: Date, 
     default: Date.now 
   }
+}, {
+  strictPopulate: false // Permitir populate em campos não definidos no schema
 });
 
 // Índices para melhor performance
