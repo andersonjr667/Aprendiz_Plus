@@ -706,6 +706,32 @@ function filterApplications(status) {
   displayApplications(currentApplications, status);
 }
 
+// Open chat with candidate
+async function openChatWithCandidate(applicationId) {
+  try {
+    showMessage('Abrindo chat...', 'info');
+    
+    const res = await fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ applicationId })
+    });
+    
+    if (res.ok) {
+      const chat = await res.json();
+      // Redirect to chat page with chatId
+      window.location.href = `/pages/chat.html?chatId=${chat._id}`;
+    } else {
+      const error = await res.json();
+      showMessage(error.error || 'Erro ao abrir chat', 'error');
+    }
+  } catch (error) {
+    console.error('Error opening chat:', error);
+    showMessage('Erro de conexão ao abrir chat', 'error');
+  }
+}
+
 // Open group chat with all accepted candidates
 async function openGroupChat(jobId) {
   try {
