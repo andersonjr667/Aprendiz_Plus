@@ -80,6 +80,13 @@ router.get('/favoritos', (req, res) => sendPage(res, 'favoritos.html'));
 router.get('/mapa-vagas', (req, res) => sendPage(res, 'mapa-vagas.html'));
 
 // Fallback for unknown routes -> 404 page
-router.get('*', (req, res) => { res.status(404); sendPage(res, '404.html'); });
+// Only catch routes that don't start with /api or /public
+router.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/public') || req.path.startsWith('/uploads')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+    res.status(404);
+    sendPage(res, '404.html');
+});
 
 module.exports = router;
