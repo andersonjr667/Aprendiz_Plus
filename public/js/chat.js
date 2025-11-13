@@ -247,6 +247,16 @@ async function openChat(chatId) {
             document.getElementById('chatAvatar').src = chat.otherUser.profilePhoto || '/public/images/default-avatar.png';
             document.getElementById('chatUserName').textContent = chat.otherUser.name;
             document.getElementById('chatJobTitle').textContent = chat.job ? chat.job.title : 'Chat';
+
+            // Atualizar status online/offline
+            const statusElement = document.querySelector('.chat-header-status') || createStatusElement();
+            const statusDot = statusElement.querySelector('.status-dot');
+            const statusText = statusElement.querySelector('span:last-child');
+
+            if (statusDot && statusText) {
+                statusDot.className = `status-dot ${chat.otherUser.isOnline ? 'online' : 'offline'}`;
+                statusText.textContent = chat.otherUser.isOnline ? 'Online' : 'Offline';
+            }
         }
 
         // Carregar mensagens
@@ -356,9 +366,12 @@ function renderMessages() {
                 <img src="${otherUser?.profilePhoto || '/public/images/default-avatar.png'}" alt="Typing" class="message-avatar">
                 <div class="message-content">
                     <div class="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span>Digitando</span>
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -467,10 +480,10 @@ function handleInputChange() {
     sendBtn.disabled = input.value.trim().length === 0;
 
     // Limite de caracteres
-    if (input.value.length > 1000) {
-        input.value = input.value.substring(0, 1000);
-        charCount.textContent = '1000';
-        showMessage('Limite de 1000 caracteres atingido', 'warning');
+    if (input.value.length > 2000) {
+        input.value = input.value.substring(0, 2000);
+        charCount.textContent = '2000';
+        showMessage('Limite de 2000 caracteres atingido', 'warning');
     }
 }
 
@@ -662,4 +675,20 @@ function showMessage(message, type = 'info') {
     setTimeout(() => {
         notification.remove();
     }, 5000);
+}
+
+// Criar elemento de status se não existir
+function createStatusElement() {
+    const headerText = document.querySelector('.chat-header-text');
+    if (!headerText) return null;
+
+    const statusElement = document.createElement('div');
+    statusElement.className = 'chat-header-status';
+    statusElement.innerHTML = `
+        <span class="status-dot offline"></span>
+        <span>Offline</span>
+    `;
+
+    headerText.appendChild(statusElement);
+    return statusElement;
 }
