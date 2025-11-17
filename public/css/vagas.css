@@ -420,6 +420,30 @@
   background: #E8F5E9;
 }
 
+.btn-delete {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid #E0E0E0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #E74C3C;
+}
+
+.btn-delete:hover {
+  border-color: #E74C3C;
+  background: #FDEDEC;
+  color: #C0392B;
+}
+
+.btn-delete i {
+  font-size: 1.1rem;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;

@@ -162,6 +162,57 @@ function shareJob(jobId, jobTitle, event) {
   }
 }
 
+// Delete job (admin only)
+async function deleteJob(jobId, jobTitle, event) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  // Confirm deletion
+  const confirmed = window.UI && window.UI.danger 
+    ? await window.UI.danger({
+        title: 'Excluir Vaga',
+        message: `Tem certeza que deseja excluir a vaga "${jobTitle}"? Esta ação não pode ser desfeita.`,
+        confirmText: 'Sim, excluir',
+        cancelText: 'Cancelar'
+      })
+    : confirm(`Tem certeza que deseja excluir a vaga "${jobTitle}"? Esta ação não pode ser desfeita.`);
+  
+  if (!confirmed) return;
+  
+  try {
+    const token = window.Auth.getToken();
+    const res = await fetch(`/api/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (res.ok) {
+      // Show success message
+      if (window.UI && window.UI.toast) {
+        window.UI.toast('Vaga excluída com sucesso!', 'success', 3000);
+      } else {
+        alert('Vaga excluída com sucesso!');
+      }
+      
+      // Reload jobs
+      loadJobs();
+    } else {
+      const error = await res.json();
+      throw new Error(error.message || 'Erro ao excluir vaga');
+    }
+  } catch (err) {
+    console.error('Erro ao excluir vaga:', err);
+    if (window.UI && window.UI.toast) {
+      window.UI.toast('Erro ao excluir vaga: ' + err.message, 'error', 5000);
+    } else {
+      alert('Erro ao excluir vaga: ' + err.message);
+    }
+  }
+}
+
 // Load jobs
 async function loadJobs() {
   showSkeletonLoading();
@@ -221,48 +272,60 @@ async function loadJobs() {
       const isFavorited = favorites.includes(job._id);
       const isNew = isNewJob(job.createdAt);
       
-      el.innerHTML = `
-        <div class="job-badges">
-          ${isNew ? '<span class="badge badge-new">✨ Novo!</span>' : ''}
-          ${getWorkModelBadge(workModel)}
-        </div>
-        <h3>${job.title || 'Título não informado'}</h3>
-        <div class="job-company">
-          <i class="fas fa-building"></i>
-          ${companyName}
-        </div>
-        <div class="job-location">
-          <i class="fas fa-map-marker-alt"></i>
-          ${location}
-        </div>
-        <p>${description.slice(0, 180)}${description.length > 180 ? '...' : ''}</p>
-        <div class="job-actions">
-          <a href="/vaga/${job._id}" class="btn-details">
-            Ver Detalhes <i class="fas fa-arrow-right"></i>
-          </a>
-          <button class="btn-favorite ${isFavorited ? 'favorited' : ''}" 
-                  onclick="toggleFavorite('${job._id}', event)"
-                  title="Favoritar vaga">
-            <i class="${isFavorited ? 'fas' : 'far'} fa-heart"></i>
+      // Check if user is admin to show delete button
+      checkUserIsAdmin().then(isAdmin => {
+        const deleteButton = isAdmin ? `
+          <button class="btn-delete" 
+                  onclick="deleteJob('${job._id}', '${job.title?.replace(/'/g, "\\'")}', event)"
+                  title="Excluir vaga (Admin)">
+            <i class="fas fa-trash-alt"></i>
           </button>
-          <button class="btn-share" 
-                  onclick="shareJob('${job._id}', '${job.title?.replace(/'/g, "\\'")}', event)"
-                  title="Compartilhar vaga">
-            <i class="fas fa-share-alt"></i>
-          </button>
-        </div>
-      `;
-      
-      // Track view when user clicks on job
-      el.addEventListener('click', (e) => {
-        if (!e.target.closest('.btn-favorite') && !e.target.closest('.btn-share')) {
-          if (window.jobAI) {
-            window.jobAI.trackJobView(job);
+        ` : '';
+        
+        el.innerHTML = `
+          <div class="job-badges">
+            ${isNew ? '<span class="badge badge-new">✨ Novo!</span>' : ''}
+            ${getWorkModelBadge(workModel)}
+          </div>
+          <h3>${job.title || 'Título não informado'}</h3>
+          <div class="job-company">
+            <i class="fas fa-building"></i>
+            ${companyName}
+          </div>
+          <div class="job-location">
+            <i class="fas fa-map-marker-alt"></i>
+            ${location}
+          </div>
+          <p>${description.slice(0, 180)}${description.length > 180 ? '...' : ''}</p>
+          <div class="job-actions">
+            <a href="/vaga/${job._id}" class="btn-details">
+              Ver Detalhes <i class="fas fa-arrow-right"></i>
+            </a>
+            <button class="btn-favorite ${isFavorited ? 'favorited' : ''}" 
+                    onclick="toggleFavorite('${job._id}', event)"
+                    title="Favoritar vaga">
+              <i class="${isFavorited ? 'fas' : 'far'} fa-heart"></i>
+            </button>
+            <button class="btn-share" 
+                    onclick="shareJob('${job._id}', '${job.title?.replace(/'/g, "\\'")}', event)"
+                    title="Compartilhar vaga">
+              <i class="fas fa-share-alt"></i>
+            </button>
+            ${deleteButton}
+          </div>
+        `;
+        
+        // Track view when user clicks on job
+        el.addEventListener('click', (e) => {
+          if (!e.target.closest('.btn-favorite') && !e.target.closest('.btn-share') && !e.target.closest('.btn-delete')) {
+            if (window.jobAI) {
+              window.jobAI.trackJobView(job);
+            }
           }
-        }
+        });
+        
+        container.appendChild(el);
       });
-      
-      container.appendChild(el);
     });
     
     renderPagination(totalJobs);
@@ -573,4 +636,15 @@ function checkUserLogin() {
   
   console.log('User not logged in');
   return false;
+}
+
+// Check if current user is admin
+async function checkUserIsAdmin() {
+  try {
+    const user = await window.Auth.getCurrentUser();
+    return user && (user.type === 'admin' || user.type === 'owner');
+  } catch (e) {
+    console.error('Error checking admin status:', e);
+    return false;
+  }
 }

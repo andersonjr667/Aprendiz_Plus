@@ -790,10 +790,17 @@ router.get('/jobs', async (req, res) => {
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const jobs = await Job.find(query)
-      .populate('company', 'name companyProfile')
+      .populate({
+        path: 'company',
+        select: 'name companyProfile',
+        match: excludeBannedSuspendedUsers()
+      })
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 }); // Ordenar por mais recentes primeiro
+    
+    // Filtrar jobs onde a empresa foi excluída (banida/suspensa)
+    const filteredJobs = jobs.filter(job => job.company !== null);
     
     const total = await Job.countDocuments(query);
     
@@ -1450,9 +1457,17 @@ router.get('/companies/me/jobs', authMiddleware, roleCheck(['empresa']), async (
 router.get('/news', async (req, res) => {
   try { 
     const news = await News.find()
-      .populate('author', 'name')
+      .populate({
+        path: 'author',
+        select: 'name',
+        match: excludeBannedSuspendedUsers()
+      })
       .sort({ createdAt: -1 }); 
-    res.json(news); 
+    
+    // Filtrar notícias onde o autor foi banido/suspenso
+    const filteredNews = news.filter(n => n.author !== null);
+    
+    res.json(filteredNews); 
   } catch (err) { 
     res.status(500).json({ error: err.message }); 
   }
@@ -1720,6 +1735,11 @@ router.get('/profiles/candidato/:id', async (req, res) => {
       return res.status(400).json({ error: 'Este não é um perfil de candidato' });
     }
     
+    // Verificar se usuário está banido ou suspenso
+    if (user.status === 'banned' || user.status === 'suspended') {
+      return res.status(404).json({ error: 'Perfil não encontrado' });
+    }
+    
     // Get likes count
     const likesCount = await ProfileLike.countDocuments({ profileUser: user._id });
     
@@ -1755,6 +1775,11 @@ router.get('/profiles/empresa/:id', async (req, res) => {
     
     if (user.type !== 'empresa') {
       return res.status(400).json({ error: 'Este não é um perfil de empresa' });
+    }
+    
+    // Verificar se usuário está banido ou suspenso
+    if (user.status === 'banned' || user.status === 'suspended') {
+      return res.status(404).json({ error: 'Perfil não encontrado' });
     }
     
     // Get likes count
@@ -2117,11 +2142,28 @@ router.get('/applications/me', authMiddleware, async (req, res) => {
 router.get('/applications/all', authMiddleware, roleCheck(['admin']), async (req, res) => {
   try {
     const applications = await Application.find()
-      .populate('candidate', 'name email')
-      .populate('job', 'title')
+      .populate({
+        path: 'candidate',
+        select: 'name email',
+        match: excludeBannedSuspendedUsers()
+      })
+      .populate({
+        path: 'job',
+        select: 'title',
+        populate: {
+          path: 'company',
+          select: 'name',
+          match: excludeBannedSuspendedUsers()
+        }
+      })
       .sort({ createdAt: -1 });
     
-    res.json(applications);
+    // Filtrar aplicações onde candidato ou empresa foi banido/suspenso
+    const filteredApplications = applications.filter(app => 
+      app.candidate !== null && app.job.company !== null
+    );
+    
+    res.json(filteredApplications);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -2583,6 +2625,16 @@ router.post('/email/test', authMiddleware, async (req, res) => {
 });
 
 // ===== SISTEMA DE CHAT E MENSAGENS =====
+
+// Função helper para filtrar conteúdo de usuários banidos/suspensos
+function excludeBannedSuspendedUsers() {
+  return {
+    $nor: [
+      { status: 'banned' },
+      { status: 'suspended' }
+    ]
+  };
+}
 
 // Listar conversas do usuário
 router.get('/chats', authMiddleware, async (req, res) => {
