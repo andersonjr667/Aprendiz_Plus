@@ -38,12 +38,17 @@ class CommentSystem {
 
   async checkAuth() {
     try {
-      const response = await fetch('/api/users/me');
+      const response = await fetch('/api/users/me', {
+        credentials: 'include'
+      });
       if (response.ok) {
         this.currentUser = await response.json();
+        console.log('Usuário autenticado:', this.currentUser.name);
+      } else {
+        console.log('Usuário não autenticado - Status:', response.status);
       }
     } catch (error) {
-      console.log('Usuário não autenticado');
+      console.log('Erro ao verificar autenticação:', error);
     }
   }
 
@@ -317,6 +322,7 @@ class CommentSystem {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           targetType: this.targetType,
           targetId: this.targetId,
@@ -365,7 +371,8 @@ class CommentSystem {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -481,6 +488,7 @@ class CommentSystem {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ content })
       });
 
@@ -511,7 +519,8 @@ class CommentSystem {
 
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -539,6 +548,7 @@ class CommentSystem {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ reason })
       });
 
@@ -561,7 +571,10 @@ class CommentSystem {
       this.showLoading();
 
       const response = await fetch(
-        `/api/comments/${this.targetType}/${this.targetId}?page=${this.page}&limit=${this.limit}&sort=${this.sort}`
+        `/api/comments/${this.targetType}/${this.targetId}?page=${this.page}&limit=${this.limit}&sort=${this.sort}`,
+        {
+          credentials: 'include'
+        }
       );
 
       if (!response.ok) {
