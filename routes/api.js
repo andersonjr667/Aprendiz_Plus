@@ -2414,6 +2414,9 @@ router.delete('/jobs/:id', authMiddleware, roleCheck(['admin', 'empresa']), asyn
       return res.status(403).json({ error: 'Você não tem permissão para excluir esta vaga' });
     }
     
+    // Delete related comments (cascade delete)
+    await Comment.deleteMany({ targetType: 'job', targetId: jobId });
+    
     // Delete job applications
     await Application.deleteMany({ job: jobId });
     
@@ -2428,7 +2431,7 @@ router.delete('/jobs/:id', authMiddleware, roleCheck(['admin', 'empresa']), asyn
       details: { jobTitle: job.title }
     });
     
-    res.json({ success: true, message: 'Vaga excluída com sucesso' });
+    res.json({ success: true, message: 'Vaga, candidaturas e comentários relacionados excluídos com sucesso' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -2444,6 +2447,9 @@ router.delete('/news/:id', authMiddleware, roleCheck(['admin']), async (req, res
       return res.status(404).json({ error: 'Notícia não encontrada' });
     }
     
+    // Delete related comments (cascade delete)
+    await Comment.deleteMany({ targetType: 'news', targetId: newsId });
+    
     // Delete news
     await News.findByIdAndDelete(newsId);
     
@@ -2455,7 +2461,7 @@ router.delete('/news/:id', authMiddleware, roleCheck(['admin']), async (req, res
       details: { newsTitle: news.title }
     });
     
-    res.json({ success: true, message: 'Notícia excluída com sucesso' });
+    res.json({ success: true, message: 'Notícia e comentários relacionados excluídos com sucesso' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
