@@ -95,7 +95,15 @@ const UserSchema = new mongoose.Schema({
   suspendedUntil: Date,
   suspendedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   // Responsabilidades customizadas (para admins/owner)
-  responsibilities: { type: [String], default: [] }
+  responsibilities: { type: [String], default: [] },
+
+  // Campos de engajamento e analytics
+  profileViewCount: { type: Number, default: 0 },
+  lastProfileView: Date,
+  followerCount: { type: Number, default: 0 },
+  followingCount: { type: Number, default: 0 },
+  lastLogin: Date,
+  loginCount: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model('User', UserSchema);

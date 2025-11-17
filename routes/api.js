@@ -30,6 +30,13 @@ const { logAction } = require('../middleware/audit');
 const emailService = require('../services/emailService');
 const jobAlertService = require('../services/jobAlertService');
 
+// Novos modelos para funcionalidades avançadas
+const SavedSearch = require('../models/SavedSearch');
+const JobAlert = require('../models/JobAlert');
+const Follow = require('../models/Follow');
+const GitHubProfile = require('../models/GitHubProfile');
+const PlatformAnalytics = require('../models/PlatformAnalytics');
+
 const authMiddleware = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
@@ -4658,6 +4665,676 @@ router.get('/admin/user-info/:identifier', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error('Erro ao buscar informações do usuário:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== FUNCIONALIDADES AVANÇADAS =====
+
+// ----- SAVED SEARCHES (Pesquisas Salvas) -----
+router.post('/saved-searches', authMiddleware, async (req, res) => {
+  try {
+    const { name, filters } = req.body;
+    
+    if (!name || !filters) {
+      return res.status(400).json({ error: 'Nome e filtros são obrigatórios' });
+    }
+    
+    const savedSearch = await SavedSearch.create({
+      userId: req.user._id,
+      name: name.trim(),
+      filters
+    });
+    
+    await logAction({
+      action: 'create_saved_search',
+      userId: req.user._id,
+      resourceType: 'SavedSearch',
+      resourceId: savedSearch._id,
+      details: { name: savedSearch.name }
+    });
+    
+    res.json(savedSearch);
+  } catch (err) {
+    console.error('Error creating saved search:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/saved-searches', authMiddleware, async (req, res) => {
+  try {
+    const savedSearches = await SavedSearch.find({ 
+      userId: req.user._id,
+      isActive: true 
+    }).sort({ createdAt: -1 });
+    
+    res.json(savedSearches);
+  } catch (err) {
+    console.error('Error fetching saved searches:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/saved-searches/:id', authMiddleware, async (req, res) => {
+  try {
+    const { name, filters } = req.body;
+    
+    const savedSearch = await SavedSearch.findOne({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+    
+    if (!savedSearch) {
+      return res.status(404).json({ error: 'Pesquisa salva não encontrada' });
+    }
+    
+    if (name) savedSearch.name = name.trim();
+    if (filters) savedSearch.filters = filters;
+    savedSearch.updatedAt = new Date();
+    
+    await savedSearch.save();
+    
+    res.json(savedSearch);
+  } catch (err) {
+    console.error('Error updating saved search:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/saved-searches/:id', authMiddleware, async (req, res) => {
+  try {
+    const savedSearch = await SavedSearch.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      { isActive: false },
+      { new: true }
+    );
+    
+    if (!savedSearch) {
+      return res.status(404).json({ error: 'Pesquisa salva não encontrada' });
+    }
+    
+    res.json({ message: 'Pesquisa salva removida com sucesso' });
+  } catch (err) {
+    console.error('Error deleting saved search:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- JOB ALERTS (Alertas de Vagas) -----
+router.post('/job-alerts', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const { name, filters, frequency } = req.body;
+    
+    if (!name || !filters) {
+      return res.status(400).json({ error: 'Nome e filtros são obrigatórios' });
+    }
+    
+    const jobAlert = await JobAlert.create({
+      userId: req.user._id,
+      name: name.trim(),
+      filters,
+      frequency: frequency || 'daily'
+    });
+    
+    await logAction({
+      action: 'create_job_alert',
+      userId: req.user._id,
+      resourceType: 'JobAlert',
+      resourceId: jobAlert._id,
+      details: { name: jobAlert.name, frequency: jobAlert.frequency }
+    });
+    
+    res.json(jobAlert);
+  } catch (err) {
+    console.error('Error creating job alert:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/job-alerts', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const jobAlerts = await JobAlert.find({ 
+      userId: req.user._id,
+      isActive: true 
+    }).sort({ createdAt: -1 });
+    
+    res.json(jobAlerts);
+  } catch (err) {
+    console.error('Error fetching job alerts:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/job-alerts/:id', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const { name, filters, frequency, isActive } = req.body;
+    
+    const jobAlert = await JobAlert.findOne({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+    
+    if (!jobAlert) {
+      return res.status(404).json({ error: 'Alerta de vaga não encontrado' });
+    }
+    
+    if (name) jobAlert.name = name.trim();
+    if (filters) jobAlert.filters = filters;
+    if (frequency) jobAlert.frequency = frequency;
+    if (typeof isActive === 'boolean') jobAlert.isActive = isActive;
+    jobAlert.updatedAt = new Date();
+    
+    await jobAlert.save();
+    
+    res.json(jobAlert);
+  } catch (err) {
+    console.error('Error updating job alert:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/job-alerts/:id', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const jobAlert = await JobAlert.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      { isActive: false },
+      { new: true }
+    );
+    
+    if (!jobAlert) {
+      return res.status(404).json({ error: 'Alerta de vaga não encontrado' });
+    }
+    
+    res.json({ message: 'Alerta de vaga removido com sucesso' });
+  } catch (err) {
+    console.error('Error deleting job alert:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- FOLLOW SYSTEM (Sistema de Seguidores) -----
+router.post('/follow/:userId', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const targetUserId = req.params.userId;
+    
+    // Verificar se o usuário alvo existe e é uma empresa
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser || targetUser.type !== 'empresa') {
+      return res.status(404).json({ error: 'Empresa não encontrada' });
+    }
+    
+    // Verificar se já está seguindo
+    const existingFollow = await Follow.findOne({
+      followerId: req.user._id,
+      followingId: targetUserId
+    });
+    
+    if (existingFollow) {
+      return res.status(400).json({ error: 'Você já segue esta empresa' });
+    }
+    
+    const follow = await Follow.create({
+      followerId: req.user._id,
+      followingId: targetUserId
+    });
+    
+    // Atualizar contadores
+    await User.findByIdAndUpdate(req.user._id, { $inc: { followingCount: 1 } });
+    await User.findByIdAndUpdate(targetUserId, { $inc: { followerCount: 1 } });
+    
+    await logAction({
+      action: 'follow_company',
+      userId: req.user._id,
+      resourceType: 'Follow',
+      resourceId: follow._id,
+      details: { followingId: targetUserId }
+    });
+    
+    res.json({ message: 'Empresa seguida com sucesso', follow });
+  } catch (err) {
+    console.error('Error following company:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/follow/:userId', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const targetUserId = req.params.userId;
+    
+    const follow = await Follow.findOneAndDelete({
+      followerId: req.user._id,
+      followingId: targetUserId
+    });
+    
+    if (!follow) {
+      return res.status(404).json({ error: 'Você não segue esta empresa' });
+    }
+    
+    // Atualizar contadores
+    await User.findByIdAndUpdate(req.user._id, { $inc: { followingCount: -1 } });
+    await User.findByIdAndUpdate(targetUserId, { $inc: { followerCount: -1 } });
+    
+    res.json({ message: 'Deixou de seguir a empresa com sucesso' });
+  } catch (err) {
+    console.error('Error unfollowing company:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/follow/status/:userId', authMiddleware, async (req, res) => {
+  try {
+    const follow = await Follow.findOne({
+      followerId: req.user._id,
+      followingId: req.params.userId
+    });
+    
+    res.json({ isFollowing: !!follow });
+  } catch (err) {
+    console.error('Error checking follow status:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/followers', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const followers = await Follow.find({ followingId: req.user._id })
+      .populate('followerId', 'name email profilePhotoUrl candidateProfile')
+      .sort({ createdAt: -1 });
+    
+    res.json(followers.map(f => f.followerId));
+  } catch (err) {
+    console.error('Error fetching followers:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/following', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const following = await Follow.find({ followerId: req.user._id })
+      .populate('followingId', 'name email companyProfile profilePhotoUrl')
+      .sort({ createdAt: -1 });
+    
+    res.json(following.map(f => f.followingId));
+  } catch (err) {
+    console.error('Error fetching following:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- GITHUB INTEGRATION -----
+router.post('/github/profile', authMiddleware, async (req, res) => {
+  try {
+    const { githubUsername, accessToken } = req.body;
+    
+    if (!githubUsername) {
+      return res.status(400).json({ error: 'Nome de usuário do GitHub é obrigatório' });
+    }
+    
+    // Buscar dados do GitHub (simulado - em produção usaria GitHub API)
+    const profileData = {
+      username: githubUsername,
+      name: githubUsername, // Em produção, buscar da API
+      avatar_url: `https://github.com/${githubUsername}.png`,
+      bio: '',
+      location: '',
+      company: '',
+      blog: '',
+      public_repos: 0,
+      followers: 0,
+      following: 0
+    };
+    
+    const repositories = []; // Em produção, buscar da API
+    
+    let githubProfile = await GitHubProfile.findOne({ userId: req.user._id });
+    
+    if (githubProfile) {
+      githubProfile.profileData = profileData;
+      githubProfile.repositories = repositories;
+      githubProfile.lastUpdated = new Date();
+      await githubProfile.save();
+    } else {
+      githubProfile = await GitHubProfile.create({
+        userId: req.user._id,
+        githubUsername,
+        profileData,
+        repositories,
+        accessToken: accessToken ? Buffer.from(accessToken).toString('base64') : undefined
+      });
+    }
+    
+    await logAction({
+      action: 'update_github_profile',
+      userId: req.user._id,
+      resourceType: 'GitHubProfile',
+      resourceId: githubProfile._id,
+      details: { githubUsername }
+    });
+    
+    res.json(githubProfile);
+  } catch (err) {
+    console.error('Error updating GitHub profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/github/profile', authMiddleware, async (req, res) => {
+  try {
+    const githubProfile = await GitHubProfile.findOne({ userId: req.user._id });
+    
+    if (!githubProfile) {
+      return res.json(null);
+    }
+    
+    res.json(githubProfile);
+  } catch (err) {
+    console.error('Error fetching GitHub profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/github/profile', authMiddleware, async (req, res) => {
+  try {
+    await GitHubProfile.findOneAndDelete({ userId: req.user._id });
+    
+    res.json({ message: 'Perfil do GitHub removido com sucesso' });
+  } catch (err) {
+    console.error('Error deleting GitHub profile:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- CONTENT MODERATION -----
+router.put('/jobs/:id/moderate', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { moderationStatus, moderationReason } = req.body;
+    
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({ error: 'Vaga não encontrada' });
+    }
+    
+    job.moderationStatus = moderationStatus || 'approved';
+    job.moderatedBy = req.user._id;
+    job.moderatedAt = new Date();
+    
+    if (moderationReason) {
+      job.moderationReason = moderationReason;
+    }
+    
+    await job.save();
+    
+    await logAction({
+      action: 'moderate_job',
+      userId: req.user._id,
+      resourceType: 'Job',
+      resourceId: job._id,
+      details: { moderationStatus: job.moderationStatus }
+    });
+    
+    res.json(job);
+  } catch (err) {
+    console.error('Error moderating job:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/news/:id/moderate', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { moderationStatus, moderationReason } = req.body;
+    
+    const news = await News.findById(req.params.id);
+    if (!news) {
+      return res.status(404).json({ error: 'Notícia não encontrada' });
+    }
+    
+    news.moderationStatus = moderationStatus || 'approved';
+    news.moderatedBy = req.user._id;
+    news.moderatedAt = new Date();
+    
+    if (moderationReason) {
+      news.moderationReason = moderationReason;
+    }
+    
+    await news.save();
+    
+    await logAction({
+      action: 'moderate_news',
+      userId: req.user._id,
+      resourceType: 'News',
+      resourceId: news._id,
+      details: { moderationStatus: news.moderationStatus }
+    });
+    
+    res.json(news);
+  } catch (err) {
+    console.error('Error moderating news:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/moderation/pending', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { type, page = 1, limit = 20 } = req.query;
+    
+    let query = { moderationStatus: 'pending' };
+    let Model;
+    
+    if (type === 'jobs') {
+      Model = Job;
+    } else if (type === 'news') {
+      Model = News;
+    } else {
+      // Buscar ambos
+      const [jobs, news] = await Promise.all([
+        Job.find({ moderationStatus: 'pending' })
+          .populate('company', 'name')
+          .sort({ createdAt: -1 })
+          .limit(limit),
+        News.find({ moderationStatus: 'pending' })
+          .populate('author', 'name')
+          .sort({ createdAt: -1 })
+          .limit(limit)
+      ]);
+      
+      return res.json({
+        jobs: jobs.map(j => ({ ...j.toObject(), contentType: 'job' })),
+        news: news.map(n => ({ ...n.toObject(), contentType: 'news' }))
+      });
+    }
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const items = await Model.find(query)
+      .populate(type === 'jobs' ? 'company' : 'author', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await Model.countDocuments(query);
+    
+    res.json({
+      items,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching pending moderation:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- PLATFORM ANALYTICS -----
+router.get('/analytics/overview', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { period = '30d' } = req.query;
+    
+    // Calcular data de início baseada no período
+    const startDate = new Date();
+    switch (period) {
+      case '7d':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(startDate.getDate() - 90);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 30);
+    }
+    
+    // Buscar dados mais recentes
+    const latestAnalytics = await PlatformAnalytics.findOne()
+      .sort({ date: -1 });
+    
+    if (!latestAnalytics) {
+      return res.json({
+        period,
+        startDate,
+        endDate: new Date(),
+        data: {
+          users: { total: 0, new: 0, active: 0 },
+          jobs: { total: 0, new: 0, active: 0 },
+          applications: { total: 0, new: 0 },
+          engagement: { views: 0, interactions: 0 }
+        }
+      });
+    }
+    
+    res.json({
+      period,
+      startDate,
+      endDate: latestAnalytics.date,
+      data: latestAnalytics.data
+    });
+  } catch (err) {
+    console.error('Error fetching analytics overview:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/analytics/chart', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { metric, days = 30 } = req.query;
+    
+    const analytics = await PlatformAnalytics.find()
+      .sort({ date: -1 })
+      .limit(parseInt(days));
+    
+    const chartData = analytics.reverse().map(a => ({
+      date: a.date,
+      value: a.data[metric] || 0
+    }));
+    
+    res.json(chartData);
+  } catch (err) {
+    console.error('Error fetching analytics chart:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint para atualizar analytics (chamado por cron job)
+router.post('/analytics/update', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Verificar se já existe analytics para hoje
+    let analytics = await PlatformAnalytics.findOne({ date: today });
+    
+    if (!analytics) {
+      // Calcular métricas
+      const [
+        totalUsers,
+        newUsers,
+        activeUsers,
+        totalJobs,
+        newJobs,
+        activeJobs,
+        totalApplications,
+        newApplications,
+        jobViews,
+        newsViews
+      ] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ createdAt: { $gte: today } }),
+        User.countDocuments({ lastLogin: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }),
+        Job.countDocuments(),
+        Job.countDocuments({ createdAt: { $gte: today } }),
+        Job.countDocuments({ status: { $in: ['active', 'aberta'] } }),
+        Application.countDocuments(),
+        Application.countDocuments({ appliedAt: { $gte: today } }),
+        Job.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }]),
+        News.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }])
+      ]);
+      
+      analytics = await PlatformAnalytics.create({
+        date: today,
+        data: {
+          users: {
+            total: totalUsers,
+            new: newUsers,
+            active: activeUsers
+          },
+          jobs: {
+            total: totalJobs,
+            new: newJobs,
+            active: activeJobs
+          },
+          applications: {
+            total: totalApplications,
+            new: newApplications
+          },
+          engagement: {
+            jobViews: jobViews[0]?.total || 0,
+            newsViews: newsViews[0]?.total || 0,
+            totalViews: (jobViews[0]?.total || 0) + (newsViews[0]?.total || 0)
+          }
+        }
+      });
+    }
+    
+    res.json(analytics);
+  } catch (err) {
+    console.error('Error updating analytics:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- UTILITY ENDPOINTS -----
+router.post('/jobs/:id/view', async (req, res) => {
+  try {
+    await Job.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error incrementing job view:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/news/:id/view', async (req, res) => {
+  try {
+    await News.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error incrementing news view:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/users/:id/view', authMiddleware, async (req, res) => {
+  try {
+    if (req.params.id !== req.user._id.toString()) {
+      await User.findByIdAndUpdate(req.params.id, { $inc: { profileViewCount: 1 } });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error incrementing profile view:', err);
     res.status(500).json({ error: err.message });
   }
 });
