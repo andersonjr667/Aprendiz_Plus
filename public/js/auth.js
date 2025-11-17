@@ -83,17 +83,32 @@
         // Usuario logado
         nav.innerHTML = `
           <a href="/vagas">Vagas</a>
+          <a href="/mapa-vagas">
+            <i class="fas fa-map"></i> Mapa de Vagas
+          </a>
           <a href="/noticias">Notícias</a>
+          <a href="/favoritos">
+            <i class="fas fa-heart"></i> Favoritos
+          </a>
+          <a href="/chat">
+            <i class="fas fa-comments"></i> Chat
+          </a>
           ${user.type === 'candidato' ? 
             `<a href="/dashboard-candidato">
               <i class="fas fa-chart-line"></i> Dashboard
              </a>
-             <a href="/perfil-candidato">Meu Perfil</a>` : 
+             <a href="/perfil-candidato">Meu Perfil</a>
+             <a href="/upload">
+              <i class="fas fa-upload"></i> Upload
+             </a>` : 
             user.type === 'empresa' ? 
             `<a href="/painel-empresa">
               <i class="fas fa-chart-line"></i> Painel
              </a>
              <a href="/perfil-empresa">Minha Empresa</a>
+             <a href="/upload">
+              <i class="fas fa-upload"></i> Upload
+             </a>
              <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
             user.type === 'owner' ? 
             `<a href="/perfil-admin">
@@ -102,12 +117,24 @@
              <a href="/admin">
               <i class="fas fa-tachometer-alt"></i> Painel Admin
              </a>
+             <a href="/analytics">
+              <i class="fas fa-chart-bar"></i> Analytics
+             </a>
+             <a href="/admin-monitoramento">
+              <i class="fas fa-eye"></i> Monitoramento
+             </a>
              <a href="/admin-manage-admins" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
               <i class="fas fa-user-shield"></i> Gerenciar Admins
              </a>` :
             user.type === 'admin' ? 
             `<a href="/perfil-admin">Meu Perfil</a>
-             <a href="/admin">Painel Admin</a>` : ''
+             <a href="/admin">Painel Admin</a>
+             <a href="/analytics">
+              <i class="fas fa-chart-bar"></i> Analytics
+             </a>
+             <a href="/admin-monitoramento">
+              <i class="fas fa-eye"></i> Monitoramento
+             </a>` : ''
           }
           <button onclick="logout()" class="btn btn-logout">
             <i class="fas fa-sign-out-alt"></i> Sair

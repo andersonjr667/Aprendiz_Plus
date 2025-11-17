@@ -189,6 +189,24 @@ function validateForm(formData) {
       throw new Error('CNPJ inválido');
     }
   }
+
+  // Validar CEP se fornecido
+  const cep = formData.get('cep');
+  const companyCep = formData.get('companyCep');
+
+  if (type === 'candidato' && cep && cep.trim()) {
+    const cepClean = cep.replace(/\D/g, '');
+    if (cepClean.length !== 8) {
+      throw new Error('CEP deve ter 8 dígitos');
+    }
+  }
+
+  if (type === 'empresa' && companyCep && companyCep.trim()) {
+    const cepClean = companyCep.replace(/\D/g, '');
+    if (cepClean.length !== 8) {
+      throw new Error('CEP deve ter 8 dígitos');
+    }
+  }
 }
 
 async function handleRegister(event) {
@@ -505,6 +523,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (commercialPhoneInput) commercialPhoneInput.addEventListener('input', formatPhone);
 });
 
+// Validação de CEP
+function isValidCEP(cep) {
+  if (!cep || typeof cep !== 'string') return false;
+  
+  // Remove caracteres não numéricos
+  cep = cep.replace(/\D/g, '');
+  
+  // Verifica se tem 8 dígitos
+  return cep.length === 8;
+}
+
 // Validação de CPF
 function isValidCPF(cpf) {
   if (!cpf || typeof cpf !== 'string') return false;
@@ -582,4 +611,15 @@ function isValidCNPJ(cnpj) {
   if (result !== parseInt(digits.charAt(1))) return false;
   
   return true;
+}
+
+// Validação de CEP
+function isValidCEP(cep) {
+  if (!cep || typeof cep !== 'string') return false;
+  
+  // Remove caracteres não numéricos
+  cep = cep.replace(/\D/g, '');
+  
+  // Verifica se tem 8 dígitos
+  return cep.length === 8;
 }

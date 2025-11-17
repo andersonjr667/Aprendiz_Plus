@@ -134,6 +134,27 @@
             border-color: #3b82f6;
             color: #2563eb;
         }
+
+        .cep-loader {
+            font-size: 14px;
+        }
+
+        .cep-status {
+            font-size: 14px;
+        }
+
+        .form-text {
+            margin-top: 4px;
+            display: block;
+        }
+
+        .cep-error {
+            color: var(--brand-red) !important;
+        }
+
+        .cep-success {
+            color: var(--brand-green) !important;
+        }
     </style>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
@@ -269,7 +290,16 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="cep">CEP <span style="color: var(--brand-red);">*</span></label>
-                        <input type="text" id="cep" name="cep" class="form-control" placeholder="00000-000">
+                        <div style="position: relative;">
+                            <input type="text" id="cep" name="cep" class="form-control" placeholder="00000-000" maxlength="9">
+                            <div id="cepLoader" class="cep-loader" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                                <i class="fas fa-spinner fa-spin" style="color: var(--brand-green);"></i>
+                            </div>
+                            <div id="cepStatus" class="cep-status" style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%);">
+                                <i class="fas fa-check" style="color: var(--brand-green);"></i>
+                            </div>
+                        </div>
+                        <small id="cepHelp" class="form-text" style="color: #666; font-size: 0.85rem;">Digite o CEP para preencher automaticamente o endereço</small>
                     </div>
                     <div class="form-group">
                         <label for="street">Rua <span style="color: var(--brand-red);">*</span></label>
@@ -490,7 +520,16 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="companyCep">CEP <span style="color: var(--brand-red);">*</span></label>
-                        <input type="text" id="companyCep" name="companyCep" class="form-control" placeholder="00000-000">
+                        <div style="position: relative;">
+                            <input type="text" id="companyCep" name="companyCep" class="form-control" placeholder="00000-000" maxlength="9">
+                            <div id="companyCepLoader" class="cep-loader" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                                <i class="fas fa-spinner fa-spin" style="color: var(--brand-green);"></i>
+                            </div>
+                            <div id="companyCepStatus" class="cep-status" style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%);">
+                                <i class="fas fa-check" style="color: var(--brand-green);"></i>
+                            </div>
+                        </div>
+                        <small id="companyCepHelp" class="form-text" style="color: #666; font-size: 0.85rem;">Digite o CEP para preencher automaticamente o endereço</small>
                     </div>
                     <div class="form-group">
                         <label for="companyStreet">Rua <span style="color: var(--brand-red);">*</span></label>
@@ -674,44 +713,152 @@
 
         // CEP lookup for candidate
         const cepInput = document.getElementById('cep');
+        const cepLoader = document.getElementById('cepLoader');
+        const cepStatus = document.getElementById('cepStatus');
+        const cepHelp = document.getElementById('cepHelp');
+
         if (cepInput) {
+            cepInput.addEventListener('input', function(e) {
+                // Aplicar máscara automaticamente
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 5) {
+                    value = value.slice(0, 5) + '-' + value.slice(5, 8);
+                }
+                e.target.value = value;
+
+                // Resetar status visual
+                cepLoader.style.display = 'none';
+                cepStatus.style.display = 'none';
+                cepHelp.className = 'form-text';
+                cepHelp.textContent = 'Digite o CEP para preencher automaticamente o endereço';
+            });
+
             cepInput.addEventListener('blur', async function() {
                 const cep = this.value.replace(/\D/g, '');
-                if (cep.length === 8) {
-                    try {
-                        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                        const data = await response.json();
-                        if (!data.erro) {
-                            document.getElementById('street').value = data.logradouro || '';
-                            document.getElementById('neighborhood').value = data.bairro || '';
-                            document.getElementById('city').value = data.localidade || '';
-                            document.getElementById('state').value = data.uf || '';
-                        }
-                    } catch (error) {
-                        console.error('Erro ao buscar CEP:', error);
+                
+                // Validar formato
+                if (cep.length !== 8) {
+                    if (cep.length > 0) {
+                        cepHelp.className = 'form-text cep-error';
+                        cepHelp.textContent = 'CEP deve ter 8 dígitos';
+                        cepStatus.style.display = 'block';
+                        cepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
                     }
+                    return;
+                }
+
+                // Mostrar loading
+                cepLoader.style.display = 'block';
+                cepStatus.style.display = 'none';
+                cepHelp.className = 'form-text';
+                cepHelp.textContent = 'Buscando endereço...';
+
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+
+                    if (data.erro) {
+                        throw new Error('CEP não encontrado');
+                    }
+
+                    // Preencher campos
+                    document.getElementById('street').value = data.logradouro || '';
+                    document.getElementById('neighborhood').value = data.bairro || '';
+                    document.getElementById('city').value = data.localidade || '';
+                    document.getElementById('state').value = data.uf || '';
+
+                    // Status de sucesso
+                    cepLoader.style.display = 'none';
+                    cepStatus.style.display = 'block';
+                    cepStatus.innerHTML = '<i class="fas fa-check" style="color: var(--brand-green);"></i>';
+                    cepHelp.className = 'form-text cep-success';
+                    cepHelp.textContent = 'Endereço preenchido automaticamente';
+
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                    
+                    // Status de erro
+                    cepLoader.style.display = 'none';
+                    cepStatus.style.display = 'block';
+                    cepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
+                    cepHelp.className = 'form-text cep-error';
+                    cepHelp.textContent = error.message === 'CEP não encontrado' ? 'CEP não encontrado' : 'Erro ao buscar CEP. Tente novamente.';
                 }
             });
         }
 
         // CEP lookup for company
         const companyCepInput = document.getElementById('companyCep');
+        const companyCepLoader = document.getElementById('companyCepLoader');
+        const companyCepStatus = document.getElementById('companyCepStatus');
+        const companyCepHelp = document.getElementById('companyCepHelp');
+
         if (companyCepInput) {
+            companyCepInput.addEventListener('input', function(e) {
+                // Aplicar máscara automaticamente
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 5) {
+                    value = value.slice(0, 5) + '-' + value.slice(5, 8);
+                }
+                e.target.value = value;
+
+                // Resetar status visual
+                companyCepLoader.style.display = 'none';
+                companyCepStatus.style.display = 'none';
+                companyCepHelp.className = 'form-text';
+                companyCepHelp.textContent = 'Digite o CEP para preencher automaticamente o endereço';
+            });
+
             companyCepInput.addEventListener('blur', async function() {
                 const cep = this.value.replace(/\D/g, '');
-                if (cep.length === 8) {
-                    try {
-                        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                        const data = await response.json();
-                        if (!data.erro) {
-                            document.getElementById('companyStreet').value = data.logradouro || '';
-                            document.getElementById('companyNeighborhood').value = data.bairro || '';
-                            document.getElementById('companyCity').value = data.localidade || '';
-                            document.getElementById('companyState').value = data.uf || '';
-                        }
-                    } catch (error) {
-                        console.error('Erro ao buscar CEP:', error);
+                
+                // Validar formato
+                if (cep.length !== 8) {
+                    if (cep.length > 0) {
+                        companyCepHelp.className = 'form-text cep-error';
+                        companyCepHelp.textContent = 'CEP deve ter 8 dígitos';
+                        companyCepStatus.style.display = 'block';
+                        companyCepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
                     }
+                    return;
+                }
+
+                // Mostrar loading
+                companyCepLoader.style.display = 'block';
+                companyCepStatus.style.display = 'none';
+                companyCepHelp.className = 'form-text';
+                companyCepHelp.textContent = 'Buscando endereço...';
+
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+
+                    if (data.erro) {
+                        throw new Error('CEP não encontrado');
+                    }
+
+                    // Preencher campos
+                    document.getElementById('companyStreet').value = data.logradouro || '';
+                    document.getElementById('companyNeighborhood').value = data.bairro || '';
+                    document.getElementById('companyCity').value = data.localidade || '';
+                    document.getElementById('companyState').value = data.uf || '';
+
+                    // Status de sucesso
+                    companyCepLoader.style.display = 'none';
+                    companyCepStatus.style.display = 'block';
+                    companyCepStatus.innerHTML = '<i class="fas fa-check" style="color: var(--brand-green);"></i>';
+                    companyCepHelp.className = 'form-text cep-success';
+                    companyCepHelp.textContent = 'Endereço preenchido automaticamente';
+
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                    
+                    // Status de erro
+                    companyCepLoader.style.display = 'none';
+                    companyCepStatus.style.display = 'block';
+                    companyCepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
+                    companyCepHelp.className = 'form-text cep-error';
+                    companyCepHelp.textContent = error.message === 'CEP não encontrado' ? 'CEP não encontrado' : 'Erro ao buscar CEP. Tente novamente.';
                 }
             });
         }
