@@ -288,6 +288,11 @@ function renderArticle(news) {
   
   // Initialize scroll features
   initScrollFeatures();
+  
+  // Initialize comments system
+  if (window.initComments) {
+    window.initComments('news', news._id, 'news-comments');
+  }
 }
 
 // Generate tags from content

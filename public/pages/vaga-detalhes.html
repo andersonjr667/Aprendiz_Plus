@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
     <link rel="stylesheet" href="/public/css/vaga-detalhes.css">
+    <link rel="stylesheet" href="/public/css/comments.css">
     
     <script src="/public/js/ui-dialogs.js"></script>
     <script src="/public/js/auth.js" defer></script>
@@ -181,6 +182,13 @@
         </div>
     </div>
 
+    <!-- Comments Section -->
+    <div class="comments-section-wrapper">
+        <div class="container">
+            <div id="job-comments" class="comments-container"></div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -252,6 +260,18 @@
     </main>
 
     <script src="/public/js/vaga-detalhes.js" defer></script>
+    <!-- Comments System -->
+    <script src="/public/js/comments.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize comments for job detail page
+            const jobId = new URLSearchParams(window.location.search).get('id');
+            if (jobId) {
+                const commentSystem = new CommentSystem('job', jobId, 'job-comments');
+                commentSystem.init();
+            }
+        });
+    </script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
 </body>
