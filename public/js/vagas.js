@@ -181,6 +181,7 @@ async function deleteJob(jobId, jobTitle, event) {
   
   try {
     const token = window.Auth.getToken();
+    
     const res = await fetch(`/api/jobs/${jobId}`, {
       method: 'DELETE',
       headers: {

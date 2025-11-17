@@ -1131,36 +1131,6 @@ router.put('/jobs/:id/status', authMiddleware, roleCheck(['empresa']), async (re
   }
 });
 
-router.delete('/jobs/:id', authMiddleware, async (req, res) => {
-  try {
-    console.log('Deleting job:', req.params.id);
-    const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ error: 'Vaga não encontrada' });
-    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
-      return res.status(403).json({ error: 'Sem permissão' });
-    }
-    
-    // Delete all applications for this job
-    await Application.deleteMany({ job: job._id });
-    
-    // Delete the job
-    await Job.findByIdAndDelete(req.params.id);
-    
-    await logAction({ 
-      action: 'delete_job', 
-      userId: req.user._id, 
-      resourceType: 'Job', 
-      resourceId: job._id,
-      details: { title: job.title }
-    });
-    
-    res.json({ ok: true, message: 'Vaga excluída com sucesso' });
-  } catch (err) { 
-    console.error('Error deleting job:', err);
-    res.status(500).json({ error: err.message }); 
-  }
-});
-
 router.get('/jobs/search', async (req, res) => {
   try {
     const q = req.query.q || '';
