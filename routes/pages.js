@@ -42,6 +42,7 @@ router.get('/profile', (req, res) => sendPage(res, 'profile.html'));
 router.get('/perfil-candidato', (req, res) => sendPage(res, 'perfil-candidato.html'));
 router.get('/perfil-empresa', (req, res) => sendPage(res, 'perfil-empresa.html'));
 router.get('/painel-empresa', (req, res) => sendPage(res, 'painel-empresa.html'));
+router.get('/analytics', (req, res) => sendPage(res, 'analytics.html'));
 
 // Public profiles (shareable)
 router.get('/perfil-publico-candidato', (req, res) => sendPage(res, 'perfil-publico-candidato.html'));

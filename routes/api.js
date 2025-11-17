@@ -1323,6 +1323,12 @@ router.put('/applications/:appId/status', authMiddleware, roleCheck(['empresa', 
     // Update application
     if (status) app.status = status;
     if (feedback) app.feedback = feedback;
+    
+    // Set responseAt when status changes to accepted or rejected
+    if (status && (status === 'accepted' || status === 'rejected') && oldStatus !== status) {
+      app.responseAt = new Date();
+    }
+    
     await app.save();
     
     await logAction({ 
@@ -2524,6 +2530,151 @@ router.get('/applications/all', authMiddleware, roleCheck(['admin']), async (req
     
     res.json(filteredApplications);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- ANALYTICS & REPORTS -----
+
+// Get analytics for company applications
+router.get('/analytics/applications/:companyId', authMiddleware, roleCheck(['empresa', 'admin']), async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { period = '30' } = req.query; // days
+    
+    // Check permissions
+    if (req.user.type === 'empresa' && req.user._id.toString() !== companyId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    // Get jobs for this company
+    const jobs = await Job.find({ company: companyId });
+    const jobIds = jobs.map(job => job._id);
+    
+    // Get applications for these jobs
+    const applications = await Application.find({
+      job: { $in: jobIds },
+      appliedAt: { $gte: new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000) }
+    }).populate('job', 'title').populate('candidate', 'name');
+    
+    // Calculate metrics
+    const totalApplications = applications.length;
+    const pendingApplications = applications.filter(app => app.status === 'pending').length;
+    const acceptedApplications = applications.filter(app => app.status === 'accepted').length;
+    const rejectedApplications = applications.filter(app => app.status === 'rejected').length;
+    
+    // Conversion rate
+    const conversionRate = totalApplications > 0 ? (acceptedApplications / totalApplications) * 100 : 0;
+    
+    // Average response time
+    const respondedApplications = applications.filter(app => app.responseAt);
+    const avgResponseTime = respondedApplications.length > 0 
+      ? respondedApplications.reduce((sum, app) => {
+          return sum + (app.responseAt - app.appliedAt);
+        }, 0) / respondedApplications.length / (1000 * 60 * 60) // in hours
+      : null;
+    
+    // Applications by job
+    const applicationsByJob = jobs.map(job => {
+      const jobApps = applications.filter(app => app.job._id.toString() === job._id.toString());
+      return {
+        jobId: job._id,
+        jobTitle: job.title,
+        total: jobApps.length,
+        pending: jobApps.filter(app => app.status === 'pending').length,
+        accepted: jobApps.filter(app => app.status === 'accepted').length,
+        rejected: jobApps.filter(app => app.status === 'rejected').length
+      };
+    });
+    
+    // Daily applications trend (last 30 days)
+    const dailyTrend = [];
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dayStart = new Date(date.setHours(0, 0, 0, 0));
+      const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+      
+      const dayApplications = applications.filter(app => 
+        app.appliedAt >= dayStart && app.appliedAt <= dayEnd
+      );
+      
+      dailyTrend.push({
+        date: dayStart.toISOString().split('T')[0],
+        count: dayApplications.length
+      });
+    }
+    
+    res.json({
+      summary: {
+        totalApplications,
+        pendingApplications,
+        acceptedApplications,
+        rejectedApplications,
+        conversionRate: Math.round(conversionRate * 100) / 100,
+        avgResponseTime: avgResponseTime ? Math.round(avgResponseTime * 100) / 100 : null
+      },
+      applicationsByJob,
+      dailyTrend,
+      period: `${period} days`
+    });
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Export applications data as CSV
+router.get('/analytics/export/:companyId', authMiddleware, roleCheck(['empresa', 'admin']), async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { format = 'csv', period = '30' } = req.query;
+    
+    // Check permissions
+    if (req.user.type === 'empresa' && req.user._id.toString() !== companyId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    // Get jobs for this company
+    const jobs = await Job.find({ company: companyId });
+    const jobIds = jobs.map(job => job._id);
+    
+    // Get applications
+    const applications = await Application.find({
+      job: { $in: jobIds },
+      appliedAt: { $gte: new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000) }
+    })
+    .populate('job', 'title')
+    .populate('candidate', 'name email phone')
+    .sort({ appliedAt: -1 });
+    
+    // Prepare data for export
+    const exportData = applications.map(app => ({
+      'Data da Candidatura': app.appliedAt.toLocaleDateString('pt-BR'),
+      'Nome do Candidato': app.candidate?.name || 'N/A',
+      'Email do Candidato': app.candidate?.email || 'N/A',
+      'Telefone do Candidato': app.candidate?.phone || 'N/A',
+      'Vaga': app.job?.title || 'N/A',
+      'Status': app.status === 'pending' ? 'Pendente' : 
+                app.status === 'accepted' ? 'Aceita' : 
+                app.status === 'rejected' ? 'Rejeitada' : app.status,
+      'Data da Resposta': app.responseAt ? app.responseAt.toLocaleDateString('pt-BR') : 'N/A',
+      'Feedback': app.feedback || 'N/A'
+    }));
+    
+    if (format === 'csv') {
+      const { Parser } = require('json2csv');
+      const parser = new Parser();
+      const csv = parser.parse(exportData);
+      
+      res.header('Content-Type', 'text/csv');
+      res.header('Content-Disposition', `attachment; filename=candidaturas_${companyId}_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csv);
+    } else {
+      res.json({ error: 'Formato não suportado. Use csv.' });
+    }
+  } catch (err) {
+    console.error('Error exporting data:', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -6,6 +6,7 @@ const ApplicationSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
   resumeUrl: String,
   appliedAt: { type: Date, default: Date.now },
+  responseAt: Date, // Quando a empresa respondeu (aceitou/rejeitou)
   feedback: String
 });
 

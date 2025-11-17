@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Aprendiz+</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <a href="/painel-empresa.html">
+                        <img src="../images/logo.png" alt="Aprendiz+" class="logo">
+                    </a>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <a href="/painel-empresa.html">Dashboard</a>
+                    <a href="/publicar-vaga.html">Publicar Vaga</a>
+                    <a href="/empresas.html">Minhas Vagas</a>
+                    <a href="/analytics.html" class="active">Analytics</a>
+                    <a href="#" onclick="logout()">Sair</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="analytics-container">
+        <div class="analytics-header">
+            <h1>📊 Relatórios e Analytics</h1>
+            <p>Acompanhe o desempenho das suas vagas e candidaturas</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="analytics-filters">
+            <div class="filter-group">
+                <label for="period-select">Período:</label>
+                <select id="period-select">
+                    <option value="7">Últimos 7 dias</option>
+                    <option value="30" selected>Últimos 30 dias</option>
+                    <option value="90">Últimos 90 dias</option>
+                    <option value="365">Último ano</option>
+                </select>
+            </div>
+            <button id="export-btn" class="btn-primary">
+                📥 Exportar Dados
+            </button>
+        </div>
+
+        <!-- Métricas Principais -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">📋</div>
+                <div class="metric-content">
+                    <h3 id="total-applications">0</h3>
+                    <p>Total de Candidaturas</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">⏳</div>
+                <div class="metric-content">
+                    <h3 id="pending-applications">0</h3>
+                    <p>Candidaturas Pendentes</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">✅</div>
+                <div class="metric-content">
+                    <h3 id="accepted-applications">0</h3>
+                    <p>Candidaturas Aceitas</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">❌</div>
+                <div class="metric-content">
+                    <h3 id="rejected-applications">0</h3>
+                    <p>Candidaturas Rejeitadas</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-content">
+                    <h3 id="conversion-rate">0%</h3>
+                    <p>Taxa de Conversão</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🕐</div>
+                <div class="metric-content">
+                    <h3 id="avg-response-time">0h</h3>
+                    <p>Tempo Médio de Resposta</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>Candidaturas por Dia</h3>
+                <canvas id="daily-trend-chart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Status das Candidaturas</h3>
+                <canvas id="status-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabela de Vagas -->
+        <div class="table-card">
+            <h3>Desempenho por Vaga</h3>
+            <div class="table-responsive">
+                <table id="jobs-table">
+                    <thead>
+                        <tr>
+                            <th>Vaga</th>
+                            <th>Total</th>
+                            <th>Pendentes</th>
+                            <th>Aceitas</th>
+                            <th>Rejeitadas</th>
+                            <th>Taxa de Conversão</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobs-table-body">
+                        <!-- Dados serão inseridos via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Loading e Error States -->
+        <div id="loading-state" class="loading-state">
+            <div class="spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
+
+        <div id="error-state" class="error-state" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <h3>Erro ao carregar dados</h3>
+            <p id="error-message">Tente novamente mais tarde</p>
+            <button onclick="loadAnalytics()" class="btn-primary">Tentar Novamente</button>
+        </div>
+    </main>
+
+    <script src="../js/analytics.js"></script>
+    <script src="../js/global.js"></script>
+    <script src="../js/hamburger-menu.js"></script>
+</body>
+</html>
