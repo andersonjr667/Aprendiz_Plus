@@ -1515,6 +1515,389 @@ router.get('/news/:id', async (req, res) => {
   } 
 });
 
+// ----- COMMENTS -----
+const Comment = require('../models/Comment');
+
+// Get comments for a target (news or job)
+router.get('/comments/:targetType/:targetId', async (req, res) => {
+  try {
+    const { targetType, targetId } = req.params;
+    const { page = 1, limit = 20, sort = 'newest' } = req.query;
+    
+    if (!['news', 'job'].includes(targetType)) {
+      return res.status(400).json({ error: 'Tipo de alvo inválido. Use "news" ou "job"' });
+    }
+    
+    const query = { 
+      targetType, 
+      targetId, 
+      status: 'approved',
+      parentComment: null // Only top-level comments
+    };
+    
+    const sortOptions = {
+      newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
+      mostLiked: { likesCount: -1, createdAt: -1 }
+    };
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const comments = await Comment.find(query)
+      .populate('author', 'name profilePhotoUrl type')
+      .populate({
+        path: 'replies',
+        populate: { path: 'author', select: 'name profilePhotoUrl type' },
+        options: { sort: { createdAt: 1 } }
+      })
+      .sort(sortOptions[sort] || sortOptions.newest)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+    
+    const total = await Comment.countDocuments(query);
+    
+    res.json({
+      comments,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a new comment
+router.post('/comments', authMiddleware, async (req, res) => {
+  try {
+    const { targetType, targetId, content, parentComment } = req.body;
+    const userId = req.user._id;
+    
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ error: 'Conteúdo do comentário é obrigatório' });
+    }
+    
+    if (!['news', 'job'].includes(targetType)) {
+      return res.status(400).json({ error: 'Tipo de alvo inválido. Use "news" ou "job"' });
+    }
+    
+    // Check if target exists
+    let targetModel;
+    if (targetType === 'news') {
+      targetModel = News;
+    } else if (targetType === 'job') {
+      targetModel = Job;
+    }
+    
+    const target = await targetModel.findById(targetId);
+    if (!target) {
+      return res.status(404).json({ error: 'Alvo não encontrado' });
+    }
+    
+    // Check anti-spam
+    const spamCheck = await AntiSpam.checkRateLimit(userId.toString(), 'comment');
+    if (!spamCheck.allowed) {
+      return res.status(429).json({ error: spamCheck.reason });
+    }
+    
+    const contentCheck = await AntiSpam.checkContentSpam(content, userId.toString());
+    if (contentCheck.isSpam) {
+      return res.status(400).json({ 
+        error: 'Conteúdo identificado como spam', 
+        reasons: contentCheck.reasons 
+      });
+    }
+    
+    // Check if replying to a valid comment
+    if (parentComment) {
+      const parent = await Comment.findById(parentComment);
+      if (!parent) {
+        return res.status(404).json({ error: 'Comentário pai não encontrado' });
+      }
+      if (parent.targetType !== targetType || parent.targetId.toString() !== targetId) {
+        return res.status(400).json({ error: 'Comentário pai não pertence ao mesmo alvo' });
+      }
+    }
+    
+    // Create comment
+    const comment = await Comment.create({
+      author: userId,
+      targetType,
+      targetId,
+      content: content.trim(),
+      parentComment: parentComment || null,
+      status: 'approved' // Auto-approve for now, could be moderated later
+    });
+    
+    // Populate author info
+    await comment.populate('author', 'name profilePhotoUrl type');
+    
+    // Log action
+    await logAction({
+      action: 'create_comment',
+      userId: userId,
+      resourceType: 'Comment',
+      resourceId: comment._id,
+      details: { targetType, targetId, contentLength: content.length }
+    });
+    
+    res.json(comment);
+  } catch (err) {
+    console.error('Error creating comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a comment (only by author)
+router.put('/comments/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const userId = req.user._id;
+    
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ error: 'Conteúdo do comentário é obrigatório' });
+    }
+    
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comentário não encontrado' });
+    }
+    
+    // Check ownership
+    if (comment.author.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'Você só pode editar seus próprios comentários' });
+    }
+    
+    // Check if comment is too old (e.g., 24 hours)
+    const hoursSinceCreation = (Date.now() - comment.createdAt) / (1000 * 60 * 60);
+    if (hoursSinceCreation > 24) {
+      return res.status(400).json({ error: 'Comentários só podem ser editados nas primeiras 24 horas' });
+    }
+    
+    // Check anti-spam for edit
+    const contentCheck = await AntiSpam.checkContentSpam(content, userId.toString());
+    if (contentCheck.isSpam) {
+      return res.status(400).json({ 
+        error: 'Conteúdo identificado como spam', 
+        reasons: contentCheck.reasons 
+      });
+    }
+    
+    comment.content = content.trim();
+    comment.editedAt = new Date();
+    await comment.save();
+    
+    await comment.populate('author', 'name profilePhotoUrl type');
+    
+    await logAction({
+      action: 'update_comment',
+      userId: userId,
+      resourceType: 'Comment',
+      resourceId: comment._id,
+      details: { contentLength: content.length }
+    });
+    
+    res.json(comment);
+  } catch (err) {
+    console.error('Error updating comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a comment (only by author or admin)
+router.delete('/comments/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+    const userType = req.user.type;
+    
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comentário não encontrado' });
+    }
+    
+    // Check ownership or admin permissions
+    const isAuthor = comment.author.toString() === userId.toString();
+    const isAdmin = userType === 'admin';
+    
+    if (!isAuthor && !isAdmin) {
+      return res.status(403).json({ error: 'Você só pode excluir seus próprios comentários' });
+    }
+    
+    // Soft delete by marking as deleted
+    comment.status = 'deleted';
+    comment.deletedAt = new Date();
+    comment.deletedBy = userId;
+    await comment.save();
+    
+    await logAction({
+      action: 'delete_comment',
+      userId: userId,
+      resourceType: 'Comment',
+      resourceId: comment._id,
+      details: { reason: 'user_deleted' }
+    });
+    
+    res.json({ message: 'Comentário excluído com sucesso' });
+  } catch (err) {
+    console.error('Error deleting comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Like/Unlike a comment
+router.post('/comments/:id/like', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+    
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comentário não encontrado' });
+    }
+    
+    if (comment.status !== 'approved') {
+      return res.status(400).json({ error: 'Não é possível curtir este comentário' });
+    }
+    
+    // Check if already liked
+    const existingLike = comment.likes.find(like => like.user.toString() === userId.toString());
+    
+    if (existingLike) {
+      // Unlike: remove the like
+      comment.likes = comment.likes.filter(like => like.user.toString() !== userId.toString());
+      comment.likesCount = Math.max(0, comment.likesCount - 1);
+      await comment.save();
+      
+      res.json({ 
+        liked: false, 
+        likesCount: comment.likesCount,
+        message: 'Curtida removida' 
+      });
+    } else {
+      // Like: add the like
+      comment.likes.push({ user: userId, likedAt: new Date() });
+      comment.likesCount += 1;
+      await comment.save();
+      
+      res.json({ 
+        liked: true, 
+        likesCount: comment.likesCount,
+        message: 'Comentário curtido' 
+      });
+    }
+  } catch (err) {
+    console.error('Error liking comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Report a comment (for moderation)
+router.post('/comments/:id/report', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    const userId = req.user._id;
+    
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comentário não encontrado' });
+    }
+    
+    // Check if already reported by this user
+    const existingReport = comment.reports.find(report => report.reportedBy.toString() === userId.toString());
+    if (existingReport) {
+      return res.status(400).json({ error: 'Você já denunciou este comentário' });
+    }
+    
+    // Add report
+    comment.reports.push({
+      reportedBy: userId,
+      reason: reason || 'Conteúdo inadequado',
+      reportedAt: new Date()
+    });
+    
+    // If too many reports, mark for moderation
+    if (comment.reports.length >= 3) {
+      comment.status = 'pending_moderation';
+    }
+    
+    await comment.save();
+    
+    await logAction({
+      action: 'report_comment',
+      userId: userId,
+      resourceType: 'Comment',
+      resourceId: comment._id,
+      details: { reason: reason || 'Conteúdo inadequado' }
+    });
+    
+    res.json({ message: 'Comentário denunciado para moderação' });
+  } catch (err) {
+    console.error('Error reporting comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get pending comments for moderation (admin only)
+router.get('/comments/pending/moderation', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const comments = await Comment.find({ status: 'pending_moderation' })
+      .populate('author', 'name email type')
+      .populate('targetId', 'title', 'News') // Try to populate title from News
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    res.json(comments);
+  } catch (err) {
+    console.error('Error fetching pending comments:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Moderate a comment (admin only)
+router.put('/comments/:id/moderate', authMiddleware, roleCheck(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, moderatorNotes } = req.body;
+    
+    if (!['approved', 'rejected', 'deleted'].includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+    
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comentário não encontrado' });
+    }
+    
+    comment.status = status;
+    comment.moderatedAt = new Date();
+    comment.moderatedBy = req.user._id;
+    comment.moderatorNotes = moderatorNotes;
+    
+    await comment.save();
+    
+    await logAction({
+      action: 'moderate_comment',
+      userId: req.user._id,
+      resourceType: 'Comment',
+      resourceId: comment._id,
+      details: { status, moderatorNotes }
+    });
+    
+    res.json(comment);
+  } catch (err) {
+    console.error('Error moderating comment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ----- AUDIT LOGS -----
 router.get('/logs', authMiddleware, roleCheck(['admin']), async (req, res) => {
   try {
