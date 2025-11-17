@@ -49,7 +49,11 @@ function shareArticle(newsId, title) {
     }).catch(console.error);
   } else {
     navigator.clipboard.writeText(`${text} - ${url}`).then(() => {
-      alert('Link copiado para a área de transferência!');
+      if (window.UI && window.UI.toast) {
+        window.UI.toast('Link copiado para a área de transferência!', 'success');
+      } else {
+        alert('Link copiado para a área de transferência!');
+      }
     });
   }
 }
@@ -255,7 +259,11 @@ function setupNewsletter() {
     const email = form.querySelector('input[type="email"]').value;
     
     // In real app, send to backend
-    alert(`✅ Obrigado! Você será inscrito com o e-mail: ${email}\n\nEm breve você receberá nossas novidades!`);
+    if (window.UI && window.UI.toast) {
+      window.UI.toast(`✅ Obrigado! Você será inscrito com o e-mail: ${email}. Em breve você receberá nossas novidades!`, 'success');
+    } else {
+      alert(`✅ Obrigado! Você será inscrito com o e-mail: ${email}\n\nEm breve você receberá nossas novidades!`);
+    }
     form.reset();
   });
 }

@@ -226,7 +226,11 @@ class FavoriteSystem {
                 button.innerHTML = result.favorited ? '★ Favoritado' : '⭐ Favoritar';
                 button.style.color = result.favorited ? '#ffc107' : '#666';
             } catch (error) {
-                alert('Erro ao favoritar');
+                if (window.UI && window.UI.toast) {
+                    window.UI.toast('Erro ao favoritar', 'error');
+                } else {
+                    alert('Erro ao favoritar');
+                }
             }
         };
 
@@ -272,7 +276,11 @@ class ReviewSystem {
         const anonymous = document.getElementById('reviewAnonymous').checked;
 
         if (!rating) {
-            alert('Por favor, selecione uma nota');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('Por favor, selecione uma nota', 'warning');
+            } else {
+                alert('Por favor, selecione uma nota');
+            }
             return;
         }
 
@@ -294,15 +302,27 @@ class ReviewSystem {
             });
 
             if (response.ok) {
-                alert('Avaliação enviada com sucesso! Ela será revisada antes de ser publicada.');
+                if (window.UI && window.UI.toast) {
+                    window.UI.toast('Avaliação enviada com sucesso! Ela será revisada antes de ser publicada.', 'success');
+                } else {
+                    alert('Avaliação enviada com sucesso! Ela será revisada antes de ser publicada.');
+                }
                 location.reload();
             } else {
                 const error = await response.json();
-                alert(error.error || 'Erro ao enviar avaliação');
+                if (window.UI && window.UI.toast) {
+                    window.UI.toast(error.error || 'Erro ao enviar avaliação', 'error');
+                } else {
+                    alert(error.error || 'Erro ao enviar avaliação');
+                }
             }
         } catch (error) {
             console.error('Erro ao enviar avaliação:', error);
-            alert('Erro ao enviar avaliação');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('Erro ao enviar avaliação', 'error');
+            } else {
+                alert('Erro ao enviar avaliação');
+            }
         }
     }
 
@@ -336,14 +356,26 @@ class VerificationSystem {
             });
 
             if (response.ok) {
-                alert('Email de verificação enviado! Verifique sua caixa de entrada.');
+                if (window.UI && window.UI.toast) {
+                    window.UI.toast('Email de verificação enviado! Verifique sua caixa de entrada.', 'success');
+                } else {
+                    alert('Email de verificação enviado! Verifique sua caixa de entrada.');
+                }
             } else {
                 const error = await response.json();
-                alert(error.error || 'Erro ao enviar email de verificação');
+                if (window.UI && window.UI.toast) {
+                    window.UI.toast(error.error || 'Erro ao enviar email de verificação', 'error');
+                } else {
+                    alert(error.error || 'Erro ao enviar email de verificação');
+                }
             }
         } catch (error) {
             console.error('Erro:', error);
-            alert('Erro ao enviar email de verificação');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('Erro ao enviar email de verificação', 'error');
+            } else {
+                alert('Erro ao enviar email de verificação');
+            }
         }
     }
 

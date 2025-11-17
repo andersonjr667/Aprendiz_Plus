@@ -76,7 +76,11 @@ async function loadNews() {
 
 function readMore(newsId) {
   if (!newsId || newsId === 'undefined') {
-    alert('Erro: ID da notícia inválido');
+    if (window.UI && window.UI.toast) {
+      window.UI.toast('Erro: ID da notícia inválido', 'error');
+    } else {
+      alert('Erro: ID da notícia inválido');
+    }
     return;
   }
   

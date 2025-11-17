@@ -31,7 +31,16 @@
         
         if (data.banned) {
           removeToken();
-          alert(`Sua conta foi BANIDA.\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          if (window.UI && window.UI.danger) {
+            await window.UI.danger({
+              title: 'Conta Banida',
+              message: `Sua conta foi BANIDA.\n\nMotivo: ${data.reason}${data.message ? '\n\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`,
+              confirmText: 'Entendi',
+              showCancel: false
+            });
+          } else {
+            alert(`Sua conta foi BANIDA.\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          }
           window.location.href = '/';
           return null;
         }
@@ -40,7 +49,16 @@
           removeToken();
           const suspendedUntil = new Date(data.suspendedUntil);
           const days = Math.ceil((suspendedUntil - new Date()) / (1000 * 60 * 60 * 24));
-          alert(`Sua conta está SUSPENSA até ${suspendedUntil.toLocaleDateString('pt-BR')} (${days} dias).\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          if (window.UI && window.UI.danger) {
+            await window.UI.danger({
+              title: 'Conta Suspensa',
+              message: `Sua conta está SUSPENSA até ${suspendedUntil.toLocaleDateString('pt-BR')} (${days} dias).\n\nMotivo: ${data.reason}${data.message ? '\n\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`,
+              confirmText: 'Entendi',
+              showCancel: false
+            });
+          } else {
+            alert(`Sua conta está SUSPENSA até ${suspendedUntil.toLocaleDateString('pt-BR')} (${days} dias).\n\nMotivo: ${data.reason}\n${data.message ? '\nMensagem: ' + data.message : ''}\n\nVocê será redirecionado para a página inicial.`);
+          }
           window.location.href = '/';
           return null;
         }

@@ -84,13 +84,21 @@ function handleFileSelection(file) {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-        alert('Tipo de arquivo não permitido. Use: JPG, PNG, WEBP, PDF, DOCX, TXT');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Tipo de arquivo não permitido. Use: JPG, PNG, WEBP, PDF, DOCX, TXT', 'error');
+        } else {
+            alert('Tipo de arquivo não permitido. Use: JPG, PNG, WEBP, PDF, DOCX, TXT');
+        }
         return;
     }
 
     // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
-        alert('Arquivo muito grande. Tamanho máximo: 10MB');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Arquivo muito grande. Tamanho máximo: 10MB', 'error');
+        } else {
+            alert('Arquivo muito grande. Tamanho máximo: 10MB');
+        }
         return;
     }
 
@@ -192,14 +200,22 @@ async function uploadFile() {
         
         // Show success message
         setTimeout(() => {
-            alert('Arquivo enviado com sucesso!');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('Arquivo enviado com sucesso!', 'success');
+            } else {
+                alert('Arquivo enviado com sucesso!');
+            }
             clearFileSelection();
             loadUploads(); // Reload uploads list
         }, 1000);
 
     } catch (err) {
         console.error('Upload error:', err);
-        alert('Erro ao fazer upload: ' + err.message);
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Erro ao fazer upload: ' + err.message, 'error');
+        } else {
+            alert('Erro ao fazer upload: ' + err.message);
+        }
         uploadProgress.style.display = 'none';
     } finally {
         btnUpload.disabled = false;
@@ -298,12 +314,20 @@ async function deleteUpload(uploadId) {
             throw new Error('Erro ao excluir arquivo');
         }
 
-        alert('Arquivo excluído com sucesso!');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Arquivo excluído com sucesso!', 'success');
+        } else {
+            alert('Arquivo excluído com sucesso!');
+        }
         loadUploads(); // Reload list
 
     } catch (err) {
         console.error('Delete error:', err);
-        alert('Erro ao excluir arquivo: ' + err.message);
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Erro ao excluir arquivo: ' + err.message, 'error');
+        } else {
+            alert('Erro ao excluir arquivo: ' + err.message);
+        }
     }
 }
 

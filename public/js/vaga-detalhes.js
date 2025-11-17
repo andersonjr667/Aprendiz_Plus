@@ -362,7 +362,11 @@ function initializeEventListeners() {
 // Handle apply
 async function handleApply() {
     if (hasApplied) {
-        alert('Você já se candidatou para esta vaga!');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Você já se candidatou para esta vaga!', 'warning');
+        } else {
+            alert('Você já se candidatou para esta vaga!');
+        }
         return;
     }
     
@@ -371,7 +375,11 @@ async function handleApply() {
         const deadline = new Date(currentJob.applicationDeadline);
         const now = new Date();
         if (now > deadline) {
-            alert('O prazo para candidaturas desta vaga já encerrou.');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('O prazo para candidaturas desta vaga já encerrou.', 'error');
+            } else {
+                alert('O prazo para candidaturas desta vaga já encerrou.');
+            }
             return;
         }
     }
@@ -380,7 +388,11 @@ async function handleApply() {
     if (currentJob.maxApplicants) {
         const applicantsCount = currentJob.applicants_count || 0;
         if (applicantsCount >= currentJob.maxApplicants) {
-            alert('Esta vaga já atingiu o limite máximo de candidatos.');
+            if (window.UI && window.UI.toast) {
+                window.UI.toast('Esta vaga já atingiu o limite máximo de candidatos.', 'warning');
+            } else {
+                alert('Esta vaga já atingiu o limite máximo de candidatos.');
+            }
             return;
         }
     }
@@ -392,7 +404,11 @@ async function handleApply() {
     const jobId = getJobId(currentJob);
     
     if (!jobId) {
-        alert('ID da vaga não encontrado');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('ID da vaga não encontrado', 'error');
+        } else {
+            alert('ID da vaga não encontrado');
+        }
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
         return;
@@ -425,7 +441,11 @@ async function handleApply() {
         
     } catch (error) {
         console.error('Error applying:', error);
-        alert(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.', 'error');
+        } else {
+            alert(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.');
+        }
         
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
@@ -438,7 +458,11 @@ function handleFavorite() {
     const jobId = getJobId(currentJob);
     
     if (!jobId) {
-        alert('ID da vaga não encontrado');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('ID da vaga não encontrado', 'error');
+        } else {
+            alert('ID da vaga não encontrado');
+        }
         return;
     }
     
@@ -487,7 +511,11 @@ async function handleShare() {
         }
     } else {
         copyToClipboard(window.location.href);
-        alert('Link copiado para a área de transferência!');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Link copiado para a área de transferência!', 'success');
+        } else {
+            alert('Link copiado para a área de transferência!');
+        }
     }
 }
 

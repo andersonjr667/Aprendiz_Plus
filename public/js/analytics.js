@@ -223,7 +223,11 @@ async function exportData() {
 
     } catch (error) {
         console.error('Error exporting data:', error);
-        alert('Erro ao exportar dados. Tente novamente.');
+        if (window.UI && window.UI.toast) {
+            window.UI.toast('Erro ao exportar dados. Tente novamente.', 'error');
+        } else {
+            alert('Erro ao exportar dados. Tente novamente.');
+        }
     }
 }
 

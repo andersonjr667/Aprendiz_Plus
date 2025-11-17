@@ -121,7 +121,11 @@ function copyLink() {
       btn.style = '';
     }, 2000);
   }).catch(() => {
-    alert('Link: ' + window.location.href);
+    if (window.UI && window.UI.toast) {
+      window.UI.toast('Link copiado: ' + window.location.href, 'info');
+    } else {
+      alert('Link: ' + window.location.href);
+    }
   });
 }
 
@@ -433,7 +437,11 @@ function setupNewsletter() {
     e.preventDefault();
     const email = form.querySelector('input[type="email"]').value;
     
-    alert(`✅ Obrigado! Você será inscrito com o e-mail: ${email}\n\nEm breve você receberá nossas novidades!`);
+    if (window.UI && window.UI.toast) {
+      window.UI.toast(`✅ Obrigado! Você será inscrito com o e-mail: ${email}. Em breve você receberá nossas novidades!`, 'success');
+    } else {
+      alert(`✅ Obrigado! Você será inscrito com o e-mail: ${email}\n\nEm breve você receberá nossas novidades!`);
+    }
     form.reset();
   });
 }
