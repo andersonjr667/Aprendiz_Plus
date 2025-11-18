@@ -96,7 +96,7 @@
                 <i class="fas fa-chevron-down" style="margin-left:8px;font-size:13px;"></i>
               </button>
               <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
-                <a href="/perfil-admin" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-crown"></i> Meu Perfil</a>
+                <a href="#" id="header-profile-link" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-crown"></i> Meu Perfil</a>
                 <a href="/admin" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-tachometer-alt"></i> Painel Admin</a>
                 <a href="/analytics" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-bar"></i> Analytics</a>
                 <a href="/admin-monitoramento" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-eye"></i> Monitoramento</a>
@@ -115,6 +115,16 @@
               });
               document.addEventListener('click', function() {
                 document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
+              });
+              document.getElementById('header-profile-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (user.type === 'admin' || user.type === 'owner') {
+                  window.location.href = '/perfil-admin';
+                } else if (user.type === 'empresa') {
+                  window.location.href = '/perfil-empresa';
+                } else {
+                  window.location.href = '/perfil-candidato';
+                }
               });
             <\/script>
           `;

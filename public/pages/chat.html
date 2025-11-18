@@ -9,76 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="/index.html">
-                    <img src="/public/images/logo.png" alt="Aprendiz+" class="logo-img">
-                    Aprendiz+
-                </a>
-            </div>
-            
-            <div class="nav-menu" id="navMenu">
-                <a href="/index.html" class="nav-link">
-                    <i class="fas fa-home"></i> Início
-                </a>
-                <a href="/vagas" class="nav-link">
-                    <i class="fas fa-briefcase"></i> Vagas
-                </a>
-                <a href="/noticias" class="nav-link">
-                    <i class="fas fa-newspaper"></i> Notícias
-                </a>
-                <a href="/chat" class="nav-link active">
-                    <i class="fas fa-comments"></i> Chat
-                </a>
-                <a href="#" id="userProfileLink" class="nav-link">
-                    <i class="fas fa-user"></i> Meu Perfil
-                    <span id="notificationBadge" class="notification-badge" style="display: none;"></span>
-                </a>
-                <button id="logoutBtn" class="btn btn-outline">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
-            
-            <button class="nav-toggle" id="navToggle">
-                <span class="hamburger"></span>
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-        </div>
-    </nav>
+            <div class="nav-links">
+                <a href="/vagas">Vagas</a>
+                <a href="/favoritos">Favoritos</a>
+                <a href="/chat" class="active">Chat</a>
+                <a href="/perfil-candidato">Meu Perfil</a>
+                <button onclick="logout()" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </nav>
+    </header>
 
     <!-- Container de notificações -->
     <div id="notificationContainer" class="notification-container"></div>
 
-    <div class="chat-container">
-        <!-- Botão de menu mobile -->
-        <button class="mobile-menu-toggle" id="mobileMenuToggle" style="display: none;">
-            <i class="fas fa-bars"></i>
-        </button>
-
-        <!-- Lista de conversas -->
-        <div class="chat-sidebar" id="chatSidebar">
+    <div class="chat-container modern-container">
+        <!-- Sidebar de conversas -->
+        <aside class="chat-sidebar modern-sidebar" id="chatSidebar">
             <div class="sidebar-header">
                 <h2><i class="fas fa-comments"></i> Conversas</h2>
             </div>
-
             <div class="chat-list" id="chatList">
                 <div class="loading-spinner">
                     <i class="fas fa-spinner fa-spin"></i> Carregando conversas...
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Área de mensagens -->
-        <div class="chat-main">
-            <div class="empty-state" id="emptyState">
+        <!-- Área principal do chat -->
+        <main class="chat-main modern-main">
+            <div class="empty-state modern-empty" id="emptyState">
                 <i class="fas fa-comments fa-3x"></i>
                 <h3>Selecione uma conversa</h3>
                 <p>Escolha uma conversa ao lado para começar a trocar mensagens</p>
             </div>
 
-            <div class="chat-area" id="chatArea" style="display: none;">
+            <section class="chat-area modern-chat-area" id="chatArea" style="display: none;">
                 <!-- Cabeçalho do chat -->
-                <div class="chat-header">
+                <header class="chat-header modern-chat-header">
                     <div class="chat-header-info">
                         <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="chatAvatar">
                         <div class="chat-header-text">
@@ -98,18 +73,18 @@
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                </div>
+                </header>
 
                 <!-- Mensagens -->
-                <div class="chat-messages" id="chatMessages">
-                    <div class="empty-state">
+                <div class="chat-messages modern-messages" id="chatMessages">
+                    <div class="empty-state modern-empty">
                         <i class="fas fa-comment-dots fa-2x"></i>
                         <p style="margin-top: 15px;">Nenhuma mensagem ainda. Comece a conversa!</p>
                     </div>
                 </div>
 
                 <!-- Indicador de digitação -->
-                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-indicator modern-typing" id="typingIndicator" style="display: none;">
                     <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="typingAvatar">
                     <span>digitando</span>
                     <div class="typing-dots">
@@ -120,7 +95,7 @@
                 </div>
 
                 <!-- Input de mensagem -->
-                <div class="chat-input-container">
+                <footer class="chat-input-container modern-input">
                     <form id="messageForm" class="chat-input-form">
                         <textarea
                             id="messageInput"
@@ -135,9 +110,9 @@
                     <div class="char-counter">
                         <span id="charCount">0</span>/2000
                     </div>
-                </div>
-            </div>
-        </div>
+                </footer>
+            </section>
+        </main>
     </div>
 
     <script src="/public/js/api.js"></script>

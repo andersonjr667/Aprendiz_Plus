@@ -1,3 +1,67 @@
+/* Modernização visual para chat (consistência com favoritos/mapa-vagas) */
+.modern-container {
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(46,204,113,0.10);
+    margin: 40px auto 0 auto;
+    max-width: 1200px;
+    min-height: 80vh;
+    background: rgba(255,255,255,0.98);
+    overflow: hidden;
+}
+
+.modern-sidebar {
+    border-radius: 18px 0 0 18px;
+    box-shadow: 2px 0 16px rgba(46,204,113,0.07);
+    background: rgba(255,255,255,0.97);
+}
+
+.modern-main {
+    border-radius: 0 18px 18px 0;
+    background: rgba(250,251,252,0.98);
+    box-shadow: none;
+}
+
+.modern-chat-header {
+    border-radius: 18px 18px 0 0;
+    background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    box-shadow: 0 2px 12px rgba(46,204,113,0.10);
+}
+.modern-chat-header h3,
+.modern-chat-header p,
+.modern-chat-header .chat-header-status span {
+    color: white !important;
+}
+
+.modern-messages {
+    background: rgba(255,255,255,0.95);
+    border-radius: 0 0 0 0;
+    box-shadow: none;
+}
+
+.modern-chat-area {
+    background: transparent;
+    border-radius: 0 0 18px 18px;
+    box-shadow: none;
+}
+
+.modern-input {
+    border-radius: 0 0 18px 18px;
+    background: rgba(255,255,255,0.98);
+    box-shadow: 0 -2px 10px rgba(46,204,113,0.07);
+}
+
+.modern-empty {
+    color: #27ae60;
+    background: rgba(46,204,113,0.05);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(46,204,113,0.07);
+}
+
+.modern-typing {
+    background: rgba(46,204,113,0.07);
+    border-radius: 12px;
+}
 /* Chat Container */
 .chat-container {
     display: flex;
