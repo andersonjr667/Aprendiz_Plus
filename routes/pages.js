@@ -1,3 +1,5 @@
+// Currículo
+router.get('/gerar-curriculo', (req, res) => sendPage(res, 'gerar-curriculo.html'));
 const express = require('express');
 const path = require('path');
 const fs = require('fs');

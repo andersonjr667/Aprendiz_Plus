@@ -1,3 +1,32 @@
+// Verificar completude do perfil do candidato
+router.get('/profile/completeness', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-passwordHash');
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    // Campos obrigatórios e opcionais
+    const requiredFields = ['name', 'email'];
+    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
+    const allFields = [...requiredFields, ...optionalFields];
+    const completedFields = allFields.filter(field => {
+      if (field === 'skills') {
+        return user.skills && user.skills.length > 0;
+      }
+      if (field === 'interests') {
+        return user.interests && user.interests.length >= 3;
+      }
+      if (field === 'profilePhotoUrl') {
+        return !!(user.profilePhotoUrl || user.avatarUrl);
+      }
+      return user[field] && user[field].toString().trim().length > 0;
+    });
+    const completeness = Math.round((completedFields.length / allFields.length) * 100);
+    res.json({ completeness });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
