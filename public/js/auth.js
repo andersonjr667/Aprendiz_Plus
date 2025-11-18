@@ -104,19 +104,22 @@
                 <button onclick="logout()" style="width:100%;background:none;border:none;text-align:left;padding:12px 18px;color:#dc2626;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-sign-out-alt"></i> Sair</button>
               </div>
             </div>
-            <script>
-              // Dropdown interativo
-              document.querySelectorAll('.admin-header-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  const menu = btn.parentElement.querySelector('.admin-header-menu');
-                  if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                });
+          `;
+          // Ativa o dropdown do admin após renderizar o header
+          setTimeout(() => {
+            document.querySelectorAll('.admin-header-btn').forEach(btn => {
+              btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const menu = btn.parentElement.querySelector('.admin-header-menu');
+                if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
               });
-              document.addEventListener('click', function() {
-                document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
-              });
-              document.getElementById('header-profile-link').addEventListener('click', function(e) {
+            });
+            document.addEventListener('click', function() {
+              document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
+            });
+            const profileLink = document.getElementById('header-profile-link');
+            if (profileLink) {
+              profileLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (user.type === 'admin' || user.type === 'owner') {
                   window.location.href = '/perfil-admin';
@@ -126,8 +129,8 @@
                   window.location.href = '/perfil-candidato';
                 }
               });
-            <\/script>
-          `;
+            }
+          }, 50);
         } else {
           // Header padrão para outros usuários logados
           nav.innerHTML = `
