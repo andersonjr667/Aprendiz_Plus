@@ -80,66 +80,65 @@
 
     getCurrentUser().then(user => {
       if (user) {
-        // Usuario logado
-        nav.innerHTML = `
-          <a href="/vagas">Vagas</a>
-          <a href="/mapa-vagas">
-            <i class="fas fa-map"></i> Mapa de Vagas
-          </a>
-          <a href="/noticias">Notícias</a>
-          <a href="/favoritos">
-            <i class="fas fa-heart"></i> Favoritos
-          </a>
-          <a href="/chat">
-            <i class="fas fa-comments"></i> Chat
-          </a>
-          ${user.type === 'candidato' ? 
-            `<a href="/dashboard-candidato">
-              <i class="fas fa-chart-line"></i> Dashboard
-             </a>
-             <a href="/perfil-candidato">Meu Perfil</a>
-             <a href="/upload">
-              <i class="fas fa-upload"></i> Upload
-             </a>` : 
-            user.type === 'empresa' ? 
-            `<a href="/painel-empresa">
-              <i class="fas fa-chart-line"></i> Painel
-             </a>
-             <a href="/perfil-empresa">Minha Empresa</a>
-             <a href="/upload">
-              <i class="fas fa-upload"></i> Upload
-             </a>
-             <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` :
-            user.type === 'owner' ? 
-            `<a href="/perfil-admin">
-              <i class="fas fa-crown"></i> Meu Perfil
-             </a>
-             <a href="/admin">
-              <i class="fas fa-tachometer-alt"></i> Painel Admin
-             </a>
-             <a href="/analytics">
-              <i class="fas fa-chart-bar"></i> Analytics
-             </a>
-             <a href="/admin-monitoramento">
-              <i class="fas fa-eye"></i> Monitoramento
-             </a>
-             <a href="/admin-manage-admins" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              <i class="fas fa-user-shield"></i> Gerenciar Admins
-             </a>` :
-            user.type === 'admin' ? 
-            `<a href="/perfil-admin">Meu Perfil</a>
-             <a href="/admin">Painel Admin</a>
-             <a href="/analytics">
-              <i class="fas fa-chart-bar"></i> Analytics
-             </a>
-             <a href="/admin-monitoramento">
-              <i class="fas fa-eye"></i> Monitoramento
-             </a>` : ''
-          }
-          <button onclick="logout()" class="btn btn-logout">
-            <i class="fas fa-sign-out-alt"></i> Sair
-          </button>
-        `;
+        // Header especial para admin/owner
+        if (user.type === 'admin' || user.type === 'owner') {
+          const avatar = user.profilePhotoUrl ? `<img src="${user.profilePhotoUrl}" alt="avatar" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;object-fit:cover;">` : `<span style="display:inline-block;width:32px;height:32px;border-radius:50%;background:#eee;text-align:center;line-height:32px;font-weight:bold;color:#666;vertical-align:middle;">${user.name ? user.name[0].toUpperCase() : 'A'}</span>`;
+          nav.innerHTML = `
+            <a href="/vagas">Vagas</a>
+            <a href="/mapa-vagas"><i class="fas fa-map"></i> Mapa de Vagas</a>
+            <a href="/noticias">Notícias</a>
+            <a href="/favoritos"><i class="fas fa-heart"></i> Favoritos</a>
+            <a href="/chat"><i class="fas fa-comments"></i> Chat</a>
+            <div class="admin-header-dropdown" style="display:inline-block;position:relative;">
+              <button class="admin-header-btn" style="background:linear-gradient(90deg,#667eea,#764ba2);color:#fff;border:none;border-radius:20px;padding:6px 18px 6px 10px;display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(102,126,234,0.10);">
+                ${avatar}
+                <span style="margin-left:6px;">${user.name || 'Admin'}</span>
+                <i class="fas fa-chevron-down" style="margin-left:8px;font-size:13px;"></i>
+              </button>
+              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
+                <a href="/perfil-admin" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-crown"></i> Meu Perfil</a>
+                <a href="/admin" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-tachometer-alt"></i> Painel Admin</a>
+                <a href="/analytics" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-bar"></i> Analytics</a>
+                <a href="/admin-monitoramento" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-eye"></i> Monitoramento</a>
+                ${user.type === 'owner' ? `<a href="/admin-manage-admins" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-user-shield"></i> Gerenciar Admins</a>` : ''}
+                <button onclick="logout()" style="width:100%;background:none;border:none;text-align:left;padding:12px 18px;color:#dc2626;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-sign-out-alt"></i> Sair</button>
+              </div>
+            </div>
+            <script>
+              // Dropdown interativo
+              document.querySelectorAll('.admin-header-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  const menu = btn.parentElement.querySelector('.admin-header-menu');
+                  if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                });
+              });
+              document.addEventListener('click', function() {
+                document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
+              });
+            <\/script>
+          `;
+        } else {
+          // Header padrão para outros usuários logados
+          nav.innerHTML = `
+            <a href="/vagas">Vagas</a>
+            <a href="/mapa-vagas"><i class="fas fa-map"></i> Mapa de Vagas</a>
+            <a href="/noticias">Notícias</a>
+            <a href="/favoritos"><i class="fas fa-heart"></i> Favoritos</a>
+            <a href="/chat"><i class="fas fa-comments"></i> Chat</a>
+            ${user.type === 'candidato' ? 
+              `<a href="/dashboard-candidato"><i class="fas fa-chart-line"></i> Dashboard</a>
+               <a href="/perfil-candidato">Meu Perfil</a>
+               <a href="/upload"><i class="fas fa-upload"></i> Upload</a>` : 
+              user.type === 'empresa' ? 
+              `<a href="/painel-empresa"><i class="fas fa-chart-line"></i> Painel</a>
+               <a href="/perfil-empresa">Minha Empresa</a>
+               <a href="/upload"><i class="fas fa-upload"></i> Upload</a>
+               <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` : ''
+            }
+            <button onclick="logout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+          `;
+        }
       } else {
         // Usuario não logado
         nav.innerHTML = `

@@ -9,40 +9,34 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <a href="/painel-empresa.html">
-                        <img src="../images/logo.png" alt="Aprendiz+" class="logo">
-                    </a>
-                </div>
-                <div class="nav-menu" id="nav-menu">
-                    <a href="/painel-empresa.html">Dashboard</a>
-                    <a href="/publicar-vaga.html">Publicar Vaga</a>
-                    <a href="/empresas.html">Minhas Vagas</a>
-                    <a href="/analytics.html" class="active">Analytics</a>
-                    <a href="#" onclick="logout()">Sair</a>
-                </div>
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+    <header class="nav-header">
+        <nav class="top-nav">
+            <div class="nav-logo"><a href="/">Aprendiz+</a></div>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links">
+                <a href="/painel-empresa.html">Dashboard</a>
+                <a href="/publicar-vaga.html">Publicar Vaga</a>
+                <a href="/empresas.html">Minhas Vagas</a>
+                <a href="/analytics.html" class="active">Analytics</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
         </nav>
     </header>
 
     <main class="analytics-container">
         <div class="analytics-header">
-            <h1>📊 Relatórios e Analytics</h1>
-            <p>Acompanhe o desempenho das suas vagas e candidaturas</p>
+            <h1 style="font-size:2.2rem;font-weight:700;letter-spacing:-1px;">📊 Relatórios e Analytics</h1>
+            <p style="font-size:1.15rem;color:#555;">Acompanhe o desempenho das suas vagas e candidaturas em tempo real</p>
         </div>
 
         <!-- Filtros -->
-        <div class="analytics-filters">
+        <div class="analytics-filters" style="box-shadow:0 4px 16px rgba(102,126,234,0.08);">
             <div class="filter-group">
-                <label for="period-select">Período:</label>
+                <label for="period-select" style="font-weight:600;">Período:</label>
                 <select id="period-select">
                     <option value="7">Últimos 7 dias</option>
                     <option value="30" selected>Últimos 30 dias</option>
@@ -50,50 +44,50 @@
                     <option value="365">Último ano</option>
                 </select>
             </div>
-            <button id="export-btn" class="btn-primary">
-                📥 Exportar Dados
+            <button id="export-btn" class="btn-primary" style="display:flex;align-items:center;gap:8px;font-weight:600;">
+                <span class="export-icon" style="font-size:1.2rem;">📥</span> Exportar Dados
             </button>
         </div>
 
         <!-- Métricas Principais -->
         <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon">📋</div>
+            <div class="metric-card metric-animate" title="Total de candidaturas recebidas">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;">📋</div>
                 <div class="metric-content">
                     <h3 id="total-applications">0</h3>
                     <p>Total de Candidaturas</p>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">⏳</div>
+            <div class="metric-card metric-animate" title="Candidaturas aguardando análise">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#fbbf24 0%,#f59e42 100%);color:#fff;">⏳</div>
                 <div class="metric-content">
                     <h3 id="pending-applications">0</h3>
                     <p>Candidaturas Pendentes</p>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">✅</div>
+            <div class="metric-card metric-animate" title="Candidaturas aceitas">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;">✅</div>
                 <div class="metric-content">
                     <h3 id="accepted-applications">0</h3>
                     <p>Candidaturas Aceitas</p>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">❌</div>
+            <div class="metric-card metric-animate" title="Candidaturas rejeitadas">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);color:#fff;">❌</div>
                 <div class="metric-content">
                     <h3 id="rejected-applications">0</h3>
                     <p>Candidaturas Rejeitadas</p>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">📈</div>
+            <div class="metric-card metric-animate" title="Taxa de conversão de candidaturas aceitas">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#38bdf8 0%,#2563eb 100%);color:#fff;">📈</div>
                 <div class="metric-content">
                     <h3 id="conversion-rate">0%</h3>
                     <p>Taxa de Conversão</p>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">🕐</div>
+            <div class="metric-card metric-animate" title="Tempo médio de resposta às candidaturas">
+                <div class="metric-icon" style="background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 100%);color:#fff;">🕐</div>
                 <div class="metric-content">
                     <h3 id="avg-response-time">0h</h3>
                     <p>Tempo Médio de Resposta</p>
@@ -104,18 +98,18 @@
         <!-- Gráficos -->
         <div class="charts-container">
             <div class="chart-card">
-                <h3>Candidaturas por Dia</h3>
+                <h3 style="font-size:1.1rem;font-weight:600;">Candidaturas por Dia</h3>
                 <canvas id="daily-trend-chart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Status das Candidaturas</h3>
+                <h3 style="font-size:1.1rem;font-weight:600;">Status das Candidaturas</h3>
                 <canvas id="status-chart"></canvas>
             </div>
         </div>
 
         <!-- Tabela de Vagas -->
         <div class="table-card">
-            <h3>Desempenho por Vaga</h3>
+            <h3 style="font-size:1.1rem;font-weight:600;">Desempenho por Vaga</h3>
             <div class="table-responsive">
                 <table id="jobs-table">
                     <thead>
@@ -138,7 +132,7 @@
         <!-- Loading e Error States -->
         <div id="loading-state" class="loading-state">
             <div class="spinner"></div>
-            <p>Carregando dados...</p>
+            <p style="font-size:1.1rem;">Carregando dados...</p>
         </div>
 
         <div id="error-state" class="error-state" style="display: none;">

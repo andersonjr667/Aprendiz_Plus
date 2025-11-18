@@ -65,17 +65,35 @@ function renderAnalytics() {
 }
 
 // Update metrics cards
+// Função utilitária para animar contagem
+function animateValue(id, start, end, duration, suffix = "") {
+    const obj = document.getElementById(id);
+    if (!obj) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        obj.textContent = value + suffix;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            obj.textContent = end + suffix;
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+// Update metrics cards com animação
 function updateMetrics() {
     const summary = analyticsData.summary;
-
-    document.getElementById('total-applications').textContent = summary.totalApplications;
-    document.getElementById('pending-applications').textContent = summary.pendingApplications;
-    document.getElementById('accepted-applications').textContent = summary.acceptedApplications;
-    document.getElementById('rejected-applications').textContent = summary.rejectedApplications;
-    document.getElementById('conversion-rate').textContent = `${summary.conversionRate}%`;
-
+    animateValue('total-applications', 0, summary.totalApplications, 900);
+    animateValue('pending-applications', 0, summary.pendingApplications, 900);
+    animateValue('accepted-applications', 0, summary.acceptedApplications, 900);
+    animateValue('rejected-applications', 0, summary.rejectedApplications, 900);
+    animateValue('conversion-rate', 0, Math.round(summary.conversionRate), 900, '%');
     if (summary.avgResponseTime !== null) {
-        document.getElementById('avg-response-time').textContent = `${summary.avgResponseTime}h`;
+        animateValue('avg-response-time', 0, Math.round(summary.avgResponseTime), 900, 'h');
     } else {
         document.getElementById('avg-response-time').textContent = 'N/A';
     }
@@ -93,19 +111,12 @@ function renderCharts() {
 // Daily trend chart
 function renderDailyTrendChart() {
     const ctx = document.getElementById('daily-trend-chart').getContext('2d');
-
-    // Destroy existing chart if it exists
-    if (window.dailyTrendChart) {
-        window.dailyTrendChart.destroy();
-    }
-
+    if (window.dailyTrendChart) window.dailyTrendChart.destroy();
     const labels = analyticsData.dailyTrend.map(item => {
         const date = new Date(item.date);
         return date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
     });
-
     const data = analyticsData.dailyTrend.map(item => item.count);
-
     window.dailyTrendChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -113,42 +124,43 @@ function renderDailyTrendChart() {
             datasets: [{
                 label: 'Candidaturas',
                 data: data,
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                tension: 0.4,
-                fill: true
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102,126,234,0.12)',
+                tension: 0.35,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#667eea',
+                pointHoverRadius: 6,
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.y} candidaturas`
+                    }
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
+                x: { grid: { display: false }, ticks: { color: '#555' } },
+                y: { beginAtZero: true, grid: { color: '#e0e7ff' }, ticks: { color: '#555' } }
             }
         }
     });
+    setTimeout(() => {
+        document.getElementById('daily-trend-chart').parentElement.style.minHeight = '340px';
+    }, 100);
 }
 
 // Status distribution chart
 function renderStatusChart() {
     const ctx = document.getElementById('status-chart').getContext('2d');
-
-    // Destroy existing chart if it exists
-    if (window.statusChart) {
-        window.statusChart.destroy();
-    }
-
+    if (window.statusChart) window.statusChart.destroy();
     const summary = analyticsData.summary;
-
+    const total = summary.pendingApplications + summary.acceptedApplications + summary.rejectedApplications;
     window.statusChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -156,22 +168,35 @@ function renderStatusChart() {
             datasets: [{
                 data: [summary.pendingApplications, summary.acceptedApplications, summary.rejectedApplications],
                 backgroundColor: [
-                    '#ffc107', // warning
-                    '#28a745', // success
-                    '#dc3545'  // danger
+                    '#fbbf24', // warning
+                    '#22c55e', // success
+                    '#ef4444'  // danger
                 ],
-                borderWidth: 2
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 8
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    display: true,
+                    position: 'bottom',
+                    labels: { color: '#22223b', font: { size: 14 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.label}: ${ctx.parsed} (${total ? Math.round((ctx.parsed / total)*100) : 0}%)`
+                    }
                 }
             }
         }
     });
+    setTimeout(() => {
+        document.getElementById('status-chart').parentElement.style.minHeight = '340px';
+    }, 100);
 }
 
 // Render jobs table
@@ -198,9 +223,10 @@ function renderJobsTable() {
 
 // Export data
 async function exportData() {
+    showExportFeedback('loading');
     try {
         const user = await getCurrentUser();
-        if (!user) return;
+        if (!user) throw new Error('Usuário não autenticado');
 
         const response = await fetch(`/api/analytics/export/${user._id}?format=csv&period=${currentPeriod}`, {
             credentials: 'include'
@@ -220,14 +246,38 @@ async function exportData() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-
+        showExportFeedback('success');
     } catch (error) {
+        showExportFeedback('error');
         console.error('Error exporting data:', error);
         if (window.UI && window.UI.toast) {
             window.UI.toast('Erro ao exportar dados. Tente novamente.', 'error');
-        } else {
-            alert('Erro ao exportar dados. Tente novamente.');
         }
+    }
+}
+
+// Feedback visual no botão de exportação
+function showExportFeedback(state) {
+    const btn = document.getElementById('export-btn');
+    if (!btn) return;
+    if (state === 'loading') {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">⏳</span> Exportando...';
+    } else if (state === 'success') {
+        btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">✅</span> Exportado!';
+        setTimeout(() => {
+            btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">📥</span> Exportar Dados';
+            btn.disabled = false;
+        }, 1500);
+    } else if (state === 'error') {
+        btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">❌</span> Erro ao exportar';
+        setTimeout(() => {
+            btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">📥</span> Exportar Dados';
+            btn.disabled = false;
+        }, 2000);
+    } else {
+        btn.innerHTML = '<span class="export-icon" style="font-size:1.2rem;">📥</span> Exportar Dados';
+        btn.disabled = false;
     }
 }
 
