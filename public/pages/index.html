@@ -866,10 +866,10 @@
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-rocket"></i></div>
                         <h3 class="feature-title">Processo Rápido e Direto</h3>
-                        <p class="feature-description">
+                        <p class=""
                             Conexão direta entre candidatos e empresas, sem intermediários. 
                             Cadastre-se em minutos e comece a se candidatar imediatamente.
-                        </p>
+                    </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
@@ -1107,6 +1107,24 @@
                 window.Auth.updateHeader();
             }
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.querySelector('.admin-header-btn');
+  const menu = document.querySelector('.admin-header-menu');
+
+  if (btn && menu) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    });
+
+    // Fecha o menu ao clicar fora
+    document.addEventListener('click', function() {
+      menu.style.display = 'none';
+    });
+  }
+});
     </script>
 </body>
 </html>
