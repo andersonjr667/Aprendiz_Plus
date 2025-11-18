@@ -142,25 +142,63 @@
             }
           }, 50);
         } else {
-          // Header padrão para outros usuários logados
+          // Header com menu de perfil para todos os usuários logados
+          const avatar = user.profilePhotoUrl ? `<img src="${user.profilePhotoUrl}" alt="avatar" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;object-fit:cover;">` : `<span style="display:inline-block;width:32px;height:32px;border-radius:50%;background:#eee;text-align:center;line-height:32px;font-weight:bold;color:#666;vertical-align:middle;">${user.name ? user.name[0].toUpperCase() : 'U'}</span>`;
           nav.innerHTML = `
             <a href="/vagas">Vagas</a>
             <a href="/mapa-vagas"><i class="fas fa-map"></i> Mapa de Vagas</a>
             <a href="/noticias">Notícias</a>
             <a href="/favoritos"><i class="fas fa-heart"></i> Favoritos</a>
             <a href="/chat"><i class="fas fa-comments"></i> Chat</a>
-            ${user.type === 'candidato' ? 
-              `<a href="/dashboard-candidato"><i class="fas fa-chart-line"></i> Dashboard</a>
-               <a href="/perfil-candidato">Meu Perfil</a>
-               <a href="/upload"><i class="fas fa-upload"></i> Upload</a>` : 
-              user.type === 'empresa' ? 
-              `<a href="/painel-empresa"><i class="fas fa-chart-line"></i> Painel</a>
-               <a href="/perfil-empresa">Minha Empresa</a>
-               <a href="/upload"><i class="fas fa-upload"></i> Upload</a>
-               <a href="/publicar-vaga" class="btn btn-primary">Publicar Vaga</a>` : ''
-            }
-            <button onclick="logout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            <div class="admin-header-dropdown" style="display:inline-block;position:relative;">
+              <button class="admin-header-btn" style="background:linear-gradient(90deg,#667eea,#764ba2);color:#fff;border:none;border-radius:20px;padding:6px 18px 6px 10px;display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(102,126,234,0.10);">
+                ${avatar}
+                <span style="margin-left:6px;">${user.name || 'Perfil'}</span>
+                <i class="fas fa-chevron-down" style="margin-left:8px;font-size:13px;"></i>
+              </button>
+              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
+                <a href="#" id="header-profile-link" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-user"></i> Meu Perfil</a>
+                ${user.type === 'candidato' ? `<a href="/dashboard-candidato" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-line"></i> Dashboard</a>` : ''}
+                ${user.type === 'empresa' ? `<a href="/painel-empresa" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-line"></i> Painel</a>` : ''}
+                ${user.type === 'empresa' ? `<a href="/publicar-vaga" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-bullhorn"></i> Publicar Vaga</a>` : ''}
+                <a href="/upload" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-upload"></i> Upload</a>
+                <button onclick="logout()" style="width:100%;background:none;border:none;text-align:left;padding:12px 18px;color:#dc2626;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-sign-out-alt"></i> Sair</button>
+              </div>
+            </div>
           `;
+          setTimeout(() => {
+            document.querySelectorAll('.admin-header-btn').forEach(btn => {
+              btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const menu = btn.parentElement.querySelector('.admin-header-menu');
+                if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+              });
+              btn.querySelectorAll('img,span').forEach(el => {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  const menu = btn.parentElement.querySelector('.admin-header-menu');
+                  if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                });
+              });
+            });
+            document.addEventListener('click', function() {
+              document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
+            });
+            const profileLink = document.getElementById('header-profile-link');
+            if (profileLink) {
+              profileLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (user.type === 'admin' || user.type === 'owner') {
+                  window.location.href = '/perfil-admin';
+                } else if (user.type === 'empresa') {
+                  window.location.href = '/perfil-empresa';
+                } else {
+                  window.location.href = '/perfil-candidato';
+                }
+              });
+            }
+          }, 50);
         }
       } else {
         // Usuario não logado
