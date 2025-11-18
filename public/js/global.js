@@ -76,11 +76,30 @@ window.checkUserStatus = checkUserStatus;
 document.addEventListener('DOMContentLoaded', () => {
   injectHeader();
   initHamburgerMenu();
-  // If auth.js is loaded, it will handle updating the header
+  // Se auth.js estiver carregado, atualiza o header e ativa o dropdown do perfil
   if (window.Auth && window.Auth.updateHeader) {
     window.Auth.updateHeader();
+    setTimeout(() => {
+      document.querySelectorAll('.admin-header-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const menu = btn.parentElement.querySelector('.admin-header-menu');
+          if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        btn.querySelectorAll('img,span').forEach(el => {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = btn.parentElement.querySelector('.admin-header-menu');
+            if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+          });
+        });
+      });
+      document.addEventListener('click', function() {
+        document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
+      });
+    }, 100);
   }
-  
   // Check user status on every page load
   if (window.Auth && window.Auth.isAuthenticated()) {
     checkUserStatus();
