@@ -1,3 +1,6 @@
+const express = require('express');
+const router = express.Router();
+
 // ...existing code...
 
 // Verificar completude do perfil do candidato
@@ -29,7 +32,6 @@ router.get('/profile/completeness', authMiddleware, roleCheck(['candidato']), as
     res.status(500).json({ error: err.message });
   }
 });
-const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
