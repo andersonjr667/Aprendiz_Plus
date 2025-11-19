@@ -1,0 +1,117 @@
+/* header.css - Header moderno Aprendiz+ */
+.apz-header {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  font-family: 'Poppins', Arial, sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.apz-header__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.apz-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a2b4d;
+  text-decoration: none;
+}
+.apz-header__logo img {
+  height: 38px;
+  width: auto;
+}
+.apz-header__nav {
+  display: flex;
+  gap: 32px;
+}
+.apz-header__nav a {
+  color: #1a2b4d;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.08rem;
+  transition: color 0.2s;
+}
+.apz-header__nav a:hover {
+  color: #27ae60;
+}
+.apz-header__actions {
+  display: flex;
+  gap: 16px;
+}
+.apz-header__login {
+  color: #1a2b4d;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 1px solid #27ae60;
+  background: #fff;
+  transition: background 0.2s, color 0.2s;
+}
+.apz-header__login:hover {
+  background: #27ae60;
+  color: #fff;
+}
+.apz-header__register {
+  color: #fff;
+  background: #27ae60;
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  transition: background 0.2s;
+}
+.apz-header__register:hover {
+  background: #219150;
+}
+.apz-header__hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  color: #1a2b4d;
+  cursor: pointer;
+}
+.apz-header__mobile-menu {
+  display: none;
+  position: absolute;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  padding: 24px 0 16px 0;
+  z-index: 101;
+  flex-direction: column;
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .apz-header__container {
+    padding: 0 10px;
+  }
+  .apz-header__nav {
+    gap: 18px;
+  }
+}
+@media (max-width: 700px) {
+  .apz-header__nav {
+    display: none;
+  }
+  .apz-header__hamburger {
+    display: block;
+  }
+  .apz-header__mobile-menu {
+    display: flex;
+  }
+}

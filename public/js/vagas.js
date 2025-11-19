@@ -184,7 +184,7 @@ async function deleteJob(jobId, jobTitle, event) {
     
     const res = await fetch(`/api/jobs/${jobId}`, {
       method: 'DELETE',
-      headers: {
+      // Removido: headers
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }

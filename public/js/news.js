@@ -40,7 +40,7 @@ async function loadNews() {
       const newsId = n._id || n.id;
       
       d.innerHTML = `
-        <div class="news-header">
+        <!-- Removido: div news-header -->
           <h3 class="news-title">${n.title}</h3>
           <div class="news-meta">
             <span class="news-author"><i class="fas fa-user"></i> ${author}</span>

@@ -9,30 +9,12 @@
     <meta name="description" content="Plataforma 100% gratuita conectando jovens talentos com empresas que valorizam seu potencial. Vagas exclusivas para estudantes e recém-formados. Cadastre-se agora!">
     <meta name="keywords" content="vaga estágio, emprego jovem, recém-formado, primeiro emprego, jovem talento, mercado de trabalho, oportunidades jovens, estágio remunerado, trainee">
     <meta name="author" content="Aprendiz+">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://aprendizmais.com/">
-    <meta property="og:title" content="Aprendiz+ | Seu Primeiro Emprego Começa Aqui">
-    <meta property="og:description" content="Conecte-se com empresas que valorizam jovens talentos. Cadastro grátis, vagas exclusivas para estudantes e recém-formados!">
-    <meta property="og:image" content="https://aprendizmais.com/og-image.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://aprendizmais.com/">
-    <meta property="twitter:title" content="Aprendiz+ | Seu Primeiro Emprego Começa Aqui">
-    <meta property="twitter:description" content="Plataforma gratuita para jovens encontrarem seu primeiro emprego. Cadastre-se agora!">
-    <meta property="twitter:image" content="https://aprendizmais.com/og-image.jpg">
-    
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
+    <link rel="stylesheet" href="/public/css/header.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="/public/js/ui-dialogs.js"></script>
-    <script src="/public/js/auth.js" defer></script>
-    <script src="/public/js/api.js" defer></script>
-    <script src="/public/js/hamburger-menu.js" defer></script>
-    <script src="/public/js/main.js" defer></script>
+    <script src="/public/js/header.js" defer></script>
     <style>
         /* Hero Section - Melhorado */
         .hero-section {
@@ -805,7 +787,9 @@
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
+
     <div id="header-container"></div>
+    <div style="height: 68px; background: linear-gradient(180deg, #fff 60%, #f7f9fc 100%);"></div>
 
     <main class="main-content">
         <!-- Hero Section -->
@@ -830,12 +814,6 @@
         <!-- Features Section -->
         <section class="features-section">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="features-title">Por que escolher o Aprendiz+?</h2>
-                    <p class="features-subtitle">
-                        Oferecemos a melhor experiência para jovens profissionais encontrarem oportunidades reais
-                    </p>
-                </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
@@ -877,12 +855,6 @@
         <!-- How It Works Section -->
         <section class="how-it-works">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="features-title">Como Funciona?</h2>
-                    <p class="features-subtitle">
-                        Em 3 passos simples você está pronto para conquistar sua vaga dos sonhos
-                    </p>
-                </div>
                 <div class="steps-grid">
                     <div class="step-card">
                         <div class="step-number">1</div>
@@ -915,12 +887,6 @@
         <!-- Featured Jobs Section -->
         <section class="featured-jobs">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="features-title">Vagas em Destaque</h2>
-                    <p class="features-subtitle">
-                        Confira algumas das melhores oportunidades disponíveis agora
-                    </p>
-                </div>
                 <div class="jobs-carousel" id="featuredJobs">
                     <!-- Jobs will be loaded dynamically -->
                     <div class="loading-container">
@@ -939,12 +905,6 @@
         <!-- FAQ Section -->
         <section class="faq-section">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="features-title">Perguntas Frequentes</h2>
-                    <p class="features-subtitle">
-                        Tire suas dúvidas sobre como usar a plataforma
-                    </p>
-                </div>
                 <div class="faq-container">
                     <div class="faq-item">
                         <div class="faq-question">
@@ -1081,32 +1041,6 @@
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
     
-    <!-- Update Navigation for logged users -->
-    <script>
-        // Ensure navigation is updated when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.Auth && window.Auth.updateHeader) {
-                window.Auth.updateHeader();
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-  const btn = document.querySelector('.admin-header-btn');
-  const menu = document.querySelector('.admin-header-menu');
-
-  if (btn && menu) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-    });
-
-    // Fecha o menu ao clicar fora
-    document.addEventListener('click', function() {
-      menu.style.display = 'none';
-    });
-  }
-});
-    </script>
+        <!-- header antigo removido, agora dinâmico -->
 </body>
 </html>

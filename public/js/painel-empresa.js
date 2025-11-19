@@ -170,7 +170,7 @@ function createJobCard(job) {
   
   return `
     <div class="job-item ${statusClass}">
-      <div class="job-header">
+      <!-- Removido: job-header -->
         <div class="job-title-section">
           <h3 class="job-title">${job.title}</h3>
           <div class="job-meta">
@@ -397,7 +397,7 @@ function createApplicationCard(app) {
   
   return `
     <div class="application-item">
-      <div class="application-header">
+      <!-- Removido: application-header -->
         <div class="candidate-info">
           <h3 class="candidate-name">
             <i class="fas fa-user-circle"></i>
@@ -537,7 +537,7 @@ async function updateApplicationStatus(applicationId, newStatus) {
     
     const res = await fetch(`/api/applications/${applicationId}/status`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      // Removido: headers
       credentials: 'include',
       body: JSON.stringify({ status: newStatus })
     });
@@ -570,7 +570,7 @@ async function toggleJobStatus(jobId, currentStatus) {
     
     const res = await fetch(`/api/jobs/${jobId}/status`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      // Removido: headers
       credentials: 'include',
       body: JSON.stringify({ status: newStatus })
     });
@@ -713,7 +713,7 @@ async function openChatWithCandidate(applicationId) {
     
     const res = await fetch('/api/chats', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Removido: headers
       credentials: 'include',
       body: JSON.stringify({ applicationId })
     });

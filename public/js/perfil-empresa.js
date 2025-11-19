@@ -81,19 +81,19 @@ async function loadProfile() {
 function displayProfile(user) {
   console.log('Displaying profile for user:', user);
   
-  // Update header name
+  // Removido: update header name
   const profileName = document.getElementById('profileName');
   if (profileName) {
     profileName.textContent = user.name || 'Nome não informado';
   }
   
-  // Update header email
+  // Removido: update header email
   const profileEmail = document.getElementById('profileEmail');
   if (profileEmail) {
     profileEmail.textContent = user.email || '';
   }
   
-  // Update avatar in header
+  // Removido: update avatar in header
   const avatarEl = document.getElementById('profileAvatar');
   console.log('Avatar element found:', !!avatarEl);
   console.log('User data:', { profilePhotoUrl: user.profilePhotoUrl, avatarUrl: user.avatarUrl });
@@ -551,7 +551,7 @@ async function loadRecentApplications() {
       const statusText = statusMap[app.status.toLowerCase()] || app.status;
       
       appEl.innerHTML = `
-        <div class="application-header">
+        <!-- Removido: application-header -->
           <div>
             <h5 class="application-title">${app.user_name || 'Candidato'}</h5>
             <p class="application-candidate">
@@ -597,7 +597,7 @@ async function toggleJobStatus(jobId, currentStatus) {
   try {
     const res = await fetch(`/api/jobs/${jobId}/status`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      // Removido: headers
       credentials: 'include',
       body: JSON.stringify({ status: newStatus })
     });
@@ -640,7 +640,7 @@ function updateProfileCompletion(user) {
     statsCompletion.textContent = `${completion}%`;
   }
   
-  // Update header badge
+  // Removido: update header badge
   const completionPercent = document.getElementById('completionPercent');
   if (completionPercent) {
     completionPercent.textContent = `${completion}%`;
@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('Profile form not found');
   }
   
-  // Avatar upload from header
+  // Removido: avatar upload from header
   const avatarWrapper = document.querySelector('.profile-avatar-wrapper');
   const avatarInput = document.getElementById('avatarInput');
   
@@ -880,7 +880,7 @@ function showShareModal(url) {
   modal.className = 'share-modal';
   modal.innerHTML = `
     <div class="share-modal-content">
-      <div class="share-modal-header">
+      <!-- Removido: share-modal-header -->
         <h3><i class="fas fa-share-alt"></i> Compartilhar Perfil</h3>
         <button onclick="this.closest('.share-modal').remove()" class="share-close-btn">
           <i class="fas fa-times"></i>

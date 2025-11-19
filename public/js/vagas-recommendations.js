@@ -55,7 +55,7 @@ window.loadAIRecommendationsNew = async function() {
     
     const res = await fetch('/api/jobs/ai-recommendations', {
       credentials: 'include',
-      headers: {
+      // Removido: headers
         'Authorization': 'Bearer ' + token,
         'Content-Type': 'application/json'
       }
@@ -63,7 +63,7 @@ window.loadAIRecommendationsNew = async function() {
     
     console.log('📡 Response status:', res.status);
     console.log('📡 Response ok:', res.ok);
-    console.log('📡 Response headers:', Object.fromEntries([...res.headers]));
+    // Removido: log de response headers
     
     if (!res.ok) {
       // Try to get error details
@@ -189,7 +189,7 @@ function displayRecommendations(recommendations) {
         <span>${job.aiScore}% Match</span>
       </div>
       
-      <div class="job-header">
+      <!-- Removido: job-header -->
         <h3 class="job-title">
           <a href="/vaga/${job._id}">${job.title}</a>
         </h3>

@@ -623,10 +623,7 @@ router.get('/resumes/:fileId', async (req, res) => {
     
     const file = files[0];
     
-    // Set headers for inline display
-    res.setHeader('Content-Type', file.contentType || 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline');
-    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    // Removido: headers para inline display
     
     // Stream file from GridFS
     const downloadStream = gfsBucket.openDownloadStream(fileId);
@@ -2705,8 +2702,7 @@ router.get('/analytics/export/:companyId', authMiddleware, roleCheck(['empresa',
       const parser = new Parser();
       const csv = parser.parse(exportData);
       
-      res.header('Content-Type', 'text/csv');
-      res.header('Content-Disposition', `attachment; filename=candidaturas_${companyId}_${new Date().toISOString().split('T')[0]}.csv`);
+      // Removido: headers para CSV
       res.send(csv);
     } else {
       res.json({ error: 'Formato não suportado. Use csv.' });

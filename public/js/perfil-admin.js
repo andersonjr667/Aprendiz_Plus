@@ -86,7 +86,7 @@ async function loadCurrentUser() {
       return;
     }
     
-    updateProfileHeader();
+      // Removido: updateProfileHeader()
     updateProfileForm();
     
   } catch (error) {
@@ -98,59 +98,7 @@ async function loadCurrentUser() {
 
 // Atualizar header do perfil
 function updateProfileHeader() {
-  const profileAvatar = document.getElementById('profileAvatar');
-  const avatar = currentUser.avatarUrl || currentUser.profilePhotoUrl;
-  
-  if (avatar && profileAvatar) {
-    profileAvatar.innerHTML = `<img src="${avatar}" alt="${currentUser.name}">`;
-  }
-  
-  document.getElementById('profileName').textContent = currentUser.name;
-  document.getElementById('profileEmail').textContent = currentUser.email;
-  
-  // Atualizar badge para owner
-  const adminBadge = document.querySelector('.admin-badge-special');
-  if (adminBadge && currentUser.type === 'owner') {
-    adminBadge.innerHTML = '<i class="fas fa-crown"></i> Proprietário do Sistema';
-    adminBadge.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    adminBadge.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
-  }
-  
-  const joinedDate = new Date(currentUser.createdAt).toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric'
-  });
-  document.getElementById('memberSince').textContent = joinedDate;
-  
-  // Aplicar classe especial se for o dono do sistema
-  const profileHeader = document.querySelector('.profile-header');
-  console.log('Verificando se é dono do sistema:', {
-    userId: currentUser._id,
-    type: currentUser.type,
-    isDono: currentUser.type === 'owner'
-  });
-
-  if (profileHeader && currentUser.type === 'owner') {
-    console.log('✅ Usuário é o DONO DO SISTEMA! Aplicando decorações...');
-    profileHeader.classList.add('owner-profile');
-
-    // Adicionar círculos decorativos com logos
-    addOwnerDecorations(profileHeader);
-
-    // Adicionar badge de dono
-    const profileBadges = document.querySelector('.profile-badges');
-    if (profileBadges && !profileBadges.querySelector('.owner-badge')) {
-      const ownerBadge = document.createElement('span');
-      ownerBadge.className = 'badge owner-badge';
-      ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Dono do Sistema';
-      ownerBadge.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
-      ownerBadge.style.color = '#000';
-      ownerBadge.style.fontWeight = '600';
-      profileBadges.insertBefore(ownerBadge, profileBadges.firstChild);
-    }
-  } else {
-    console.log('ℹ️ Usuário não é o dono do sistema');
-  }
+// Removido: função updateProfileHeader
 }
 
 // Adicionar decorações especiais para o dono do sistema

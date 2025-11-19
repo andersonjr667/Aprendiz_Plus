@@ -18,12 +18,14 @@
   <link rel="stylesheet" href="/public/css/main.css">
   <link rel="stylesheet" href="/public/css/ui-dialogs.css">
   <link rel="stylesheet" href="/public/css/noticias.css">
+  <link rel="stylesheet" href="/public/css/header.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/public/js/ui-dialogs.js"></script>
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
-  <script src="/public/js/hamburger-menu.js" defer></script>
+  
+  <script src="/public/js/header.js" defer></script>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
@@ -39,93 +41,8 @@
       </div>
     </div>
 
-    <section class="container">
-      <!-- Category Filter -->
-      <div class="category-filter">
-        <span class="category-filter-label">Filtrar por:</span>
-        <button class="filter-btn active" data-category="all">
-          <i class="fas fa-th"></i> Todos
-        </button>
-        <button class="filter-btn" data-category="carreira">
-          <i class="fas fa-briefcase"></i> Carreira
-        </button>
-        <button class="filter-btn" data-category="entrevistas">
-          <i class="fas fa-comments"></i> Entrevistas
-        </button>
-        <button class="filter-btn" data-category="tendencias">
-          <i class="fas fa-chart-line"></i> Tendências
-        </button>
-        <button class="filter-btn" data-category="dicas">
-          <i class="fas fa-lightbulb"></i> Dicas
-        </button>
-        <button class="filter-btn" data-category="mercado">
-          <i class="fas fa-globe"></i> Mercado
-        </button>
-      </div>
-
-      <!-- Content with Sidebar -->
-      <div class="content-with-sidebar">
-        <!-- Main Content -->
-        <div>
-          <!-- News Grid -->
-          <div id="news" class="news-grid"></div>
-          
-          <!-- Loading skeleton -->
-          <div id="loading" class="news-grid" style="display: none;">
-            <div class="skeleton-card">
-              <div class="skeleton-image"></div>
-              <div class="skeleton-body">
-                <div class="skeleton-line title"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line short"></div>
-              </div>
-            </div>
-            <div class="skeleton-card">
-              <div class="skeleton-image"></div>
-              <div class="skeleton-body">
-                <div class="skeleton-line title"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line short"></div>
-              </div>
-            </div>
-            <div class="skeleton-card">
-              <div class="skeleton-image"></div>
-              <div class="skeleton-body">
-                <div class="skeleton-line title"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line short"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Load More Button -->
-          <div id="loadMoreContainer" class="load-more-container" style="display: none;">
-            <button id="loadMoreBtn" class="btn-load-more">
-              <i class="fas fa-plus-circle"></i>
-              Carregar mais artigos
-            </button>
-          </div>
-        </div>
-
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <!-- Popular News -->
-          <div class="sidebar-widget">
-            <h3><i class="fas fa-fire"></i> Mais Lidos</h3>
-            <div id="popularNews"></div>
-          </div>
-
-          <!-- Recent Jobs -->
-          <div class="sidebar-widget">
-            <h3><i class="fas fa-briefcase"></i> Últimas Vagas</h3>
-            <ul id="recentJobs" class="recent-jobs"></ul>
-          </div>
-        </aside>
-      </div>
-    </section>
+    <!-- Category Filter removido -->
+    <!-- Content with Sidebar removido -->
 
     <!-- Newsletter Section -->
     <section class="newsletter-section">

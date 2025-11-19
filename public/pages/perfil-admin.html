@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+      <link rel="stylesheet" href="/public/css/header.css">
+      <script src="/public/js/header.js" defer></script>
     <link rel="icon" type="image/png" href="/public/images/logo.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,13 +30,13 @@
   <script src="/public/js/ui-dialogs.js"></script>
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
-  <script src="/public/js/hamburger-menu.js" defer></script>
+  
   <script src="/public/js/perfil-admin.js" defer></script>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
-  <!-- Navigation -->
+  
     <div id="header-container"></div>
 
   <main class="main-content" style="padding-top: 75px;">
@@ -101,6 +103,356 @@
               <i class="fas fa-list"></i>
               <span>Logs</span>
             </button>
+            </nav>
+          </aside>
+        
+          <!-- Main Content Area -->
+          <div class="profile-main">
+            <!-- Tab Dashboard -->
+            <div class="tab-content active" id="tab-dashboard">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard Administrativo
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <div class="stats-grid">
+                    <div class="stat-card">
+                      <i class="fas fa-users"></i>
+                      <div class="stat-info">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Usuários Totais</p>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <i class="fas fa-user-graduate"></i>
+                      <div class="stat-info">
+                        <h3 id="totalCandidates">0</h3>
+                        <p>Candidatos</p>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <i class="fas fa-building"></i>
+                      <div class="stat-info">
+                        <h3 id="totalCompanies">0</h3>
+                        <p>Empresas</p>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <i class="fas fa-briefcase"></i>
+                      <div class="stat-info">
+                        <h3 id="totalJobs">0</h3>
+                        <p>Vagas Ativas</p>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <i class="fas fa-file-alt"></i>
+                      <div class="stat-info">
+                        <h3 id="totalApplications">0</h3>
+                        <p>Candidaturas</p>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <i class="fas fa-newspaper"></i>
+                      <div class="stat-info">
+                        <h3 id="totalNews">0</h3>
+                        <p>Notícias</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="recent-activity">
+                    <h3>Atividade Recente</h3>
+                    <div id="recentActivity" class="activity-list">
+                      <p class="loading">Carregando atividades...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tab Informações -->
+            <div class="tab-content" id="tab-info">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-user"></i>
+                    Minhas Informações
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <form id="profileForm" class="profile-form">
+                    <div class="form-group">
+                      <label for="name">Nome Completo</label>
+                      <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">E-mail</label>
+                      <input type="email" id="email" name="email" required readonly>
+                      <small>O e-mail não pode ser alterado</small>
+                    </div>
+                    <div class="form-group">
+                      <label for="phone">Telefone</label>
+                      <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group">
+                      <label for="bio">Sobre Mim</label>
+                      <textarea id="bio" name="bio" rows="4" placeholder="Conte um pouco sobre você..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                      </button>
+                    </div>
+                  </form>
+                  <div class="password-section">
+                    <h3>Alterar Senha</h3>
+                    <form id="passwordForm" class="profile-form">
+                      <div class="form-group">
+                        <label for="currentPassword">Senha Atual</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="newPassword">Nova Senha</label>
+                        <input type="password" id="newPassword" name="newPassword" required minlength="6">
+                      </div>
+                      <div class="form-group">
+                        <label for="confirmPassword">Confirmar Nova Senha</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+                      </div>
+                      <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                          <i class="fas fa-key"></i> Alterar Senha
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tab Usuários -->
+            <div class="tab-content" id="tab-users">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-users"></i>
+                    Gerenciar Usuários
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <div class="table-controls">
+                    <div class="search-box">
+                      <i class="fas fa-search"></i>
+                      <input type="text" id="userSearch" placeholder="Buscar usuários...">
+                    </div>
+                    <div class="filter-box">
+                      <select id="userTypeFilter">
+                        <option value="">Todos os tipos</option>
+                        <option value="candidato">Candidatos</option>
+                        <option value="empresa">Empresas</option>
+                        <option value="admin">Administradores</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="usersTable" class="data-table">
+                    <p class="loading">Carregando usuários...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tab Vagas -->
+            <div class="tab-content" id="tab-jobs">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-briefcase"></i>
+                    Gerenciar Vagas
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <div class="table-controls">
+                    <div class="search-box">
+                      <i class="fas fa-search"></i>
+                      <input type="text" id="jobSearch" placeholder="Buscar vagas...">
+                    </div>
+                    <div class="filter-box">
+                      <select id="jobStatusFilter">
+                        <option value="">Todos os status</option>
+                        <option value="ativa">Ativas</option>
+                        <option value="inativa">Inativas</option>
+                        <option value="preenchida">Preenchidas</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="jobsTable" class="data-table">
+                    <p class="loading">Carregando vagas...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tab Notícias -->
+            <div class="tab-content" id="tab-news">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-newspaper"></i>
+                    Gerenciar Notícias
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <div class="table-controls">
+                    <button class="btn btn-primary" onclick="window.location.href='/admin-noticia'">
+                      <i class="fas fa-plus"></i> Nova Notícia
+                    </button>
+                  </div>
+                  <div id="newsTable" class="data-table">
+                    <p class="loading">Carregando notícias...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tab Logs -->
+            <div class="tab-content" id="tab-logs">
+              <div class="profile-card">
+                <div class="card-header-profile">
+                  <h2 class="card-title-profile">
+                    <i class="fas fa-list"></i>
+                    Logs do Sistema
+                  </h2>
+                </div>
+                <div class="card-body-profile">
+                  <div class="table-controls">
+                    <div class="filter-box">
+                      <select id="logActionFilter">
+                        <option value="">Todas as ações</option>
+                        <option value="create">Criar</option>
+                        <option value="update">Atualizar</option>
+                        <option value="delete">Deletar</option>
+                        <option value="login">Login</option>
+                      </select>
+                    </div>
+                    <div class="filter-box">
+                      <input type="date" id="logDateFilter">
+                    </div>
+                  </div>
+                  <div id="logsTable" class="data-table">
+                    <p class="loading">Carregando logs...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </main>
+    
+      <div id="messageContainer"></div>
+    
+      <style>
+        @media (max-width: 768px) {
+          .main-content {
+            padding: 1rem !important;
+          }
+          .profile-header-content {
+            flex-direction: column;
+            text-align: center;
+          }
+          .profile-avatar-wrapper {
+            margin: 0 auto 1rem;
+          }
+          .profile-badges {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+          .profile-stats {
+            flex-direction: column;
+            gap: 1rem;
+          }
+          .stat-item {
+            min-width: 100%;
+          }
+          .profile-actions {
+            flex-direction: column;
+          }
+          .profile-form .form-row {
+            flex-direction: column;
+          }
+          .form-row .form-group {
+            width: 100%;
+          }
+          .data-table {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .data-table table {
+            min-width: 600px;
+            font-size: 0.875rem;
+          }
+          .filter-controls {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+          .filter-box {
+            width: 100%;
+          }
+          .card-title-profile {
+            font-size: 1.1rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .main-content {
+            padding: 0.5rem !important;
+            padding-top: 60px !important;
+          }
+          .profile-header {
+            padding: 1.5rem 0;
+          }
+          .profile-avatar {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+          }
+          .profile-header h1 {
+            font-size: 1.5rem;
+          }
+          .profile-subtitle {
+            font-size: 0.875rem;
+          }
+          .profile-badge {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+          }
+          .profile-card {
+            margin: 0.5rem 0;
+          }
+          .card-body-profile {
+            padding: 1rem;
+          }
+          .btn {
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+          }
+          .data-table table {
+            min-width: 500px;
+            font-size: 0.8rem;
+          }
+          .form-control {
+            font-size: 0.875rem;
+          }
+        }
+      </style>
+      <!-- AI Assistant -->
+      <div class="profile-actions" style="margin: 2rem 0; text-align: center;">
+        <button class="btn btn-outline-primary" onclick="openChangePasswordDialog()">
+          <i class="fas fa-key"></i> Alterar Senha
+        </button>
+        <button class="btn btn-outline-danger" onclick="openDeleteAccountDialog()" style="margin-left: 1rem;">
+          <i class="fas fa-trash"></i> Excluir Conta
+        </button>
+      </div>
+      <script src="/public/js/ai-assistant.js"></script>
+    </body>
+    </html>
           </nav>
         </aside>
 
