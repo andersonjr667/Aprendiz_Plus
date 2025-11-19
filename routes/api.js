@@ -1,3 +1,5 @@
+// ...existing code...
+
 // Verificar completude do perfil do candidato
 router.get('/profile/completeness', authMiddleware, roleCheck(['candidato']), async (req, res) => {
   try {

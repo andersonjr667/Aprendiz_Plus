@@ -105,28 +105,11 @@
               </div>
             </div>
           `;
-          // Ativa o dropdown do admin após renderizar o header
+          // Ativa o dropdown do admin/empresa após renderizar o header
           setTimeout(() => {
-            document.querySelectorAll('.admin-header-btn').forEach(btn => {
-              // Permite abrir o menu clicando no botão OU no avatar/nome
-              btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const menu = btn.parentElement.querySelector('.admin-header-menu');
-                if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-              });
-              // Também permite abrir clicando no avatar ou nome
-              btn.querySelectorAll('img,span').forEach(el => {
-                el.style.cursor = 'pointer';
-                el.addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  const menu = btn.parentElement.querySelector('.admin-header-menu');
-                  if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                });
-              });
-            });
-            document.addEventListener('click', function() {
-              document.querySelectorAll('.admin-header-menu').forEach(menu => menu.style.display = 'none');
-            });
+            if (typeof activateProfileDropdowns === 'function') {
+              activateProfileDropdowns();
+            }
             const profileLink = document.getElementById('header-profile-link');
             if (profileLink) {
               profileLink.addEventListener('click', function(e) {
