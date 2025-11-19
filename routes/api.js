@@ -1,37 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
-// ...existing code...
-
-// Verificar completude do perfil do candidato
-router.get('/profile/completeness', authMiddleware, roleCheck(['candidato']), async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-passwordHash');
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-    // Campos obrigatórios e opcionais
-    const requiredFields = ['name', 'email'];
-    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
-    const allFields = [...requiredFields, ...optionalFields];
-    const completedFields = allFields.filter(field => {
-      if (field === 'skills') {
-        return user.skills && user.skills.length > 0;
-      }
-      if (field === 'interests') {
-        return user.interests && user.interests.length >= 3;
-      }
-      if (field === 'profilePhotoUrl') {
-        return !!(user.profilePhotoUrl || user.avatarUrl);
-      }
-      return user[field] && user[field].toString().trim().length > 0;
-    });
-    const completeness = Math.round((completedFields.length / allFields.length) * 100);
-    res.json({ completeness });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -73,30 +41,6 @@ const PlatformAnalytics = require('../models/PlatformAnalytics');
 const authMiddleware = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
-
-const router = express.Router();
-
-// PATCH /api/users/:id/responsibilities - Apenas owner pode editar responsabilidades de admins
-router.patch('/users/:id/responsibilities', authMiddleware, async (req, res) => {
-  try {
-    // Só owner pode editar
-    if (!req.user || req.user.type !== 'owner') {
-      return res.status(403).json({ error: 'Apenas o proprietário pode editar responsabilidades.' });
-    }
-    const { id } = req.params;
-    const { responsibilities } = req.body;
-    if (!Array.isArray(responsibilities)) {
-      return res.status(400).json({ error: 'Responsabilidades devem ser um array de strings.' });
-    }
-    const user = await User.findById(id);
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
-    user.responsibilities = responsibilities;
-    await user.save();
-    res.json({ ok: true, responsibilities: user.responsibilities });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao atualizar responsabilidades.' });
-  }
-});
 
 // Initialize GridFS
 let gfsBucket;
@@ -803,6 +747,58 @@ router.get('/users', authMiddleware, roleCheck(['admin', 'empresa']), async (req
     const users = await User.find(q).select('-passwordHash');
     res.json(users);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Verificar completude do perfil do candidato
+router.get('/profile/completeness', authMiddleware, roleCheck(['candidato']), async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-passwordHash');
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    // Campos obrigatórios e opcionais
+    const requiredFields = ['name', 'email'];
+    const optionalFields = ['cpf', 'phone', 'bio', 'skills', 'profilePhotoUrl', 'interests'];
+    const allFields = [...requiredFields, ...optionalFields];
+    const completedFields = allFields.filter(field => {
+      if (field === 'skills') {
+        return user.skills && user.skills.length > 0;
+      }
+      if (field === 'interests') {
+        return user.interests && user.interests.length >= 3;
+      }
+      if (field === 'profilePhotoUrl') {
+        return !!(user.profilePhotoUrl || user.avatarUrl);
+      }
+      return user[field] && user[field].toString().trim().length > 0;
+    });
+    const completeness = Math.round((completedFields.length / allFields.length) * 100);
+    res.json({ completeness });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /api/users/:id/responsibilities - Apenas owner pode editar responsabilidades de admins
+router.patch('/users/:id/responsibilities', authMiddleware, async (req, res) => {
+  try {
+    // Só owner pode editar
+    if (!req.user || req.user.type !== 'owner') {
+      return res.status(403).json({ error: 'Apenas o proprietário pode editar responsabilidades.' });
+    }
+    const { id } = req.params;
+    const { responsibilities } = req.body;
+    if (!Array.isArray(responsibilities)) {
+      return res.status(400).json({ error: 'Responsabilidades devem ser um array de strings.' });
+    }
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    user.responsibilities = responsibilities;
+    await user.save();
+    res.json({ ok: true, responsibilities: user.responsibilities });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao atualizar responsabilidades.' });
+  }
 });
 
 // ----- JOBS -----
@@ -1784,6 +1780,8 @@ router.delete('/comments/:id', authMiddleware, async (req, res) => {
     
     await logAction({
       action: 'delete_comment',
+      userId: userId,
+      resourceType: 'Comment',
       userId: userId,
       resourceType: 'Comment',
       resourceId: comment._id,

@@ -1,9 +1,10 @@
-// Currículo
-router.get('/gerar-curriculo', (req, res) => sendPage(res, 'gerar-curriculo.html'));
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
+// Currículo
+router.get('/gerar-curriculo', (req, res) => sendPage(res, 'gerar-curriculo.html'));
 
 const pagesDir = path.join(__dirname, '..', 'public', 'pages');
 
