@@ -34,30 +34,7 @@
 </head>
 <body class="page-container">
     <!-- Navigation -->
-    <header class="nav-header">
-        <nav class="top-nav">
-            <div class="nav-logo">
-                <a href="/">Aprendiz+</a>
-            </div>
-            <button class="mobile-menu-toggle" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <div class="nav-links">
-                <a href="/">Início</a>
-                <a href="/vagas">Vagas</a>
-                <a href="/noticias">Notícias</a>
-                <a href="/pages/chat.html">
-                    <i class="fas fa-comments"></i> Chat
-                </a>
-                <a href="/perfil-candidato" class="active">Meu Perfil</a>
-                <button onclick="logout()" class="btn btn-secondary">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
-        </nav>
-    </header>
+    <div id="header-container"></div>
 
     <main class="main-content" style="padding-top: 75px;">
         <!-- Profile Header -->
@@ -117,30 +94,7 @@
                     <div id="viewMode">
                         <div class="info-grid">
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-user"></i></div>
-                                    <span class="info-label">Nome Completo</span>
-                                </div>
-                                <p class="info-value" id="displayName">-</p>
-                            </div>
-
-                            <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-envelope"></i></div>
-                                    <span class="info-label">E-mail</span>
-                                </div>
-                                <p class="info-value" id="displayEmail">-</p>
-                            </div>
-
-                            <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-id-card"></i></div>
-                                    <span class="info-label">CPF</span>
-                                </div>
-                                <p class="info-value" id="displayCpf">Não informado</p>
-                            </div>
-
-                            <div class="info-card">
+                                <div id="header-container"></div>
                                 <div class="info-header">
                                     <div class="info-icon"><i class="fas fa-phone"></i></div>
                                     <span class="info-label">Telefone</span>
