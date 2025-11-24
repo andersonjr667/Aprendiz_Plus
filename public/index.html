@@ -26,6 +26,19 @@
             <a href="/vagas" class="btn btn-primary">Ver Vagas</a>
         </div>
     </main>
-    <script src="/public/js/ai-assistant.js"></script>
+        <script src="/public/js/ai-assistant.js"></script>
+        <script>
+            // Garante que o header reconheça o login ao carregar a index
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.Auth && typeof window.Auth.getToken === 'function' && window.Auth.getToken()) {
+                    // Testa se o token é válido
+                    window.Auth.getCurrentUser && window.Auth.getCurrentUser().then(user => {
+                        if (user) {
+                            if (window.renderDynamicHeader) window.renderDynamicHeader();
+                        }
+                    });
+                }
+            });
+        </script>
 </body>
 </html>
