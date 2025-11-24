@@ -24,9 +24,8 @@
     <link rel="stylesheet" href="/public/css/perfil-candidato.css?v=2.0">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
     
+    <script src="/public/js/auth.js"></script>
     <script src="/public/js/ui-dialogs.js" defer></script>
-    <script src="/public/js/header.js" defer></script>
-    <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
     
     <script src="/public/js/perfil-candidato.js?v=3.0" defer></script>
@@ -34,40 +33,11 @@
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
 </head>
 <body class="page-container">
-    
+    <!-- Header dinâmico -->
     <div id="header-container"></div>
-
+    <script src="/public/js/header.js"></script>
     <main class="main-content">
-        <!-- Profile Header -->
-        <section class="profile-header">
-        <div class="container profile-header-content">
-            <div class="profile-avatar-wrapper">
-                <div class="profile-avatar" id="profileAvatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="avatar-upload-overlay">
-                    <i class="fas fa-camera"></i>
-                    <span>Alterar foto</span>
-                </div>
-            </div>
-            <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
-            <h1 id="profileName">Carregando...</h1>
-            <p class="profile-subtitle" id="profileEmail">email@exemplo.com</p>
-            <div class="profile-badges">
-                <span class="profile-badge" id="completionBadge">
-                    <i class="fas fa-chart-line"></i> <span id="completionPercent">0%</span> Completo
-                </span>
-                <span class="profile-badge" id="likesBadge">
-                    <i class="fas fa-heart"></i> <span id="likesCount">0</span> Curtidas
-                </span>
-            </div>
-            <div class="profile-actions">
-                <button class="btn btn-secondary" id="btnShare" onclick="shareProfile()">
-                    <i class="fas fa-share-alt"></i> Compartilhar Perfil
-                </button>
-            </div>
-        </div>
-    </section>
+        
 
     <!-- Main Content -->
     <div class="container profile-container">
@@ -76,16 +46,7 @@
             <div class="profile-main">
                 <!-- Personal Info Card -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
-                            <i class="fas fa-user-circle"></i>
-                            Informações Pessoais
-                        </h2>
-                        <button class="btn-edit" id="btnEdit" onclick="toggleEditMode()">
-                            <i class="fas fa-edit"></i>
-                            <span id="editText">Editar</span>
-                        </button>
-                    </div>
+                    <!-- header removido -->
 
                     <div id="messageContainer" class="message-container" style="display: none;">
                         <span id="messageText"></span>
@@ -95,27 +56,17 @@
                     <div id="viewMode">
                         <div class="info-grid">
                             <div class="info-card">
-                                <!-- header-container duplicado removido -->
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-phone"></i></div>
-                                    <span class="info-label">Telefone</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayPhone">Não informado</p>
                             </div>
 
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-user-edit"></i></div>
-                                    <span class="info-label">Sobre Mim</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-bio" id="displayBio">Nenhuma descrição adicionada. Clique em "Editar" para adicionar informações sobre você.</p>
                             </div>
 
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-rocket"></i></div>
-                                    <span class="info-label">Habilidades</span>
-                                </div>
+                                <!-- header removido -->
                                 <div class="skills-container" id="displaySkills">
                                     <span style="color: #999;">Nenhuma habilidade adicionada</span>
                                 </div>
@@ -128,42 +79,27 @@
                         </h3>
                         <div class="info-grid">
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
-                                    <span class="info-label">Data de Nascimento</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayBirthDate">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-id-badge"></i></div>
-                                    <span class="info-label">RG</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayRG">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-venus-mars"></i></div>
-                                    <span class="info-label">Gênero</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayGender">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-ring"></i></div>
-                                    <span class="info-label">Estado Civil</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayMaritalStatus">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fab fa-whatsapp"></i></div>
-                                    <span class="info-label">WhatsApp</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayWhatsapp">Não informado</p>
                             </div>
                         </div>
@@ -174,26 +110,17 @@
                         </h3>
                         <div class="info-grid">
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-mail-bulk"></i></div>
-                                    <span class="info-label">CEP</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayCep">Não informado</p>
                             </div>
 
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-road"></i></div>
-                                    <span class="info-label">Endereço Completo</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayAddress">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-city"></i></div>
-                                    <span class="info-label">Cidade/Estado</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayCityState">Não informado</p>
                             </div>
                         </div>
@@ -204,50 +131,32 @@
                         </h3>
                         <div class="info-grid">
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-book"></i></div>
-                                    <span class="info-label">Escolaridade Atual</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayCurrentEducation">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-school"></i></div>
-                                    <span class="info-label">Instituição de Ensino</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayEducationInstitution">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-clock"></i></div>
-                                    <span class="info-label">Turno de Estudo</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayStudyShift">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-tools"></i></div>
-                                    <span class="info-label">Curso Técnico</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayTechnicalCourse">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-calendar-check"></i></div>
-                                    <span class="info-label">Previsão de Formatura</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayExpectedGraduation">Não informado</p>
                             </div>
 
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-certificate"></i></div>
-                                    <span class="info-label">Cursos Extracurriculares</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayExtracurricularCourses">Não informado</p>
                             </div>
                         </div>
@@ -258,60 +167,39 @@
                         </h3>
                         <div class="info-grid">
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-star"></i></div>
-                                    <span class="info-label">Áreas de Interesse</span>
-                                </div>
+                                <!-- header removido -->
                                 <div class="skills-container" id="displayAreasOfInterest">
                                     <span style="color: #999;">Nenhuma área informada</span>
                                 </div>
                             </div>
 
                             <div class="info-card info-card-full">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-history"></i></div>
-                                    <span class="info-label">Experiência Anterior</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayPreviousExperience">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
-                                    <span class="info-label">Disponibilidade</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayAvailability">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-wheelchair"></i></div>
-                                    <span class="info-label">PCD</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayPCD">Não</p>
                             </div>
 
                             <div class="info-card" id="pcdDescriptionCard" style="display: none;">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
-                                    <span class="info-label">Descrição PCD</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayPCDDescription">-</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-user-graduate"></i></div>
-                                    <span class="info-label">Programa de Aprendizagem</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayApprenticeshipProgram">Não</p>
                             </div>
 
                             <div class="info-card" id="apprenticeshipNameCard" style="display: none;">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-file-signature"></i></div>
-                                    <span class="info-label">Nome do Programa</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayApprenticeshipProgramName">-</p>
                             </div>
                         </div>
@@ -322,18 +210,12 @@
                         </h3>
                         <div class="info-grid">
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fab fa-linkedin"></i></div>
-                                    <span class="info-label">LinkedIn</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayLinkedin">Não informado</p>
                             </div>
 
                             <div class="info-card">
-                                <div class="info-header">
-                                    <div class="info-icon"><i class="fas fa-folder-open"></i></div>
-                                    <span class="info-label">Portfólio</span>
-                                </div>
+                                <!-- header removido -->
                                 <p class="info-value" id="displayPortfolio">Não informado</p>
                             </div>
                         </div>
@@ -404,16 +286,7 @@
 
                 <!-- Interests Card -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
-                            <i class="fas fa-heart"></i>
-                            Áreas de Interesse
-                        </h2>
-                        <button class="btn-edit" id="btnEditInterests">
-                            <i class="fas fa-edit"></i>
-                            <span id="editInterestsText">Editar</span>
-                        </button>
-                    </div>
+                    <!-- header removido -->
                     <p class="card-subtitle" style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 15px;">
                         Selecione suas áreas de interesse para receber recomendações personalizadas de vagas
                     </p>
@@ -445,12 +318,7 @@
 
                 <!-- Resume Card -->
                 <div class="profile-card resume-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
-                            <i class="fas fa-file-alt"></i>
-                            Currículo
-                        </h2>
-                    </div>
+                    <!-- header removido -->
 
                     <div id="resumeSection">
                         <!-- Upload Area -->
@@ -520,12 +388,7 @@
 
                 <!-- Applications Card -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h2 class="card-title-profile">
-                            <i class="fas fa-briefcase"></i>
-                            Minhas Candidaturas
-                        </h2>
-                    </div>
+                    <!-- header removido -->
 
                     <div id="applicationsSection">
                         <div class="loading-profile">
@@ -540,12 +403,7 @@
             <aside class="profile-sidebar">
                 <!-- Quick Actions -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-bolt"></i>
-                            Ações Rápidas
-                        </h3>
-                    </div>
+                    <!-- header removido -->
                     <div class="quick-actions">
                         <a href="/vagas" class="btn btn-primary">
                             <i class="fas fa-search"></i> Buscar Vagas
@@ -561,12 +419,7 @@
 
                 <!-- Stats Card -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-chart-bar"></i>
-                            Estatísticas
-                        </h3>
-                    </div>
+                    <!-- header removido -->
                     <div class="stats-grid">
                         <div class="stat-item">
                             <span class="stat-label">Candidaturas</span>
@@ -588,12 +441,7 @@
 
                 <!-- Next Steps Card -->
                 <div class="profile-card" id="nextStepsCard">
-                    <div class="card-header-profile">
-                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-tasks"></i>
-                            Próximos Passos
-                        </h3>
-                    </div>
+                    <!-- header removido -->
                     <div class="next-steps-list" id="nextStepsList">
                         <p class="loading-text" style="text-align: center; color: #7f8c8d; padding: 1rem;">Carregando...</p>
                     </div>
@@ -601,16 +449,7 @@
 
                 <!-- Achievements Card -->
                 <div class="profile-card" id="achievementsCard">
-                    <div class="card-header-profile">
-                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-trophy"></i>
-                            Conquistas
-                        </h3>
-                        <button class="btn-edit" id="btnEditAchievements" onclick="toggleAchievementsEditMode()">
-                            <i class="fas fa-edit"></i>
-                            <span id="editAchievementsText">Editar Banner</span>
-                        </button>
-                    </div>
+                    <!-- header removido -->
                     <div id="achievementsSection">
                         <div class="loading-profile">
                             <div class="spinner-profile"></div>
@@ -621,12 +460,7 @@
 
                 <!-- Recommendations -->
                 <div class="profile-card">
-                    <div class="card-header-profile">
-                        <h3 class="card-title-profile" style="font-size: 1.3rem;">
-                            <i class="fas fa-star"></i>
-                            Para Você
-                        </h3>
-                    </div>
+                    <!-- header removido -->
                     <div id="recommendationsSection">
                         <div class="loading-profile">
                             <div class="spinner-profile"></div>

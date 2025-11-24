@@ -435,7 +435,15 @@ async function handleApply() {
             })
         });
 
-        const data = await response.json();
+        // Log da resposta para depuração
+        console.log('[Candidatura] Status:', response.status);
+        let data = null;
+        try {
+            data = await response.json();
+            console.log('[Candidatura] Resposta JSON:', data);
+        } catch (jsonErr) {
+            console.warn('[Candidatura] Falha ao ler JSON:', jsonErr);
+        }
 
         if (response.ok) {
             hasApplied = true;
@@ -447,13 +455,20 @@ async function handleApply() {
             feedbackMsg.style.color = '#27ae60';
             showApplicationModal();
         } else {
-            throw new Error(data.error || 'Falha ao enviar candidatura.');
+            // Mostra mensagem de erro detalhada
+            let msg = (data && data.error) ? data.error : 'Falha ao enviar candidatura.';
+            feedbackMsg.textContent = msg;
+            feedbackMsg.style.color = '#e74c3c';
+            alert('Erro ao enviar candidatura: ' + msg);
+            btnApply.disabled = false;
+            btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
         }
 
     } catch (error) {
         console.error('Error applying:', error);
         feedbackMsg.textContent = error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.';
         feedbackMsg.style.color = '#e74c3c';
+        alert('Erro inesperado ao enviar candidatura: ' + (error.message || error));
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
     }

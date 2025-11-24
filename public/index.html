@@ -6,42 +6,27 @@
     <title>Aprendiz+ - Oportunidades para Jovens</title>
     <link rel="icon" type="image/png" href="/public/images/logo.png">
     <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/header.css">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/public/js/auth.js"></script>
-    <script src="/public/js/header.js" defer></script>
     <script src="/public/js/ui-dialogs.js" defer></script>
     <script src="/public/js/api.js" defer></script>
     <script src="/public/js/global.js" defer></script>
 </head>
 <body class="page-container">
+</body>
+    <!-- Header dinâmico -->
     <div id="header-container"></div>
     <main class="main-content">
-        <div class="container">
-            <h1>Bem-vindo ao Aprendiz+</h1>
-            <p>Encontre oportunidades, vagas e recursos para jovens aprendizes.</p>
-            <a href="/vagas" class="btn btn-primary">Ver Vagas</a>
-        </div>
+      <div class="container">
+        <h1>Bem-vindo ao Aprendiz+</h1>
+        <p>Encontre oportunidades, vagas e recursos para jovens aprendizes.</p>
+        <a href="/vagas" class="btn btn-primary">Ver Vagas</a>
+      </div>
     </main>
-        <script src="/public/js/ai-assistant.js"></script>
-        <script>
-            // Garante que o header reconheça o login ao carregar a index
-            function tryRenderHeader() {
-                if (window.Auth && typeof window.Auth.getToken === 'function' && window.Auth.getToken() && window.renderDynamicHeader) {
-                    window.Auth.getCurrentUser && window.Auth.getCurrentUser().then(user => {
-                        if (user) {
-                            window.renderDynamicHeader();
-                        }
-                    });
-                }
-            }
-            // Aguarda DOM e scripts
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(tryRenderHeader, 100);
-            });
-        </script>
+    <script src="/public/js/header.js"></script>
+    <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>
