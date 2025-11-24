@@ -1,3 +1,5 @@
+
+
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -11,7 +13,11 @@ const mongoose = require('mongoose');
 const apiRouter = require('./routes/api');
 const pagesRouter = require('./routes/pages');
 
+
 const app = express();
+
+// Servir arquivos do Leaflet diretamente de node_modules
+app.use('/node_modules/leaflet', express.static(path.join(__dirname, 'node_modules/leaflet')));
 
 // Trust proxy para ambientes como Render
 app.set('trust proxy', 1);
@@ -36,8 +42,27 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Middlewares
 app.use(helmet({
-  contentSecurityPolicy: false, // Desabilitado para teste
-
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "*"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://*.tile.openstreetmap.org",
+        "https://tile.openstreetmap.org",
+        "https://c.tile.openstreetmap.org",
+        "https://b.tile.openstreetmap.org",
+        "https://a.tile.openstreetmap.org"
+      ],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameSrc: ["'none'"],
+      workerSrc: ["'self'", "blob:"]
+    }
+  }
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,15 +85,21 @@ const loginLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 
 // Static files
+// Mantém /public para compatibilidade com páginas antigas
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Permite servir /css, /js, /images, /components diretamente da raiz do public
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/components', express.static(path.join(__dirname, 'public/components')));
 
 // Routes
 app.use('/api', apiRouter);
 app.use('/', pagesRouter);
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });

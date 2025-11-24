@@ -1,3 +1,64 @@
+// Exibir indicador de carregamento
+function showLoading() {
+    let el = document.getElementById('analytics-loading');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'analytics-loading';
+        el.style.position = 'fixed';
+        el.style.top = '0';
+        el.style.left = '0';
+        el.style.width = '100vw';
+        el.style.height = '100vh';
+        el.style.background = 'rgba(255,255,255,0.7)';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.zIndex = '9999';
+        el.innerHTML = '<div style="font-size:2rem;color:#007bff;"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+        document.body.appendChild(el);
+    } else {
+        el.style.display = 'flex';
+    }
+}
+
+// Ocultar indicador de carregamento
+function hideLoading() {
+    const el = document.getElementById('analytics-loading');
+    if (el) el.style.display = 'none';
+}
+// Função para buscar o usuário logado
+async function getCurrentUser() {
+    try {
+        const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
+        const response = await fetch('/api/auth/me', {
+            credentials: 'include',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+// Função para exibir mensagens de erro na tela
+function showError(msg) {
+    let el = document.getElementById('analytics-error-msg');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'analytics-error-msg';
+        el.style.color = 'red';
+        el.style.margin = '20px 0';
+        el.style.fontWeight = 'bold';
+        document.querySelector('.analytics-container')?.prepend(el);
+    }
+    el.textContent = msg;
+}
+
+function hideError() {
+    const el = document.getElementById('analytics-error-msg');
+    if (el) el.remove();
+}
 // Analytics Dashboard JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     loadAnalytics();
@@ -6,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let analyticsData = null;
 let currentPeriod = 30;
+let userType = null;
 
 // Setup event listeners
 function setupEventListeners() {
@@ -22,25 +84,34 @@ function setupEventListeners() {
 // Load analytics data
 async function loadAnalytics() {
     showLoading();
-
     try {
         const user = await getCurrentUser();
-        if (!user || user.type !== 'empresa') {
-            showError('Acesso negado. Apenas empresas podem acessar esta página.');
+        if (!user || !['empresa', 'admin', 'owner'].includes(user.type)) {
+            showError('Acesso negado. Apenas empresas ou administradores podem acessar esta página.');
             return;
         }
-
-        const response = await fetch(`/api/analytics/applications/${user._id}?period=${currentPeriod}`, {
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao carregar dados');
+        userType = user.type;
+        const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
+        let response;
+        if (user.type === 'admin' || user.type === 'owner') {
+            // Admin: painel geral
+            response = await fetch(`/api/analytics/overview?period=${currentPeriod}d`, {
+                credentials: 'include',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+            if (!response.ok) throw new Error('Erro ao carregar dados');
+            analyticsData = await response.json();
+            renderAdminAnalytics();
+        } else {
+            // Empresa: painel da empresa
+            response = await fetch(`/api/analytics/applications/${user._id}?period=${currentPeriod}`, {
+                credentials: 'include',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+            if (!response.ok) throw new Error('Erro ao carregar dados');
+            analyticsData = await response.json();
+            renderAnalytics();
         }
-
-        analyticsData = await response.json();
-        renderAnalytics();
-
     } catch (error) {
         console.error('Error loading analytics:', error);
         showError('Erro ao carregar dados. Tente novamente.');
@@ -52,7 +123,10 @@ function renderAnalytics() {
     hideLoading();
     hideError();
 
-    if (!analyticsData) return;
+    if (!analyticsData || !analyticsData.summary || analyticsData.summary.totalApplications === 0) {
+        showError('Nenhum dado encontrado para o período selecionado. Cadastre vagas e receba candidaturas para visualizar os relatórios.');
+        return;
+    }
 
     // Update metrics
     updateMetrics();
@@ -62,6 +136,61 @@ function renderAnalytics() {
 
     // Render jobs table
     renderJobsTable();
+}
+
+// Render analytics for admin
+function renderAdminAnalytics() {
+    hideLoading();
+    hideError();
+    if (!analyticsData || !analyticsData.data) {
+        showError('Nenhum dado encontrado para o período selecionado.');
+        return;
+    }
+    // Atualiza cards principais
+    document.getElementById('total-applications').textContent = analyticsData.data.applications?.total || 0;
+    document.getElementById('pending-applications').textContent = '-';
+    document.getElementById('accepted-applications').textContent = '-';
+    document.getElementById('rejected-applications').textContent = '-';
+    // Exemplo: pode adicionar mais cards para usuários, vagas, etc.
+    // Renderizar gráfico geral
+    renderAdminChart();
+}
+
+// Renderiza gráfico para admin
+async function renderAdminChart() {
+    const ctx = document.getElementById('analytics-chart');
+    if (!ctx) return;
+    try {
+        const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
+        const response = await fetch(`/api/analytics/chart?metric=applications.total&days=${currentPeriod}`, {
+            credentials: 'include',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!response.ok) throw new Error('Erro ao carregar gráfico');
+        const chartData = await response.json();
+        const labels = chartData.map(d => new Date(d.date).toLocaleDateString('pt-BR'));
+        const data = chartData.map(d => d.value);
+        if (window.analyticsChart) window.analyticsChart.destroy();
+        window.analyticsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Candidaturas',
+                    data,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    } catch (e) {
+        showError('Erro ao carregar gráfico.');
+    }
 }
 
 // Update metrics cards
@@ -287,34 +416,58 @@ function showLoading() {
     document.getElementById('error-state').style.display = 'none';
 }
 
-function hideLoading() {
-    document.getElementById('loading-state').style.display = 'none';
+
+function renderCharts() {
+    renderDailyTrendSVGChart();
 }
 
-function showError(message) {
-    document.getElementById('error-state').style.display = 'block';
-    document.getElementById('loading-state').style.display = 'none';
-    document.getElementById('error-message').textContent = message;
-}
-
-function hideError() {
-    document.getElementById('error-state').style.display = 'none';
-}
-
-// Get current user
-async function getCurrentUser() {
-    try {
-        const response = await fetch('/api/auth/me', {
-            credentials: 'include'
-        });
-
-        if (response.ok) {
-            return await response.json();
-        }
-    } catch (error) {
-        console.error('Error getting current user:', error);
+// Gráfico de linhas SVG puro
+function renderDailyTrendSVGChart() {
+    const svg = document.getElementById('analytics-svg-chart');
+    if (!svg || !analyticsData || !analyticsData.dailyTrend) return;
+    // Limpa SVG
+    svg.innerHTML = '';
+    const width = svg.clientWidth || 600;
+    const height = svg.clientHeight || 260;
+    const padding = 40;
+    const data = analyticsData.dailyTrend;
+    if (!data.length) return;
+    const maxY = Math.max(...data.map(d => d.count), 1);
+    const minY = 0;
+    const stepX = (width - 2 * padding) / (data.length - 1);
+    // Gera pontos
+    const points = data.map((d, i) => {
+        const x = padding + i * stepX;
+        const y = height - padding - ((d.count - minY) / (maxY - minY)) * (height - 2 * padding);
+        return { x, y, label: d.date, value: d.count };
+    });
+    // Eixos
+    svg.innerHTML += `<line x1="${padding}" y1="${height-padding}" x2="${width-padding}" y2="${height-padding}" stroke="#888" stroke-width="1" />`;
+    svg.innerHTML += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height-padding}" stroke="#888" stroke-width="1" />`;
+    // Linhas do gráfico
+    let path = '';
+    points.forEach((pt, i) => {
+        path += (i === 0 ? 'M' : 'L') + pt.x + ' ' + pt.y + ' ';
+    });
+    svg.innerHTML += `<path d="${path}" fill="none" stroke="#007bff" stroke-width="2" />`;
+    // Pontos
+    points.forEach(pt => {
+        svg.innerHTML += `<circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#007bff" />`;
+    });
+    // Labels do eixo Y
+    for (let i = 0; i <= 4; i++) {
+        const y = height - padding - i * (height - 2 * padding) / 4;
+        const val = Math.round(minY + (maxY - minY) * i / 4);
+        svg.innerHTML += `<text x="${padding-10}" y="${y+5}" font-size="12" text-anchor="end" fill="#444">${val}</text>`;
+        svg.innerHTML += `<line x1="${padding-5}" y1="${y}" x2="${width-padding}" y2="${y}" stroke="#eee" stroke-width="1" />`;
     }
-    return null;
+    // Labels do eixo X (datas)
+    const labelStep = Math.ceil(data.length / 7);
+    points.forEach((pt, i) => {
+        if (i % labelStep === 0 || i === data.length-1) {
+            svg.innerHTML += `<text x="${pt.x}" y="${height-padding+18}" font-size="11" text-anchor="middle" fill="#444">${pt.label}</text>`;
+        }
+    });
 }
 
 // Logout function

@@ -751,40 +751,69 @@
             }
         }
 
-        // Rebaixar admin
-        async function demoteAdmin(userId, userName) {
-            const newType = await window.prompt(`Para qual tipo deseja converter ${userName}?\n\nDigite: candidato ou empresa`);
-            
-            if (!newType || !['candidato', 'empresa'].includes(newType.toLowerCase())) {
-                showAlert('Tipo inválido! Use "candidato" ou "empresa"', 'error');
-                return;
-            }
-            if (!(await window.confirm(`Confirma remover ${userName} de administrador e converter para ${newType}?`))) {
-                return;
-            }
 
-            try {
-                const response = await fetch(`/api/users/${userId}/demote-admin`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ newType: newType.toLowerCase() })
-                });
+        // Card de confirmação para rebaixar admin
+            // Card de confirmação para rebaixar admin (com overlay global)
+            function demoteAdmin(userId, userName) {
+                // Remover overlay/card antigo se existir
+                document.getElementById('demote-overlay')?.remove();
 
-                const data = await response.json();
+                // Overlay escuro
+                const overlay = document.createElement('div');
+                overlay.id = 'demote-overlay';
+                overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.32);z-index:2000;display:flex;align-items:center;justify-content:center;';
 
-                if (response.ok) {
-                    showAlert(data.message, 'success');
-                    loadAdministrators();
-                } else {
-                    showAlert(data.error || 'Erro ao remover administrador', 'error');
-                }
-            } catch (error) {
-                showAlert('Erro ao conectar com o servidor', 'error');
-                console.error(error);
-            }
+                // Card centralizado
+                const card = document.createElement('div');
+                card.id = 'demote-card';
+                card.style = 'max-width:400px;width:94vw;background:#fff;padding:28px 24px 20px 24px;border-radius:12px;box-shadow:0 2px 24px rgba(0,0,0,0.18);z-index:2100;position:relative;';
+                card.innerHTML = `
+                    <h3 style="margin-top:0;margin-bottom:18px;color:#e67e22;"><i class="fas fa-arrow-down"></i> Remover Admin</h3>
+                    <p style="margin-bottom:18px;">Selecione o tipo para o qual <b>${userName}</b> será convertido após remover permissões de administrador:</p>
+                    <div style="margin-bottom:18px;">
+                        <select id="demote-type-select" style="width:100%;padding:10px 12px;font-size:1rem;border-radius:6px;border:1.5px solid #e0e0e0;">
+                            <option value="candidato">Candidato</option>
+                            <option value="empresa">Empresa</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:flex-end;">
+                        <button class="btn btn-secondary" id="demote-cancel-btn">Cancelar</button>
+                        <button class="btn btn-danger" id="demote-confirm-btn">Confirmar</button>
+                    </div>
+                `;
+                overlay.appendChild(card);
+                document.body.appendChild(overlay);
+
+                document.getElementById('demote-cancel-btn').onclick = () => overlay.remove();
+                document.getElementById('demote-confirm-btn').onclick = async () => {
+                    const newType = document.getElementById('demote-type-select').value;
+                    card.querySelector('#demote-confirm-btn').disabled = true;
+                    card.querySelector('#demote-confirm-btn').textContent = 'Processando...';
+                    try {
+                        const response = await fetch(`/api/users/${userId}/demote-admin`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${currentToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ newType })
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            showAlert(data.message, 'success');
+                            overlay.remove();
+                            loadAdministrators();
+                        } else {
+                            showAlert(data.error || 'Erro ao remover administrador', 'error');
+                            card.querySelector('#demote-confirm-btn').disabled = false;
+                            card.querySelector('#demote-confirm-btn').textContent = 'Confirmar';
+                        }
+                    } catch (error) {
+                        showAlert('Erro ao conectar com o servidor', 'error');
+                        card.querySelector('#demote-confirm-btn').disabled = false;
+                        card.querySelector('#demote-confirm-btn').textContent = 'Confirmar';
+                    }
+                };
         }
 
         // Ver perfil público do usuário

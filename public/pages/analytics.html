@@ -1,119 +1,161 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-        <link rel="stylesheet" href="/public/css/header.css">
-        <script src="/public/js/header.js" defer></script>
+        <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/header.css">
+    <script src="/js/header.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - Aprendiz+</title>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/analytics.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/analytics.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Fallback local se CDN falhar
+            window.addEventListener('error', function(e) {
+                if (e.target.tagName === 'SCRIPT' && e.target.src.includes('chart.js')) {
+                    var s = document.createElement('script');
+                    s.src = '/js/chart.min.js';
+                    document.head.appendChild(s);
+                }
+            }, true);
+        </script>
+        <script src="/js/auth.js"></script>
 </head>
-<body>
+<body class="page-container" style="background: #f8fafc; min-height: 100vh;">
     <div id="header-container"></div>
 
-    <main class="analytics-container">
-        <div class="analytics-header">
-            <h1 style="font-size:2.2rem;font-weight:700;letter-spacing:-1px;">📊 Relatórios e Analytics</h1>
-            <p style="font-size:1.15rem;color:#555;">Acompanhe o desempenho das suas vagas e candidaturas em tempo real</p>
-        </div>
 
-        <!-- Filtros -->
-        <div class="analytics-filters" style="box-shadow:0 4px 16px rgba(102,126,234,0.08);">
-            <div class="filter-group">
-                <label for="period-select" style="font-weight:600;">Período:</label>
-                <select id="period-select">
-                    <option value="7">Últimos 7 dias</option>
-                    <option value="30" selected>Últimos 30 dias</option>
-                    <option value="90">Últimos 90 dias</option>
-                    <option value="365">Último ano</option>
-                </select>
-            </div>
-            <button id="export-btn" class="btn-primary" style="display:flex;align-items:center;gap:8px;font-weight:600;">
-                <span class="export-icon" style="font-size:1.2rem;">📥</span> Exportar Dados
-            </button>
-        </div>
-
-        <!-- Métricas Principais -->
-        <div class="metrics-grid">
-            <div class="metric-card metric-animate" title="Total de candidaturas recebidas">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;">📋</div>
-                <div class="metric-content">
-                    <h3 id="total-applications">0</h3>
-                    <p>Total de Candidaturas</p>
-                </div>
-            </div>
-            <div class="metric-card metric-animate" title="Candidaturas aguardando análise">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#fbbf24 0%,#f59e42 100%);color:#fff;">⏳</div>
-                <div class="metric-content">
-                    <h3 id="pending-applications">0</h3>
-                    <p>Candidaturas Pendentes</p>
-                </div>
-            </div>
-            <div class="metric-card metric-animate" title="Candidaturas aceitas">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;">✅</div>
-                <div class="metric-content">
-                    <h3 id="accepted-applications">0</h3>
-                    <p>Candidaturas Aceitas</p>
-                </div>
-            </div>
-            <div class="metric-card metric-animate" title="Candidaturas rejeitadas">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);color:#fff;">❌</div>
-                <div class="metric-content">
-                    <h3 id="rejected-applications">0</h3>
-                    <p>Candidaturas Rejeitadas</p>
-                </div>
-            </div>
-            <div class="metric-card metric-animate" title="Taxa de conversão de candidaturas aceitas">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#38bdf8 0%,#2563eb 100%);color:#fff;">📈</div>
-                <div class="metric-content">
-                    <h3 id="conversion-rate">0%</h3>
-                    <p>Taxa de Conversão</p>
-                </div>
-            </div>
-            <div class="metric-card metric-animate" title="Tempo médio de resposta às candidaturas">
-                <div class="metric-icon" style="background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 100%);color:#fff;">🕐</div>
-                <div class="metric-content">
-                    <h3 id="avg-response-time">0h</h3>
-                    <p>Tempo Médio de Resposta</p>
-                </div>
+    <main class="main-content analytics-container">
+        <div class="analytics-hero">
+            <div class="container">
+                <h1 class="analytics-title"><i class="fas fa-chart-line"></i> Relatórios e Analytics</h1>
+                <p class="analytics-subtitle">Acompanhe o desempenho das suas vagas e candidaturas em tempo real</p>
             </div>
         </div>
 
-        <!-- Gráficos -->
-        <div class="charts-container">
-            <div class="chart-card">
-                <h3 style="font-size:1.1rem;font-weight:600;">Candidaturas por Dia</h3>
-                <canvas id="daily-trend-chart"></canvas>
+        <section class="container">
+            <!-- Filtros e Exportação -->
+            <div class="filters-card analytics-filters-card" style="margin-bottom: 32px;">
+                <div class="analytics-filters-row">
+                    <div class="analytics-filters-left">
+                        <h2><i class="fas fa-filter"></i> Filtros de Período</h2>
+                    </div>
+                    <div class="analytics-filters-right">
+                        <div class="input-with-icon" style="min-width: 220px;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <select id="period-select" class="form-control">
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                                <option value="90">Últimos 90 dias</option>
+                                <option value="365">Último ano</option>
+                            </select>
+                        </div>
+                        <button id="export-btn" class="btn btn-primary btn-lg" style="margin-left: 18px;">
+                            <i class="fas fa-download"></i> Exportar Dados
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="chart-card">
-                <h3 style="font-size:1.1rem;font-weight:600;">Status das Candidaturas</h3>
-                <canvas id="status-chart"></canvas>
-            </div>
-        </div>
 
-        <!-- Tabela de Vagas -->
-        <div class="table-card">
-            <h3 style="font-size:1.1rem;font-weight:600;">Desempenho por Vaga</h3>
-            <div class="table-responsive">
-                <table id="jobs-table">
-                    <thead>
-                        <tr>
-                            <th>Vaga</th>
-                            <th>Total</th>
-                            <th>Pendentes</th>
-                            <th>Aceitas</th>
-                            <th>Rejeitadas</th>
-                            <th>Taxa de Conversão</th>
-                        </tr>
-                    </thead>
-                    <tbody id="jobs-table-body">
-                        <!-- Dados serão inseridos via JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Métricas Principais -->
+            <div class="metrics-grid analytics-metrics-grid">
+                <div class="metric-card analytics-metric-card metric-animate" title="Total de candidaturas recebidas">
+                    <div class="metric-icon metric-icon-blue"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="metric-content">
+                        <h3 id="total-applications">0</h3>
+                        <p>Total de Candidaturas</p>
+                    </div>
+                </div>
+                <div class="metric-card analytics-metric-card metric-animate" title="Candidaturas aguardando análise">
+                    <div class="metric-icon metric-icon-yellow"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="metric-content">
+                        <h3 id="pending-applications">0</h3>
+                        <p>Candidaturas Pendentes</p>
+                    </div>
+                </div>
+                <div class="metric-card analytics-metric-card metric-animate" title="Candidaturas aceitas">
+                    <div class="metric-icon metric-icon-green"><i class="fas fa-check-circle"></i></div>
+                    <div class="metric-content">
+                        <h3 id="accepted-applications">0</h3>
+                        <p>Candidaturas Aceitas</p>
+                    </div>
+                </div>
+                <div class="metric-card analytics-metric-card metric-animate" title="Candidaturas rejeitadas">
+                    <div class="metric-icon metric-icon-red"><i class="fas fa-times-circle"></i></div>
+                    <div class="metric-content">
+                        <h3 id="rejected-applications">0</h3>
+                        <p>Candidaturas Rejeitadas</p>
+                    </div>
+                </div>
+                <div class="metric-card analytics-metric-card metric-animate" title="Taxa de conversão de candidaturas aceitas">
+                    <div class="metric-icon metric-icon-purple"><i class="fas fa-percentage"></i></div>
+                    <div class="metric-content">
+                        <h3 id="conversion-rate">0%</h3>
+                        <p>Taxa de Conversão</p>
+                    </div>
+                </div>
+                <div class="metric-card analytics-metric-card metric-animate" title="Tempo médio de resposta às candidaturas">
+                    <div class="metric-icon metric-icon-indigo"><i class="fas fa-clock"></i></div>
+                    <div class="metric-content">
+                        <h3 id="avg-response-time">0h</h3>
+                        <p>Tempo Médio de Resposta</p>
+                    </div>
+                </div>
             </div>
-        </div>
+
+                        <!-- Seção: Candidaturas por Dia -->
+                        <section style="margin: 40px 0 16px 0;">
+                            <h2 style="font-size:1.4rem;margin-bottom:8px;">Candidaturas por Dia</h2>
+                        </section>
+                        <!-- Gráfico SVG de tendências diárias -->
+                        <div class="analytics-svg-chart-container" style="margin: 0 0 40px 0;">
+                            <svg id="analytics-svg-chart" width="100%" height="260" style="background:#fff;border:1px solid #ccc;"></svg>
+                        </div>
+                        <!-- Seção: Status das Candidaturas -->
+                        <section style="margin: 32px 0 0 0;">
+                            <h2 style="font-size:1.4rem;margin-bottom:8px;">Status das Candidaturas</h2>
+                            <!-- Espaço reservado para cards ou métricas de status -->
+                        </section>
+        </section>
+
+        <!-- Seções de Gráficos -->
+        <section class="container analytics-sections">
+            <div class="analytics-section">
+                <h3 class="analytics-section-title"><i class="fas fa-calendar-week"></i> Candidaturas por Dia</h3>
+                <div class="chart-card">
+                    <canvas id="daily-trend-chart"></canvas>
+                </div>
+            </div>
+            <div class="analytics-section">
+                <h3 class="analytics-section-title"><i class="fas fa-tasks"></i> Status das Candidaturas</h3>
+                <div class="chart-card">
+                    <canvas id="status-chart"></canvas>
+                </div>
+            </div>
+            <div class="analytics-section" style="grid-column: 1 / -1;">
+                <h3 class="analytics-section-title"><i class="fas fa-briefcase"></i> Desempenho por Vaga</h3>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table id="jobs-table">
+                            <thead>
+                                <tr>
+                                    <th>Vaga</th>
+                                    <th>Total</th>
+                                    <th>Pendentes</th>
+                                    <th>Aceitas</th>
+                                    <th>Rejeitadas</th>
+                                    <th>Taxa de Conversão</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobs-table-body">
+                                <!-- Dados serão inseridos via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Loading e Error States -->
         <div id="loading-state" class="loading-state">
@@ -129,8 +171,9 @@
         </div>
     </main>
 
-    <script src="../js/analytics.js"></script>
-    <script src="../js/global.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/global.js"></script>
+    <script src="/js/analytics.js"></script>
     
 </body>
 </html>

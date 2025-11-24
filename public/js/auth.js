@@ -1,3 +1,4 @@
+/* global window, document, localStorage, sessionStorage, alert, confirm, activateProfileDropdowns */
 // Helpers para autenticação (armazenamento de JWT)
 (function(window){
   const STORAGE_KEY = 'aprendizplus_token';
@@ -10,7 +11,7 @@
     try{ return localStorage.getItem(STORAGE_KEY); }catch(e){ return null; }
   }
   function removeToken(){
-    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){ /* ignore */ }
   }
   function isAuthenticated(){ return !!getToken(); }
 
@@ -199,7 +200,8 @@
   // Expor globalmente
   window.Auth = {
     setToken, getToken, removeToken, isAuthenticated,
-    getCurrentUser, updateHeader
+    getCurrentUser: getCurrentUser,
+    updateHeader
   };
 })(window);
 

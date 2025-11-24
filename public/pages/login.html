@@ -1,24 +1,23 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-        <link rel="stylesheet" href="/public/css/header.css">
-        <script src="/public/js/header.js" defer></script>
-    <link rel="icon" type="image/png" href="/public/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
     <title>Login | Aprendiz+</title>
+    <link rel="icon" type="image/png" href="/public/images/logo.png">
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
+    <link rel="stylesheet" href="/public/css/header.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/header.js" defer></script>
 </head>
 <body class="page-container">
     <div id="header-container"></div>
-
     <main class="main-content flex items-center justify-center">
         <div class="container">
             <div class="card" style="max-width: 450px; margin: 0 auto;">
@@ -26,34 +25,23 @@
                     <h1 class="card-title">Bem-vindo de volta!</h1>
                     <p class="card-subtitle">Faça login para acessar sua conta</p>
                 </div>
-
                 <div class="card-body">
                     <div id="errorMessage" class="error-message" style="display:none"></div>
-
                     <form id="loginForm">
                         <div class="form-group">
                             <label for="email">E-mail</label>
-                            <input type="email" id="email" name="email" class="form-control" required 
-                                   placeholder="seu@email.com">
+                            <input type="email" id="email" name="email" class="form-control" required placeholder="seu@email.com">
                         </div>
-
                         <div class="form-group" style="position: relative;">
                             <label for="password">Senha</label>
-                            <input type="password" id="password" name="password" class="form-control" required
-                                   placeholder="Digite sua senha" style="padding-right: 45px;">
-                            <button type="button" id="togglePassword" 
-                                    style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
-                                    aria-label="Mostrar/Ocultar senha">
+                            <input type="password" id="password" name="password" class="form-control" required placeholder="Digite sua senha" style="padding-right: 45px;">
+                            <button type="button" id="togglePassword" style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;" aria-label="Mostrar/Ocultar senha">
                                 <i class="fas fa-eye" id="eyeIcon"></i>
                             </button>
                         </div>
-
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">
-                            Entrar
-                        </button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Entrar</button>
                     </form>
                 </div>
-
                 <div class="card-footer text-center">
                     <p><a href="/forgot-password">Esqueceu sua senha? Recuperar</a></p>
                     <p>Ainda não tem conta? <a href="/register" class="font-semibold">Cadastre-se</a></p>
@@ -61,29 +49,28 @@
             </div>
         </div>
     </main>
-
     <script src="/public/js/ui-dialogs.js"></script>
-    <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/api.js" defer></script>
     <script src="/public/js/global.js" defer></script>
     <script src="/public/js/login.js" defer></script>
-    <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
-    
-    <!-- Toggle Password Visibility -->
     <script>
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggle = document.getElementById('togglePassword');
+            if (toggle) {
+                toggle.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    const eyeIcon = document.getElementById('eyeIcon');
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        eyeIcon.classList.remove('fa-eye');
+                        eyeIcon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        eyeIcon.classList.remove('fa-eye-slash');
+                        eyeIcon.classList.add('fa-eye');
+                    }
+                });
             }
         });
     </script>

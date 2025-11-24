@@ -7,97 +7,110 @@
     <title>Mapa de Vagas - Aprendiz Plus</title>
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/header.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/public/js/header.js" defer></script>
+        <link rel="stylesheet" href="/public/libs/ol/ol.css" />
+        <script src="/public/libs/ol/ol.js"></script>
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/header.js"></script>
+    <script src="/public/js/mapa-vagas.js"></script>
     <style>
+                /* Fallback for debugging: always show map */
+                #map {
+                    min-height: 400px !important;
+                    min-width: 300px !important;
+                    border: 2px solid red !important;
+                }
         .map-container {
             display: grid;
             grid-template-columns: 350px 1fr;
             height: calc(100vh - 80px);
         }
-        
         .map-sidebar {
-            background: white;
+            background: var(--gray-50);
             overflow-y: auto;
-            padding: 20px;
-            border-right: 1px solid #ddd;
+            padding: var(--spacing-lg);
+            border-right: 1px solid var(--gray-200);
         }
-        
         #map {
             height: 100%;
             width: 100%;
         }
-        
         .search-box {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
         }
-        
         .search-box input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-sm);
         }
-        
         .search-box select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-sm);
         }
-        
         .job-list-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            background: linear-gradient(90deg, var(--gray-100) 60%, var(--gray-200) 100%);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--border-radius-lg);
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background var(--transition-normal), box-shadow var(--transition-normal), border var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+            border: 1.5px solid var(--gray-200);
         }
-        
         .job-list-item:hover {
-            background: #e9ecef;
+            background: linear-gradient(90deg, var(--gray-200) 60%, var(--gray-100) 100%);
+            border: 1.5px solid var(--brand-blue);
+            box-shadow: var(--shadow-md);
         }
-        
         .job-list-item h4 {
             margin: 0 0 5px 0;
-            color: #007bff;
+            color: var(--brand-blue);
         }
-        
         .job-distance {
-            color: #28a745;
+            color: var(--brand-green);
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 0.97em;
         }
-        
         .location-btn {
             width: 100%;
-            padding: 10px;
-            background: #007bff;
-            color: white;
+            padding: var(--spacing-md);
+            background: var(--candidate-green, #2ECC71);
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-md);
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
+            transition: background var(--transition-normal), box-shadow var(--transition-normal);
+        }
+        .location-btn:hover {
+            background: var(--candidate-green-dark, #27AE60);
+            box-shadow: var(--shadow-md);
+        }
+        @media (max-width: 900px) {
+            .map-container { grid-template-columns: 1fr; }
+            .map-sidebar { border-right: none; border-bottom: 1.5px solid var(--gray-200); }
+            #map { border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl); min-height: 320px; }
         }
     </style>
 </head>
 <body>
+        <noscript><div style="color: red; text-align: center;">Ative o JavaScript para visualizar o mapa.</div></noscript>
     <div id="header-container"></div>
 
     <div class="map-container">
         <div class="map-sidebar">
             <h2>Vagas Próximas</h2>
-            
             <button class="location-btn" onclick="useMyLocation()">📍 Usar Minha Localização</button>
-            
             <div class="search-box">
                 <input type="text" id="searchAddress" placeholder="Digite seu endereço ou cidade">
                 <button class="location-btn" onclick="searchAddress()">Buscar</button>
-                
                 <select id="maxDistance" onchange="updateNearbyJobs()">
                     <option value="10">Até 10 km</option>
                     <option value="25">Até 25 km</option>
@@ -105,158 +118,9 @@
                     <option value="100">Até 100 km</option>
                 </select>
             </div>
-            <style>
-                .map-container {
-                    display: grid;
-                    grid-template-columns: 340px 1fr;
-                    height: calc(100vh - 75px);
-                }
-                .map-sidebar {
-                    background: #fff;
-                    overflow-y: auto;
-                    padding: 28px 18px 18px 18px;
-                    border-right: 1px solid #e0e7ef;
-                    box-shadow: 2px 0 12px rgba(102,126,234,0.04);
-                }
-                #map {
-                    height: 100%;
-                    width: 100%;
-                    border-radius: 0 0 0 18px;
-                }
-                .search-box {
-                    margin-bottom: 20px;
-                }
-                .search-box input, .search-box select {
-                    width: 100%;
-                    padding: 10px;
-                    border: 1.5px solid #e0e7ef;
-                    border-radius: 7px;
-                    margin-bottom: 10px;
-                    font-size: 1rem;
-                }
-                .job-list-item {
-                    background: linear-gradient(90deg,#f8fafc 60%,#e0e7ff 100%);
-                    padding: 16px 14px;
-                    margin-bottom: 12px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    box-shadow: 0 2px 8px rgba(102,126,234,0.07);
-                    border: 1.5px solid #e0e7ef;
-                    transition: box-shadow 0.2s, border 0.2s, background 0.2s;
-                }
-                .job-list-item:hover {
-                    background: linear-gradient(90deg,#e0e7ff 60%,#f8fafc 100%);
-                    border: 1.5px solid #667eea;
-                    box-shadow: 0 4px 16px rgba(102,126,234,0.13);
-                }
-                .job-list-item h4 {
-                    margin: 0 0 5px 0;
-                    color: #2563eb;
-                    font-size: 1.08rem;
-                }
-                .job-distance {
-                    color: #22c55e;
-                    font-weight: bold;
-                    font-size: 0.97em;
-                }
-                .location-btn {
-                    width: 100%;
-                    padding: 11px;
-                    background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
-                    color: #fff;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    margin-bottom: 18px;
-                    font-weight: 600;
-                    font-size: 1rem;
-                    box-shadow: 0 2px 8px rgba(102,126,234,0.08);
-                    transition: background 0.2s, box-shadow 0.2s;
-                }
-                .location-btn:hover {
-                    background: linear-gradient(90deg,#764ba2 0%,#667eea 100%);
-                    box-shadow: 0 4px 16px rgba(102,126,234,0.13);
-                }
-                @media (max-width: 900px) {
-                    .map-container { grid-template-columns: 1fr; }
-                    .map-sidebar { border-right: none; border-bottom: 1.5px solid #e0e7ef; }
-                    #map { border-radius: 0 0 18px 18px; min-height: 320px; }
-                }
-            </style>
-                
-                if (response.ok) {
-                    const jobs = await response.json();
-                    displayJobs(jobs);
-                    displayMarkersOnMap(jobs);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar vagas:', error);
-            }
-        }
-        
-        function displayJobs(jobs) {
-            const container = document.getElementById('jobsList');
-            container.innerHTML = '';
-            
-            if (jobs.length === 0) {
-                container.innerHTML = '<p style="color: #666;">Nenhuma vaga encontrada nas proximidades</p>';
-                return;
-            }
-            
-            jobs.forEach(job => {
-                const div = document.createElement('div');
-                div.className = 'job-list-item';
-                div.onclick = () => focusOnJob(job);
-                
-                div.innerHTML = `
-                    <h4>${job.title}</h4>
-                    <p style="margin: 5px 0; color: #666;">${job.company || 'Empresa'}</p>
-                    <p style="margin: 5px 0; font-size: 0.9em;">${job.location}</p>
-                    <div class="job-distance">📍 ${job.distance} km de distância</div>
-                `;
-                
-                container.appendChild(div);
-            });
-        }
-        
-        function displayMarkersOnMap(jobs) {
-            // Remove existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-            
-            // Add user location marker
-            const userMarker = L.marker([currentLocation.lat, currentLocation.lng], {
-                icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                })
-            }).addTo(map);
-            userMarker.bindPopup('<b>Você está aqui</b>');
-            markers.push(userMarker);
-            
-            // Add job markers
-            jobs.forEach(job => {
-                const marker = L.marker([job.coordinates.lat, job.coordinates.lng]).addTo(map);
-                marker.bindPopup(`
-                    <b>${job.title}</b><br>
-                    ${job.company || ''}<br>
-                    <small>${job.distance} km de distância</small><br>
-                    <a href="/vagas/${job._id || job.id}" target="_blank">Ver vaga</a>
-                `);
-                markers.push(marker);
-            });
-        }
-        
-        function focusOnJob(job) {
-            map.setView([job.coordinates.lat, job.coordinates.lng], 15);
-        }
-        
-        initMap();
-        updateNearbyJobs();
-    </script>
+            <div id="jobsList"></div>
+        </div>
+        <div id="map"></div>
+    </div>
 </body>
 </html>

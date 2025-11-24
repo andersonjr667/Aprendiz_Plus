@@ -1,3 +1,8 @@
+/* Remove espaço extra entre header e conteúdo */
+body, .main-content, main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
 /* header.css - Header moderno Aprendiz+ */
 .apz-header {
   width: 100%;
@@ -47,6 +52,77 @@
 .apz-header__actions {
   display: flex;
   gap: 16px;
+  align-items: center;
+}
+
+/* User menu (logado) */
+.apz-header__user-menu {
+  position: relative;
+  display: inline-block;
+}
+.apz-header__user-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: #1a2b4d;
+  transition: background 0.2s;
+}
+.apz-header__user-btn:hover {
+  background: #f3f7f4;
+}
+.apz-header__user-btn img,
+.apz-header__user-btn span {
+  vertical-align: middle;
+}
+.apz-header__user-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  min-width: 220px;
+  z-index: 1000;
+  overflow: hidden;
+  padding: 8px 0;
+}
+.apz-header__user-dropdown a,
+.apz-header__user-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #1a2b4d;
+  background: none;
+  border: none;
+  width: 100%;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: background 0.18s, color 0.18s;
+  cursor: pointer;
+}
+.apz-header__user-dropdown a:hover,
+.apz-header__user-dropdown button:hover {
+  background: #f3f7f4;
+  color: #27ae60;
+}
+.apz-header__user-dropdown button {
+  color: #dc2626;
+  font-weight: 600;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 4px;
+}
+.apz-header__user-dropdown button:hover {
+  background: #ffeaea;
+  color: #b71c1c;
 }
 .apz-header__login {
   color: #1a2b4d;

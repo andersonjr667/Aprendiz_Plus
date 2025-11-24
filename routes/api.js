@@ -837,7 +837,7 @@ router.get('/jobs', async (req, res) => {
     
     const total = await Job.countDocuments(query);
     
-    res.json({ items: jobs, total });
+    res.json({ items: filteredJobs, total });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -2713,6 +2713,17 @@ router.get('/analytics/export/:companyId', authMiddleware, roleCheck(['empresa',
   }
 });
 
+// Obter dados do usuário autenticado
+router.get('/auth/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Update user password
 router.put('/users/me/password', authMiddleware, async (req, res) => {
   try {
@@ -4265,7 +4276,7 @@ router.post('/users/:id/demote-admin', authMiddleware, async (req, res) => {
     const { newType } = req.body; // 'candidato' ou 'empresa'
     
     // PROTEÇÃO: Verificar se é o dono do sistema
-    if (!isOwner(req.user._id)) {
+    if (!isOwner(req.user)) {
       await logAction({
         action: 'demote_admin_attempt_blocked',
         userId: req.user._id,
@@ -4365,7 +4376,7 @@ router.post('/admin/promote-by-email', authMiddleware, async (req, res) => {
     const { email } = req.body;
     
     // PROTEÇÃO: Verificar se é o dono do sistema
-    if (!isOwner(req.user._id)) {
+    if (!isOwner(req.user)) {
       await logAction({
         action: 'promote_admin_attempt_blocked',
         userId: req.user._id,
