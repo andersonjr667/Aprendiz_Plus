@@ -414,3 +414,16 @@ function showMessage(message, type = 'info', timeout = 4000) {
     setTimeout(() => el.remove(), 300);
   }, timeout);
 }
+
+// Exporta Auth para window
+window.Auth = {
+  setToken,
+  getToken,
+  removeToken,
+  isAuthenticated,
+  getCurrentUser,
+  updateHeader,
+  login,
+  register,
+  logout
+};
