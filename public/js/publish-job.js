@@ -3,7 +3,7 @@ function next(step){ document.querySelectorAll('.step').forEach(s=>s.style.displ
 async function submitForm(e){ 
   e.preventDefault(); 
   const data = Object.fromEntries(new FormData(e.target)); 
-  await fetch('/api/jobs',{method:'POST',body:JSON.stringify(data)}); 
+  await fetch('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); 
   if (window.UI && window.UI.toast) {
     window.UI.toast('Vaga enviada (se estiver autenticado como empresa)', 'success');
   } else {

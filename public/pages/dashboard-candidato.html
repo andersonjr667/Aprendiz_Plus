@@ -15,31 +15,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .dashboard-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 2.5rem 1.2rem 2rem 1.2rem;
+            background: linear-gradient(120deg, #f8fafc 60%, #e8f5e9 100%);
+            border-radius: 18px;
+            box-shadow: 0 6px 32px rgba(46,204,113,0.07);
         }
 
         .page-header {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            text-align: left;
         }
 
         .page-title {
-            font-size: 2rem;
-            color: var(--text-dark);
+            font-size: 2.2rem;
+            color: var(--brand-green);
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .page-title i {
-            color: var(--brand-green);
+            color: var(--brand-green-dark);
         }
 
         .page-subtitle {
             color: var(--gray-600);
-            font-size: 1rem;
+            font-size: 1.08rem;
+            margin-bottom: 0.5rem;
         }
 
         .stats-grid {
@@ -50,16 +57,19 @@
         }
 
         .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: linear-gradient(120deg, #fff 80%, #e8f5e9 100%);
+            padding: 1.7rem 1.3rem 1.3rem 1.3rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(46,204,113,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1.5px solid #e0f2f1;
+            min-height: 140px;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(46,204,113,0.13);
+            border-color: #b2dfdb;
         }
 
         .stat-card-header {
@@ -108,10 +118,11 @@
         }
 
         .stat-card-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-dark);
+            font-size: 2.7rem;
+            font-weight: 800;
+            color: var(--brand-green-dark);
             margin-bottom: 0.25rem;
+            letter-spacing: 1px;
         }
 
         .stat-card-label {
@@ -120,11 +131,11 @@
         }
 
         .dashboard-section {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            background: #fff;
+            padding: 2rem 1.2rem 1.5rem 1.2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(46,204,113,0.07);
+            margin-bottom: 2.2rem;
         }
 
         .section-header {
@@ -134,15 +145,18 @@
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--gray-200);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--brand-green-dark);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            letter-spacing: 0.5px;
         }
 
         .section-title i {
@@ -156,15 +170,16 @@
         }
 
         .application-card {
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
+            border: 1.5px solid #e0f2f1;
+            border-radius: 12px;
+            padding: 1.3rem 1.1rem 1.1rem 1.1rem;
+            transition: all 0.3s;
+            background: linear-gradient(120deg, #fff 80%, #e8f5e9 100%);
         }
 
         .application-card:hover {
-            border-color: var(--brand-green);
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);
+            border-color: #26a69a;
+            box-shadow: 0 8px 32px rgba(46,204,113,0.10);
         }
 
         .application-header {
@@ -175,14 +190,15 @@
         }
 
         .application-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--brand-green-dark);
             margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
         }
 
         .application-company {
-            font-size: 0.875rem;
+            font-size: 0.93rem;
             color: var(--gray-600);
             display: flex;
             align-items: center;
@@ -190,11 +206,12 @@
         }
 
         .application-status {
-            padding: 0.375rem 0.875rem;
+            padding: 0.4rem 1.1rem;
             border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .application-status.pending {
@@ -254,23 +271,23 @@
             margin-bottom: 1rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .dashboard-container {
-                padding: 1rem;
+                padding: 0.7rem;
             }
-
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-
             .application-header {
                 flex-direction: column;
                 gap: 1rem;
             }
-
             .application-meta {
                 flex-direction: column;
                 gap: 0.5rem;
+            }
+            .dashboard-section {
+                padding: 1.1rem 0.5rem 1rem 0.5rem;
             }
         }
     </style>
@@ -281,9 +298,24 @@
     <div id="header-container"></div>
 
     <main class="main-content">
+
         <div class="dashboard-container">
             <!-- Page Header -->
             <div id="header-container"></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Total</span>
+                        <div class="stat-card-icon primary">
+                            <i class="fas fa-list"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="statTotal">0</div>
+                    <div class="stat-card-label">candidaturas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Aguardando</span>
                         <div class="stat-card-icon warning">
                             <i class="fas fa-clock"></i>
                         </div>
@@ -291,7 +323,6 @@
                     <div class="stat-card-value" id="statPending">0</div>
                     <div class="stat-card-label">aguardando resposta</div>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-card-header">
                         <span class="stat-card-title">Aprovadas</span>
@@ -302,7 +333,6 @@
                     <div class="stat-card-value" id="statAccepted">0</div>
                     <div class="stat-card-label">candidaturas aceitas</div>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-card-header">
                         <span class="stat-card-title">Recusadas</span>
@@ -386,10 +416,14 @@
             const accepted = applications.filter(app => app.status === 'accepted').length;
             const rejected = applications.filter(app => app.status === 'rejected').length;
 
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statPending').textContent = pending;
-            document.getElementById('statAccepted').textContent = accepted;
-            document.getElementById('statRejected').textContent = rejected;
+            const statTotal = document.getElementById('statTotal');
+            const statPending = document.getElementById('statPending');
+            const statAccepted = document.getElementById('statAccepted');
+            const statRejected = document.getElementById('statRejected');
+            if (statTotal) statTotal.textContent = total;
+            if (statPending) statPending.textContent = pending;
+            if (statAccepted) statAccepted.textContent = accepted;
+            if (statRejected) statRejected.textContent = rejected;
         }
 
         // Display applications

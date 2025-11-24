@@ -12,7 +12,7 @@ function sendPage(res, filename) {
 	try {
 		const filePath = path.join(pagesDir, filename);
 		let html = fs.readFileSync(filePath, 'utf8');
-		// Removido: set CSP header
+		// set CSP header to allow only our own scripts
 		res.set('Content-Security-Policy', "default-src 'self'; base-uri 'self'; font-src 'self' https: data:; form-action 'self'; frame-ancestors 'self'; img-src 'self' data: https://res.cloudinary.com; object-src 'none'; script-src 'self' 'unsafe-inline'; script-src-attr 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; upgrade-insecure-requests");
 		res.send(html);
 	} catch (err) {

@@ -77,7 +77,7 @@ function renderJobDetails(job) {
     // Badges
     renderBadges(job);
     
-    // Removido: Header
+    // Header
     document.getElementById('jobTitle').textContent = job.title || 'Título não disponível';
     
     // Company name - handle both string and object
@@ -349,7 +349,7 @@ async function handleApply() {
     try {
         const response = await fetch(`/api/jobs/${jobId}/apply`, {
             method: 'POST',
-            // Removido: headers
+            headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

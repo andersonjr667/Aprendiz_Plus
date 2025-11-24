@@ -125,13 +125,14 @@ async function loadProfile() {
 function displayProfile(user) {
   console.log('Displaying profile for user:', user);
   
-  // Removido: update header
+  // Update header
+  // Update header name
   const profileName = document.getElementById('profileName');
   if (profileName) {
     profileName.textContent = user.name || 'Nome não informado';
   }
   
-  // Removido: update header email
+  // Update header email
   const profileEmail = document.getElementById('profileEmail');
   if (profileEmail) {
     profileEmail.textContent = user.email || '';
@@ -142,7 +143,7 @@ function displayProfile(user) {
     profileTitle.textContent = 'Candidato';
   }
   
-  // Removido: update avatar in header
+  // Update avatar in header
   const avatarEl = document.getElementById('profileAvatar');
   console.log('Avatar element found:', !!avatarEl);
   console.log('User data:', { profilePhotoUrl: user.profilePhotoUrl, avatarUrl: user.avatarUrl });
@@ -712,7 +713,7 @@ async function saveProfile(event) {
     const res = await fetch('/api/users/me', {
       method: 'PUT',
       credentials: 'include',
-      body: formData // Removido: referência a Content-Type header
+      body: formData // Don't set Content-Type header, let browser set it for FormData
     });
 
     console.log('Save response status:', res.status);
@@ -1070,7 +1071,7 @@ function updateProfileCompletion(user) {
     statsCompletion.textContent = `${completion}%`;
   }
   
-  // Removido: update in header badge
+  // Update in header badge
   const completionPercent = document.getElementById('completionPercent');
   if (completionPercent) {
     completionPercent.textContent = `${completion}%`;
@@ -1502,7 +1503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Removido: avatar upload from header
+  // Avatar upload from header
   const avatarWrapper = document.querySelector('.profile-avatar-wrapper');
   const avatarInput = document.getElementById('avatarInput');
   
@@ -1953,7 +1954,7 @@ function showShareModal(url) {
   modal.className = 'share-modal';
   modal.innerHTML = `
     <div class="share-modal-content">
-      <!-- Removido: share-modal-header -->
+      <div class="share-modal-header">
         <h3><i class="fas fa-share-alt"></i> Compartilhar Perfil</h3>
         <button onclick="this.closest('.share-modal').remove()" class="share-close-btn">
           <i class="fas fa-times"></i>

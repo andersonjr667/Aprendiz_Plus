@@ -5,11 +5,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 
 async function authMiddleware(req, res, next) {
   try {
-    // Removido: referência a Authorization header
+    // Try to get token from cookies first, then from Authorization header
     let token = req.cookies && req.cookies.token;
     
     if (!token) {
-      // Removido: uso de req.headers.authorization
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
     }
     
     if (!token) return res.status(401).json({ error: 'Unauthorized' });

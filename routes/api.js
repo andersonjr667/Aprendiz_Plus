@@ -623,7 +623,10 @@ router.get('/resumes/:fileId', async (req, res) => {
     
     const file = files[0];
     
-    // Removido: headers para inline display
+    // Set headers for inline display
+    res.setHeader('Content-Type', file.contentType || 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
     
     // Stream file from GridFS
     const downloadStream = gfsBucket.openDownloadStream(fileId);
@@ -837,7 +840,7 @@ router.get('/jobs', async (req, res) => {
     
     const total = await Job.countDocuments(query);
     
-    res.json({ items: filteredJobs, total });
+    res.json({ items: jobs, total });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -2702,24 +2705,14 @@ router.get('/analytics/export/:companyId', authMiddleware, roleCheck(['empresa',
       const parser = new Parser();
       const csv = parser.parse(exportData);
       
-      // Removido: headers para CSV
+      res.header('Content-Type', 'text/csv');
+      res.header('Content-Disposition', `attachment; filename=candidaturas_${companyId}_${new Date().toISOString().split('T')[0]}.csv`);
       res.send(csv);
     } else {
       res.json({ error: 'Formato não suportado. Use csv.' });
     }
   } catch (err) {
     console.error('Error exporting data:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Obter dados do usuário autenticado
-router.get('/auth/me', authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-    res.json(user);
-  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -4276,7 +4269,7 @@ router.post('/users/:id/demote-admin', authMiddleware, async (req, res) => {
     const { newType } = req.body; // 'candidato' ou 'empresa'
     
     // PROTEÇÃO: Verificar se é o dono do sistema
-    if (!isOwner(req.user)) {
+    if (!isOwner(req.user._id)) {
       await logAction({
         action: 'demote_admin_attempt_blocked',
         userId: req.user._id,
@@ -4376,7 +4369,7 @@ router.post('/admin/promote-by-email', authMiddleware, async (req, res) => {
     const { email } = req.body;
     
     // PROTEÇÃO: Verificar se é o dono do sistema
-    if (!isOwner(req.user)) {
+    if (!isOwner(req.user._id)) {
       await logAction({
         action: 'promote_admin_attempt_blocked',
         userId: req.user._id,

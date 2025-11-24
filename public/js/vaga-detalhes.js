@@ -77,7 +77,7 @@ function renderJobDetails(job) {
     // Badges
     renderBadges(job);
     
-    // Removido: Header
+    // Header
     document.getElementById('jobTitle').textContent = job.title || 'Título não disponível';
     
     // Company name - handle both string and object
