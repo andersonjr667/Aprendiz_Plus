@@ -400,20 +400,30 @@ async function handleApply() {
     const btnApply = document.getElementById('btnApply');
     btnApply.disabled = true;
     btnApply.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    
+
+    // Mensagem de feedback
+    let feedbackMsg = document.getElementById('applyFeedbackMsg');
+    if (!feedbackMsg) {
+        feedbackMsg = document.createElement('div');
+        feedbackMsg.id = 'applyFeedbackMsg';
+        feedbackMsg.style.marginTop = '12px';
+        feedbackMsg.style.fontWeight = 'bold';
+        feedbackMsg.style.textAlign = 'center';
+        btnApply.parentNode.appendChild(feedbackMsg);
+    }
+    feedbackMsg.textContent = '';
+    feedbackMsg.style.color = '#2E3A59';
+
     const jobId = getJobId(currentJob);
-    
+
     if (!jobId) {
-        if (window.UI && window.UI.toast) {
-            window.UI.toast('ID da vaga não encontrado', 'error');
-        } else {
-            alert('ID da vaga não encontrado');
-        }
+        feedbackMsg.textContent = 'ID da vaga não encontrado.';
+        feedbackMsg.style.color = '#e74c3c';
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/jobs/${jobId}/apply`, {
             method: 'POST',
@@ -424,29 +434,26 @@ async function handleApply() {
                 jobId: jobId
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             hasApplied = true;
             localStorage.setItem(`applied_${jobId}`, 'true');
-            
+
             btnApply.innerHTML = '<i class="fas fa-check"></i> Candidatura Enviada';
             btnApply.classList.add('applied');
-            
+            feedbackMsg.textContent = 'Candidatura enviada com sucesso!';
+            feedbackMsg.style.color = '#27ae60';
             showApplicationModal();
         } else {
-            throw new Error(data.error || 'Failed to apply');
+            throw new Error(data.error || 'Falha ao enviar candidatura.');
         }
-        
+
     } catch (error) {
         console.error('Error applying:', error);
-        if (window.UI && window.UI.toast) {
-            window.UI.toast(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.', 'error');
-        } else {
-            alert(error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.');
-        }
-        
+        feedbackMsg.textContent = error.message || 'Erro ao enviar candidatura. Por favor, tente novamente.';
+        feedbackMsg.style.color = '#e74c3c';
         btnApply.disabled = false;
         btnApply.innerHTML = '<i class="fas fa-paper-plane"></i> Candidatar-se';
     }
