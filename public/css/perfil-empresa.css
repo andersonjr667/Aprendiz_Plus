@@ -1112,3 +1112,35 @@ body {
         font-size: 0.9rem;
     }
 }
+
+/* Account actions (Alterar Senha / Excluir Conta) - destaque */
+.account-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-actions .account-btn {
+    min-width: 220px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.account-actions .btn-primary.account-btn {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
+    color: white;
+}
+
+.account-actions .btn-danger.account-btn {
+    background: linear-gradient(135deg, #ea4335, #c0392b);
+    color: white;
+}
+
+@media (min-width: 768px) {
+    .account-actions { flex-direction: row; justify-content: center; }
+}

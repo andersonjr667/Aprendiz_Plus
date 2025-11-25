@@ -19,6 +19,8 @@
   <!-- CSS -->
   <link rel="stylesheet" href="/public/css/main.css">
   <link rel="stylesheet" href="/public/css/ui-dialogs.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
   
   <script src="/public/js/ui-dialogs.js"></script>
   <script src="/public/js/auth.js" defer></script>
@@ -469,6 +471,31 @@
               </div>
             </div>
 
+            <!-- Localização Detalhada -->
+            <div class="form-group">
+              <label for="address">Endereço completo</label>
+              <input type="text" id="address" name="address" class="form-control" placeholder="Rua, número, bairro, cidade, estado">
+              <span class="form-hint">Opcional: endereço completo para aparecer no mapa de vagas.</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="latitude">Latitude</label>
+                <input type="text" id="latitude" name="latitude" class="form-control" placeholder="-23.55052">
+              </div>
+              <div class="form-group">
+                <label for="longitude">Longitude</label>
+                <input type="text" id="longitude" name="longitude" class="form-control" placeholder="-46.633308">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <button type="button" id="btnGeocode" class="btn btn-secondary">Buscar coordenadas no mapa</button>
+              <span class="form-hint">Use o endereço para buscar coordenadas via OpenStreetMap (Nominatim). Você também pode arrastar o marcador no mapa.</span>
+            </div>
+
+            <div id="jobMap" style="height:300px; border-radius:8px; overflow:hidden; margin-top:16px; display:none;"></div>
+
             <div class="form-grid">
               <div class="form-group">
                 <label for="startDate">Data de Início</label>
@@ -595,6 +622,8 @@ Exemplo:
     </div>
   </main>
 
+  <!-- Leaflet JS -->
+  <script src="/node_modules/leaflet/dist/leaflet.js" defer></script>
   <script src="/public/js/publicar-vaga.js?v=2.0" defer></script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>

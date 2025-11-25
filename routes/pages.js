@@ -12,8 +12,21 @@ function sendPage(res, filename) {
 	try {
 		const filePath = path.join(pagesDir, filename);
 		let html = fs.readFileSync(filePath, 'utf8');
-		// set CSP header to allow only our own scripts
-		res.set('Content-Security-Policy', "default-src 'self'; base-uri 'self'; font-src 'self' https: data:; form-action 'self'; frame-ancestors 'self'; img-src 'self' data: https://res.cloudinary.com; object-src 'none'; script-src 'self' 'unsafe-inline'; script-src-attr 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; upgrade-insecure-requests");
+		// set CSP header (include worker-src and external image hosts)
+		res.set('Content-Security-Policy', [
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline'",
+			"style-src 'self' 'unsafe-inline' https:",
+			"img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://cdn.jsdelivr.net",
+			"font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+			"connect-src 'self' https://api.github.com wss:",
+			"worker-src 'self' blob:",
+			"object-src 'none'",
+			"frame-src 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+			"upgrade-insecure-requests"
+		].join('; '));
 		res.send(html);
 	} catch (err) {
 		res.status(500).send('Error loading page');

@@ -41,29 +41,28 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Middlewares
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "*"],
-      imgSrc: [
-        "'self'",
-        "data:",
-        "https://*.tile.openstreetmap.org",
-        "https://tile.openstreetmap.org",
-        "https://c.tile.openstreetmap.org",
-        "https://b.tile.openstreetmap.org",
-        "https://a.tile.openstreetmap.org"
-      ],
-      fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-      connectSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      frameSrc: ["'none'"],
-      workerSrc: ["'self'", "blob:"]
-    }
-  }
-}));
+// Use helmet but disable its built-in CSP so we can set an explicit header below
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Ensure a strict but compatible Content-Security-Policy header (explicit string)
+app.use((req, res, next) => {
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https:",
+    "img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://cdn.jsdelivr.net",
+    "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+    "connect-src 'self' https://api.github.com wss:",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "frame-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests"
+  ].join('; ');
+  res.setHeader('Content-Security-Policy', csp);
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -99,9 +98,18 @@ app.use('/api', apiRouter);
 app.use('/', pagesRouter);
 
 // Error handling
-app.use((err, req, res) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+// Error handling middleware must accept four arguments so Express recognizes it as an error handler
+app.use((err, req, res, next) => {
+  console.error(err && err.stack ? err.stack : err);
+  try {
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(err && err.status ? err.status : 500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
+  } catch (e) {
+    console.error('Error in error handler:', e);
+    try { res.status(500).json({ error: 'Internal Server Error' }); } catch (__) { /* swallow */ }
+  }
 });
 
 if (require.main === module) {

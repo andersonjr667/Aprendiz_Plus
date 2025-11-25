@@ -8,6 +8,32 @@ let selectedSkills = [];
 let selectedInterests = [];
 let originalInterests = [];
 
+// Small helper to ensure API requests carry Authorization when available.
+// Prefers `window.apiFetch` (central wrapper) and falls back to fetch + Authorization header.
+async function apiReq(path, options = {}) {
+  // If an API wrapper is available, use it and normalize return to a Response-like object
+  if (window.apiFetch && typeof window.apiFetch === 'function') {
+    const data = await window.apiFetch(path, options); // apiFetch throws on non-OK
+    return {
+      ok: true,
+      status: 200,
+      json: async () => data,
+      text: async () => (typeof data === 'string' ? data : JSON.stringify(data))
+    };
+  }
+
+  // Fallback to fetch: add credentials and Authorization header when possible
+  const opts = Object.assign({}, options);
+  opts.credentials = opts.credentials || 'include';
+  opts.headers = Object.assign({}, opts.headers || {});
+
+  if (!opts.headers.Authorization && window.Auth && typeof window.Auth.getToken === 'function') {
+    const t = window.Auth.getToken();
+    if (t) opts.headers.Authorization = 'Bearer ' + t;
+  }
+
+  return fetch(path, opts);
+}
 // Lista de áreas de interesse disponíveis
 const AVAILABLE_INTERESTS = [
   { id: 'tecnologia', name: 'Tecnologia', icon: '💻' },
@@ -80,41 +106,44 @@ function formatCPF(value) {
   return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
-// Load user profile
+// Load user profile (prefer window.Auth.getCurrentUser for correct Authorization header)
 async function loadProfile() {
   try {
     console.log('Loading profile...');
-    const res = await fetch('/api/users/me', { 
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json'
+
+    // If auth helper is available, use it to ensure Authorization header is included
+    if (window.Auth && typeof window.Auth.getCurrentUser === 'function') {
+      const user = await window.Auth.getCurrentUser();
+      if (!user) {
+        showProfileMessage('Usuário não autenticado. Redirecionando para login...', 'error');
+        setTimeout(() => { window.location.href = '/login'; }, 1500);
+        return;
       }
-    });
-    
+      currentUser = user;
+      displayProfile(user);
+      updateProfileCompletion(user);
+      initializeInterests(user);
+      return;
+    }
+
+    // Fallback: try direct fetch (may require server cookie-based session)
+    const res = await apiReq('/users/me', { headers: { 'Accept': 'application/json' } });
     console.log('Profile response status:', res.status);
-    
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       console.error('Profile load error:', errorData);
       showProfileMessage('Erro ao carregar perfil: ' + (errorData.error || 'Não autorizado'), 'error');
-      
-      // Se não autorizado, redirecionar para login
       if (res.status === 401) {
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
+        setTimeout(() => { window.location.href = '/login'; }, 2000);
       }
       return;
     }
-    
     const data = await res.json();
     console.log('Profile data loaded:', data);
-    
     currentUser = data;
     displayProfile(data);
     updateProfileCompletion(data);
     initializeInterests(data);
-    
   } catch (error) {
     console.error('Error loading profile:', error);
     showProfileMessage('Erro de conexão ao carregar perfil', 'error');
@@ -363,11 +392,15 @@ function displayProfile(user) {
     displayExtracurricularCourses.textContent = profile.extracurricularCourses || 'Não informado';
   }
 
-  // Áreas de interesse
+  // Áreas de interesse (aceita tanto user.interests quanto candidateProfile.areasOfInterest)
   const displayAreasOfInterest = document.getElementById('displayAreasOfInterest');
   if (displayAreasOfInterest) {
-    if (profile.areasOfInterest && profile.areasOfInterest.length > 0) {
-      displayAreasOfInterest.innerHTML = profile.areasOfInterest.map(area => 
+    const interestsFromTop = user.interests || [];
+    const interestsFromProfile = (profile && profile.areasOfInterest) || [];
+    const effectiveInterests = (interestsFromTop.length > 0) ? interestsFromTop : interestsFromProfile;
+
+    if (effectiveInterests && effectiveInterests.length > 0) {
+      displayAreasOfInterest.innerHTML = effectiveInterests.map(area => 
         `<span class="skill-tag">${area}</span>`
       ).join('');
     } else {
@@ -465,6 +498,47 @@ function displayProfile(user) {
   updateHiddenSkillsInput();
   
   console.log('Profile displayed successfully');
+
+  // If user has geolocation, render candidate map
+  const candidateLat = profile.latitude || profile.lat || profile.locationLat;
+  const candidateLon = profile.longitude || profile.lon || profile.locationLng || profile.locationLon;
+  if (candidateLat && candidateLon) {
+    renderCandidateMap(parseFloat(candidateLat), parseFloat(candidateLon));
+  }
+}
+
+// Render a small Leaflet map showing the candidate's point
+function renderCandidateMap(lat, lon) {
+  try {
+    const mapEl = document.getElementById('candidateMap');
+    if (!mapEl) return;
+    mapEl.style.display = 'block';
+    // Lazy load leaflet from served node_modules if not present
+    if (typeof L === 'undefined') {
+      console.warn('Leaflet not loaded — attempting to load from /node_modules/leaflet/dist/leaflet.js');
+      const script = document.createElement('script');
+      script.src = '/node_modules/leaflet/dist/leaflet.js';
+      script.onload = () => createMapInstance(mapEl, lat, lon);
+      document.body.appendChild(script);
+    } else {
+      createMapInstance(mapEl, lat, lon);
+    }
+  } catch (err) {
+    console.error('Error rendering candidate map', err);
+  }
+}
+
+function createMapInstance(mapEl, lat, lon) {
+  try {
+    const m = L.map(mapEl).setView([lat, lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(m);
+    L.marker([lat, lon]).addTo(m);
+  } catch (err) {
+    console.error('createMapInstance error', err);
+  }
 }
 
 // Função auxiliar para formatar datas
@@ -710,9 +784,8 @@ async function saveProfile(event) {
   try {
     showProfileMessage('Salvando alterações...', 'info');
     
-    const res = await fetch('/api/users/me', {
+    const res = await apiReq('/users/me', {
       method: 'PUT',
-      credentials: 'include',
       body: formData // Don't set Content-Type header, let browser set it for FormData
     });
 
@@ -752,7 +825,7 @@ async function loadApplications() {
   }
   
   try {
-    const res = await fetch('/api/users/me/applications', { credentials: 'include' });
+    const res = await apiReq('/users/me/applications');
     
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
@@ -836,12 +909,7 @@ async function loadRecommendations() {
   }
   
   try {
-    const res = await fetch('/api/jobs/recommendations', { 
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    const res = await apiReq('/jobs/recommendations', { headers: { 'Accept': 'application/json' } });
     
     console.log('Recommendations response status:', res.status);
     
@@ -1189,13 +1257,13 @@ function updateNextSteps(user, completedFields, allFields) {
 
 // Initialize interests section
 function initializeInterests(user) {
-  // Load user's saved interests
-  selectedInterests = user.interests || [];
+  // Load user's saved interests (try top-level then candidateProfile)
+  selectedInterests = user.interests && user.interests.length > 0 ? [...user.interests] : ((user.candidateProfile && user.candidateProfile.areasOfInterest) ? [...user.candidateProfile.areasOfInterest] : []);
   originalInterests = [...selectedInterests];
-  
+
   // Display in view mode
   displayInterestsView(user);
-  
+
   // Load grid for edit mode (but don't show yet)
   loadInterestsGrid();
 }
@@ -1205,7 +1273,8 @@ function displayInterestsView(user) {
   const viewList = document.getElementById('interestsViewList');
   if (!viewList) return;
   
-  const userInterests = user.interests || [];
+  // Accept either top-level interests or candidateProfile.areasOfInterest
+  const userInterests = (user.interests && user.interests.length > 0) ? user.interests : ((user.candidateProfile && user.candidateProfile.areasOfInterest) ? user.candidateProfile.areasOfInterest : []);
   
   if (userInterests.length === 0) {
     viewList.innerHTML = `
@@ -1321,15 +1390,10 @@ async function saveInterestsChanges() {
     console.log('Saving interests:', selectedInterests);
     showProfileMessage('Salvando interesses...', 'info');
     
-    const res = await fetch('/api/users/me', {
+    const res = await apiReq('/users/me', {
       method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        interests: selectedInterests
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ interests: selectedInterests })
     });
     
     const result = await res.json();
@@ -1337,7 +1401,11 @@ async function saveInterestsChanges() {
     
     if (res.ok) {
       showProfileMessage('Interesses salvos com sucesso!', 'success');
+      // Keep both top-level and candidateProfile fields in sync for UI consistency
+      if (!currentUser) currentUser = {};
       currentUser.interests = selectedInterests;
+      if (!currentUser.candidateProfile) currentUser.candidateProfile = {};
+      currentUser.candidateProfile.areasOfInterest = selectedInterests;
       originalInterests = [...selectedInterests];
       
       // Exit edit mode
@@ -1374,9 +1442,8 @@ async function uploadAvatar(file) {
     const formData = new FormData();
     formData.append('profilePhoto', file);
     
-    const res = await fetch('/api/users/me', {
+    const res = await apiReq('/users/me', {
       method: 'PUT',
-      credentials: 'include',
       body: formData
     });
     
@@ -1577,7 +1644,7 @@ let currentResume = null;
 // Load resume information
 async function loadResume() {
   try {
-    const res = await fetch('/api/users/me/resume', { credentials: 'include' });
+    const res = await apiReq('/users/me/resume');
     const data = await res.json();
     
     if (res.ok && data.resumeUrl) {
@@ -1689,9 +1756,8 @@ async function uploadResume(file) {
     // Show progress
     showUploadProgress();
     
-    const res = await fetch('/api/users/me/resume', {
+    const res = await apiReq('/users/me/resume', {
       method: 'POST',
-      credentials: 'include',
       body: formData
     });
     
@@ -1854,10 +1920,7 @@ function confirmDeleteResume() {
 // Delete resume
 async function deleteResume() {
   try {
-    const res = await fetch('/api/users/me/resume', {
-      method: 'DELETE',
-      credentials: 'include'
-    });
+    const res = await apiReq('/users/me/resume', { method: 'DELETE' });
     
     if (res.ok) {
       currentResume = null;
@@ -1891,9 +1954,7 @@ async function loadLikesCount() {
     // MongoDB retorna _id, não id
     const userId = currentUser._id || currentUser.id;
     
-    const res = await fetch(`/api/profiles/${userId}/liked`, {
-      credentials: 'include'
-    });
+    const res = await apiReq(`/profiles/${userId}/liked`);
     
     if (res.ok) {
       const data = await res.json();
@@ -2033,7 +2094,7 @@ async function loadAchievements() {
   }
   
   try {
-    const res = await fetch('/api/gamification/achievements', { credentials: 'include' });
+    const res = await apiReq('/gamification/achievements');
     
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
@@ -2041,11 +2102,39 @@ async function loadAchievements() {
     
     const data = await res.json();
     console.log('Achievements data:', data);
-    
-    currentAchievements = data.achievements || [];
-    bannerAchievements = data.bannerAchievements || [];
-    
-    displayAchievements(data.achievements || [], data.bannerAchievements || []);
+    // Normalize server response: server returns an object with obtained/near/banner
+    // Convert into the array shape expected by displayAchievements
+    let achievementsArray = [];
+    let bannerIds = [];
+
+    if (data.achievements) {
+      // If server returned the older flat array, accept it
+      if (Array.isArray(data.achievements)) {
+        achievementsArray = data.achievements;
+      } else {
+        // Expected shape: { obtained: [], near: [], banner: [] }
+        const obtained = data.achievements.obtained || [];
+        const near = data.achievements.near || [];
+        achievementsArray = [...obtained, ...near];
+      }
+    }
+
+    // bannerAchievements might be an array of objects or ids
+    if (Array.isArray(data.bannerAchievements)) {
+      if (data.bannerAchievements.length > 0 && typeof data.bannerAchievements[0] === 'object') {
+        bannerIds = data.bannerAchievements.map(b => b.id).filter(Boolean);
+      } else {
+        bannerIds = data.bannerAchievements;
+      }
+    } else if (data.achievements && Array.isArray(data.achievements.banner)) {
+      // fallback: achievements.banner
+      bannerIds = (data.achievements.banner || []).map(b => (typeof b === 'object' ? b.id : b));
+    }
+
+    currentAchievements = achievementsArray;
+    bannerAchievements = bannerIds;
+
+    displayAchievements(achievementsArray, bannerIds);
     
   } catch (error) {
     console.error('Error loading achievements:', error);
@@ -2292,15 +2381,10 @@ async function saveBannerAchievements() {
     console.log('Saving banner achievements:', bannerAchievements);
     showProfileMessage('Salvando destaques...', 'info');
     
-    const res = await fetch('/api/gamification/banner-achievements', {
+    const res = await apiReq('/gamification/banner-achievements', {
       method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        bannerAchievements: bannerAchievements
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bannerAchievements: bannerAchievements })
     });
     
     const result = await res.json();

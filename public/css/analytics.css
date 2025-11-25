@@ -317,3 +317,43 @@
 		gap: 10px;
 	}
 }
+
+/* Dark mode overrides for analytics page */
+html.dark .analytics-filters-card,
+html.dark .analytics-metric-card,
+html.dark .chart-card,
+html.dark .table-card,
+html.dark #jobs-table,
+html.dark .analytics-filters-card .input-with-icon .form-control {
+	background: var(--gray-100);
+	color: var(--gray-900);
+	border-color: rgba(255,255,255,0.04);
+	box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+html.dark .analytics-metric-card {
+	border-color: rgba(255,255,255,0.02);
+}
+
+html.dark .metric-icon {
+	background: var(--gray-200);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+html.dark .metric-content h3,
+html.dark .metric-content p,
+html.dark .analytics-filters-left h2,
+html.dark .analytics-section-title {
+	color: var(--gray-900);
+}
+
+html.dark #jobs-table th {
+	background: var(--gray-200);
+	color: var(--brand-green);
+	border-bottom-color: rgba(255,255,255,0.03);
+}
+
+html.dark #jobs-table td {
+	border-bottom-color: rgba(255,255,255,0.03);
+	color: var(--gray-900);
+}

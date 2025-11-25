@@ -1,0 +1,120 @@
+/* dark-overrides.css - loaded after main.css to force dark theme overrides */
+
+html.dark body {
+  background-color: var(--gray-100) !important;
+  color: var(--gray-900) !important;
+}
+
+/* Header / nav */
+html.dark .nav-header,
+html.dark .apz-header,
+html.dark .apz-header__mobile-menu-content {
+  background: var(--gray-50) !important;
+  color: var(--gray-900) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
+}
+
+/* Generic surfaces */
+html.dark .card,
+html.dark .job-card,
+html.dark .news-card,
+html.dark .modal-content,
+html.dark .page-header,
+html.dark .news-detail-card,
+html.dark .testimonial-card,
+html.dark .feature-card,
+html.dark .faq-item,
+html.dark .job-card-mini,
+html.dark .featured-jobs,
+html.dark .companies-section,
+html.dark .info-card,
+html.dark .news-error,
+html.dark .toast {
+  background: var(--gray-200) !important;
+  color: var(--gray-900) !important;
+  border-color: rgba(255,255,255,0.03) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+}
+
+/* Forms */
+
+/* Ensure feature descriptions remain readable */
+html.dark .feature-description,
+html.dark .feature-title,
+html.dark .feature-card p,
+html.dark .testimonial-text,
+html.dark .stat-label,
+html.dark .stat-number {
+  color: var(--gray-900) !important;
+}
+html.dark .form-control,
+html.dark .input-with-icon .form-control {
+  background: var(--gray-100) !important;
+  color: var(--gray-900) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+}
+
+/* Modal and overlays */
+html.dark .modal {
+  background-color: rgba(0,0,0,0.6) !important;
+}
+
+html.dark .modal-content {
+  background: var(--gray-200) !important;
+}
+
+/* Buttons adjustments */
+html.dark .cta-primary,
+html.dark .btn-primary {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%) !important;
+  color: var(--brand-green-light) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+}
+
+html.dark .cta-secondary,
+html.dark .btn-outline,
+html.dark .btn-outline-secondary {
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  color: var(--gray-900) !important;
+}
+
+/* Ensure hero overlay is subtle */
+html.dark .hero-section::before {
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat !important;
+}
+
+/* Tables */
+html.dark #jobs-table,
+html.dark .table-card,
+html.dark .chart-card {
+  background: var(--gray-200) !important;
+  color: var(--gray-900) !important;
+}
+
+/* small utilities */
+html.dark .back-to-top { background: var(--brand-green) !important; color: #fff !important; }
+html.dark .help-link { background: var(--gray-300) !important; color: var(--gray-900) !important; border: 1px solid rgba(255,255,255,0.04) !important; }
+
+/* Fallback for any remaining white backgrounds */
+/* Catch common inline background patterns (white, #fff, #ffffff) */
+html.dark *[style*="background: white"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="background:#fff"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="background: #fff"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="#fff"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="#ffffff"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="background:#ffffff"] { background: var(--gray-200) !important; color: var(--gray-100) !important; }
+
+/* Also catch background-color inline usages */
+html.dark *[style*="background-color: white"] { background-color: var(--gray-200) !important; color: var(--gray-100) !important; }
+html.dark *[style*="background-color:#fff"] { background-color: var(--gray-200) !important; color: var(--gray-100) !important; }
+
+/* Aggressive fallback: any element with inline style containing 'background' and 'white' or '#fff' */
+html.dark *[style*="background"][style*="white"],
+html.dark *[style*="background"][style*="#fff"],
+html.dark *[style*="background"][style*="#ffffff"] {
+  background: var(--gray-200) !important;
+  color: var(--gray-100) !important;
+}
+
+/* End of fallback selectors */

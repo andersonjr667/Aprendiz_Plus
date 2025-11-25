@@ -96,7 +96,7 @@
                 <span style="margin-left:6px;">${user.name || 'Admin'}</span>
                 <i class="fas fa-chevron-down" style="margin-left:8px;font-size:13px;"></i>
               </button>
-              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
+              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--gray-50);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
                 <a href="#" id="header-profile-link" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-crown"></i> Meu Perfil</a>
                 <a href="/admin" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-tachometer-alt"></i> Painel Admin</a>
                 <a href="/analytics" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-bar"></i> Analytics</a>
@@ -140,7 +140,7 @@
                 <span style="margin-left:6px;">${user.name || 'Perfil'}</span>
                 <i class="fas fa-chevron-down" style="margin-left:8px;font-size:13px;"></i>
               </button>
-              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
+              <div class="admin-header-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--gray-50);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:220px;z-index:1000;overflow:hidden;">
                 <a href="#" id="header-profile-link" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-user"></i> Meu Perfil</a>
                 ${user.type === 'candidato' ? `<a href="/dashboard-candidato" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-line"></i> Dashboard</a>` : ''}
                 ${user.type === 'empresa' ? `<a href="/painel-empresa" style="display:flex;align-items:center;gap:8px;padding:12px 18px;text-decoration:none;color:#333;"><i class="fas fa-chart-line"></i> Painel</a>` : ''}
@@ -415,15 +415,5 @@ function showMessage(message, type = 'info', timeout = 4000) {
   }, timeout);
 }
 
-// Exporta Auth para window
-window.Auth = {
-  setToken,
-  getToken,
-  removeToken,
-  isAuthenticated,
-  getCurrentUser,
-  updateHeader,
-  login,
-  register,
-  logout
-};
+// Note: `window.Auth` is already exported inside the IIFE at the top of this file.
+// The duplicate export was removed to avoid referencing internal functions out of scope.

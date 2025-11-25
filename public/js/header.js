@@ -12,6 +12,29 @@ function loadHeader() {
         container.innerHTML = html;
         renderDynamicHeader();
         initHeaderMenu();
+        // Load dark mode script and CSS once so toggle works across pages
+        if (!window.__apzDarkModeLoaded) {
+          try {
+            const s = document.createElement('script');
+            s.src = '/public/js/dark-mode.js';
+            s.defer = true;
+            s.onload = function() { window.__apzDarkModeLoaded = true; };
+            document.head.appendChild(s);
+          } catch (e) {
+            console.warn('[HEADER] failed to load dark-mode script', e);
+          }
+        }
+        if (!window.__apzDarkCssLoaded) {
+          try {
+            const l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = '/public/css/dark-overrides.css';
+            l.onload = function() { window.__apzDarkCssLoaded = true; };
+            document.head.appendChild(l);
+          } catch (e) {
+            console.warn('[HEADER] failed to load dark-overrides.css', e);
+          }
+        }
       }
     });
 }
@@ -74,7 +97,7 @@ function renderLoggedIn(user, actions) {
   // Avatar
   const avatar = user.profilePhotoUrl
     ? `<img src="${user.profilePhotoUrl}" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;vertical-align:middle;">`
-    : `<span style="display:inline-block;width:32px;height:32px;border-radius:50%;background:#eee;text-align:center;line-height:32px;font-weight:bold;color:#666;vertical-align:middle;">${user.name ? user.name[0].toUpperCase() : 'U'}</span>`;
+    : `<span style="display:inline-block;width:32px;height:32px;border-radius:50%;background:var(--gray-300);text-align:center;line-height:32px;font-weight:bold;color:var(--gray-700);vertical-align:middle;">${user.name ? user.name[0].toUpperCase() : 'U'}</span>`;
 
   // Menu por papel
   let menuLinks = '';
@@ -113,7 +136,7 @@ function renderLoggedIn(user, actions) {
         <span style="font-weight:600;">${user.name || 'Usuário'}</span>
         <i class="fas fa-chevron-down" style="font-size:13px;"></i>
       </button>
-      <div class="apz-header__user-dropdown" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:200px;z-index:1000;overflow:hidden;">
+      <div class="apz-header__user-dropdown" style="display:none;position:absolute;right:0;top:110%;background:var(--gray-50);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:200px;z-index:1000;overflow:hidden;">
         ${menuLinks}
         <button id="apz-logout-btn" style="width:100%;background:none;border:none;text-align:left;padding:12px 18px;color:#dc2626;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </div>
@@ -169,4 +192,14 @@ function initHeaderMenu() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadHeader);
+// Ensure header loads whether this script is executed before or after DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadHeader);
+} else {
+  // Document already parsed — load header immediately
+  try {
+    loadHeader();
+  } catch (e) {
+    console.error('[HEADER] failed to load immediately:', e);
+  }
+}

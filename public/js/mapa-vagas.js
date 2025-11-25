@@ -60,21 +60,91 @@ function initMap() {
 }
 
 window.useMyLocation = function useMyLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-            map.getView().setCenter(ol.proj.fromLonLat([currentLocation.lng, currentLocation.lat]));
-            map.getView().setZoom(13);
-            updateNearbyJobs();
-        }, function() {
-            alert('Não foi possível obter sua localização.');
-        });
-    } else {
+    const btn = document.getElementById('btnUseLocation');
+    if (!navigator.geolocation) {
         alert('Geolocalização não suportada.');
+        return;
     }
+
+    let watchId = null;
+    let best = null; // store best position by accuracy
+    const start = Date.now();
+    const maxTime = 12000; // 12s max to try for better accuracy
+    const maxSamples = 6;
+    let samples = 0;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Obtendo localização...';
+    }
+
+    const options = {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 10000
+    };
+
+    function finish(position) {
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+        currentLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+        map.getView().setCenter(ol.proj.fromLonLat([currentLocation.lng, currentLocation.lat]));
+        map.getView().setZoom(13);
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-location-dot"></i> Usar Minha Localização';
+        }
+        updateNearbyJobs();
+    }
+
+    function success(pos) {
+        samples++;
+        // prefer positions with smaller accuracy
+        if (!best || (pos.coords.accuracy && pos.coords.accuracy < (best.coords.accuracy || Infinity))) {
+            best = pos;
+        }
+
+        const accuracy = pos.coords.accuracy || Infinity;
+        // If accuracy is good enough (<100m) or we have collected enough samples or timed out, finish
+        if (accuracy <= 100 || samples >= maxSamples || (Date.now() - start) > maxTime) {
+            finish(best || pos);
+        }
+        // otherwise keep watching until conditions met
+    }
+
+    function error(err) {
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-location-dot"></i> Usar Minha Localização';
+        }
+        console.warn('Geolocation error', err);
+        alert('Não foi possível obter sua localização. Verifique permissões e tente novamente.');
+    }
+
+    // First try a one-time request with high accuracy and a short timeout
+    navigator.geolocation.getCurrentPosition(function(pos) {
+        // if the single read is accurate enough, finish immediately
+        if (pos.coords.accuracy && pos.coords.accuracy <= 100) {
+            finish(pos);
+            return;
+        }
+        // else start watching for improvements
+        best = pos;
+        watchId = navigator.geolocation.watchPosition(success, error, options);
+    }, function() {
+        // fallback to watch (some browsers may fail getCurrentPosition if permissions dialog open)
+        best = null;
+        watchId = navigator.geolocation.watchPosition(success, error, options);
+    }, options);
 }
 
 window.searchAddress = function searchAddress() {

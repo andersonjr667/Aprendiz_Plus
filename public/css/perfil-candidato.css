@@ -12,14 +12,16 @@
 .profile-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 100px 20px 60px;
+  /* Reduced top padding so header aligns visually with other pages */
+  padding: 60px 20px 60px;
 }
 
 /* Profile Header */
 .profile-header {
   background: linear-gradient(135deg, var(--candidate-green) 0%, var(--candidate-green-dark) 100%);
   color: white;
-  padding: 80px 0;
+  /* Slightly reduced padding for better balance with header */
+  padding: 48px 0;
   margin-bottom: 40px;
   position: relative;
   overflow: hidden;
@@ -190,11 +192,17 @@
 /* Cards */
 .profile-card {
   background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   margin-bottom: 30px;
   position: relative;
+}
+
+/* Ensure dynamic header appears above profile visuals */
+.apz-header {
+  position: relative;
+  z-index: 9999;
 }
 
 .card-header-profile {
@@ -726,6 +734,41 @@ textarea.form-control-profile {
     align-items: center;
     text-align: center;
   }
+}
+
+/* Account actions (Alterar Senha / Excluir Conta) - destaque */
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-actions .account-btn {
+  min-width: 220px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(46,204,113,0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.account-actions .btn-danger.account-btn {
+  background: linear-gradient(135deg,#ea4335,#c0392b);
+  box-shadow: 0 6px 18px rgba(234,67,53,0.12);
+}
+
+.account-actions .btn-primary.account-btn {
+  background: linear-gradient(135deg,#2ECC71,#27AE60);
+}
+
+.account-actions .account-btn:hover {
+  transform: translateY(-3px);
+}
+
+@media (min-width: 768px) {
+  .account-actions { flex-direction: row; justify-content: center; }
 }
 
 

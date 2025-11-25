@@ -4,7 +4,7 @@
     <link rel="icon" type="image/png" href="/public/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light dark">
     <title>Aprendiz+ | Seu Primeiro Emprego Começa Aqui - Vagas 100% Gratuitas</title>
     <meta name="description" content="Plataforma 100% gratuita conectando jovens talentos com empresas que valorizam seu potencial. Vagas exclusivas para estudantes e recém-formados. Cadastre-se agora!">
     <meta name="keywords" content="vaga estágio, emprego jovem, recém-formado, primeiro emprego, jovem talento, mercado de trabalho, oportunidades jovens, estágio remunerado, trainee">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/public/css/header.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/public/js/auth.js" defer></script>
     <script src="/public/js/header.js" defer></script>
     <style>
         /* Hero Section - Melhorado */
@@ -115,9 +116,9 @@
         }
 
         .cta-primary {
-            background: white;
+            background: var(--gray-50);
             color: var(--brand-green);
-            border: 3px solid white;
+            border: 3px solid var(--gray-50);
             font-weight: 700;
         }
 
@@ -184,7 +185,7 @@
         /* Features Section - Melhorada */
         .features-section {
             padding: 100px 0;
-            background: linear-gradient(to bottom, #ffffff 0%, var(--gray-50) 100%);
+            background: linear-gradient(to bottom, var(--gray-50) 0%, var(--gray-50) 100%);
         }
 
         .section-header {
@@ -221,7 +222,7 @@
             text-align: center;
             padding: 40px 30px;
             border-radius: var(--border-radius-xl);
-            background: white;
+            background: var(--gray-50);
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.4s ease;
             border: 2px solid transparent;
@@ -286,7 +287,7 @@
         /* How It Works Section */
         .how-it-works {
             padding: 100px 0;
-            background: white;
+            background: var(--gray-50);
         }
 
         .steps-grid {
@@ -348,7 +349,7 @@
         }
 
         .testimonial-card {
-            background: white;
+            background: var(--gray-50);
             padding: 35px;
             border-radius: var(--border-radius-xl);
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
@@ -404,7 +405,7 @@
         /* Featured Jobs Section */
         .featured-jobs {
             padding: 100px 0;
-            background: white;
+            background: var(--gray-50);
         }
 
         .jobs-carousel {
@@ -414,7 +415,7 @@
         }
 
         .job-card-mini {
-            background: white;
+            background: var(--gray-50);
             border: 2px solid var(--gray-200);
             border-radius: var(--border-radius-lg);
             padding: 25px;
@@ -471,7 +472,7 @@
         }
 
         .faq-item {
-            background: white;
+            background: var(--gray-50);
             border-radius: var(--border-radius-lg);
             margin-bottom: 20px;
             overflow: hidden;
@@ -552,7 +553,7 @@
         /* Companies Section */
         .companies-section {
             padding: 80px 0;
-            background: white;
+            background: var(--gray-50);
             border-top: 1px solid var(--gray-200);
             border-bottom: 1px solid var(--gray-200);
         }
@@ -781,6 +782,86 @@
                 font-size: 1.1rem;
             }
         }
+        /* Dark mode overrides for index page */
+        html.dark body, html.dark .main-content {
+            background: #0b0f12;
+            color: #dbeee9;
+        }
+
+        html.dark .hero-section {
+            background: linear-gradient(135deg, #0b2b1a 0%, #0e3b26 100%);
+            color: #eaf6ee;
+        }
+
+        html.dark .hero-title, html.dark .hero-subtitle {
+            color: #eaf6ee;
+            text-shadow: 0 3px 12px rgba(0,0,0,0.7);
+        }
+
+        html.dark .stats-section,
+        html.dark .features-section,
+        html.dark .how-it-works,
+        html.dark .testimonials-section,
+        html.dark .featured-jobs,
+        html.dark .faq-section,
+        html.dark .companies-section,
+        html.dark .mid-cta {
+            background: #071217;
+        }
+
+        html.dark .feature-card,
+        html.dark .testimonial-card,
+        html.dark .job-card-mini,
+        html.dark .faq-item,
+        html.dark .mid-cta {
+            background: #0f1416;
+            color: #d6ece6;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        html.dark .feature-title,
+        html.dark .feature-description,
+        html.dark .step-title,
+        html.dark .step-description,
+        html.dark .stat-label,
+        html.dark .job-title-mini,
+        html.dark .job-company {
+            color: #dbeee9;
+        }
+
+        html.dark .feature-icon {
+            background: linear-gradient(135deg,#167a45,#0f6b3a);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        }
+
+        html.dark .cta-button.cta-primary {
+            background: rgba(255,255,255,0.03);
+            color: var(--brand-green);
+            border-color: rgba(255,255,255,0.03);
+            box-shadow: none;
+        }
+
+        html.dark .cta-button.cta-secondary {
+            background: rgba(255,255,255,0.02);
+            border-color: rgba(255,255,255,0.12);
+            color: #ffffff;
+        }
+
+        html.dark .job-tag {
+            background: rgba(255,255,255,0.03);
+            color: #cfe9e3;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        html.dark footer.main-footer {
+            background: #061017;
+            color: #8fbfb4;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+
+        html.dark .back-to-top { background: var(--brand-green); }
+
     </style>
     
     <!-- AI Assistant -->
@@ -793,17 +874,17 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Seu primeiro emprego começa aqui - 100% gratuito!</h1>
+                <h1 class="hero-title">Seu primeiro emprego começa aqui — 100% gratuito!</h1>
                 <p class="hero-subtitle">
-                    Plataforma totalmente gratuita conectando jovens talentos com empresas que valorizam seu potencial. 
-                    Cadastre-se agora e tenha acesso a vagas exclusivas para estudantes e recém-formados!
+                    Plataforma gratuita que conecta jovens talentos a empresas que valorizam potencial e desenvolvimento.
+                    Cadastre-se em poucos minutos e acesse vagas destinadas a estudantes e recém-formados.
                 </p>
                 <div class="cta-buttons">
                     <a href="/register" class="cta-button cta-primary">
-                        <i class="fas fa-rocket"></i> Cadastrar Grátis Agora
+                        <i class="fas fa-rocket"></i> Cadastre-se Grátis
                     </a>
                     <a href="/vagas" class="cta-button cta-secondary">
-                        <i class="fas fa-search"></i> Explorar Vagas
+                        <i class="fas fa-search"></i> Ver Vagas
                     </a>
                 </div>
             </div>
@@ -812,37 +893,38 @@
         <!-- Features Section -->
         <section class="features-section">
             <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">O que oferecemos</h2>
+                    <p class="features-subtitle">Vagas, suporte e oportunidades pensadas para quem está começando sua carreira.</p>
+                </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
-                        <h3 class="feature-title">Vagas Exclusivas para Jovens</h3>
-                        <p class="feature-description">
-                            Todas as oportunidades são específicas para estudantes e recém-formados, 
-                            com empresas que realmente valorizam novos talentos e oferecem crescimento.
-                        </p>
+                            <h3 class="feature-title">Vagas para estudantes e recém-formados</h3>
+                            <p class="feature-description">
+                                Oportunidades pensadas para quem está começando a carreira, com empresas que buscam e desenvolvem novos talentos.
+                            </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-rocket"></i></div>
-                        <h3 class="feature-title">Processo Rápido e Direto</h3>
-                        <p class=""
-                            Conexão direta entre candidatos e empresas, sem intermediários. 
-                            Cadastre-se em minutos e comece a se candidatar imediatamente.
-                    </p>
+                        <h3 class="feature-title">Processo simples e objetivo</h3>
+                        <p class="feature-description">
+                            Conexão direta entre candidatos e empresas, sem burocracia. Cadastre-se rapidamente e candidate-se com facilidade.
+                        </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-                        <h3 class="feature-title">100% Gratuito e Seguro</h3>
+                        <h3 class="feature-title">Totalmente gratuito e seguro</h3>
                         <p class="feature-description">
-                            Plataforma totalmente gratuita com verificação de empresas parceiras. 
-                            Seus dados estão protegidos e nunca compartilhados sem autorização.
+                            Uso gratuito para candidatos e verificação das empresas parceiras. Seus dados são tratados com segurança e responsabilidade.
                         </p>
                     </div>
                 </div>
                 
                 <!-- Mid-page CTA -->
                 <div class="mid-cta">
-                    <h3>Pronto para começar sua jornada profissional?</h3>
-                    <p>Não perca tempo! Milhares de jovens estão se candidatando agora mesmo.</p>
+                    <h3>Pronto para iniciar sua trajetória profissional?</h3>
+                    <p>Não perca a oportunidade — milhares de jovens já estão se candidatando.</p>
                     <a href="/register" class="cta-button cta-primary">
                         <i class="fas fa-rocket"></i> Criar Conta Gratuita
                     </a>
@@ -853,29 +935,30 @@
         <!-- How It Works Section -->
         <section class="how-it-works">
             <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Como funciona</h2>
+                    <p class="features-subtitle">Três passos simples para encontrar e se candidatar às melhores vagas para iniciantes.</p>
+                </div>
                 <div class="steps-grid">
                     <div class="step-card">
                         <div class="step-number">1</div>
-                        <h3 class="step-title">Crie sua Conta</h3>
+                        <h3 class="step-title">Crie sua conta</h3>
                         <p class="step-description">
-                            Cadastro rápido com suas informações básicas. 
-                            Leva menos de 2 minutos para começar!
+                            Cadastro rápido com suas informações essenciais. Comece em poucos minutos.
                         </p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
-                        <h3 class="step-title">Complete seu Perfil</h3>
+                        <h3 class="step-title">Complete seu perfil</h3>
                         <p class="step-description">
-                            Adicione suas habilidades, experiências e o que você busca. 
-                            Quanto mais completo, melhores as oportunidades!
+                            Informe suas habilidades e preferências. Perfis mais completos recebem melhores recomendações.
                         </p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
-                        <h3 class="step-title">Candidate-se às Vagas</h3>
+                        <h3 class="step-title">Candidate-se às vagas</h3>
                         <p class="step-description">
-                            Navegue por centenas de vagas e candidate-se com um clique. 
-                            As empresas entram em contato diretamente com você!
+                            Encontre vagas relevantes e candidate-se rapidamente; as empresas entram em contato diretamente.
                         </p>
                     </div>
                 </div>
@@ -885,6 +968,10 @@
         <!-- Featured Jobs Section -->
         <section class="featured-jobs">
             <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Vagas em destaque</h2>
+                    <p class="features-subtitle">Confira algumas vagas selecionadas para você — atualizadas em tempo real.</p>
+                </div>
                 <div class="jobs-carousel" id="featuredJobs">
                     <!-- Jobs will be loaded dynamically -->
                     <div class="loading-container">
@@ -903,6 +990,10 @@
         <!-- FAQ Section -->
         <section class="faq-section">
             <div class="container">
+                <div class="section-header">
+                    <h2 class="features-title">Dúvidas Frequentes</h2>
+                    <p class="features-subtitle">Perguntas comuns sobre uso da plataforma, candidaturas e segurança.</p>
+                </div>
                 <div class="faq-container">
                     <div class="faq-item">
                         <div class="faq-question">
@@ -971,10 +1062,9 @@
         <!-- Final CTA Section -->
         <section class="cta-section">
             <div class="cta-content">
-                <h2>Não perca mais tempo - seu futuro te espera!</h2>
+                <h2>Não deixe para depois — seu futuro começa agora!</h2>
                 <p>
-                    Milhares de jovens já conseguiram seu primeiro emprego através do Aprendiz+. 
-                    Você pode ser o próximo! Cadastre-se gratuitamente e comece hoje mesmo.
+                    Milhares de jovens já encontraram oportunidades no Aprendiz+. Cadastre-se gratuitamente e aumente suas chances hoje mesmo.
                 </p>
                 <div class="cta-buttons">
                     <a href="/register" class="cta-button cta-primary">
@@ -1036,6 +1126,8 @@
     <!-- Floating Help Button -->
     <a href="/contato" class="help-link" title="Precisa de ajuda? Clique aqui">?</a>
     
+    <!-- Main scripts -->
+    <script src="/public/js/main.js" defer></script>
     <!-- AI Assistant -->
     <script src="/public/js/ai-assistant.js"></script>
     

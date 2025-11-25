@@ -405,3 +405,151 @@ function initImageUpload() {
     reader.readAsDataURL(file);
   }
 }
+
+// ---------------- Map & Geocoding Helpers ----------------
+let jobMap, jobMarker;
+
+function initJobMap() {
+  // Lazy init when needed
+  if (jobMap) return;
+  try {
+    jobMap = L.map('jobMap').setView([-23.55, -46.63], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(jobMap);
+
+    jobMarker = L.marker([-23.55, -46.63], { draggable: true }).addTo(jobMap);
+    jobMarker.on('dragend', function(e) {
+      const latlng = e.target.getLatLng();
+      document.getElementById('latitude').value = latlng.lat.toFixed(6);
+      document.getElementById('longitude').value = latlng.lng.toFixed(6);
+    });
+  } catch (err) {
+    console.error('Leaflet not available or map container missing', err);
+  }
+}
+
+async function geocodeAddress(address) {
+  if (!address || address.trim().length === 0) return null;
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+  try {
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data && data.length > 0) return data[0];
+    return null;
+  } catch (err) {
+    console.error('Geocoding error', err);
+    return null;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Geocode button
+  const btnGeocode = document.getElementById('btnGeocode');
+  if (btnGeocode) {
+    btnGeocode.addEventListener('click', async function() {
+      const address = document.getElementById('address').value || document.getElementById('location').value;
+      if (!address || address.trim().length === 0) {
+        showMessage('Insira um endereço ou cidade para buscar coordenadas', 'error');
+        return;
+      }
+
+      showMessage('Buscando coordenadas...', 'success');
+      const result = await geocodeAddress(address);
+      if (!result) {
+        showMessage('Endereço não encontrado. Tente um termo diferente.', 'error');
+        return;
+      }
+
+      const lat = parseFloat(result.lat);
+      const lon = parseFloat(result.lon);
+      document.getElementById('latitude').value = lat.toFixed(6);
+      document.getElementById('longitude').value = lon.toFixed(6);
+
+      // Show and initialize map
+      const mapEl = document.getElementById('jobMap');
+      if (mapEl) mapEl.style.display = 'block';
+      initJobMap();
+      jobMap.setView([lat, lon], 15);
+      jobMarker.setLatLng([lat, lon]);
+      showMessage('Coordenadas definidas. Você pode arrastar o marcador para ajustar.', 'success');
+    });
+  }
+});
+
+// Ensure latitude/longitude are sent with the FormData
+const originalHandleSubmit = handleSubmit;
+async function handleSubmit(e) {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  // Append lat/lon to formData
+  const lat = document.getElementById('latitude').value.trim();
+  const lon = document.getElementById('longitude').value.trim();
+
+  // Use same logic as original but inject lat/lon
+  const formData = new FormData();
+  formData.append('title', document.getElementById('title').value);
+  formData.append('location', document.getElementById('location').value);
+  formData.append('workModel', document.getElementById('workModel').value);
+  formData.append('workload', document.getElementById('workload').value || '');
+  formData.append('salary', document.getElementById('salary').value || '');
+  formData.append('startDate', document.getElementById('startDate').value || '');
+  formData.append('expiresAt', document.getElementById('expiresAt').value || '');
+  formData.append('applicationDeadline', document.getElementById('applicationDeadline').value || '');
+  formData.append('maxApplicants', document.getElementById('maxApplicants').value || '');
+  formData.append('description', document.getElementById('description').value);
+  formData.append('requirements', JSON.stringify(requirements));
+  formData.append('benefits', JSON.stringify(benefits));
+  formData.append('status', 'aberta');
+  formData.append('address', document.getElementById('address').value || '');
+  if (lat && lon) {
+    formData.append('latitude', lat);
+    formData.append('longitude', lon);
+  }
+
+  const jobImageInput = document.getElementById('jobImage');
+  if (jobImageInput.files && jobImageInput.files[0]) {
+    formData.append('jobImage', jobImageInput.files[0]);
+  }
+
+  // Disable submit button
+  const btnSubmit = document.getElementById('btnSubmit');
+  const originalText = btnSubmit.innerHTML;
+  btnSubmit.disabled = true;
+  btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+
+  try {
+    showMessage('Publicando vaga...', 'success');
+    const res = await fetch('/api/jobs', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMessage('Vaga publicada com sucesso! Redirecionando...', 'success');
+      setTimeout(() => window.location.href = '/perfil-empresa', 1500);
+    } else {
+      showMessage(data.error || 'Erro ao publicar vaga', 'error');
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = originalText;
+    }
+  } catch (err) {
+    console.error('Publish error', err);
+    showMessage('Erro de conexão ao publicar vaga', 'error');
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = originalText;
+  }
+}
+
+// Replace the form submit handler (ensure only one attached)
+document.addEventListener('DOMContentLoaded', function() {
+  const jobForm = document.getElementById('jobForm');
+  if (jobForm) {
+    jobForm.removeEventListener('submit', originalHandleSubmit);
+    jobForm.addEventListener('submit', handleSubmit);
+  }
+});

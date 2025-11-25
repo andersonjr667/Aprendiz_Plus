@@ -6,7 +6,7 @@ body, .main-content, main {
 /* header.css - Header moderno Aprendiz+ */
 .apz-header {
   width: 100%;
-  background: #fff;
+  background: var(--gray-50);
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   font-family: 'Poppins', Arial, sans-serif;
   position: sticky;
@@ -85,7 +85,7 @@ body, .main-content, main {
   position: absolute;
   right: 0;
   top: 110%;
-  background: #fff;
+  background: var(--gray-50);
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.13);
   min-width: 220px;
@@ -111,17 +111,17 @@ body, .main-content, main {
 }
 .apz-header__user-dropdown a:hover,
 .apz-header__user-dropdown button:hover {
-  background: #f3f7f4;
-  color: #27ae60;
+  background: var(--gray-200);
+  color: var(--brand-green);
 }
 .apz-header__user-dropdown button {
   color: #dc2626;
   font-weight: 600;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(0,0,0,0.04);
   margin-top: 4px;
 }
 .apz-header__user-dropdown button:hover {
-  background: #ffeaea;
+  background: rgba(220,38,38,0.06);
   color: #b71c1c;
 }
 .apz-header__login {
@@ -167,7 +167,7 @@ body, .main-content, main {
 }
 .apz-header__hamburger:active,
 .apz-header__hamburger:focus {
-  background: #f0f0f0;
+  background: var(--gray-200);
 }
 
 /* Overlay para o menu mobile */
@@ -190,7 +190,7 @@ body, .main-content, main {
   opacity: 1;
 }
 .apz-header__mobile-menu-content {
-  background: #fff;
+  background: var(--gray-50);
   width: 80vw;
   max-width: 320px;
   min-height: 100vh;
@@ -199,6 +199,48 @@ body, .main-content, main {
   display: flex;
   flex-direction: column;
   gap: 22px;
+}
+
+/* Dark mode toggle button */
+.apz-header__dark-toggle,
+#dark-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.06);
+  color: var(--gray-700);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.18s, color 0.18s, transform 0.08s;
+}
+
+.apz-header__dark-toggle i {
+  pointer-events: none;
+}
+
+.apz-header__dark-toggle:hover {
+  background: var(--gray-200);
+  transform: translateY(-1px);
+}
+
+.apz-header__dark-toggle:focus {
+  outline: 2px solid rgba(39,174,96,0.14);
+  outline-offset: 2px;
+}
+
+/* Show a sun color in dark mode */
+html.dark .apz-header__dark-toggle {
+  background: rgba(255, 209, 102, 0.08);
+  color: #ffd166;
+  border-color: rgba(255,209,102,0.12);
+}
+
+html.dark .apz-header {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 @media (max-width: 900px) {

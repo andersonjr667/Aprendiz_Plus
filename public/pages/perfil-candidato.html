@@ -21,13 +21,18 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/header.css">
     <link rel="stylesheet" href="/public/css/perfil-candidato.css?v=2.0">
     <link rel="stylesheet" href="/public/css/ui-dialogs.css">
+    <!-- Leaflet CSS (mapa do candidato) -->
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
     
     <script src="/public/js/auth.js"></script>
     <script src="/public/js/ui-dialogs.js" defer></script>
     <script src="/public/js/api.js" defer></script>
     
+    <!-- Leaflet JS -->
+    <script src="/node_modules/leaflet/dist/leaflet.js" defer></script>
     <script src="/public/js/perfil-candidato.js?v=3.0" defer></script>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
@@ -41,12 +46,38 @@
 
     <!-- Main Content -->
     <div class="container profile-container">
+        <!-- Profile header (avatar + name) -->
+        <section class="profile-header" style="margin-bottom: 18px;">
+            <div class="container profile-header-content" style="display:flex;align-items:center;gap:18px;">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="avatar-upload-overlay" style="display:none;">
+                        <i class="fas fa-camera"></i>
+                        <span>Alterar foto</span>
+                    </div>
+                </div>
+                <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+                <div style="flex:1;">
+                    <h1 id="profileName">Carregando...</h1>
+                    <p class="profile-subtitle" id="profileEmail">email@exemplo.com</p>
+                </div>
+            </div>
+        </section>
         <div class="profile-grid">
             <!-- Main Content -->
             <div class="profile-main">
                 <!-- Personal Info Card -->
                 <div class="profile-card">
-                    <!-- header removido -->
+                    <!-- Header with Edit button -->
+                    <div class="profile-card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <h3 style="margin:0; font-size:1.1rem;">Informações Pessoais</h3>
+                        <button id="btnEdit" class="btn btn-secondary" type="button" onclick="toggleEditMode()">
+                            <i class="fas fa-edit"></i>
+                            <span id="editText">Editar</span>
+                        </button>
+                    </div>
 
                     <div id="messageContainer" class="message-container" style="display: none;">
                         <span id="messageText"></span>
@@ -117,6 +148,7 @@
                             <div class="info-card info-card-full">
                                 <!-- header removido -->
                                 <p class="info-value" id="displayAddress">Não informado</p>
+                                <div id="candidateMap" style="height:220px; margin-top:12px; display:none; border-radius:8px; overflow:hidden;"></div>
                             </div>
 
                             <div class="info-card">
@@ -286,7 +318,14 @@
 
                 <!-- Interests Card -->
                 <div class="profile-card">
-                    <!-- header removido -->
+                    <!-- Header with Edit Interests button -->
+                    <div class="profile-card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <h3 style="margin:0; font-size:1.1rem;">Áreas de Interesse</h3>
+                        <button id="btnEditInterests" class="btn btn-secondary" type="button" onclick="toggleInterestsEditMode()">
+                            <i class="fas fa-edit"></i>
+                            <span id="editInterestsText">Editar</span>
+                        </button>
+                    </div>
                     <p class="card-subtitle" style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; margin-bottom: 15px;">
                         Selecione suas áreas de interesse para receber recomendações personalizadas de vagas
                     </p>
@@ -449,7 +488,14 @@
 
                 <!-- Achievements Card -->
                 <div class="profile-card" id="achievementsCard">
-                    <!-- header removido -->
+                    <!-- Header with Edit Achievements button -->
+                    <div class="profile-card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <h3 style="margin:0; font-size:1.1rem;">Conquistas</h3>
+                        <button id="btnEditAchievements" class="btn btn-secondary" type="button" onclick="toggleAchievementsEditMode()">
+                            <i class="fas fa-edit"></i>
+                            <span id="editAchievementsText">Editar Banner</span>
+                        </button>
+                    </div>
                     <div id="achievementsSection">
                         <div class="loading-profile">
                             <div class="spinner-profile"></div>
@@ -472,7 +518,21 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Account actions (final, above footer) -->
+    <div class="container" style="max-width:1200px; margin: 0 auto 20px;">
+        <div class="profile-card">
+            <div class="account-actions" style="padding:18px; text-align:center;">
+                <button class="btn btn-primary account-btn" onclick="openChangePasswordDialog()">
+                    <i class="fas fa-key"></i>&nbsp;Alterar Senha
+                </button>
+                <button class="btn btn-danger account-btn" onclick="openDeleteAccountDialog()" style="margin-left:12px;">
+                    <i class="fas fa-trash"></i>&nbsp;Excluir Conta
+                </button>
+                <div class="account-note" style="margin-top:10px; color:#7f8c8d; font-size:0.95rem;">Atenção: ações que afetam sua conta. Proceda com cuidado.</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="main-footer">
         <div class="footer-content">
@@ -520,15 +580,6 @@
 
     </main>
 
-    <!-- AI Assistant -->
-    <div class="profile-actions" style="margin: 2rem 0; text-align: center;">
-        <button class="btn btn-outline-primary" onclick="openChangePasswordDialog()">
-            <i class="fas fa-key"></i> Alterar Senha
-        </button>
-        <button class="btn btn-outline-danger" onclick="openDeleteAccountDialog()" style="margin-left: 1rem;">
-            <i class="fas fa-trash"></i> Excluir Conta
-        </button>
-    </div>
     <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>

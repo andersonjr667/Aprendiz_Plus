@@ -430,10 +430,26 @@
                             </div>
                         </div>
                     </div>
+                
                 </aside>
             </div>
         </div>
     </main>
+
+    <!-- Account actions (final, above footer) -->
+    <div class="container" style="max-width:1200px; margin: 0 auto 20px;">
+        <div class="profile-card">
+            <div class="account-actions" style="padding:18px; text-align:center;">
+                <button class="btn btn-primary account-btn" onclick="openChangePasswordDialog()">
+                    <i class="fas fa-key"></i>&nbsp;Alterar Senha
+                </button>
+                <button class="btn btn-danger account-btn" onclick="openDeleteAccountDialog()" style="margin-left:12px;">
+                    <i class="fas fa-trash"></i>&nbsp;Excluir Conta
+                </button>
+                <div class="account-note" style="margin-top:10px; color:#7f8c8d; font-size:0.95rem;">Atenção: ações que afetam sua conta. Proceda com cuidado.</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="main-footer">
@@ -485,15 +501,6 @@
     <script src="/public/js/auth.js"></script>
     <script src="/public/js/hamburger-menu.js"></script>
     <script src="/public/js/perfil-empresa.js"></script>
-    <!-- AI Assistant -->
-    <div class="profile-actions" style="margin: 2rem 0; text-align: center;">
-        <button class="btn btn-outline-primary" onclick="openChangePasswordDialog()">
-            <i class="fas fa-key"></i> Alterar Senha
-        </button>
-        <button class="btn btn-outline-danger" onclick="openDeleteAccountDialog()" style="margin-left: 1rem;">
-            <i class="fas fa-trash"></i> Excluir Conta
-        </button>
-    </div>
     <script src="/public/js/ai-assistant.js"></script>
 </body>
 </html>
