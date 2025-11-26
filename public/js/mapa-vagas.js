@@ -2,6 +2,16 @@
 // --- Mapa de Vagas OpenLayers ---
 let map, currentLocation = { lat: -23.55052, lng: -46.633308 };
 
+// Gera um data URL SVG para o marcador (pin) com cor customizável
+function getPinDataUrl(color = '#ff5722') {
+        const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='32' height='40' viewBox='0 0 32 40'>
+            <path d='M16 0C10 0 5 5 5 11c0 8.5 11 23 11 23s11-14.5 11-23c0-6-5-11-11-11z' fill='${color}' />
+            <circle cx='16' cy='11' r='4.5' fill='#fff' />
+        </svg>`;
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
 function displayMarkersOnMap(jobs) {
     // Remove existing markers
     if (window._olMarkersLayer) {
@@ -30,10 +40,11 @@ function displayMarkersOnMap(jobs) {
             distance: job.distance,
             id: job._id || job.id
         });
+        // Usar ícone SVG customizado (pin)
         jobFeature.setStyle(new ol.style.Style({
             image: new ol.style.Icon({
-                src: 'https://cdn.jsdelivr.net/npm/ol@v7.4.0/examples/data/icon.png',
-                scale: 0.7
+                src: getPinDataUrl('#1976d2'),
+                scale: 1
             })
         }));
         features.push(jobFeature);
@@ -56,6 +67,53 @@ function initMap() {
             center: ol.proj.fromLonLat([currentLocation.lng, currentLocation.lat]),
             zoom: 12
         })
+    });
+
+    // Preparar popup e interações
+    if (!window._olPopupOverlay) {
+        const popupEl = document.createElement('div');
+        popupEl.id = 'ol-popup';
+        popupEl.className = 'ol-popup';
+        popupEl.style.minWidth = '180px';
+        popupEl.style.background = 'white';
+        popupEl.style.padding = '8px';
+        popupEl.style.border = '1px solid rgba(0,0,0,0.1)';
+        popupEl.style.borderRadius = '6px';
+        popupEl.style.boxShadow = '0 3px 8px rgba(0,0,0,0.15)';
+
+        const content = document.createElement('div');
+        content.id = 'ol-popup-content';
+        popupEl.appendChild(content);
+
+        document.body.appendChild(popupEl);
+
+        const overlay = new ol.Overlay({ element: popupEl, autoPan: true, autoPanAnimation: { duration: 200 } });
+        map.addOverlay(overlay);
+        window._olPopupOverlay = overlay;
+    }
+
+    // Mostrar popup ao clicar em um marcador
+    map.on('singleclick', function(evt) {
+        const feature = map.forEachFeatureAtPixel(evt.pixel, function(f) { return f; });
+        if (feature && feature.get('id')) {
+            const coords = feature.getGeometry().getCoordinates();
+            const jobTitle = feature.get('name') || '';
+            const company = feature.get('company') || '';
+            const id = feature.get('id');
+            const contentEl = document.getElementById('ol-popup-content');
+            if (contentEl) {
+                contentEl.innerHTML = `<strong style="font-size:1rem">${jobTitle}</strong><div style="font-size:0.9rem;color:#666;margin-top:4px">${company}</div><div style="margin-top:8px;text-align:right"><a href="/vaga-detalhes.html?id=${id}">Ver detalhes</a></div>`;
+            }
+            window._olPopupOverlay.setPosition(coords);
+        } else if (window._olPopupOverlay) {
+            window._olPopupOverlay.setPosition(undefined);
+        }
+    });
+
+    // Cursor pointer ao passar por cima de marcadores
+    map.on('pointermove', function(evt) {
+        const hit = map.hasFeatureAtPixel(evt.pixel);
+        map.getTargetElement().style.cursor = hit ? 'pointer' : '';
     });
 }
 

@@ -1,7 +1,437 @@
 {
   "users": [],
   "news": [],
-  "jobs": [],
+  "jobs": [
+    {
+      "id": "6926677dc1d3fbca2b23f0c7",
+      "title": "Auxiliar de Enfermagem",
+      "company": "6926677dc1d3fbca2b23f0a5",
+      "location": "Campinas, SP",
+      "latitude": -22.9099,
+      "longitude": -47.0626,
+      "salary": "R$ 2.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:41.956Z"
+    },
+    {
+      "id": "6926677dc1d3fbca2b23f0c8",
+      "title": "Engenheiro Civil Pleno",
+      "company": "6926677dc1d3fbca2b23f0a7",
+      "location": "Salvador, BA",
+      "latitude": -12.9714,
+      "longitude": -38.5014,
+      "salary": "R$ 8.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:41.956Z"
+    },
+    {
+      "id": "6926677dc1d3fbca2b23f0c9",
+      "title": "Assistente Administrativo PCD",
+      "company": "6926677dc1d3fbca2b23f0a5",
+      "location": "Brasília, DF",
+      "latitude": -15.8267,
+      "longitude": -47.9218,
+      "salary": "R$ 2.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:41.956Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0e6",
+      "title": "Desenvolvedor Node.js Junior",
+      "company": "6926677dc1d3fbca2b23f0b3",
+      "location": "São Paulo, SP",
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "salary": "R$ 3.000 - R$ 4.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0e7",
+      "title": "Desenvolvedor Frontend React",
+      "company": "6926677dc1d3fbca2b23f0b3",
+      "location": "Rio de Janeiro, RJ",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "salary": "R$ 3.500 - R$ 5.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0e8",
+      "title": "Engenheiro de Machine Learning",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Belo Horizonte, MG",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 6.000 - R$ 9.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0e9",
+      "title": "Desenvolvedor Java Full Stack",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Porto Alegre, RS",
+      "latitude": -30.0346,
+      "longitude": -51.2177,
+      "salary": "R$ 4.000 - R$ 6.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0ea",
+      "title": "Estágio em Suporte Técnico",
+      "company": "6926677dc1d3fbca2b23f0b7",
+      "location": "Curitiba, PR",
+      "latitude": -25.4284,
+      "longitude": -49.2733,
+      "salary": "R$ 1.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0eb",
+      "title": "Analista de RH",
+      "company": "6926677dc1d3fbca2b23f0b3",
+      "location": "São Paulo, SP",
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "salary": "R$ 3.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.265Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0ec",
+      "title": "Desenvolvedor Mobile Flutter",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Belo Horizonte, MG",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 4.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.266Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0ed",
+      "title": "Auxiliar Administrativo",
+      "company": "6926677dc1d3fbca2b23f0b7",
+      "location": "Curitiba, PR",
+      "latitude": -25.4284,
+      "longitude": -49.2733,
+      "salary": "R$ 1.800",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.266Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0ee",
+      "title": "Estágio em Marketing Digital",
+      "company": "6926677dc1d3fbca2b23f0b3",
+      "location": "São Paulo, SP",
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "salary": "R$ 1.300",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.266Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f0",
+      "title": "Auxiliar de Serviços Gerais - BH (Centro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Afonso Pena, 1000 - Centro, Belo Horizonte - MG, 30130-003",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.291Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f1",
+      "title": "Atendente de Loja - BH (Savassi)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Antônio de Albuquerque, 210 - Savassi, Belo Horizonte - MG, 30112-000",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.400",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.292Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f2",
+      "title": "Auxiliar Administrativo - BH (Funcionários)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Sergipe, 1200 - Funcionários, Belo Horizonte - MG, 30130-170",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.800",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.292Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f3",
+      "title": "Vendedor Externo - BH (Barreiro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Olinto Meireles, 55 - Barreiro, Belo Horizonte - MG, 30690-180",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.292Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f4",
+      "title": "Estagiário de Marketing - BH (Lourdes)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Rio de Janeiro, 123 - Lourdes, Belo Horizonte - MG, 30140-130",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "salary": "R$ 1.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.292Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f5",
+      "title": "Motorista Entregador - BH (Sion)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Afonso Pena, 2650 - Sion, Belo Horizonte - MG, 30130-131",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.293Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f6",
+      "title": "Técnico de Informática - BH (Pampulha)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Presidente Antônio Carlos, 6627 - Pampulha, Belo Horizonte - MG, 31270-901",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.800",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.293Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f7",
+      "title": "Analista Financeiro - BH (Savassi)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Pernambuco, 500 - Savassi, Belo Horizonte - MG, 30130-150",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 3.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.293Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f8",
+      "title": "Analista de RH - BH (Serra)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Espírito Santo, 45 - Serra, Belo Horizonte - MG, 30130-020",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 3.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.294Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0f9",
+      "title": "Atendente de Restaurante - BH (Centro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua dos Tupinambás, 150 - Centro, Belo Horizonte - MG, 30120-010",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.350",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.294Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0fa",
+      "title": "Desenvolvedor Frontend - BH (Belvedere)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Professor Moraes, 777 - Belvedere, Belo Horizonte - MG, 30320-540",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 4.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.294Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0fb",
+      "title": "Desenvolvedor Backend - BH (Barro Preto)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. do Contorno, 5000 - Barro Preto, Belo Horizonte - MG, 30110-000",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 4.500",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.294Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0fc",
+      "title": "Estágio em Vendas - BH (Centro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Praça Sete de Setembro, 200 - Centro, Belo Horizonte - MG, 30110-070",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.295Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0fd",
+      "title": "Copeiro - BH (Funcionários)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua da Bahia, 1500 - Funcionários, Belo Horizonte - MG, 30160-020",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.300",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.295Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0fe",
+      "title": "Designer Gráfico - BH (Savassi)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Alagoas, 320 - Savassi, Belo Horizonte - MG, 30130-141",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.800",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.295Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f0ff",
+      "title": "Analista de Suporte - BH (Santa Efigênia)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Santa Rita Durão, 90 - Santa Efigênia, Belo Horizonte - MG, 30170-090",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.400",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.295Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f100",
+      "title": "Eletricista Predial - BH (Santo Agostinho)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Getúlio Vargas, 1200 - Santo Agostinho, Belo Horizonte - MG, 30112-000",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 2.700",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f101",
+      "title": "Analista de Qualidade - BH (Serra)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Goiás, 210 - Serra, Belo Horizonte - MG, 30130-070",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 3.600",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f102",
+      "title": "Auxiliar de Produção - BH (Distrito Industrial)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua das Industrias, 400 - Distrito Industrial, Belo Horizonte - MG, 31310-300",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.600",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f103",
+      "title": "Auxiliar de Logística - BH (Estoril)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Raja Gabaglia, 1200 - Estoril, Belo Horizonte - MG, 30380-000",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.700",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f104",
+      "title": "Coordenador Comercial - BH (Savassi)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Fernandes Tourinho, 200 - Savassi, Belo Horizonte - MG, 30140-060",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 6.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f105",
+      "title": "Analista de Dados Junior - BH (Cidade Nova)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Padre Pedro Pinto, 700 - Cidade Nova, Belo Horizonte - MG, 31010-490",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 3.200",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f106",
+      "title": "Recepcionista - BH (Cruzeiro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Espírito Santo, 800 - Cruzeiro, Belo Horizonte - MG, 30160-050",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.450",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.296Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f107",
+      "title": "Programador Mobile - BH (Buritis)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Av. Raja Gabaglia, 2500 - Buritis, Belo Horizonte - MG, 30455-000",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 4.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.297Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f108",
+      "title": "Técnico de Segurança do Trabalho - BH (Padre Eustáquio)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Padre Eustáquio, 150 - Padre Eustáquio, Belo Horizonte - MG, 31170-010",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 3.000",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.297Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f109",
+      "title": "Assistente Comercial - BH (Sion)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua Alagoas, 900 - Sion, Belo Horizonte - MG, 30140-130",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.900",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.297Z"
+    },
+    {
+      "id": "6926677ec1d3fbca2b23f10a",
+      "title": "Auxiliar de Cozinha - BH (Centro)",
+      "company": "6926677dc1d3fbca2b23f0b5",
+      "location": "Rua do Ouro, 45 - Centro, Belo Horizonte - MG, 30110-190",
+      "latitude": -19.9167,
+      "longitude": -43.9345,
+      "salary": "R$ 1.250",
+      "status": "aberta",
+      "createdAt": "2025-11-26T02:35:42.297Z"
+    }
+  ],
   "comments": [],
   "auditLogs": [],
   "images_perfil_candidato": [],
@@ -29,6 +459,72 @@
       "read": false,
       "metadata": {},
       "createdAt": "2025-11-13T02:11:45.067Z"
+    },
+    {
+      "id": "1764123958515vooigm50b",
+      "userId": "69266536686ba76ee50b5112",
+      "type": "application",
+      "title": "Nova vaga disponível!",
+      "message": "Confira a vaga de Desenvolvedor Node.js Junior.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:25:58.515Z"
+    },
+    {
+      "id": "1764123958519hpjne8wbq",
+      "userId": "69266536686ba76ee50b511c",
+      "type": "application",
+      "title": "Vaga PCD aberta",
+      "message": "Vaga exclusiva para PCD disponível.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:25:58.519Z"
+    },
+    {
+      "id": "1764124045060q8kxv5yzx",
+      "userId": "6926658c54804a29421fcc2c",
+      "type": "application",
+      "title": "Nova vaga disponível!",
+      "message": "Confira a vaga de Desenvolvedor Node.js Junior.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:27:25.060Z"
+    },
+    {
+      "id": "17641240450630rkr6t4mu",
+      "userId": "6926658c54804a29421fcc36",
+      "type": "application",
+      "title": "Vaga PCD aberta",
+      "message": "Vaga exclusiva para PCD disponível.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:27:25.063Z"
+    },
+    {
+      "id": "1764124542082zbl94jsam",
+      "userId": "6926677dc1d3fbca2b23f0b9",
+      "type": "application",
+      "title": "Nova vaga disponível!",
+      "message": "Confira a vaga de Desenvolvedor Node.js Junior.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:35:42.082Z"
+    },
+    {
+      "id": "1764124542085elgsfs7as",
+      "userId": "6926677dc1d3fbca2b23f0c3",
+      "type": "application",
+      "title": "Vaga PCD aberta",
+      "message": "Vaga exclusiva para PCD disponível.",
+      "link": "/vagas",
+      "read": false,
+      "metadata": {},
+      "createdAt": "2025-11-26T02:35:42.085Z"
     }
   ],
   "favorites": [
@@ -40,6 +536,33 @@
       "listId": "default",
       "notes": "Quero acompanhar esta vaga",
       "createdAt": "2025-11-13T02:11:45.395Z"
+    },
+    {
+      "id": "1764123958716qx6quoobc",
+      "userId": "69266536686ba76ee50b5112",
+      "targetId": "69266536686ba76ee50b5120",
+      "targetType": "job",
+      "listId": "default",
+      "notes": "Quero acompanhar esta vaga",
+      "createdAt": "2025-11-26T02:25:58.716Z"
+    },
+    {
+      "id": "1764124045231czrt6nmkt",
+      "userId": "6926658c54804a29421fcc2c",
+      "targetId": "6926658c54804a29421fcc3a",
+      "targetType": "job",
+      "listId": "default",
+      "notes": "Quero acompanhar esta vaga",
+      "createdAt": "2025-11-26T02:27:25.231Z"
+    },
+    {
+      "id": "1764124542263kxrz0m70k",
+      "userId": "6926677dc1d3fbca2b23f0b9",
+      "targetId": "6926677dc1d3fbca2b23f0c7",
+      "targetType": "job",
+      "listId": "default",
+      "notes": "Quero acompanhar esta vaga",
+      "createdAt": "2025-11-26T02:35:42.263Z"
     }
   ],
   "favoriteLists": [],
@@ -61,6 +584,60 @@
       "status": "pending",
       "createdAt": "2025-11-13T02:11:45.383Z",
       "updatedAt": "2025-11-13T02:11:45.383Z"
+    },
+    {
+      "id": "17641239587122srneo5mt",
+      "reviewerId": "69266536686ba76ee50b5112",
+      "reviewerType": "candidate",
+      "targetId": "69266536686ba76ee50b510c",
+      "targetType": "company",
+      "jobId": "69266536686ba76ee50b5120",
+      "rating": 5,
+      "comment": "Ótima empresa!",
+      "pros": [
+        "Ambiente saudável"
+      ],
+      "cons": [],
+      "anonymous": false,
+      "status": "pending",
+      "createdAt": "2025-11-26T02:25:58.712Z",
+      "updatedAt": "2025-11-26T02:25:58.712Z"
+    },
+    {
+      "id": "1764124045228hnsiwobyl",
+      "reviewerId": "6926658c54804a29421fcc2c",
+      "reviewerType": "candidate",
+      "targetId": "6926658c54804a29421fcc26",
+      "targetType": "company",
+      "jobId": "6926658c54804a29421fcc3a",
+      "rating": 5,
+      "comment": "Ótima empresa!",
+      "pros": [
+        "Ambiente saudável"
+      ],
+      "cons": [],
+      "anonymous": false,
+      "status": "pending",
+      "createdAt": "2025-11-26T02:27:25.228Z",
+      "updatedAt": "2025-11-26T02:27:25.228Z"
+    },
+    {
+      "id": "17641245422581t6xt1dkh",
+      "reviewerId": "6926677dc1d3fbca2b23f0b9",
+      "reviewerType": "candidate",
+      "targetId": "6926677dc1d3fbca2b23f0b3",
+      "targetType": "company",
+      "jobId": "6926677dc1d3fbca2b23f0c7",
+      "rating": 5,
+      "comment": "Ótima empresa!",
+      "pros": [
+        "Ambiente saudável"
+      ],
+      "cons": [],
+      "anonymous": false,
+      "status": "pending",
+      "createdAt": "2025-11-26T02:35:42.258Z",
+      "updatedAt": "2025-11-26T02:35:42.258Z"
     }
   ],
   "verifications": [],

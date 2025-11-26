@@ -71,7 +71,9 @@ class GeoLocation {
     const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
     if (!dbData.jobs) return [];
 
-    let jobs = dbData.jobs.filter(j => j.status === 'active');
+    // Considerar vários valores de status que representam vagas ativas
+    const activeStatuses = ['active', 'aberta', 'open', 'available', 'ativo'];
+    let jobs = dbData.jobs.filter(j => activeStatuses.includes((j.status || '').toString().toLowerCase()));
 
     // Aplicar filtros adicionais
     if (filters.title) {
@@ -127,7 +129,9 @@ class GeoLocation {
     const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
     if (!dbData.users) return [];
 
-    let candidates = dbData.users.filter(u => u.type === 'candidato' && u.status === 'active');
+    // Aceitar status em português/inglês para candidatos ativos
+    const activeUserStatuses = ['active', 'ativo', 'available'];
+    let candidates = dbData.users.filter(u => u.type === 'candidato' && activeUserStatuses.includes((u.status || '').toString().toLowerCase()));
 
     // Aplicar filtros
     if (filters.skills && filters.skills.length > 0) {
@@ -215,7 +219,8 @@ class GeoLocation {
     const dbData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
     if (!dbData.jobs) return [];
 
-    let jobs = dbData.jobs.filter(j => j.status === 'active');
+    const activeStatuses2 = ['active', 'aberta', 'open', 'available', 'ativo'];
+    let jobs = dbData.jobs.filter(j => activeStatuses2.includes((j.status || '').toString().toLowerCase()));
 
     // Filtrar por bounds se fornecido
     if (bounds) {

@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Job = require('../models/Job');
 const News = require('../models/News');
-const { env } = require('@tensorflow/tfjs');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aprendiz_plus';
 
@@ -20,22 +19,22 @@ async function seed(){
   // Usuários principais (devem ser criados antes de qualquer uso)
   const owner = await User.create({ name: 'Anderson Jr', email: 'alsj1520@gmail.com', passwordHash: password, type: 'owner', cpf: '123.456.789-00', phone: '(11) 99999-0000', bio: 'Fundador do Aprendiz Plus', avatarUrl: '', emailVerified: true });
   const admin = await User.create({ name: 'Admin', email: 'admin@local', passwordHash: password, type: 'admin', cpf: '111.222.333-44', phone: '(21) 98888-1111', bio: 'Administrador do sistema', emailVerified: true });
-  const admin2 = await User.create({ name: 'Admin 2', email: 'admin2@local', passwordHash: password2, type: 'admin', cpf: '222.333.444-55', phone: '(31) 97777-2222', bio: 'Admin secundário', emailVerified: true });
-  const adminPerms = await User.create({ name: 'Admin Master', email: 'master@local', passwordHash: password, type: 'admin', cpf: '888.999.000-11', phone: '(61) 99999-8888', bio: 'Admin com permissões totais', emailVerified: true });
-  const adminRestrito = await User.create({ name: 'Admin Restrito', email: 'restrito@local', passwordHash: password2, type: 'admin', cpf: '999.000.111-22', phone: '(62) 98888-9999', bio: 'Admin com permissões restritas', emailVerified: true });
+  await User.create({ name: 'Admin 2', email: 'admin2@local', passwordHash: password2, type: 'admin', cpf: '222.333.444-55', phone: '(31) 97777-2222', bio: 'Admin secundário', emailVerified: true });
+  await User.create({ name: 'Admin Master', email: 'master@local', passwordHash: password, type: 'admin', cpf: '888.999.000-11', phone: '(61) 99999-8888', bio: 'Admin com permissões totais', emailVerified: true });
+  await User.create({ name: 'Admin Restrito', email: 'restrito@local', passwordHash: password2, type: 'admin', cpf: '999.000.111-22', phone: '(62) 98888-9999', bio: 'Admin com permissões restritas', emailVerified: true });
   const companyA = await User.create({ name: 'Empresa A', email: 'a@empresa', passwordHash: password, type: 'empresa', cnpj: '12.345.678/0001-00', companyProfile: { website: 'https://empresa-a.local', tradeName: 'Empresa A', legalName: 'Empresa A LTDA', businessArea: 'Tecnologia', numberOfEmployees: 50, city: 'São Paulo', state: 'SP', corporateEmail: 'contato@empresa-a.local', commercialPhone: '(11) 4002-8922' }, emailVerified: true });
   const companyB = await User.create({ name: 'Empresa B', email: 'b@empresa', passwordHash: password, type: 'empresa', cnpj: '98.765.432/0001-99', companyProfile: { website: 'https://empresa-b.local', tradeName: 'Empresa B', legalName: 'Empresa B S.A.', businessArea: 'Educação', numberOfEmployees: 120, city: 'Belo Horizonte', state: 'MG', corporateEmail: 'rh@empresa-b.local', commercialPhone: '(31) 3003-1234' }, emailVerified: true });
   const companyC = await User.create({ name: 'Empresa C', email: 'c@empresa', passwordHash: password2, type: 'empresa', cnpj: '11.222.333/0001-44', companyProfile: { website: 'https://empresa-c.local', tradeName: 'Empresa C', legalName: 'Empresa C ME', businessArea: 'Saúde', numberOfEmployees: 30, city: 'Curitiba', state: 'PR', corporateEmail: 'contato@empresa-c.local', commercialPhone: '(41) 4004-5678' }, emailVerified: true });
   // Candidatos
   const c1 = await User.create({ name: 'Candidato 1', email: 'c1@local', passwordHash: password, type: 'candidato', cpf: '333.444.555-66', candidateProfile: { skills: ['javascript','nodejs'], bio: 'Desenvolvedor backend', education: 'Ensino Médio Completo', gender: 'masculino', city: 'São Paulo', state: 'SP', linkedinUrl: 'https://linkedin.com/in/candidato1', areasOfInterest: ['Desenvolvimento', 'TI'], availability: 'integral', isPCD: false, currentEducation: 'medio-completo', educationInstitution: 'E.E. São Paulo', studyShift: 'manha' }, emailVerified: true });
   const c2 = await User.create({ name: 'Candidato 2', email: 'c2@local', passwordHash: password, type: 'candidato', cpf: '444.555.666-77', candidateProfile: { skills: ['python','ml'], bio: 'Aspirante a cientista de dados', education: 'Superior Cursando', gender: 'feminino', city: 'Rio de Janeiro', state: 'RJ', linkedinUrl: 'https://linkedin.com/in/candidato2', areasOfInterest: ['Dados', 'IA'], availability: 'tarde', isPCD: true, pcdDescription: 'Deficiência auditiva', currentEducation: 'superior-cursando', educationInstitution: 'UFRJ', studyShift: 'tarde' }, emailVerified: true });
-  const c3 = await User.create({ name: 'Candidato 3', email: 'c3@local', passwordHash: password, type: 'candidato', cpf: '555.666.777-88', candidateProfile: { skills: ['java','spring'], bio: 'Desenvolvedor Java', education: 'Superior Completo', gender: 'masculino', city: 'Belo Horizonte', state: 'MG', linkedinUrl: 'https://linkedin.com/in/candidato3', areasOfInterest: ['Desenvolvimento', 'Backend'], availability: 'manha', isPCD: false, currentEducation: 'superior-completo', educationInstitution: 'PUC Minas', studyShift: 'noite' }, emailVerified: true });
-  const c4 = await User.create({ name: 'Candidata 4', email: 'c4@local', passwordHash: password2, type: 'candidato', cpf: '666.777.888-99', candidateProfile: { skills: ['html','css','javascript'], bio: 'Frontend apaixonada por UI/UX', education: 'Médio Completo', gender: 'feminino', city: 'Curitiba', state: 'PR', linkedinUrl: 'https://linkedin.com/in/candidata4', areasOfInterest: ['Frontend', 'Design'], availability: 'flexivel', isPCD: false, currentEducation: 'medio-completo', educationInstitution: 'Colégio Estadual', studyShift: 'manha' }, emailVerified: true });
-  const c5 = await User.create({ name: 'Candidato 5', email: 'c5@local', passwordHash: password2, type: 'candidato', cpf: '777.888.999-00', candidateProfile: { skills: ['php','laravel'], bio: 'Desenvolvedor PHP', education: 'Superior Cursando', gender: 'masculino', city: 'Porto Alegre', state: 'RS', linkedinUrl: 'https://linkedin.com/in/candidato5', areasOfInterest: ['Web', 'Backend'], availability: 'noite', isPCD: false, currentEducation: 'superior-cursando', educationInstitution: 'UFRGS', studyShift: 'noite' }, emailVerified: true });
+  await User.create({ name: 'Candidato 3', email: 'c3@local', passwordHash: password, type: 'candidato', cpf: '555.666.777-88', candidateProfile: { skills: ['java','spring'], bio: 'Desenvolvedor Java', education: 'Superior Completo', gender: 'masculino', city: 'Belo Horizonte', state: 'MG', linkedinUrl: 'https://linkedin.com/in/candidato3', areasOfInterest: ['Desenvolvimento', 'Backend'], availability: 'manha', isPCD: false, currentEducation: 'superior-completo', educationInstitution: 'PUC Minas', studyShift: 'noite' }, emailVerified: true });
+  await User.create({ name: 'Candidata 4', email: 'c4@local', passwordHash: password2, type: 'candidato', cpf: '666.777.888-99', candidateProfile: { skills: ['html','css','javascript'], bio: 'Frontend apaixonada por UI/UX', education: 'Médio Completo', gender: 'feminino', city: 'Curitiba', state: 'PR', linkedinUrl: 'https://linkedin.com/in/candidata4', areasOfInterest: ['Frontend', 'Design'], availability: 'flexivel', isPCD: false, currentEducation: 'medio-completo', educationInstitution: 'Colégio Estadual', studyShift: 'manha' }, emailVerified: true });
+  await User.create({ name: 'Candidato 5', email: 'c5@local', passwordHash: password2, type: 'candidato', cpf: '777.888.999-00', candidateProfile: { skills: ['php','laravel'], bio: 'Desenvolvedor PHP', education: 'Superior Cursando', gender: 'masculino', city: 'Porto Alegre', state: 'RS', linkedinUrl: 'https://linkedin.com/in/candidato5', areasOfInterest: ['Web', 'Backend'], availability: 'noite', isPCD: false, currentEducation: 'superior-cursando', educationInstitution: 'UFRGS', studyShift: 'noite' }, emailVerified: true });
   // Candidato PCD
   const c6 = await User.create({ name: 'Candidato PCD', email: 'pcd@local', passwordHash: password, type: 'candidato', cpf: '888.777.666-55', candidateProfile: { skills: ['excel','atendimento'], bio: 'PCD com experiência em atendimento', education: 'Médio Completo', gender: 'feminino', city: 'Brasília', state: 'DF', linkedinUrl: 'https://linkedin.com/in/pcd', areasOfInterest: ['Administrativo'], availability: 'manha', isPCD: true, pcdDescription: 'Deficiência física - membro inferior', currentEducation: 'medio-completo', educationInstitution: 'Colégio DF', studyShift: 'manha' }, emailVerified: true, avatarUrl: '/public/images/opportunities-icon.svg', resumeUrl: 'https://meucurriculo.com/pcd.pdf' });
   // Candidato com foto e currículo
-  const c7 = await User.create({ name: 'Candidato Foto', email: 'foto@local', passwordHash: password2, type: 'candidato', cpf: '999.888.777-66', candidateProfile: { skills: ['marketing','design'], bio: 'Designer e marketeiro', education: 'Superior Completo', gender: 'outro', city: 'Recife', state: 'PE', linkedinUrl: 'https://linkedin.com/in/foto', areasOfInterest: ['Design', 'Marketing'], availability: 'integral', isPCD: false, currentEducation: 'superior-completo', educationInstitution: 'UFPE', studyShift: 'tarde' }, emailVerified: true, avatarUrl: '/public/images/logo.png', resumeUrl: 'https://meucurriculo.com/foto.pdf' });
+  await User.create({ name: 'Candidato Foto', email: 'foto@local', passwordHash: password2, type: 'candidato', cpf: '999.888.777-66', candidateProfile: { skills: ['marketing','design'], bio: 'Designer e marketeiro', education: 'Superior Completo', gender: 'outro', city: 'Recife', state: 'PE', linkedinUrl: 'https://linkedin.com/in/foto', areasOfInterest: ['Design', 'Marketing'], availability: 'integral', isPCD: false, currentEducation: 'superior-completo', educationInstitution: 'UFPE', studyShift: 'tarde' }, emailVerified: true, avatarUrl: '/public/images/logo.png', resumeUrl: 'https://meucurriculo.com/foto.pdf' });
 
   // Vagas variadas
   const vagasExtras = [
@@ -211,6 +210,71 @@ async function seed(){
     }
   ];
   await Job.insertMany(jobs);
+
+  // Adicionar muitas vagas detalhadas em Belo Horizonte (endereços completos)
+  const bhJobs = [
+    { title: 'Auxiliar de Serviços Gerais - BH (Centro)', description: 'Limpeza e manutenção predial.', requirements: ['Ensino Médio'], benefits: ['Vale transporte'], salary: 'R$ 1.500', location: 'Av. Afonso Pena, 1000 - Centro, Belo Horizonte - MG, 30130-003', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Atendente de Loja - BH (Savassi)', description: 'Atendimento ao cliente e reposição de mercadorias.', requirements: ['Boa comunicação'], benefits: ['Vale refeição'], salary: 'R$ 1.400', location: 'Rua Antônio de Albuquerque, 210 - Savassi, Belo Horizonte - MG, 30112-000', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Auxiliar Administrativo - BH (Funcionários)', description: 'Organização de documentos e apoio ao RH.', requirements: ['Pacote Office'], benefits: ['Vale transporte'], salary: 'R$ 1.800', location: 'Rua Sergipe, 1200 - Funcionários, Belo Horizonte - MG, 30130-170', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Vendedor Externo - BH (Barreiro)', description: 'Prospecção e visita a clientes.', requirements: ['CNH B'], benefits: ['Comissão'], salary: 'R$ 2.200', location: 'Av. Olinto Meireles, 55 - Barreiro, Belo Horizonte - MG, 30690-180', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Estagiário de Marketing - BH (Lourdes)', description: 'Apoio em campanhas e redes sociais.', requirements: ['Cursos de marketing'], benefits: ['Bolsa auxílio'], salary: 'R$ 1.200', location: 'Rua Rio de Janeiro, 123 - Lourdes, Belo Horizonte - MG, 30140-130', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Motorista Entregador - BH (Sion)', description: 'Entrega de mercadorias na região metropolitana.', requirements: ['CNH categoria D preferencial'], benefits: ['Seguro de vida'], salary: 'R$ 2.500', location: 'Av. Afonso Pena, 2650 - Sion, Belo Horizonte - MG, 30130-131', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Técnico de Informática - BH (Pampulha)', description: 'Manutenção de computadores e redes.', requirements: ['Curso técnico'], benefits: ['Vale transporte'], salary: 'R$ 2.800', location: 'Av. Presidente Antônio Carlos, 6627 - Pampulha, Belo Horizonte - MG, 31270-901', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Analista Financeiro - BH (Savassi)', description: 'Contas a pagar, conciliações e relatórios.', requirements: ['Formação em Administração/Contabilidade'], benefits: ['Plano de saúde'], salary: 'R$ 3.500', location: 'Rua Pernambuco, 500 - Savassi, Belo Horizonte - MG, 30130-150', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Analista de RH - BH (Serra)', description: 'Recrutamento e seleção.', requirements: ['Experiência em RH'], benefits: ['Vale refeição'], salary: 'R$ 3.200', location: 'Rua Espírito Santo, 45 - Serra, Belo Horizonte - MG, 30130-020', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Atendente de Restaurante - BH (Centro)', description: 'Atendimento e apoio na cozinha.', requirements: ['Experiência'], benefits: ['Refeição no local'], salary: 'R$ 1.350', location: 'Rua dos Tupinambás, 150 - Centro, Belo Horizonte - MG, 30120-010', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Desenvolvedor Frontend - BH (Belvedere)', description: 'Desenvolvimento em React e integração com APIs.', requirements: ['React.js', 'JavaScript'], benefits: ['Home office parcial'], salary: 'R$ 4.200', location: 'Rua Professor Moraes, 777 - Belvedere, Belo Horizonte - MG, 30320-540', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Desenvolvedor Backend - BH (Barro Preto)', description: 'APIs em Node.js e banco de dados.', requirements: ['Node.js', 'MongoDB'], benefits: ['Vale alimentação'], salary: 'R$ 4.500', location: 'Av. do Contorno, 5000 - Barro Preto, Belo Horizonte - MG, 30110-000', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Estágio em Vendas - BH (Centro)', description: 'Suporte à equipe de vendas e telemarketing.', requirements: ['Boa comunicação'], benefits: ['Bolsa auxílio'], salary: 'R$ 1.000', location: 'Praça Sete de Setembro, 200 - Centro, Belo Horizonte - MG, 30110-070', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Copeiro - BH (Funcionários)', description: 'Preparação de bebidas e limpeza da copa.', requirements: ['Organização'], benefits: ['Vale transporte'], salary: 'R$ 1.300', location: 'Rua da Bahia, 1500 - Funcionários, Belo Horizonte - MG, 30160-020', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Designer Gráfico - BH (Savassi)', description: 'Criação de peças digitais e impressas.', requirements: ['Adobe Suite'], benefits: ['Home office esporádico'], salary: 'R$ 2.800', location: 'Rua Alagoas, 320 - Savassi, Belo Horizonte - MG, 30130-141', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Analista de Suporte - BH (Santa Efigênia)', description: 'Atendimento e solução de chamados.', requirements: ['Conhecimentos em redes'], benefits: ['Plano odontológico'], salary: 'R$ 2.400', location: 'Rua Santa Rita Durão, 90 - Santa Efigênia, Belo Horizonte - MG, 30170-090', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Eletricista Predial - BH (Santo Agostinho)', description: 'Manutenção elétrica predial.', requirements: ['NR10'], benefits: ['Vale transporte'], salary: 'R$ 2.700', location: 'Av. Getúlio Vargas, 1200 - Santo Agostinho, Belo Horizonte - MG, 30112-000', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Analista de Qualidade - BH (Serra)', description: 'Testes e garantia de qualidade de software.', requirements: ['Testes automatizados'], benefits: ['Vale alimentação'], salary: 'R$ 3.600', location: 'Rua Goiás, 210 - Serra, Belo Horizonte - MG, 30130-070', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Auxiliar de Produção - BH (Distrito Industrial)', description: 'Atividades de linha de produção.', requirements: ['Disponibilidade de horário'], benefits: ['Vale transporte'], salary: 'R$ 1.600', location: 'Rua das Industrias, 400 - Distrito Industrial, Belo Horizonte - MG, 31310-300', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Auxiliar de Logística - BH (Estoril)', description: 'Separação, expedição e recebimento de mercadorias.', requirements: ['Organização'], benefits: ['Vale alimentação'], salary: 'R$ 1.700', location: 'Av. Raja Gabaglia, 1200 - Estoril, Belo Horizonte - MG, 30380-000', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Coordenador Comercial - BH (Savassi)', description: 'Gestão de equipe de vendas.', requirements: ['Experiência em liderança'], benefits: ['Carro da empresa'], salary: 'R$ 6.000', location: 'Rua Fernandes Tourinho, 200 - Savassi, Belo Horizonte - MG, 30140-060', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Analista de Dados Junior - BH (Cidade Nova)', description: 'Análise e visualização de dados.', requirements: ['SQL', 'Excel'], benefits: ['Home office parcial'], salary: 'R$ 3.200', location: 'Rua Padre Pedro Pinto, 700 - Cidade Nova, Belo Horizonte - MG, 31010-490', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Recepcionista - BH (Cruzeiro)', description: 'Atendimento e agendamento.', requirements: ['Boa comunicação'], benefits: ['Vale transporte'], salary: 'R$ 1.450', location: 'Rua Espírito Santo, 800 - Cruzeiro, Belo Horizonte - MG, 30160-050', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Programador Mobile - BH (Buritis)', description: 'Desenvolvimento em Flutter/React Native.', requirements: ['Flutter ou React Native'], benefits: ['Horário flexível'], salary: 'R$ 4.000', location: 'Av. Raja Gabaglia, 2500 - Buritis, Belo Horizonte - MG, 30455-000', workModel: 'remoto', company: companyB._id, status: 'aberta' },
+    { title: 'Técnico de Segurança do Trabalho - BH (Padre Eustáquio)', description: 'Inspeções e treinamentos de segurança.', requirements: ['NR35', 'Curso de Segurança'], benefits: ['Plano de saúde'], salary: 'R$ 3.000', location: 'Rua Padre Eustáquio, 150 - Padre Eustáquio, Belo Horizonte - MG, 31170-010', workModel: 'presencial', company: companyB._id, status: 'aberta' },
+    { title: 'Assistente Comercial - BH (Sion)', description: 'Suporte à equipe comercial.', requirements: ['Boa comunicação'], benefits: ['Vale alimentação'], salary: 'R$ 1.900', location: 'Rua Alagoas, 900 - Sion, Belo Horizonte - MG, 30140-130', workModel: 'híbrido', company: companyB._id, status: 'aberta' },
+    { title: 'Auxiliar de Cozinha - BH (Centro)', description: 'Preparação de alimentos e apoio.', requirements: ['Experiência preferencial'], benefits: ['Refeição no local'], salary: 'R$ 1.250', location: 'Rua do Ouro, 45 - Centro, Belo Horizonte - MG, 30110-190', workModel: 'presencial', company: companyB._id, status: 'aberta' }
+  ];
+  await Job.insertMany(bhJobs);
+
+  // Sincronizar vagas criadas no MongoDB para data/db.json (usado pelo GeoLocation)
+  try {
+    const GeoLocation = require('../models/GeoLocation');
+    const fs = require('fs').promises;
+    const path = require('path');
+    const dbPath = path.join(__dirname, '../data/db.json');
+
+    const allJobsFromDb = await Job.find().lean();
+
+    const jobsToWrite = await Promise.all(allJobsFromDb.map(async (j) => {
+      const address = j.location || '';
+      const coords = await GeoLocation.geocodeAddress(address);
+      return {
+        id: j._id.toString(),
+        title: j.title,
+        company: j.company ? j.company.toString() : null,
+        location: j.location || '',
+        latitude: coords.lat,
+        longitude: coords.lng,
+        salary: j.salary || '',
+        status: j.status || 'active',
+        createdAt: j.createdAt || new Date().toISOString()
+      };
+    }));
+
+    const dbContent = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    dbContent.jobs = jobsToWrite;
+    await fs.writeFile(dbPath, JSON.stringify(dbContent, null, 2), 'utf8');
+    console.log('data/db.json atualizado com vagas (geo) para mapa');
+  } catch (err) {
+    console.warn('Não foi possível sincronizar data/db.json:', err.message);
+  }
 
   // Create test news
   const newsData = [

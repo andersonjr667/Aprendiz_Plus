@@ -4,6 +4,72 @@ let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let aiRecommendations = [];
 let currentJobs = []; // Store currently loaded jobs
 
+// Lightweight API request helper that prefers a global `apiFetch` (adds auth/credentials)
+async function apiReq(path, options = {}) {
+  if (window.apiFetch && typeof window.apiFetch === 'function') {
+    // apiFetch prepends the API base (`/api`) itself. If caller already passed a path
+    // that starts with `/api/`, strip the leading `/api` to avoid `/api/api/...`.
+    let pathForApi = path;
+    if (typeof path === 'string' && path.startsWith('/api/')) {
+      pathForApi = path.slice(4); // remove leading '/api'
+    }
+    const data = await window.apiFetch(pathForApi, options);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => data,
+      text: async () => (typeof data === 'string' ? data : JSON.stringify(data))
+    };
+  }
+
+  const opts = Object.assign({}, options);
+  opts.credentials = opts.credentials || 'include';
+  opts.headers = Object.assign({}, opts.headers || {});
+
+  if (!opts.headers.Authorization && window.Auth && typeof window.Auth.getToken === 'function') {
+    const t = window.Auth.getToken();
+    if (t) opts.headers.Authorization = 'Bearer ' + t;
+  }
+
+  return fetch(path, opts);
+}
+
+// Populate location select with values from existing jobs (lightweight)
+async function populateLocations() {
+  try {
+    const res = await apiReq('/api/jobs?limit=200');
+    if (!res.ok) return;
+    const data = await res.json();
+    const jobs = data.items || data || [];
+    const set = new Set();
+    jobs.forEach(j => {
+      if (j.location) set.add(j.location);
+      if (j.company && j.company.companyProfile && j.company.companyProfile.city) set.add(j.company.companyProfile.city);
+    });
+
+    const select = document.getElementById('location');
+    if (!select) return;
+
+    // keep the default option
+    const current = select.value || '';
+    // remove existing options except first
+    while (select.options.length > 1) select.remove(1);
+
+    Array.from(set).sort().forEach(loc => {
+      if (!loc) return;
+      const opt = document.createElement('option');
+      opt.value = loc;
+      opt.textContent = loc;
+      select.appendChild(opt);
+    });
+
+    // restore value if present
+    if (current) select.value = current;
+  } catch (err) {
+    console.warn('populateLocations error', err);
+  }
+}
+
 // Show skeleton loading
 function showSkeletonLoading() {
   const container = document.getElementById('jobs');
@@ -232,7 +298,7 @@ async function loadJobs() {
   }
   
   try {
-    const res = await fetch(`/api/jobs?search=${q}&location=${loc}&model=${model}&page=${page}&limit=${pageSize}`);
+    const res = await apiReq(`/api/jobs?search=${q}&location=${loc}&model=${model}&page=${page}&limit=${pageSize}`);
     const data = await res.json();
     const container = document.getElementById('jobs');
     if (!container) return;
@@ -335,7 +401,6 @@ async function loadJobs() {
     if (jobs.length > 0 && jobs.length < 6) {
       loadSuggestedJobs();
     }
-    
   } catch (err) {
     console.error('Erro ao carregar vagas:', err);
     showEmptyState(
@@ -376,7 +441,7 @@ function updateResultsCount(total) {
 // Load suggested jobs
 async function loadSuggestedJobs() {
   try {
-    const res = await fetch('/api/jobs?limit=3&random=true');
+    const res = await apiReq('/api/jobs?limit=3&random=true');
     const data = await res.json();
     
     if (data.items && data.items.length > 0) {
@@ -587,8 +652,8 @@ window.addEventListener('DOMContentLoaded', function() {
     loadAIRecommendations();
   }
   
-  // Load initial jobs
-  loadJobs();
+  // Populate locations and load initial jobs
+  populateLocations().finally(() => loadJobs());
 });
 
 // Check if user is logged in
