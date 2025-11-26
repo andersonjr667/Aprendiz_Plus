@@ -196,16 +196,18 @@ function validateForm(formData) {
 
   if (type === 'candidato' && cep && cep.trim()) {
     const cepClean = cep.replace(/\D/g, '');
-    if (cepClean.length !== 8) {
+    if (cepClean.length > 0 && cepClean.length !== 8) {
       throw new Error('CEP deve ter 8 dígitos');
     }
+
   }
 
   if (type === 'empresa' && companyCep && companyCep.trim()) {
     const cepClean = companyCep.replace(/\D/g, '');
-    if (cepClean.length !== 8) {
+    if (cepClean.length > 0 && cepClean.length !== 8) {
       throw new Error('CEP deve ter 8 dígitos');
     }
+
   }
 }
 
