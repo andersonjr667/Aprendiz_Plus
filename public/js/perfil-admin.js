@@ -22,6 +22,36 @@ function getAuthToken() {
   return null;
 }
 
+// Chamada centralizada para API: usa `window.apiFetch` se disponível,
+// injeta token quando houver e preserva `FormData` sem Content-Type.
+async function callApi(path, options = {}) {
+  const token = getAuthToken();
+  const opts = Object.assign({ credentials: 'include' }, options || {});
+
+  opts.headers = Object.assign({}, opts.headers || {});
+
+  // Não sobrescrever Content-Type quando for FormData
+  const isForm = opts.body instanceof FormData;
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (!isForm && opts.body && typeof opts.body !== 'string' && !opts.headers['Content-Type']) {
+    opts.headers['Content-Type'] = 'application/json';
+  }
+
+  const fetcher = (typeof window !== 'undefined' && window.apiFetch) ? window.apiFetch : fetch;
+  return await fetcher(path, opts);
+}
+
+// Helpers visuais para upload de avatar (adicionam/removem classe no wrapper)
+function showAvatarUploading() {
+  const wrapper = document.querySelector('.profile-avatar-wrapper');
+  if (wrapper) wrapper.classList.add('uploading');
+}
+
+function hideAvatarUploading() {
+  const wrapper = document.querySelector('.profile-avatar-wrapper');
+  if (wrapper) wrapper.classList.remove('uploading');
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCurrentUser();
@@ -284,20 +314,12 @@ async function loadTabData(tabName) {
 // Dashboard
 async function loadDashboardData() {
   try {
-    const token = getAuthToken();
-    
-    // Carregar estatísticas
+    // Carregar estatísticas via callApi (usa token automaticamente quando disponível)
     const [usersRes, jobsRes, applicationsRes, newsRes] = await Promise.all([
-      fetch('/api/users', { 
-        credentials: 'include',
-        headers: { 'Authorization': `Bearer ${token}` }
-      }),
-      fetch('/api/jobs', { credentials: 'include' }),
-      fetch('/api/applications/all', { 
-        credentials: 'include',
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).catch(() => ({ ok: false })),
-      fetch('/api/news', { credentials: 'include' })
+      callApi('/api/users').catch(() => ({ ok: false })),
+      callApi('/api/jobs').catch(() => ({ ok: false })),
+      callApi('/api/applications/all').catch(() => ({ ok: false })),
+      callApi('/api/news').catch(() => ({ ok: false }))
     ]);
     
     if (usersRes.ok) {
@@ -338,10 +360,7 @@ async function loadDashboardData() {
 async function loadRecentActivity() {
   try {
     const token = getAuthToken();
-    const response = await fetch('/api/logs?limit=10', {
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await callApi('/api/logs?limit=10');
     
     if (!response.ok) throw new Error('Erro ao carregar atividades');
     
@@ -375,10 +394,7 @@ async function loadRecentActivity() {
 async function loadUsers() {
   try {
     const token = getAuthToken();
-    const response = await fetch('/api/users', {
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await callApi('/api/users');
     
     if (!response.ok) throw new Error('Erro ao carregar usuários');
     
@@ -465,7 +481,7 @@ function filterUsers() {
 // Gerenciar Vagas
 async function loadJobs() {
   try {
-    const response = await fetch('/api/jobs', { credentials: 'include' });
+    const response = await callApi('/api/jobs');
     if (!response.ok) throw new Error('Erro ao carregar vagas');
     
     allJobs = await response.json();
@@ -541,7 +557,7 @@ function filterJobs() {
 // Gerenciar Notícias
 async function loadNews() {
   try {
-    const response = await fetch('/api/news', { credentials: 'include' });
+    const response = await callApi('/api/news');
     if (!response.ok) throw new Error('Erro ao carregar notícias');
     
     allNews = await response.json();
@@ -606,10 +622,7 @@ function displayNews(news) {
 async function loadLogs() {
   try {
     const token = getAuthToken();
-    const response = await fetch('/api/logs', {
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await callApi('/api/logs');
     
     if (!response.ok) throw new Error('Erro ao carregar logs');
     
@@ -696,22 +709,16 @@ async function toggleUserStatus(userId, currentStatus) {
   }
   
   try {
-    const token = getAuthToken();
-    const response = await fetch(`/api/users/${userId}/status`, {
+    const response = await callApi(`/api/users/${userId}/status`, {
       method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
       body: JSON.stringify({ status: newStatus })
     });
-    
+
     if (!response.ok) throw new Error('Erro ao atualizar status');
-    
+
     showMessage('Status do usuário atualizado com sucesso', 'success');
     await loadUsers();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage('Erro ao atualizar status do usuário', 'error');
@@ -724,18 +731,13 @@ async function deleteUser(userId) {
   }
   
   try {
-    const token = getAuthToken();
-    const response = await fetch(`/api/users/${userId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
+    const response = await callApi(`/api/users/${userId}`, { method: 'DELETE' });
+
     if (!response.ok) throw new Error('Erro ao excluir usuário');
-    
+
     showMessage('Usuário excluído com sucesso', 'success');
     await loadUsers();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage('Erro ao excluir usuário', 'error');
@@ -753,18 +755,13 @@ async function deleteJob(jobId) {
   }
   
   try {
-    const token = getAuthToken();
-    const response = await fetch(`/api/jobs/${jobId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
+    const response = await callApi(`/api/jobs/${jobId}`, { method: 'DELETE' });
+
     if (!response.ok) throw new Error('Erro ao excluir vaga');
-    
+
     showMessage('Vaga excluída com sucesso', 'success');
     await loadJobs();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage('Erro ao excluir vaga', 'error');
@@ -786,18 +783,13 @@ async function deleteNews(newsId) {
   }
   
   try {
-    const token = getAuthToken();
-    const response = await fetch(`/api/news/${newsId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
+    const response = await callApi(`/api/news/${newsId}`, { method: 'DELETE' });
+
     if (!response.ok) throw new Error('Erro ao excluir notícia');
-    
+
     showMessage('Notícia excluída com sucesso', 'success');
     await loadNews();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage('Erro ao excluir notícia', 'error');
@@ -815,22 +807,16 @@ async function handleProfileUpdate(e) {
   };
   
   try {
-    const token = getAuthToken();
-    const response = await fetch('/api/users/me', {
+    const response = await callApi('/api/users/me', {
       method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
       body: JSON.stringify(formData)
     });
-    
+
     if (!response.ok) throw new Error('Erro ao atualizar perfil');
-    
+
     showMessage('Perfil atualizado com sucesso', 'success');
     await loadCurrentUser();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage('Erro ao atualizar perfil', 'error');
@@ -851,25 +837,19 @@ async function handlePasswordChange(e) {
   }
   
   try {
-    const token = Auth.getToken();
-    const response = await fetch('/api/users/me/password', {
+    const response = await callApi('/api/users/me/password', {
       method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
       body: JSON.stringify({ currentPassword, newPassword })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Erro ao alterar senha');
     }
-    
+
     showMessage('Senha alterada com sucesso', 'success');
     document.getElementById('passwordForm').reset();
-    
+
   } catch (error) {
     console.error('Erro:', error);
     showMessage(error.message, 'error');
@@ -902,43 +882,42 @@ async function handleAvatarUpload(file) {
   showMessage('Fazendo upload da foto...', 'info');
   
   try {
-    const token = Auth.getToken();
-    console.log('Token:', token ? 'exists' : 'missing');
-    
-    const response = await fetch('/api/users/me', {
+    showAvatarUploading();
+
+    const response = await callApi('/api/users/me', {
       method: 'PUT',
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     });
-    
+
     console.log('Response status:', response.status);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Error response:', errorData);
       throw new Error(errorData.error || 'Erro ao fazer upload da foto');
     }
-    
+
     const data = await response.json();
     console.log('Success response:', data);
     showMessage('Foto atualizada com sucesso!', 'success');
-    
+
     // Atualizar avatar com a URL do Cloudinary
     const profileAvatar = document.getElementById('profileAvatar');
     if (data.user && data.user.profilePhotoUrl && profileAvatar) {
       profileAvatar.innerHTML = `<img src="${data.user.profilePhotoUrl}" alt="${data.user.name}">`;
     }
-    
+
     // Atualizar dados do usuário
     currentUser = data.user;
-    
+
   } catch (error) {
     console.error('Erro ao fazer upload:', error);
     showMessage(error.message || 'Erro ao fazer upload da foto', 'error');
-    
+
     // Restaurar avatar anterior
     updateProfileHeader();
+  } finally {
+    hideAvatarUploading();
   }
 }
 
