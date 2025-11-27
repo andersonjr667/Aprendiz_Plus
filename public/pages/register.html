@@ -193,19 +193,19 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="name">Nome Completo</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
+                    <label for="name">Nome Completo <span style="color: var(--brand-red);">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" required aria-required="true">
                 </div>
                 <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <label for="email">E-mail <span style="color: var(--brand-red);">*</span></label>
+                    <input type="email" id="email" name="email" class="form-control" required aria-required="true">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group" style="position: relative;">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" class="form-control" required minlength="6" style="padding-right: 45px;">
+                    <label for="password">Senha <span style="color: var(--brand-red);">*</span></label>
+                    <input type="password" id="password" name="password" class="form-control" required minlength="6" aria-required="true" style="padding-right: 45px;">
                     <button type="button" id="togglePassword" 
                             style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
                             aria-label="Mostrar/Ocultar senha">
@@ -213,8 +213,8 @@
                     </button>
                 </div>
                 <div class="form-group" style="position: relative;">
-                    <label for="confirmPassword">Confirmar Senha</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required style="padding-right: 45px;">
+                    <label for="confirmPassword">Confirmar Senha <span style="color: var(--brand-red);">*</span></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required aria-required="true" style="padding-right: 45px;">
                     <button type="button" id="toggleConfirmPassword" 
                             style="position: absolute; right: 10px; top: 38px; background: none; border: none; cursor: pointer; color: #666; font-size: 18px;"
                             aria-label="Mostrar/Ocultar confirmação de senha">
@@ -279,14 +279,8 @@
                         <label for="cep">CEP <span style="color: var(--brand-red);">*</span></label>
                         <div style="position: relative;">
                             <input type="text" id="cep" name="cep" class="form-control" placeholder="00000-000" maxlength="9">
-                            <div id="cepLoader" class="cep-loader" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-                                <i class="fas fa-spinner fa-spin" style="color: var(--brand-green);"></i>
-                            </div>
-                            <div id="cepStatus" class="cep-status" style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%);">
-                                <i class="fas fa-check" style="color: var(--brand-green);"></i>
-                            </div>
                         </div>
-                        <small id="cepHelp" class="form-text" style="color: #666; font-size: 0.85rem;">Digite o CEP para preencher automaticamente o endereço</small>
+                        <small class="form-text" style="color: #666; font-size: 0.85rem;">Preencha o CEP se desejar (opcional)</small>
                     </div>
                     <div class="form-group">
                         <label for="street">Rua <span style="color: var(--brand-red);">*</span></label>
@@ -509,14 +503,8 @@
                         <label for="companyCep">CEP <span style="color: var(--brand-red);">*</span></label>
                         <div style="position: relative;">
                             <input type="text" id="companyCep" name="companyCep" class="form-control" placeholder="00000-000" maxlength="9">
-                            <div id="companyCepLoader" class="cep-loader" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-                                <i class="fas fa-spinner fa-spin" style="color: var(--brand-green);"></i>
-                            </div>
-                            <div id="companyCepStatus" class="cep-status" style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%);">
-                                <i class="fas fa-check" style="color: var(--brand-green);"></i>
-                            </div>
                         </div>
-                        <small id="companyCepHelp" class="form-text" style="color: #666; font-size: 0.85rem;">Digite o CEP para preencher automaticamente o endereço</small>
+                        <small class="form-text" style="color: #666; font-size: 0.85rem;">Preencha o CEP se desejar (opcional)</small>
                     </div>
                     <div class="form-group">
                         <label for="companyStreet">Rua <span style="color: var(--brand-red);">*</span></label>
@@ -698,157 +686,94 @@
             });
         }
 
-        // CEP lookup for candidate
-        const cepInput = document.getElementById('cep');
-        const cepLoader = document.getElementById('cepLoader');
-        const cepStatus = document.getElementById('cepStatus');
-        const cepHelp = document.getElementById('cepHelp');
-
-        if (cepInput) {
-            cepInput.addEventListener('input', function(e) {
-                // Aplicar máscara automaticamente
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 5) {
-                    value = value.slice(0, 5) + '-' + value.slice(5, 8);
-                }
-                e.target.value = value;
-
-                // Resetar status visual
-                cepLoader.style.display = 'none';
-                cepStatus.style.display = 'none';
-                cepHelp.className = 'form-text';
-                cepHelp.textContent = 'Digite o CEP para preencher automaticamente o endereço';
-            });
-
-            cepInput.addEventListener('blur', async function() {
-                const cep = this.value.replace(/\D/g, '');
-                
-                // Validar formato
-                if (cep.length !== 8) {
-                    if (cep.length > 0) {
-                        cepHelp.className = 'form-text cep-error';
-                        cepHelp.textContent = 'CEP deve ter 8 dígitos';
-                        cepStatus.style.display = 'block';
-                        cepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
+        // Validação/consulta de CEP: preenche automaticamente rua, bairro, cidade e estado
+        (function() {
+            function clearAddressFields() {
+                const ids = ['street', 'neighborhood', 'city', 'state'];
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (el.tagName.toLowerCase() === 'select') el.value = '';
+                        else el.value = '';
                     }
+                });
+            }
+
+            function setStatus(text, type) {
+                // type: '', 'error', 'success'
+                if (!statusEl) return;
+                statusEl.textContent = text || '';
+                statusEl.className = 'form-text cep-status' + (type ? ' cep-' + type : '');
+            }
+
+            async function lookupCep(cepRaw) {
+                const cep = (cepRaw || '').replace(/\D/g, '');
+                if (!cep || cep.length !== 8) {
+                    setStatus('CEP inválido. Use 8 dígitos.', 'error');
+                    clearAddressFields();
                     return;
                 }
 
-                // Mostrar loading
-                cepLoader.style.display = 'block';
-                cepStatus.style.display = 'none';
-                cepHelp.className = 'form-text';
-                cepHelp.textContent = 'Buscando endereço...';
-
+                setStatus('Consultando CEP...', '');
                 try {
-                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                    const data = await response.json();
-
+                    const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    if (!resp.ok) throw new Error('Erro na consulta');
+                    const data = await resp.json();
                     if (data.erro) {
-                        throw new Error('CEP não encontrado');
+                        setStatus('CEP não encontrado.', 'error');
+                        clearAddressFields();
+                        return;
                     }
 
-                    // Preencher campos
-                    document.getElementById('street').value = data.logradouro || '';
-                    document.getElementById('neighborhood').value = data.bairro || '';
-                    document.getElementById('city').value = data.localidade || '';
-                    document.getElementById('state').value = data.uf || '';
+                    const streetEl = document.getElementById('street');
+                    const neighborhoodEl = document.getElementById('neighborhood');
+                    const cityEl = document.getElementById('city');
+                    const stateEl = document.getElementById('state');
 
-                    // Status de sucesso
-                    cepLoader.style.display = 'none';
-                    cepStatus.style.display = 'block';
-                    cepStatus.innerHTML = '<i class="fas fa-check" style="color: var(--brand-green);"></i>';
-                    cepHelp.className = 'form-text cep-success';
-                    cepHelp.textContent = 'Endereço preenchido automaticamente';
+                    if (streetEl) streetEl.value = data.logradouro || '';
+                    if (neighborhoodEl) neighborhoodEl.value = data.bairro || '';
+                    if (cityEl) cityEl.value = data.localidade || '';
+                    if (stateEl) stateEl.value = data.uf || '';
 
-                } catch (error) {
-                    console.error('Erro ao buscar CEP:', error);
-                    
-                    // Status de erro
-                    cepLoader.style.display = 'none';
-                    cepStatus.style.display = 'block';
-                    cepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
-                    cepHelp.className = 'form-text cep-error';
-                    cepHelp.textContent = error.message === 'CEP não encontrado' ? 'CEP não encontrado' : 'Erro ao buscar CEP. Tente novamente.';
+                    setStatus('Endereço preenchido automaticamente.', 'success');
+                } catch (err) {
+                    console.error('CEP lookup error', err);
+                    setStatus('Erro ao consultar o CEP. Tente novamente.', 'error');
+                    clearAddressFields();
                 }
-            });
-        }
+            }
 
-        // CEP lookup for company
-        const companyCepInput = document.getElementById('companyCep');
-        const companyCepLoader = document.getElementById('companyCepLoader');
-        const companyCepStatus = document.getElementById('companyCepStatus');
-        const companyCepHelp = document.getElementById('companyCepHelp');
-
-        if (companyCepInput) {
-            companyCepInput.addEventListener('input', function(e) {
-                // Aplicar máscara automaticamente
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 5) {
-                    value = value.slice(0, 5) + '-' + value.slice(5, 8);
+            const cepInput = document.getElementById('cep');
+            let statusEl = null;
+            if (cepInput) {
+                // add status small element under the CEP input if not present
+                const parent = cepInput.parentNode;
+                statusEl = parent.querySelector('.cep-status');
+                if (!statusEl) {
+                    statusEl = document.createElement('small');
+                    statusEl.className = 'form-text cep-status';
+                    statusEl.style.color = '#666';
+                    parent.appendChild(statusEl);
                 }
-                e.target.value = value;
 
-                // Resetar status visual
-                companyCepLoader.style.display = 'none';
-                companyCepStatus.style.display = 'none';
-                companyCepHelp.className = 'form-text';
-                companyCepHelp.textContent = 'Digite o CEP para preencher automaticamente o endereço';
-            });
+                // on blur: lookup
+                cepInput.addEventListener('blur', function() {
+                    const v = cepInput.value || '';
+                    lookupCep(v);
+                });
 
-            companyCepInput.addEventListener('blur', async function() {
-                const cep = this.value.replace(/\D/g, '');
-                
-                // Validar formato
-                if (cep.length !== 8) {
-                    if (cep.length > 0) {
-                        companyCepHelp.className = 'form-text cep-error';
-                        companyCepHelp.textContent = 'CEP deve ter 8 dígitos';
-                        companyCepStatus.style.display = 'block';
-                        companyCepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
+                // on input: if reaches 8 digits, lookup automatically
+                cepInput.addEventListener('input', function() {
+                    const v = (cepInput.value || '').replace(/\D/g, '');
+                    if (v.length === 8) lookupCep(v);
+                    else if (v.length === 0) {
+                        // clear status and address fields when user erases CEP
+                        setStatus('', '');
+                        // don't clear address automatically if user already filled it manually
                     }
-                    return;
-                }
-
-                // Mostrar loading
-                companyCepLoader.style.display = 'block';
-                companyCepStatus.style.display = 'none';
-                companyCepHelp.className = 'form-text';
-                companyCepHelp.textContent = 'Buscando endereço...';
-
-                try {
-                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                    const data = await response.json();
-
-                    if (data.erro) {
-                        throw new Error('CEP não encontrado');
-                    }
-
-                    // Preencher campos
-                    document.getElementById('companyStreet').value = data.logradouro || '';
-                    document.getElementById('companyNeighborhood').value = data.bairro || '';
-                    document.getElementById('companyCity').value = data.localidade || '';
-                    document.getElementById('companyState').value = data.uf || '';
-
-                    // Status de sucesso
-                    companyCepLoader.style.display = 'none';
-                    companyCepStatus.style.display = 'block';
-                    companyCepStatus.innerHTML = '<i class="fas fa-check" style="color: var(--brand-green);"></i>';
-                    companyCepHelp.className = 'form-text cep-success';
-                    companyCepHelp.textContent = 'Endereço preenchido automaticamente';
-
-                } catch (error) {
-                    console.error('Erro ao buscar CEP:', error);
-                    
-                    // Status de erro
-                    companyCepLoader.style.display = 'none';
-                    companyCepStatus.style.display = 'block';
-                    companyCepStatus.innerHTML = '<i class="fas fa-times" style="color: var(--brand-red);"></i>';
-                    companyCepHelp.className = 'form-text cep-error';
-                    companyCepHelp.textContent = error.message === 'CEP não encontrado' ? 'CEP não encontrado' : 'Erro ao buscar CEP. Tente novamente.';
-                }
-            });
-        }
+                });
+            }
+        })();
     </script>
 </body>
 </html>
