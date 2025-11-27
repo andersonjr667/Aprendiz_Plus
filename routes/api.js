@@ -47,7 +47,13 @@ try {
 } catch (err) {
   console.warn('puppeteer not available; related features will be disabled', err && err.message ? err.message : err);
 }
-const { Document, Packer, Paragraph, TextRun } = require('docx');
+
+let Document, Packer, Paragraph, TextRun;
+try {
+  ({ Document, Packer, Paragraph, TextRun } = require('docx'));
+} catch (err) {
+  console.warn('docx not available; DOCX export will be disabled', err && err.message ? err.message : err);
+}
 
 // Initialize GridFS
 let gfsBucket;
@@ -713,6 +719,9 @@ router.get('/resume/pdf', authMiddleware, async (req, res) => {
 // Server-side DOCX export using docx
 router.get('/resume/docx', authMiddleware, async (req, res) => {
   try {
+    if (!Document || !Packer || !Paragraph || !TextRun) {
+      return res.status(501).json({ error: 'Geração de DOCX não disponível neste ambiente (docx ausente)' });
+    }
     const user = await User.findById(req.user._id).lean();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
