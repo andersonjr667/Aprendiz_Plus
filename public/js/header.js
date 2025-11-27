@@ -201,10 +201,12 @@ function initHeaderMenu() {
     divider.className = 'apz-header__mobile-divider';
     mobileMenuContent.appendChild(divider);
 
-    // Add actions (login/register or user links and dark-mode)
+    // Add actions (login/register or user links and dark-mode).
+    // We'll render these inside a footer area so they stay at the bottom of the menu.
     const actionsEl = document.querySelector('.apz-header__actions');
     const actionsWrap = document.createElement('div');
-    actionsWrap.className = 'apz-header__mobile-list';
+    // footer class so CSS can push it to the bottom with margin-top:auto
+    actionsWrap.className = 'apz-header__mobile-list apz-header__mobile-actions-footer';
 
     if (actionsEl) {
       // If user menu exists (logged in), extract dropdown links
@@ -255,6 +257,7 @@ function initHeaderMenu() {
       actionsWrap.appendChild(dm);
     }
 
+    // Append actions at the end so they appear at the bottom of the menu
     mobileMenuContent.appendChild(actionsWrap);
 
     // Ensure links inside mobile menu close it when clicked
