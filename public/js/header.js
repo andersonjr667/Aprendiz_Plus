@@ -166,27 +166,160 @@ function renderLoggedIn(user, actions) {
 }
 
 function initHeaderMenu() {
-  // Mobile menu toggle
+  // Mobile menu toggle with accessibility improvements
   const hamburger = document.querySelector('.apz-header__hamburger');
-  const mobileMenu = document.querySelector('.apz-header__mobile-menu');
+  const mobileMenu = document.querySelector('#apz-mobile-menu');
   const mobileMenuContent = document.querySelector('.apz-header__mobile-menu-content');
   const nav = document.querySelector('.apz-header__nav');
+  const mobileClose = mobileMenu ? mobileMenu.querySelector('.apz-header__mobile-close') : null;
+
+  function openMobileMenu() {
+    if (!mobileMenu || !mobileMenuContent || !nav) return;
+    // Clear previous dynamic content except close button
+    Array.from(mobileMenuContent.children).forEach(child => {
+      if (!child.classList.contains('apz-header__mobile-close')) child.remove();
+    });
+
+    // Clone nav links
+    const navClone = nav.cloneNode(true);
+    navClone.classList.add('apz-cloned-nav');
+    // wrap nav links in a mobile list container
+    const navWrap = document.createElement('div');
+    navWrap.className = 'apz-header__mobile-list';
+    // move anchor elements from clone into navWrap
+    navClone.querySelectorAll('a').forEach(a => {
+      const item = document.createElement('a');
+      item.href = a.href;
+      item.textContent = a.textContent;
+      item.className = 'apz-header__mobile-link';
+      navWrap.appendChild(item);
+    });
+    mobileMenuContent.appendChild(navWrap);
+
+    // Add divider
+    const divider = document.createElement('div');
+    divider.className = 'apz-header__mobile-divider';
+    mobileMenuContent.appendChild(divider);
+
+    // Add actions (login/register or user links and dark-mode)
+    const actionsEl = document.querySelector('.apz-header__actions');
+    const actionsWrap = document.createElement('div');
+    actionsWrap.className = 'apz-header__mobile-list';
+
+    if (actionsEl) {
+      // If user menu exists (logged in), extract dropdown links
+      const userDropdown = actionsEl.querySelector('.apz-header__user-dropdown');
+      if (userDropdown && userDropdown.innerHTML.trim()) {
+        userDropdown.querySelectorAll('a').forEach(a => {
+          const item = document.createElement('a');
+          item.href = a.href;
+          item.innerHTML = a.innerHTML;
+          item.className = 'apz-header__mobile-link';
+          actionsWrap.appendChild(item);
+        });
+      } else {
+        // fallback: copy login/register links if present
+        const login = actionsEl.querySelector('.apz-header__login');
+        const register = actionsEl.querySelector('.apz-header__register');
+        if (login) {
+          const a = document.createElement('a');
+          a.href = login.href || '/login';
+          a.textContent = login.textContent || 'Entrar';
+          a.className = 'apz-header__mobile-link apz-header__mobile-action';
+          actionsWrap.appendChild(a);
+        }
+        if (register) {
+          const a2 = document.createElement('a');
+          a2.href = register.href || '/register';
+          a2.textContent = register.textContent || 'Cadastre-se';
+          a2.className = 'apz-header__mobile-link apz-header__mobile-action primary';
+          actionsWrap.appendChild(a2);
+        }
+      }
+      // Add dark mode toggle inside the mobile menu (always add)
+      const dm = document.createElement('button');
+      dm.type = 'button';
+      dm.className = 'apz-header__mobile-action apz-header__mobile-link';
+      dm.innerHTML = '<i class="fas fa-moon" aria-hidden="true"></i> Modo escuro';
+      dm.addEventListener('click', (e) => {
+        e.preventDefault();
+        // If a top-level toggle exists (older pages), trigger it; otherwise toggle `html.dark`.
+        const orig = document.querySelector('#dark-mode-toggle');
+        if (orig) {
+          orig.click();
+        } else {
+          document.documentElement.classList.toggle('dark');
+          // Persist optionally if your dark-mode.js expects localStorage (not enforced here)
+        }
+      });
+      actionsWrap.appendChild(dm);
+    }
+
+    mobileMenuContent.appendChild(actionsWrap);
+
+    // Ensure links inside mobile menu close it when clicked
+    mobileMenuContent.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => closeMobileMenu());
+    });
+
+    mobileMenu.classList.add('open');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    if (hamburger) {
+      hamburger.setAttribute('aria-expanded', 'true');
+      hamburger.classList.add('is-open');
+    }
+    // prevent background scroll
+    document.body.style.overflow = 'hidden';
+    // move focus to first actionable element
+    const firstAction = mobileMenuContent.querySelector('a, button');
+    if (firstAction) firstAction.focus();
+  }
+
+  function closeMobileMenu() {
+    if (!mobileMenu) return;
+    mobileMenu.classList.remove('open');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    if (hamburger) {
+      hamburger.classList.remove('is-open');
+      hamburger.focus();
+    }
+  }
+
   if (hamburger && mobileMenu && mobileMenuContent && nav) {
     hamburger.addEventListener('click', (e) => {
       e.stopPropagation();
-      mobileMenuContent.innerHTML = nav.innerHTML;
-      mobileMenu.classList.add('open');
+      const isOpen = mobileMenu.classList.contains('open');
+      if (isOpen) closeMobileMenu(); else openMobileMenu();
     });
-    // Fecha ao clicar fora do menu
-    document.addEventListener('click', (e) => {
-      if (!mobileMenuContent.contains(e.target) && !hamburger.contains(e.target)) {
-        mobileMenu.classList.remove('open');
+
+    // Close button inside mobile menu
+    if (mobileClose) {
+      mobileClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMobileMenu();
+      });
+    }
+
+    // Fecha ao clicar fora do conteúdo do menu (overlay)
+    mobileMenu.addEventListener('click', (e) => {
+      if (!mobileMenuContent.contains(e.target)) {
+        closeMobileMenu();
       }
     });
+
     // Fecha ao clicar em qualquer link do menu
     mobileMenu.addEventListener('click', (e) => {
       if (e.target.tagName === 'A') {
-        mobileMenu.classList.remove('open');
+        closeMobileMenu();
+      }
+    });
+
+    // Fecha com ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMobileMenu();
       }
     });
   }

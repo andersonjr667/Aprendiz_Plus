@@ -2,19 +2,22 @@
 <header class="apz-header">
   <div class="apz-header__container">
     <a href="/" class="apz-header__logo">
-      <img src="/public/images/logo.png" alt="Aprendiz+" height="38"/>
-      <span>Aprendiz+</span>
+      <img src="/images/logo.png" alt="Aprendiz+" height="38"/>
+      <span class="apz-header__logo-text">Aprendiz+</span>
     </a>
     <nav class="apz-header__nav"></nav>
     <div class="apz-header__actions"></div>
-    <button id="dark-mode-toggle" class="apz-header__dark-toggle" aria-pressed="false" aria-label="Alternar modo escuro" title="Alternar modo escuro">
-      <i class="fas fa-moon"></i>
-    </button>
-    <button class="apz-header__hamburger" aria-label="Abrir menu">
-      <i class="fas fa-bars"></i>
+    <button class="apz-header__hamburger" aria-label="Abrir menu" aria-controls="apz-mobile-menu" aria-expanded="false">
+      <i class="fas fa-bars" aria-hidden="true"></i>
+      <i class="fas fa-times" aria-hidden="true"></i>
     </button>
   </div>
-  <div class="apz-header__mobile-menu">
-    <div class="apz-header__mobile-menu-content"></div>
+  <div id="apz-mobile-menu" class="apz-header__mobile-menu" aria-hidden="true">
+    <div class="apz-header__mobile-menu-content">
+      <button class="apz-header__mobile-close" aria-label="Fechar menu">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+      <!-- links serão inseridos dinamicamente -->
+    </div>
   </div>
 </header>

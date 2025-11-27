@@ -6,6 +6,8 @@ body, .main-content, main {
 /* header.css - Header moderno Aprendiz+ */
 .apz-header {
   width: 100%;
+  /* header sizing variable: can be overridden in media queries */
+  --apz-header-height: 64px;
   background: var(--gray-50);
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   font-family: 'Poppins', Arial, sans-serif;
@@ -20,7 +22,7 @@ body, .main-content, main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--apz-header-height);
 }
 .apz-header__logo {
   display: flex;
@@ -32,8 +34,11 @@ body, .main-content, main {
   text-decoration: none;
 }
 .apz-header__logo img {
-  height: 38px;
+  height: calc(var(--apz-header-height) * 0.58);
   width: auto;
+}
+.apz-header__logo-text {
+  display: inline-block;
 }
 .apz-header__nav {
   display: flex;
@@ -156,12 +161,14 @@ body, .main-content, main {
   display: none;
   background: none;
   border: none;
-  font-size: 2.2rem;
   color: #1a2b4d;
   cursor: pointer;
-  padding: 12px;
+  /* size proportional to header */
+  width: calc(var(--apz-header-height) * 0.75);
+  height: calc(var(--apz-header-height) * 0.75);
+  padding: calc(var(--apz-header-height) * 0.12);
   margin-left: 8px;
-  border-radius: 8px;
+  border-radius: calc(var(--apz-header-height) * 0.12);
   transition: background 0.2s;
   z-index: 102;
 }
@@ -172,34 +179,124 @@ body, .main-content, main {
 
 /* Overlay para o menu mobile */
 .apz-header__mobile-menu {
-  display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   background: rgba(0,0,0,0.45);
   z-index: 101;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-end;
-  transition: opacity 0.2s;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.18s ease, visibility 0.18s;
 }
 .apz-header__mobile-menu.open {
-  display: flex;
+  visibility: visible;
   opacity: 1;
 }
 .apz-header__mobile-menu-content {
   background: var(--gray-50);
-  width: 80vw;
-  max-width: 320px;
-  min-height: 100vh;
+  width: 84vw;
+  max-width: 360px;
+  height: 100vh;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  padding: 32px 20px 16px 20px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 18px;
+  overflow-y: auto;
 }
+.apz-header__mobile-menu-content {
+  transform: translateX(100%);
+  transition: transform 240ms cubic-bezier(.2,.9,.2,1);
+}
+.apz-header__mobile-menu.open .apz-header__mobile-menu-content {
+  transform: translateX(0);
+}
+.apz-header__mobile-close {
+  background: none;
+  border: none;
+  font-size: calc(var(--apz-header-height) * 0.36);
+  width: calc(var(--apz-header-height) * 0.78);
+  height: calc(var(--apz-header-height) * 0.78);
+  align-self: flex-end;
+  color: #1a2b4d;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.apz-header__mobile-close:focus {
+  outline: 2px solid rgba(39,174,96,0.18);
+}
+.apz-header__mobile-menu-content a {
+  display: block;
+  padding: 12px 8px;
+  font-size: 1.15rem;
+  color: #1a2b4d;
+  text-decoration: none;
+  border-radius: 8px;
+}
+.apz-header__mobile-menu-content a:hover {
+  background: rgba(39,174,96,0.06);
+  color: var(--brand-green);
+}
+
+/* hambúrguer animado para X */
+.apz-header__hamburger {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 180ms ease, background 120ms;
+}
+.apz-header__hamburger .fa-bars,
+.apz-header__hamburger .fa-times {
+  display: inline-block;
+  position: absolute;
+  font-size: calc(var(--apz-header-height) * 0.32);
+  line-height: 1;
+  transition: transform 200ms cubic-bezier(.2,.9,.2,1), opacity 150ms ease;
+}
+.apz-header__hamburger .fa-bars { opacity: 1; transform: rotate(0) scale(1); }
+.apz-header__hamburger .fa-times { opacity: 0; transform: rotate(-10deg) scale(.8); }
+.apz-header__hamburger.is-open { transform: rotate(0); }
+.apz-header__hamburger.is-open .fa-bars { opacity: 0; transform: rotate(10deg) scale(.8); }
+.apz-header__hamburger.is-open .fa-times { opacity: 1; transform: rotate(0) scale(1); }
+
+/* mobile lists spacing */
+.apz-header__mobile-list { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+.apz-header__mobile-action { padding:10px 8px; border-radius:8px; background:transparent; border:1px solid rgba(0,0,0,0.04); display:flex; align-items:center; gap:10px; }
+.apz-header__mobile-action.primary { background:var(--brand-green); color:#fff; border-color:transparent; }
+.apz-header__mobile-divider { height:1px; background:rgba(0,0,0,0.04); margin:8px 0; }
+
+/* mobile link enter animation */
+.apz-header__mobile-link,
+.apz-header__mobile-action {
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.apz-header__mobile-menu.open .apz-header__mobile-link,
+.apz-header__mobile-menu.open .apz-header__mobile-action {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* staggered delays for first 10 children */
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(1) { transition-delay: 60ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(2) { transition-delay: 110ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(3) { transition-delay: 160ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(4) { transition-delay: 210ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(5) { transition-delay: 260ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(6) { transition-delay: 310ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(7) { transition-delay: 360ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(8) { transition-delay: 410ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(9) { transition-delay: 460ms; }
+.apz-header__mobile-list .apz-header__mobile-link:nth-child(10) { transition-delay: 510ms; }
+
+/* also stagger actions (buttons) */
+.apz-header__mobile-list .apz-header__mobile-action:nth-child(1) { transition-delay: 140ms; }
+.apz-header__mobile-list .apz-header__mobile-action:nth-child(2) { transition-delay: 200ms; }
 
 /* Dark mode toggle button */
 .apz-header__dark-toggle,
@@ -252,10 +349,15 @@ html.dark .apz-header {
   }
 }
 @media (max-width: 700px) {
-  .apz-header__nav {
-    display: none;
+  .apz-header__container {
+    height: 56px;
   }
-  .apz-header__hamburger {
-    display: block;
+  .apz-header__logo img { height: 32px; }
+  .apz-header__nav { display: none; }
+  .apz-header__hamburger { display: block; }
+  /* esconder login/cadastro no header (aparecem somente no menu hambúrguer) */
+  .apz-header__login,
+  .apz-header__register {
+    display: none !important;
   }
 }
