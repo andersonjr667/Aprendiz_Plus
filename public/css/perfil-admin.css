@@ -1,403 +1,70 @@
-/* perfil-admin.css - Estilos para perfil do administrador */
+/* Refatorado: perfil-admin.css - versão limpa e responsiva */
 
-/* Variables - Verde Admin (tom escuro profissional) */
-:root {
-  --admin-green: #16A085;
-  --admin-green-dark: #117A65;
-  /* Paleta do Dono */
-  --owner-green1: #36E131;
-  --owner-green2: #2E935B;
-  --owner-green3: #18F535;
-  --owner-green4: #88F677;
-  --owner-green5: #5DBBC3;
-  /* Para fallback/compatibilidade */
-  --owner-green: var(--owner-green1);
-  --owner-green-dark: var(--owner-green2);
+:root{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --accent: #167a66; /* verde suave */
+  --accent-contrast: #fff;
+  --radius: 10px;
+  --gap: 1rem;
 }
 
-/* Container Principal */
-.profile-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
+/* Reset específico da página */
+.profile-container{max-width:1200px;margin:0 auto;padding:1.25rem}
+main.main-content{padding:1rem 0}
 
-/* Profile Header - Similar ao perfil candidato/empresa */
-.profile-header {
-  background: linear-gradient(135deg, var(--admin-green), var(--admin-green-dark));
-  padding: 3rem 0 2rem;
-  margin-bottom: 2rem;
-  min-height: 220px;
-}
+/* Header */
+.profile-header{background:linear-gradient(90deg,var(--accent),#0f6b58);padding:1.5rem;border-radius:var(--radius);color:var(--accent-contrast);display:flex;align-items:center;gap:1rem}
+.profile-header .profile-avatar{width:96px;height:96px;border-radius:50%;overflow:hidden;flex:0 0 96px;border:3px solid rgba(255,255,255,0.1);background:var(--card);display:flex;align-items:center;justify-content:center}
+.profile-header .profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-header .profile-meta{flex:1}
+.profile-header h1{margin:0;font-size:1.35rem}
+.profile-header .profile-subtitle{margin:0;color:rgba(255,255,255,0.9);font-size:0.95rem}
+.profile-header .profile-badges{display:flex;gap:0.5rem;margin-top:0.5rem}
+.profile-badge{background:rgba(255,255,255,0.12);padding:0.35rem 0.6rem;border-radius:999px;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.5rem}
+.admin-badge-special{background:rgba(255,255,255,0.18);font-weight:600}
 
-/* Profile Header - Dono do Sistema (overlay dourado sutil) */
-.profile-header.owner-profile {
-  background: linear-gradient(120deg,
-    var(--owner-green1) 0%,
-    var(--owner-green2) 25%,
-    var(--owner-green3) 55%,
-    var(--owner-green4) 80%,
-    var(--owner-green5) 100%
-  );
-  min-height: 340px;
-  padding-top: 1.5rem;
-  padding-bottom: 3.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 8px 32px 0 rgba(24,245,53,0.12), 0 1.5px 0 0 #36E131;
-  border-bottom: 6px solid #36E131;
-  position: relative;
-}
+/* Grid */
+.profile-grid{display:grid;grid-template-columns:240px 1fr;gap:1rem;margin-top:1rem}
 
-.profile-header.owner-profile .profile-header-content {
-  align-items: flex-end;
-  min-height: 180px;
-}
+/* Sidebar */
+.profile-sidebar{position:sticky;top:90px}
+.profile-nav{background:var(--card);padding:0.5rem;border-radius:var(--radius);box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+.profile-nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.8rem;border-radius:8px;color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;text-align:left}
+.profile-nav-item.active{background:var(--accent);color:var(--accent-contrast}
+.profile-nav-item i{width:20px;text-align:center}
 
-.profile-header.owner-profile .profile-avatar-wrapper {
-  transform: scale(1.18) rotate(-3deg);
-  box-shadow: 0 8px 32px 0 rgba(24,245,53,0.18);
-  border: 4px solid #fff;
-}
+/* Main */
+.profile-main .profile-card{background:var(--card);border-radius:var(--radius);padding:1rem;box-shadow:0 6px 18px rgba(16,24,40,0.04);margin-bottom:1rem}
+.card-title-profile{display:flex;align-items:center;gap:0.6rem;font-weight:600;margin:0 0 0.75rem 0}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem}
+.stat-card{background:linear-gradient(180deg,#fff,#fbfbfb);border-radius:8px;padding:0.8rem;display:flex;align-items:center;gap:0.7rem}
+.stat-card i{font-size:1.3rem;color:var(--accent)}
+.stat-info h3{margin:0;font-size:1.1rem}
+.recent-activity{margin-top:1rem}
 
-.profile-header.owner-profile h1 {
-  font-size: 2.6rem;
-  letter-spacing: 1.5px;
-  color: #fff;
-  text-shadow: 0 2px 12px rgba(46,147,91,0.18);
-}
+/* Tables */
+.data-table table{width:100%;border-collapse:collapse}
+.admin-table thead th{background:#f3f4f6;padding:0.75rem;text-align:left;font-size:0.9rem}
+.admin-table tbody td{padding:0.6rem;border-top:1px solid #eee}
+.table-actions .btn-icon{border:none;background:transparent;cursor:pointer;padding:6px;border-radius:6px}
 
-.profile-header.owner-profile .profile-badges .owner-badge {
-  background: linear-gradient(90deg, #36E131 0%, #18F535 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border: 2px solid #2E935B;
-  box-shadow: 0 2px 8px rgba(54,225,49,0.12);
-}
+/* Forms */
+.profile-form .form-group{margin-bottom:0.75rem}
+.profile-form label{display:block;margin-bottom:0.35rem;font-size:0.9rem}
+.profile-form input,.profile-form textarea,.profile-form select{width:100%;padding:0.6rem;border:1px solid #e6e9ee;border-radius:8px}
+.form-actions{display:flex;gap:0.5rem;justify-content:flex-end}
 
-.profile-header.owner-profile .profile-badge.admin-badge-special {
-  background: #5DBBC3;
-  color: #fff;
-  font-weight: 600;
-}
+/* Responsive */
+@media (max-width:900px){.profile-grid{grid-template-columns:1fr}.profile-header{flex-direction:row;gap:0.75rem}.profile-header .profile-meta{min-width:0}}
+@media (max-width:560px){.profile-header{flex-direction:column;align-items:center;text-align:center}.profile-header .profile-meta{width:100%}.form-actions{justify-content:center}}
 
-.profile-header.owner-profile .profile-subtitle {
-  color: #fff;
-  font-size: 1.15rem;
-  opacity: 0.95;
-}
+/* small polish */
+.message{position:fixed;right:1rem;top:1rem;z-index:9999}
 
-/* Círculos decorativos no fundo */
-.profile-header.owner-profile::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    /* Círculos verdes da paleta do dono */
-    radial-gradient(circle 80px at 15% 25%, rgba(54, 225, 49, 0.35), rgba(54, 225, 49, 0.15) 50%, transparent 100%),
-    radial-gradient(circle 100px at 85% 70%, rgba(46, 147, 91, 0.3), rgba(46, 147, 91, 0.1) 50%, transparent 100%),
-    radial-gradient(circle 60px at 92% 18%, rgba(24, 245, 53, 0.25), rgba(24, 245, 53, 0.08) 50%, transparent 100%),
-    radial-gradient(circle 70px at 50% 50%, rgba(136, 246, 119, 0.25), rgba(136, 246, 119, 0.08) 50%, transparent 100%),
-    radial-gradient(circle 55px at 25% 75%, rgba(93, 187, 195, 0.2), rgba(93, 187, 195, 0.05) 50%, transparent 100%),
-    radial-gradient(circle 65px at 78% 35%, rgba(54, 225, 49, 0.18), rgba(54, 225, 49, 0.06) 50%, transparent 100%),
-    radial-gradient(circle 50px at 60% 40%, rgba(46, 147, 91, 0.35), rgba(46, 147, 91, 0.15) 50%, transparent 100%),
-    radial-gradient(circle 45px at 32% 55%, rgba(24, 245, 53, 0.3), rgba(24, 245, 53, 0.12) 50%, transparent 100%),
-    radial-gradient(circle 55px at 70% 88%, rgba(136, 246, 119, 0.28), rgba(136, 246, 119, 0.1) 50%, transparent 100%),
-    radial-gradient(circle 40px at 42% 12%, rgba(93, 187, 195, 0.25), rgba(93, 187, 195, 0.08) 50%, transparent 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Overlay dourado sutil */
-.profile-header.owner-profile::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Logos decorativas no fundo */
-.owner-profile-decorations {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.35;
-}
-
-.owner-logo-circle {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(3px);
-  animation: float 6s ease-in-out infinite;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.owner-logo-circle img {
-  width: 65px;
-  height: 65px;
-  object-fit: contain;
-  opacity: 0.9;
-  filter: brightness(1.5) contrast(1.1);
-}
-
-.owner-logo-circle i {
-  font-size: 2.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-}
-
-.owner-logo-circle:nth-child(1) {
-  top: 10%;
-  left: 10%;
-  width: 85px;
-  height: 85px;
-  animation-delay: 0s;
-  background: rgba(54, 225, 49, 0.35);
-  border-color: rgba(54, 225, 49, 0.5);
-}
-
-.owner-logo-circle:nth-child(2) {
-  top: 60%;
-  left: 5%;
-  width: 65px;
-  height: 65px;
-  animation-delay: 1s;
-  background: rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.owner-logo-circle:nth-child(3) {
-  top: 20%;
-  right: 15%;
-  width: 95px;
-  height: 95px;
-  animation-delay: 2s;
-  background: rgba(93, 187, 195, 0.35);
-  border-color: rgba(93, 187, 195, 0.5);
-}
-
-.owner-logo-circle:nth-child(4) {
-  bottom: 15%;
-  right: 8%;
-  width: 75px;
-  height: 75px;
-  animation-delay: 3s;
-  background: rgba(136, 246, 119, 0.3);
-  border-color: rgba(136, 246, 119, 0.4);
-}
-
-.owner-logo-circle:nth-child(5) {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 130px;
-  height: 130px;
-  opacity: 0.2;
-  animation-delay: 1.5s;
-  background: rgba(24, 245, 53, 0.18);
-  border-color: rgba(24, 245, 53, 0.18);
-  border-width: 3px;
-}
-
-.profile-header-content {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 10;
-}
-
-.profile-avatar-wrapper {
-  position: relative;
-  cursor: pointer;
-}
-
-.profile-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: var(--brand-green);
-  object-fit: cover;
-  border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.profile-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.avatar-upload-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-  color: white;
-  font-size: 0.85rem;
-}
-
-.profile-avatar-wrapper:hover .avatar-upload-overlay {
-  opacity: 1;
-}
-
-.avatar-upload-overlay i {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.profile-header h1 {
-  color: white;
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-}
-
-.profile-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 1rem 0;
-}
-
-.profile-badges {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.profile-badge {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.profile-badge.admin-badge-special {
-  background: var(--brand-orange, #F39C12);
-  font-weight: 600;
-}
-
-.profile-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* Profile Grid - Layout de 2 colunas */
-.profile-grid {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-/* Sidebar Navigation */
-.profile-sidebar {
-  position: sticky;
-  top: 90px;
-}
-
-.profile-nav {
-  background: white;
-  border-radius: 12px;
-  padding: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.profile-nav-item {
-  width: 100%;
-  padding: 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: left;
-  font-size: 0.95rem;
-  color: var(--gray-600);
-  margin-bottom: 0.25rem;
-}
-
-.profile-nav-item i {
-  width: 20px;
-  text-align: center;
-  color: var(--brand-green);
-}
-
-.profile-nav-item:hover {
-  background: var(--gray-100);
-  color: var(--brand-green);
-}
-
-.profile-nav-item.active {
-  background: var(--brand-green);
-  color: white;
-}
-
-.profile-nav-item.active i {
-  color: white;
-}
-
-/* Main Content Area */
-.profile-main {
-  min-height: 400px;
-}
-
-/* Profile Cards */
-.profile-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2rem;
-  overflow: hidden;
+/* preserve owner badge styling but keep subtle */
+.owner-badge{background:linear-gradient(90deg,#ffd54d,#ffb74d);color:#111;padding:0.3rem 0.6rem;border-radius:999px;font-weight:700}
 }
 
 .card-header-profile {
