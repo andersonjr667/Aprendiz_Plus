@@ -41,6 +41,8 @@ const PlatformAnalytics = require('../models/PlatformAnalytics');
 const authMiddleware = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
+const puppeteer = require('puppeteer');
+const { Document, Packer, Paragraph, TextRun } = require('docx');
 
 // Initialize GridFS
 let gfsBucket;
@@ -635,6 +637,107 @@ router.get('/resumes/:fileId', async (req, res) => {
   } catch (err) {
     console.error('Error serving resume:', err);
     res.status(500).json({ error: 'Erro ao carregar arquivo' });
+  }
+});
+
+// Server-side PDF export: render a simple HTML resume and return PDF
+router.get('/resume/pdf', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).lean();
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+    // Build minimal HTML for PDF rendering
+    const html = `
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style>
+          body { font-family: Arial, Helvetica, sans-serif; color: #111827; padding: 20px; }
+          .header { display:flex; gap:16px; align-items:center; }
+          .avatar { width:88px; height:88px; border-radius:50%; object-fit:cover; background:#f3f4f6; }
+          h1 { margin:0; font-size:20px; }
+          .muted { color:#6b7280; font-size:13px; }
+          .section { margin-top:14px; }
+          .skills { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+          .skill { background:#eef2ff; padding:6px 10px; border-radius:999px; font-size:12px; }
+          .exp { margin-bottom:8px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <img class="avatar" src="${user.profilePhotoUrl || ''}" onerror="this.style.display='none'" />
+          </div>
+          <div>
+            <h1>${(user.name || user.email || '').replace(/</g,'&lt;')}</h1>
+            <div class="muted">${(user.jobTitle || '')}</div>
+            <div class="muted">${(user.location || '')}</div>
+          </div>
+        </div>
+        ${user.summary ? `<div class="section"><strong>Resumo</strong><div>${user.summary.replace(/</g,'&lt;')}</div></div>` : ''}
+        ${user.experience && user.experience.length ? `<div class="section"><strong>Experiência</strong>${user.experience.map(e=>`<div class="exp"><div><strong>${(e.title||'')}</strong> — ${(e.company||'')}</div><div class="muted">${(e.period||'')}</div><div>${(e.summary||'')}</div></div>`).join('')}</div>` : ''}
+        ${user.education && user.education.length ? `<div class="section"><strong>Formação</strong>${user.education.map(ed=>`<div class="exp"><div><strong>${(ed.degree||ed.course||'')}</strong></div><div class="muted">${(ed.institution||'')}</div></div>`).join('')}</div>` : ''}
+        ${user.skills && user.skills.length ? `<div class="section"><strong>Competências</strong><div class="skills">${user.skills.slice(0,40).map(s=>`<span class="skill">${s}</span>`).join('')}</div></div>` : ''}
+      </body>
+      </html>
+    `;
+
+    // Launch headless chrome (no sandbox flags for many environments)
+    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '20mm', bottom: '20mm', left: '12mm', right: '12mm' } });
+    await browser.close();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="curriculo.pdf"');
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error('Erro gerando PDF do currículo:', err);
+    res.status(500).json({ error: 'Erro ao gerar PDF' });
+  }
+});
+
+// Server-side DOCX export using docx
+router.get('/resume/docx', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).lean();
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+    const doc = new Document();
+    const children = [];
+    children.push(new Paragraph({ children: [ new TextRun({ text: user.name || '', bold: true, size: 32 }) ] }));
+    if (user.summary) children.push(new Paragraph({ children: [ new TextRun({ text: user.summary, size: 22 }) ] }));
+    if (user.experience && user.experience.length) {
+      children.push(new Paragraph({ children: [ new TextRun({ text: 'Experiência', bold: true, size: 26 }) ] }));
+      user.experience.slice(0,10).forEach(exp => {
+        children.push(new Paragraph({ children: [ new TextRun({ text: `${exp.title || ''} — ${exp.company || ''}`, bold: false }) ] }));
+        if (exp.period) children.push(new Paragraph({ children: [ new TextRun({ text: exp.period, italics: true, size: 20 }) ] }));
+        if (exp.summary) children.push(new Paragraph({ children: [ new TextRun({ text: exp.summary, size: 20 }) ] }));
+      });
+    }
+    if (user.education && user.education.length) {
+      children.push(new Paragraph({ children: [ new TextRun({ text: 'Formação', bold: true, size: 26 }) ] }));
+      user.education.slice(0,10).forEach(ed => {
+        children.push(new Paragraph({ children: [ new TextRun({ text: `${ed.degree || ed.course || ''} — ${ed.institution || ''}`, size: 22 }) ] }));
+      });
+    }
+    if (user.skills && user.skills.length) {
+      children.push(new Paragraph({ children: [ new TextRun({ text: 'Competências', bold: true, size: 26 }) ] }));
+      children.push(new Paragraph({ children: [ new TextRun({ text: (user.skills || []).slice(0,50).join(', '), size: 20 }) ] }));
+    }
+
+    doc.addSection({ children });
+
+    const buffer = await Packer.toBuffer(doc);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', 'attachment; filename="curriculo.docx"');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Erro gerando DOCX do currículo:', err);
+    res.status(500).json({ error: 'Erro ao gerar DOCX' });
   }
 });
 
@@ -5367,6 +5470,25 @@ router.post('/users/:id/view', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error incrementing profile view:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Proxy para consulta de CEP (ViaCEP) para evitar bloqueio por CSP no cliente
+router.get('/cep/:cep', async (req, res) => {
+  try {
+    const raw = req.params.cep || '';
+    const cep = raw.replace(/\D/g, '');
+    if (!cep || cep.length !== 8) return res.status(400).json({ error: 'CEP inválido' });
+
+    const url = `https://viacep.com.br/ws/${cep}/json/`;
+    // Usa fetch nativo do Node (Node 18+). Se necessário, podemos trocar para axios.
+    const resp = await fetch(url);
+    if (!resp.ok) return res.status(502).json({ error: 'Erro ao consultar serviço externo' });
+    const data = await resp.json();
+    res.json(data);
+  } catch (err) {
+    console.error('CEP proxy error', err);
+    res.status(500).json({ error: err.message || 'Erro interno' });
   }
 });
 
