@@ -6,14 +6,20 @@ let messages = [];
 let messagePolling = null;
 let isTyping = false;
 let typingTimeout = null;
-let isTyping = false;
-let typingTimeout = null;
 
 // Inicializar ao carregar a página
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Verificar autenticação
-        currentUser = await api.getCurrentUser();
+        // Preferir o helper global `window.Auth` para obter o usuário atual
+        if (window.Auth && typeof window.Auth.getCurrentUser === 'function') {
+            currentUser = await window.Auth.getCurrentUser();
+        } else if (typeof api !== 'undefined' && api.getCurrentUser) {
+            // fallback para compatibilidade com versões antigas
+            currentUser = await api.getCurrentUser();
+        } else {
+            currentUser = null;
+        }
         if (!currentUser) {
             window.location.href = 'login.html';
             return;
@@ -31,8 +37,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Configurar logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            api.logout();
-            window.location.href = 'login.html';
+            if (window.logout) window.logout();
+            else if (typeof api !== 'undefined' && api.logout) api.logout();
+            else {
+                // fallback: clear local token and redirect
+                if (window.Auth && window.Auth.removeToken) window.Auth.removeToken();
+                window.location.href = 'login.html';
+            }
         });
 
         // Configurar menu mobile
