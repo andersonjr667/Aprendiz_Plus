@@ -41,7 +41,12 @@ const PlatformAnalytics = require('../models/PlatformAnalytics');
 const authMiddleware = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
-const puppeteer = require('puppeteer');
+let puppeteer = null;
+try {
+  puppeteer = require('puppeteer');
+} catch (err) {
+  console.warn('puppeteer not available; related features will be disabled', err && err.message ? err.message : err);
+}
 const { Document, Packer, Paragraph, TextRun } = require('docx');
 
 // Initialize GridFS
@@ -683,6 +688,11 @@ router.get('/resume/pdf', authMiddleware, async (req, res) => {
       </body>
       </html>
     `;
+
+    // If puppeteer is not available in this environment, return 501
+    if (!puppeteer) {
+      return res.status(501).json({ error: 'Geração de PDF não disponível neste ambiente (puppeteer ausente)' });
+    }
 
     // Launch headless chrome (no sandbox flags for many environments)
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
