@@ -9,6 +9,19 @@ let allJobs = [];
 let allNews = [];
 let allLogs = [];
 
+// Helper para obter token de autenticação de forma resiliente
+function getAuthToken() {
+  try {
+    if (window.Auth && typeof window.Auth.getToken === 'function') return window.Auth.getToken();
+  } catch (e) {
+    // ignore
+  }
+  try {
+    if (typeof Auth !== 'undefined' && typeof Auth.getToken === 'function') return Auth.getToken();
+  } catch (e) {}
+  return null;
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCurrentUser();
@@ -67,7 +80,7 @@ function initializeAvatarUpload() {
 // Carregar usuário atual
 async function loadCurrentUser() {
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch('/api/users/me', {
       credentials: 'include',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -271,7 +284,7 @@ async function loadTabData(tabName) {
 // Dashboard
 async function loadDashboardData() {
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     
     // Carregar estatísticas
     const [usersRes, jobsRes, applicationsRes, newsRes] = await Promise.all([
@@ -324,7 +337,7 @@ async function loadDashboardData() {
 // Atividade recente
 async function loadRecentActivity() {
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch('/api/logs?limit=10', {
       credentials: 'include',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -361,7 +374,7 @@ async function loadRecentActivity() {
 // Gerenciar Usuários
 async function loadUsers() {
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch('/api/users', {
       credentials: 'include',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -592,7 +605,7 @@ function displayNews(news) {
 // Gerenciar Logs
 async function loadLogs() {
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch('/api/logs', {
       credentials: 'include',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -683,7 +696,7 @@ async function toggleUserStatus(userId, currentStatus) {
   }
   
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch(`/api/users/${userId}/status`, {
       method: 'PUT',
       credentials: 'include',
@@ -711,7 +724,7 @@ async function deleteUser(userId) {
   }
   
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch(`/api/users/${userId}`, {
       method: 'DELETE',
       credentials: 'include',
@@ -740,7 +753,7 @@ async function deleteJob(jobId) {
   }
   
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch(`/api/jobs/${jobId}`, {
       method: 'DELETE',
       credentials: 'include',
@@ -773,7 +786,7 @@ async function deleteNews(newsId) {
   }
   
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch(`/api/news/${newsId}`, {
       method: 'DELETE',
       credentials: 'include',
@@ -802,7 +815,7 @@ async function handleProfileUpdate(e) {
   };
   
   try {
-    const token = Auth.getToken();
+    const token = getAuthToken();
     const response = await fetch('/api/users/me', {
       method: 'PUT',
       credentials: 'include',
