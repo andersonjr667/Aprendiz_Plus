@@ -4,21 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerar Currículo - Aprendiz Plus</title>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/public/css/header.css">
-    <script src="/public/js/header.js" defer></script>
+        <link rel="stylesheet" href="/public/css/main.css">
+        <link rel="stylesheet" href="/public/css/header.css">
+        <link rel="stylesheet" href="/public/css/gerar-curriculo.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <script src="/public/js/auth.js"></script>
+        <script src="/public/js/ui-dialogs.js" defer></script>
+        <script src="/public/js/api.js" defer></script>
+        <script src="/public/js/global.js" defer></script>
+        <script src="/public/js/header.js" defer></script>
+        <!-- Client-side PDF library removed (CSP). Using print fallback or server endpoints. -->
 </head>
 <body>
     <div id="header-container"></div>
-    <div class="container">
-        <h1>Gerar Currículo</h1>
-        <div id="profile-status" class="status"></div>
-        <div id="resume-actions" style="display:none;">
-            <button id="download-pdf">Baixar Currículo em PDF</button>
-            <button id="download-docx">Baixar Currículo em DOCX</button>
-        </div>
-        <div id="resume-message"></div>
-    </div>
-    <script src="/js/gerar-curriculo.js"></script>
+        <main class="gc-page">
+            <div class="gc-card">
+                <div class="gc-header">
+                    <h1>Gerar Currículo</h1>
+                </div>
+                <div id="profile-status" class="gc-status"></div>
+                <div id="resume-preview-wrapper" style="display:none; margin-top:12px;">
+                    <h3 style="margin:0 0 8px 0;">Pré-visualização</h3>
+                    <div id="resume-preview" class="resume-preview">
+                        <!-- pré-visualização será inserida aqui -->
+                    </div>
+                </div>
+
+                <div id="resume-actions" class="gc-actions" style="display:none; margin-top:18px;">
+                    <button id="download-pdf" class="btn btn-primary">Baixar Currículo em PDF</button>
+                    <button id="download-docx" class="btn btn-outline">Baixar Currículo em DOCX</button>
+                </div>
+                <div id="resume-message" class="gc-note"></div>
+            </div>
+        </main>
+    <script src="/public/js/gerar-curriculo.js"></script>
 </body>
 </html>

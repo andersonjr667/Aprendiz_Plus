@@ -1523,8 +1523,17 @@ document.addEventListener('DOMContentLoaded', function() {
   // Interests edit button
   const btnEditInterests = document.getElementById('btnEditInterests');
   if (btnEditInterests) {
-    btnEditInterests.addEventListener('click', toggleInterestsEditMode);
-    console.log('Interests edit button listener attached');
+    // If the HTML already uses an inline `onclick="toggleInterestsEditMode()"`,
+    // adding another event listener will cause the function to run twice
+    // (one from the inline handler and one from this listener) which toggles
+    // the mode on and immediately off. To avoid that, only attach a listener
+    // when there is no inline `onclick` attribute.
+    if (!btnEditInterests.hasAttribute('onclick')) {
+      btnEditInterests.addEventListener('click', toggleInterestsEditMode);
+      console.log('Interests edit button listener attached (programmatic)');
+    } else {
+      console.log('Interests edit button already has inline onclick — skipping programmatic listener');
+    }
   } else {
     console.warn('Interests edit button not found');
   }
@@ -1633,6 +1642,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Expose functions to global scope for inline onclick handlers and older templates
+try {
+  window.toggleEditMode = toggleEditMode;
+  window.toggleInterestsEditMode = toggleInterestsEditMode;
+  // also expose save functions if templates call them directly
+  window.saveInterestsChanges = saveInterestsChanges;
+  window.saveProfile = saveProfile;
+} catch (e) {
+  console.warn('Failed to bind profile functions to window', e);
+}
 
 // Global functions for window (mantém apenas as necessárias)
 window.downloadProfile = downloadProfile;

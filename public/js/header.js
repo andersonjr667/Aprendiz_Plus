@@ -75,6 +75,8 @@ window.renderDynamicHeader = function renderDynamicHeader() {
           return;
         }
         renderLoggedIn(user, actions);
+        // add candidate-specific nav link
+        try { addCandidateNavLink(user); } catch (e) { /* ignore */ }
       });
     } else {
       console.log('[HEADER] getCurrentUser não disponível');
@@ -106,6 +108,7 @@ function renderLoggedIn(user, actions) {
       <a href="/mapa-vagas"><i class="fas fa-map"></i> Mapa de Vagas</a>
       <a href="/dashboard-candidato"><i class="fas fa-chart-line"></i> Dashboard</a>
       <a href="/perfil-candidato"><i class="fas fa-user"></i> Meu Perfil</a>
+      <a href="/gerar-curriculo"><i class="fas fa-file-alt"></i> Gerar Currículo</a>
     `;
   } else if (user.type === 'empresa') {
     menuLinks = `
@@ -162,6 +165,24 @@ function renderLoggedIn(user, actions) {
       window.Auth.removeToken();
       window.location.reload();
     });
+  }
+}
+
+// Add candidate-specific nav items (e.g., Gerar Currículo) after login render
+function addCandidateNavLink(user) {
+  try {
+    if (!user || user.type !== 'candidato') return;
+    const nav = document.querySelector('.apz-header__nav');
+    if (!nav) return;
+    // prevent duplicate
+    if (nav.querySelector('a[href="/gerar-curriculo"]')) return;
+    const a = document.createElement('a');
+    a.href = '/gerar-curriculo';
+    a.textContent = 'Gerar Currículo';
+    a.className = 'apz-header__nav-link';
+    nav.appendChild(a);
+  } catch (e) {
+    console.warn('[HEADER] addCandidateNavLink error', e);
   }
 }
 

@@ -33,11 +33,31 @@ console.log('Config:', {
 
 // Connect to MongoDB
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(MONGO_URI)
+  // disable automatic buffering so operations fail fast when DB unavailable
+  mongoose.set('bufferCommands', false);
+
+  const mongooseOptions = {
+    // fail fast if server selection can't be made (DNS issues, network)
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    // prefer IPv4 where DNS may return IPv6 that is not routable in some environments
+    family: 4
+  };
+
+  mongoose.connect(MONGO_URI, mongooseOptions)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => {
-      console.warn('MongoDB connection failed, continuing with JSON database:', err.message);
+      console.warn('MongoDB connection failed, continuing with JSON database:', err && err.message ? err.message : err);
+      if (err && err.name === 'MongoParseError') {
+        console.warn('MongoParseError: check your MONGO_URI formatting and credentials.');
+      }
+      if (err && /querySrv|ENOTFOUND|ESERVFAIL/i.test(err.message)) {
+        console.warn('SRV DNS lookup failed. Try: `nslookup -type=SRV _mongodb._tcp.<your-cluster-host>` or use a standard `mongodb://` connection string.');
+      }
     });
+
+  mongoose.connection.on('error', (e) => console.error('Mongoose connection error:', e));
+  mongoose.connection.on('disconnected', () => console.warn('Mongoose disconnected'));
 }
 
 // Middlewares
@@ -52,7 +72,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https:",
     "img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://cdn.jsdelivr.net",
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
-    "connect-src 'self' https://api.github.com wss:",
+    "connect-src 'self' https://api.github.com https://viacep.com.br wss:",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "frame-src 'none'",

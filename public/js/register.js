@@ -141,6 +141,7 @@ function validateForm(formData) {
   const email = formData.get('email');
   const password = formData.get('password');
   const confirmPassword = formData.get('confirmPassword');
+  const type = formData.get('type') || 'candidato';
 
   // Validate required fields
   if (!name || name.trim().length === 0) {
@@ -169,6 +170,52 @@ function validateForm(formData) {
 
   if (password !== confirmPassword) {
     throw new Error('As senhas não coincidem');
+  }
+
+  // Campos obrigatórios essenciais por tipo
+  if (type === 'candidato') {
+    // Campos solicitados pelo usuário como essenciais
+    const essential = [
+      { key: 'name', label: 'Nome completo' },
+      { key: 'email', label: 'E-mail' },
+      { key: 'password', label: 'Senha' },
+      { key: 'birthDate', label: 'Data de Nascimento' },
+      { key: 'cpf', label: 'CPF' },
+      { key: 'city', label: 'Cidade' },
+      { key: 'state', label: 'Estado' },
+      { key: 'currentEducation', label: 'Escolaridade Atual' },
+      { key: 'areasOfInterest', label: 'Áreas de Interesse' },
+      { key: 'studyShift', label: 'Turno de Estudo' },
+      { key: 'availability', label: 'Disponibilidade de Horário' }
+    ];
+
+    for (const field of essential) {
+      const val = formData.get(field.key);
+      if (!val || String(val).trim().length === 0) {
+        throw new Error(`Por favor, preencha ${field.label}`);
+      }
+    }
+  }
+
+  if (type === 'empresa') {
+    // Mantém validações mínimas previamente definidas para empresas
+    const requiredCompany = [
+      { key: 'cnpj', label: 'CNPJ' },
+      { key: 'legalName', label: 'Razão Social' }
+    ];
+
+    for (const field of requiredCompany) {
+      const val = formData.get(field.key);
+      if (!val || String(val).trim().length === 0) {
+        throw new Error(`Por favor, preencha ${field.label}`);
+      }
+    }
+
+    // Validar formato simples do e-mail corporativo se fornecido
+    const corpEmail = formData.get('corporateEmail');
+    if (corpEmail && (!corpEmail.includes('@') || !corpEmail.includes('.'))) {
+      throw new Error('Por favor, insira um e-mail corporativo válido');
+    }
   }
 
   // CPF e CNPJ são opcionais no momento do cadastro

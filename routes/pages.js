@@ -19,7 +19,7 @@ function sendPage(res, filename) {
 			"style-src 'self' 'unsafe-inline' https:",
 			"img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://cdn.jsdelivr.net",
 			"font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
-			"connect-src 'self' https://api.github.com wss:",
+			"connect-src 'self' https://api.github.com https://viacep.com.br wss:",
 			"worker-src 'self' blob:",
 			"object-src 'none'",
 			"frame-src 'none'",

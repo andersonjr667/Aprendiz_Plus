@@ -37,8 +37,28 @@ async function callApi(path, options = {}) {
     opts.headers['Content-Type'] = 'application/json';
   }
 
-  const fetcher = (typeof window !== 'undefined' && window.apiFetch) ? window.apiFetch : fetch;
-  return await fetcher(path, opts);
+  // Prefer the global `apiFetch` when available (it applies base '/api'),
+  // but normalize its behavior so callers can rely on a Response-like object.
+  const hasApiFetch = (typeof window !== 'undefined' && typeof window.apiFetch === 'function');
+  let p = path;
+  if (hasApiFetch && p.startsWith('/api')) {
+    // apiFetch will already prefix base '/api', so strip duplicate leading '/api'
+    p = p.slice(4);
+    if (!p.startsWith('/')) p = '/' + p;
+  }
+
+  if (hasApiFetch) {
+    try {
+      const payload = await window.apiFetch(p, opts);
+      return { ok: true, status: 200, json: async () => payload };
+    } catch (err) {
+      const payload = err && err.payload ? err.payload : { error: err.message || 'Erro na requisição' };
+      return { ok: false, status: (err && err.response && err.response.status) || 500, json: async () => payload };
+    }
+  }
+
+  // Fallback to native fetch (returns a real Response)
+  return await fetch(path, opts);
 }
 
 // Helpers visuais para upload de avatar (adicionam/removem classe no wrapper)
@@ -110,16 +130,10 @@ function initializeAvatarUpload() {
 // Carregar usuário atual
 async function loadCurrentUser() {
   try {
-    const token = getAuthToken();
-    const response = await fetch('/api/users/me', {
-      credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
+    const response = await callApi('/api/users/me');
     if (!response.ok) {
       throw new Error('Não autorizado');
     }
-    
     currentUser = await response.json();
     
     // Verificar se é admin ou owner

@@ -1,0 +1,70 @@
+/* Styles for Gerar Currículo page */
+.gc-page {
+  max-width: 820px;
+  margin: 28px auto;
+  padding: 20px;
+}
+.gc-card {
+  background: var(--gray-50);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 6px 20px rgba(10,20,30,0.06);
+}
+.gc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.gc-header h1 { margin:0; font-size:1.4rem; }
+.gc-status { color: var(--gray-600); margin-bottom: 18px; }
+.gc-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.gc-actions .btn { min-width:160px; }
+.gc-note { margin-top:12px; color: var(--gray-600); font-size:0.95rem; }
+
+/* Resume preview styles */
+.resume-preview {
+  background: #f8fafc;
+  border: 1px solid #e6edf3;
+  padding: 16px;
+  border-radius: 6px;
+}
+.rp-container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.rp-left {
+  padding-right: 6px;
+}
+.rp-right {
+  padding-left: 6px;
+}
+.rp-photo-wrap { text-align:center; }
+.rp-photo { width:96px; height:96px; object-fit:cover; border-radius:50%; border:2px solid #eceff1; }
+.rp-name { margin: 8px 0 4px; font-size:1.2rem; }
+.rp-jobtitle { color:#586069; font-size:0.95rem; margin-bottom:6px; }
+.rp-location { color:#6b7280; font-size:0.85rem; }
+.rp-section-title { font-size:0.95rem; margin:10px 0 6px; color:#0f172a; }
+.rp-section-title.small { font-size:0.85rem; margin-top:8px; }
+.rp-summary { color:#334155; font-size:0.95rem; line-height:1.4; }
+.rp-list { display:flex; flex-direction:column; gap:8px; }
+.rp-item-title { font-weight:600; }
+.rp-item-meta { color:#475569; font-size:0.85rem; }
+.rp-item-desc { color:#334155; font-size:0.9rem; }
+.rp-skills, .rp-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.rp-skill, .rp-tag { background:#e6f0ff; color:#0f172a; padding:6px 10px; border-radius:999px; font-size:0.85rem; }
+
+/* Small screens */
+@media (max-width:760px) {
+  .rp-container { grid-template-columns: 1fr; }
+  .rp-photo { width:72px; height:72px; }
+}
+
+.gc-empty { text-align:center; padding:36px 12px; color:var(--gray-600); }
+
+@media (max-width:700px) {
+  .gc-page { margin: 16px; padding: 12px; }
+  .gc-card { padding: 18px; }
+}
