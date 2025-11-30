@@ -294,11 +294,27 @@ async function loadSimilarJobs(currentJob) {
     try {
         const response = await fetch('/api/jobs');
         const allJobs = await response.json();
-        
+
+        // Normalize API response to an array of jobs
+        let jobsArray = [];
+        if (Array.isArray(allJobs)) {
+            jobsArray = allJobs;
+        } else if (allJobs && Array.isArray(allJobs.jobs)) {
+            jobsArray = allJobs.jobs;
+        } else if (allJobs && Array.isArray(allJobs.data)) {
+            jobsArray = allJobs.data;
+        } else if (allJobs && typeof allJobs === 'object') {
+            // If it's an object map (id -> job), convert to values
+            jobsArray = Object.values(allJobs);
+        } else {
+            console.warn('Unexpected /api/jobs response shape:', allJobs);
+            jobsArray = [];
+        }
+
         const jobId = getJobId(currentJob);
-        
+
         // Filter similar jobs (same category or location, exclude current)
-        const similarJobs = allJobs
+        const similarJobs = jobsArray
             .filter(job => 
                 getJobId(job) !== jobId && 
                 (job.category === currentJob.category || job.location === currentJob.location)

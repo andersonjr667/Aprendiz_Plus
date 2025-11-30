@@ -62,6 +62,40 @@
   .rp-photo { width:72px; height:72px; }
 }
 
+/* CV generated layout */
+.cv-container{background:#fff;color:#0f172a;max-width:800px;padding:16px;border-radius:6px}
+.cv-top{display:flex;flex-direction:column;border-bottom:1px solid #eef6fb;padding-bottom:8px;margin-bottom:10px}
+.cv-name{font-size:20px;font-weight:700;margin:0}
+.cv-contact{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.cv-contact-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#334155}
+.cv-contact-item a{color:#334155;text-decoration:none}
+.cv-contact-icon svg{display:block}
+.cv-section{margin:10px 0}
+.cv-section-title{font-size:13px;font-weight:700;margin:4px 0}
+.cv-subtitle{font-size:11px;margin:6px 0 4px}
+.cv-summary{margin:6px 0;line-height:1.35}
+.cv-skills{display:flex;flex-wrap:wrap;gap:6px}
+.cv-skill{background:#f1f8ff;padding:6px 8px;border-radius:999px;font-size:11px}
+.cv-item{margin:8px 0}
+.cv-item-title{font-weight:600}
+.cv-item-meta{color:#475569;font-size:11px}
+.cv-empty-note{color:#6b7280;font-style:italic}
+
+/* Print rules */
+@media print {
+  body { background: #fff; }
+  .cv-container { box-shadow: none; border-radius: 0; }
+  @page { size: A4; margin: 15px; }
+}
+
+/* Ensure no awkward breaks */
+.cv-item, .cv-section { page-break-inside: avoid; }
+
+@media (max-width:700px) {
+  .cv-container{padding:12px}
+  .cv-name{font-size:16px}
+}
+
 .gc-empty { text-align:center; padding:36px 12px; color:var(--gray-600); }
 
 @media (max-width:700px) {

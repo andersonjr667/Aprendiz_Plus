@@ -707,8 +707,13 @@ router.get('/resume/pdf', authMiddleware, async (req, res) => {
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '20mm', bottom: '20mm', left: '12mm', right: '12mm' } });
     await browser.close();
 
+    // Use user's name to create a safe filename
+    const rawName = (user.name || user.email || 'Curriculo').toString();
+    const safeBase = rawName.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim().replace(/\s+/g, '_') || 'Curriculo';
+    const pdfFilename = `Curriculo-${safeBase}.pdf`;
+
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="curriculo.pdf"');
+    res.setHeader('Content-Disposition', `attachment; filename="${pdfFilename}"`);
     res.send(pdfBuffer);
   } catch (err) {
     console.error('Erro gerando PDF do currículo:', err);
@@ -751,8 +756,13 @@ router.get('/resume/docx', authMiddleware, async (req, res) => {
     doc.addSection({ children });
 
     const buffer = await Packer.toBuffer(doc);
+
+    const rawName = (user.name || user.email || 'Curriculo').toString();
+    const safeBase = rawName.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim().replace(/\s+/g, '_') || 'Curriculo';
+    const docxFilename = `Curriculo-${safeBase}.docx`;
+
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', 'attachment; filename="curriculo.docx"');
+    res.setHeader('Content-Disposition', `attachment; filename="${docxFilename}"`);
     res.send(buffer);
   } catch (err) {
     console.error('Erro gerando DOCX do currículo:', err);
