@@ -9,6 +9,7 @@ const PUBLIC_PAGES = [
   'noticias.html', 'noticias',
   'vagas.html', 'vagas',
   'perfil-candidato.html', 'perfil-empresa.html', 'perfil-publico.html', 'perfil.html', // perfis públicos
+  'gerar-curriculo.html', 'gerar-curriculo', '/gerar-curriculo'
 ];
 
 function isPublicPage() {
@@ -31,5 +32,5 @@ function isLoggedIn() {
   if (isPublicPage()) return;
   if (isLoggedIn()) return;
   // Redireciona para login.html (ou index.html)
-  window.location.href = '/login.html';
+  window.location.href = '/login';
 })();
