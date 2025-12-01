@@ -219,9 +219,10 @@ function validateForm(formData) {
   }
 
   // CPF e CNPJ são opcionais no momento do cadastro
-  const type = formData.get('type');
   const cpf = formData.get('cpf');
   const cnpj = formData.get('cnpj');
+// Expor selectUserType no escopo global para uso em onclick
+window.selectUserType = selectUserType;
 
   if (type === 'candidato' && cpf && cpf.trim()) {
     const cpfClean = cpf.replace(/\D/g, '');

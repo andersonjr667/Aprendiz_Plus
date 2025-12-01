@@ -1,3 +1,5 @@
+// Importa proteção de rotas públicas/privadas em todas as páginas
+import('/js/auth-guard.js').catch(()=>{});
 
 /* global window, document */
 

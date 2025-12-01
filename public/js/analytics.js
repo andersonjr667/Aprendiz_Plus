@@ -30,7 +30,7 @@ function hideLoading() {
 async function getCurrentUser() {
     try {
         const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch('/api/users/me', {
             credentials: 'include',
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
