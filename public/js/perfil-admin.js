@@ -337,27 +337,45 @@ async function loadDashboardData() {
     ]);
     
     if (usersRes.ok) {
-      const users = await usersRes.json();
+      let users = await usersRes.json();
+      if (!Array.isArray(users)) {
+        users = (users && (users.data || users.users)) || [];
+      }
       document.getElementById('totalUsers').textContent = users.length;
       document.getElementById('totalCandidates').textContent = 
         users.filter(u => u.type === 'candidato').length;
       document.getElementById('totalCompanies').textContent = 
         users.filter(u => u.type === 'empresa').length;
     }
-    
+
     if (jobsRes.ok) {
-      const jobs = await jobsRes.json();
-      document.getElementById('totalJobs').textContent = 
-        jobs.filter(j => j.status === 'ativa').length;
+      let jobs = await jobsRes.json();
+      if (!Array.isArray(jobs)) {
+        // Try common wrappers, otherwise fall back to object values
+        if (jobs && typeof jobs === 'object') {
+          jobs = jobs.data || jobs.jobs || jobs.items || jobs.rows || Object.values(jobs);
+        } else {
+          jobs = [];
+        }
+      }
+      jobs = Array.isArray(jobs) ? jobs : [];
+      const activeCount = jobs.filter(j => j && typeof j === 'object' && (j.status || 'ativa') === 'ativa').length;
+      document.getElementById('totalJobs').textContent = activeCount;
     }
-    
+
     if (applicationsRes.ok) {
-      const applications = await applicationsRes.json();
+      let applications = await applicationsRes.json();
+      if (!Array.isArray(applications)) {
+        applications = (applications && (applications.data || applications.applications)) || [];
+      }
       document.getElementById('totalApplications').textContent = applications.length || 0;
     }
-    
+
     if (newsRes.ok) {
-      const news = await newsRes.json();
+      let news = await newsRes.json();
+      if (!Array.isArray(news)) {
+        news = (news && (news.data || news.items)) || [];
+      }
       document.getElementById('totalNews').textContent = news.length;
     }
     
