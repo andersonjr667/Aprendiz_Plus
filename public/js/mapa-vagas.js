@@ -102,7 +102,8 @@ function initMap() {
             const id = feature.get('id');
             const contentEl = document.getElementById('ol-popup-content');
             if (contentEl) {
-                contentEl.innerHTML = `<strong style="font-size:1rem">${jobTitle}</strong><div style="font-size:0.9rem;color:#666;margin-top:4px">${company}</div><div style="margin-top:8px;text-align:right"><a href="/vaga-detalhes.html?id=${id}">Ver detalhes</a></div>`;
+                // Prefer canonical route /vaga/:id which is handled by server pages
+                contentEl.innerHTML = `<strong style="font-size:1rem">${jobTitle}</strong><div style="font-size:0.9rem;color:#666;margin-top:4px">${company}</div><div style="margin-top:8px;text-align:right"><a href="/vaga/${id}">Ver detalhes</a></div>`;
             }
             window._olPopupOverlay.setPosition(coords);
         } else if (window._olPopupOverlay) {
@@ -269,7 +270,10 @@ function displayJobs(jobs) {
             <h4>${job.title}</h4>
             <p style="margin: 5px 0; color: #666;">${job.company || 'Empresa'}</p>
             <p style="margin: 5px 0; font-size: 0.9em;">${job.location}</p>
-            <div class="job-distance">📍 ${job.distance} km de distância</div>
+                        <div class="job-distance">📍 ${job.distance} km de distância</div>
+                        <div style="margin-top:8px;text-align:right;">
+                            <a class="btn btn-sm btn-outline" href="/vaga/${job._id || job.id}">Ver detalhes</a>
+                        </div>
         `;
         container.appendChild(div);
     });

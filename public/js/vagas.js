@@ -4,6 +4,17 @@ let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let aiRecommendations = [];
 let currentJobs = []; // Store currently loaded jobs
 
+// Simple HTML escape to prevent injection in templates
+function escapeHtml(str) {
+  if (!str && str !== 0) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Lightweight API request helper that prefers a global `apiFetch` (adds auth/credentials)
 async function apiReq(path, options = {}) {
   if (window.apiFetch && typeof window.apiFetch === 'function') {
@@ -138,24 +149,90 @@ function toggleFavorite(jobId, event) {
   event.stopPropagation();
   
   console.log('❤️ Toggle favorite for job:', jobId);
-  
+  const btn = event.currentTarget;
+
+  // If FavoriteSystem is available (features.js) and user likely authenticated, use server
+  const useServer = window.FavoriteSystem && (localStorage.getItem('token') || (window.Auth && window.Auth.isAuthenticated && window.Auth.isAuthenticated()));
+
+  if (useServer) {
+    // Optimistic UI: toggle visually, then call server
+    const currentlyFavorited = favorites.includes(jobId);
+    // update local state immediately
+    if (currentlyFavorited) {
+      favorites = favorites.filter(id => id !== jobId);
+    } else {
+      favorites.push(jobId);
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    if (btn) {
+      btn.classList.toggle('favorited', !currentlyFavorited);
+      const icon = btn.querySelector('i');
+      if (icon) icon.className = !currentlyFavorited ? 'fas fa-heart' : 'far fa-heart';
+    }
+
+    // Call server toggle
+    window.FavoriteSystem.toggle(jobId, 'job').then(result => {
+      if (result && typeof result.favorited !== 'undefined') {
+        // sync local favorites array with server decision
+        if (result.favorited) {
+          if (!favorites.includes(jobId)) favorites.push(jobId);
+        } else {
+          favorites = favorites.filter(id => id !== jobId);
+        }
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        if (btn) {
+          btn.classList.toggle('favorited', result.favorited);
+          const icon = btn.querySelector('i');
+          if (icon) icon.className = result.favorited ? 'fas fa-heart' : 'far fa-heart';
+        }
+        // Track with AI if available
+        if (window.jobAI) {
+          const job = findJobById(jobId);
+          if (job) {
+            try { window.jobAI.trackJobFavorite(job, result.favorited); } catch (e) { console.warn('AI track error', e); }
+            setTimeout(() => loadAIRecommendations(), 500);
+          }
+        }
+      }
+    }).catch(err => {
+      console.error('Erro ao atualizar favorito no servidor:', err);
+      // revert optimistic UI on error
+      const nowFavorited = favorites.includes(jobId);
+      if (nowFavorited) {
+        favorites = favorites.filter(id => id !== jobId);
+      } else {
+        favorites.push(jobId);
+      }
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      if (btn) {
+        btn.classList.toggle('favorited', favorites.includes(jobId));
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = favorites.includes(jobId) ? 'fas fa-heart' : 'far fa-heart';
+      }
+      if (window.UI && window.UI.toast) window.UI.toast('Erro ao atualizar favorito', 'error');
+    });
+
+    // AI tracking will happen after server confirms in the promise resolution
+    return;
+  }
+
+  // Fallback: localStorage-only toggle
   const index = favorites.indexOf(jobId);
   const isFavorited = index === -1;
-  
   if (index > -1) {
     favorites.splice(index, 1);
-    console.log('💔 Removed from favorites');
+    console.log('💔 Removed from favorites (local)');
   } else {
     favorites.push(jobId);
-    console.log('💖 Added to favorites');
+    console.log('💖 Added to favorites (local)');
   }
-  
   localStorage.setItem('favorites', JSON.stringify(favorites));
-  
-  const btn = event.currentTarget;
-  btn.classList.toggle('favorited');
-  btn.querySelector('i').className = favorites.includes(jobId) ? 'fas fa-heart' : 'far fa-heart';
-  
+  if (btn) {
+    btn.classList.toggle('favorited', favorites.includes(jobId));
+    const icon = btn.querySelector('i');
+    if (icon) icon.className = favorites.includes(jobId) ? 'fas fa-heart' : 'far fa-heart';
+  }
+
   // Track with AI (find job data from current page or recommendations)
   if (window.jobAI) {
     console.log('🤖 Tracking with AI...');
@@ -312,14 +389,21 @@ async function loadJobs() {
     
     const jobs = data.items || [];
     totalJobs = data.total || 0;
-    
-    // Store jobs globally for AI tracking
-    currentJobs = jobs;
+
+    // Filter out inactive jobs on the client as a safety net
+    const activeStatuses = ['aberta', 'active'];
+    const visibleJobs = jobs.filter(j => {
+      const s = (j.status || '').toString().toLowerCase();
+      return activeStatuses.includes(s);
+    });
+
+    // Store visible jobs globally for AI tracking
+    currentJobs = visibleJobs;
     
     // Update results count
     updateResultsCount(totalJobs);
     
-    if (jobs.length === 0) {
+    if (visibleJobs.length === 0) {
       showEmptyState(
         'Nenhuma vaga encontrada',
         'Tente ajustar seus filtros ou cadastre-se para receber novas oportunidades por email.',
@@ -328,7 +412,7 @@ async function loadJobs() {
       return;
     }
     
-    jobs.forEach(job => {
+    visibleJobs.forEach(job => {
       const el = document.createElement('div');
       el.className = 'job-card';
       
@@ -398,7 +482,7 @@ async function loadJobs() {
     renderPagination(totalJobs);
     
     // Load suggested jobs if there are results
-    if (jobs.length > 0 && jobs.length < 6) {
+    if (visibleJobs.length > 0 && visibleJobs.length < 6) {
       loadSuggestedJobs();
     }
   } catch (err) {
@@ -525,9 +609,133 @@ function scrollToTop() {
 
 // Load AI Recommendations - DISABLED (using new backend system)
 async function loadAIRecommendations() {
-  console.log('⚠️ Old AI system disabled - using new backend recommendations');
-  // This function is now handled by vagas-recommendations.js
-  return;
+  try {
+    const container = document.getElementById('recommendationsList');
+    const loading = document.getElementById('recommendationsLoading');
+
+    if (loading) loading.textContent = 'Carregando recomendações...';
+
+    // Get current user if available
+    let user = null;
+    try {
+      if (window.Auth && typeof window.Auth.getCurrentUser === 'function') {
+        user = await window.Auth.getCurrentUser();
+      } else if (localStorage.getItem('user')) {
+        user = JSON.parse(localStorage.getItem('user'));
+      }
+    } catch (e) {
+      console.warn('Não foi possível obter usuário corrente para recomendações', e);
+    }
+
+    // Fetch a reasonable sample of jobs to score (server-side already filters active)
+    const res = await apiReq('/api/jobs?limit=80');
+    if (!res || !res.ok) {
+      if (loading) loading.textContent = 'Não foi possível carregar recomendações.';
+      return;
+    }
+
+    const data = await res.json();
+    const jobs = data.items || [];
+
+    // Heuristic scoring function (lots of if/else)
+    function scoreJob(job, user) {
+      let score = 0;
+
+      // Basic recency bias
+      if (job.createdAt) {
+        const days = (Date.now() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24);
+        if (days <= 3) score += 12;
+        else if (days <= 7) score += 6;
+        else if (days <= 30) score += 2;
+      }
+
+      // Location match
+      if (user && user.location && job.location) {
+        if (job.location.toString().toLowerCase() === user.location.toString().toLowerCase()) score += 15;
+      }
+      // Company city match (if profile stored differently)
+      if (user && user.location && job.company && job.company.companyProfile && job.company.companyProfile.city) {
+        if (job.company.companyProfile.city.toString().toLowerCase() === user.location.toString().toLowerCase()) score += 10;
+      }
+
+      // Work model preference
+      const jobModel = (job.workModel || job.model || '').toString().toLowerCase();
+      const preferredModel = (user && (user.preferredWorkModel || user.workModel || user.model)) ? (user.preferredWorkModel || user.workModel || user.model) : null;
+      if (preferredModel && jobModel && jobModel === preferredModel.toString().toLowerCase()) score += 10;
+
+      // Skills matching (if user has skills array)
+      if (user && Array.isArray(user.skills) && user.skills.length > 0) {
+        const text = ((job.title || '') + ' ' + (job.description || '')).toLowerCase();
+        let matched = 0;
+        user.skills.forEach(s => {
+          try {
+            const skill = s.toString().toLowerCase();
+            if (!skill) return;
+            if (text.includes(skill)) matched += 1;
+          } catch (e) {}
+        });
+        score += Math.min(5, matched) * 6; // up to +30
+      }
+
+      // Keyword/title preference (user may store desiredRole)
+      if (user && user.desiredRole && job.title) {
+        if (job.title.toLowerCase().includes(user.desiredRole.toString().toLowerCase())) score += 18;
+      }
+
+      // Favorited companies / user favorites influence
+      if (favorites && favorites.includes(job._id)) score += 20;
+
+      // Small boost if job has salary info
+      if (job.salary) score += 3;
+
+      // Penalize older or long-closed postings (status handled server-side)
+      const status = (job.status || '').toString().toLowerCase();
+      if (status === 'inactive' || status === 'pausada' || status === 'closed') score -= 100;
+
+      return score;
+    }
+
+    // Build scored list
+    const scored = jobs.map(j => ({ job: j, score: scoreJob(j, user) }));
+    scored.sort((a, b) => b.score - a.score);
+
+    // Keep top 8 with positive score
+    const top = scored.filter(s => s.score > -50).slice(0, 8).map(s => s.job);
+    aiRecommendations = top;
+
+    // Render recommendations horizontally
+    if (!container) return;
+    if (!top || top.length === 0) {
+      container.innerHTML = '<div style="color:#666">Nenhuma recomendação no momento.</div>';
+      return;
+    }
+
+    container.innerHTML = top.map(job => {
+      const jid = job._id || job.id || '';
+      const title = job.title || 'Vaga';
+      const company = job.company?.name || 'Empresa não informada';
+      const loc = job.location || '';
+      return `
+        <div class="rec-card" style="min-width:260px;flex:0 0 auto;border:1px solid #ececec;border-radius:10px;padding:12px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+          <div style="font-size:14px;color:#444;font-weight:600;margin-bottom:6px">${escapeHtml(title)}</div>
+          <div style="font-size:13px;color:#666;margin-bottom:8px">${escapeHtml(company)} · ${escapeHtml(loc)}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <a class="btn btn-sm btn-outline" href="/vaga/${jid}">Ver vaga</a>
+            <button class="btn btn-sm" onclick="toggleFavorite('${jid}', event)" title="Favoritar">
+              <i class="${favorites.includes(jid) ? 'fas' : 'far'} fa-heart"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // remove loading indicator if present
+    if (loading) loading.remove();
+  } catch (err) {
+    console.error('Erro ao carregar recomendações IA:', err);
+    const container = document.getElementById('recommendationsList');
+    if (container) container.innerHTML = '<div style="color:#666">Erro ao carregar recomendações.</div>';
+  }
 }
 function trackAIClick(jobId) {
   if (window.jobAI) {
@@ -647,10 +855,8 @@ window.addEventListener('DOMContentLoaded', function() {
     aiInfoBtn.addEventListener('click', showAIInfo);
   }
   
-  // Load AI recommendations first
-  if (window.jobAI) {
-    loadAIRecommendations();
-  }
+  // Load AI recommendations (heuristic) first
+  loadAIRecommendations();
   
   // Populate locations and load initial jobs
   populateLocations().finally(() => loadJobs());

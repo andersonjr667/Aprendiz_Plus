@@ -525,6 +525,62 @@
       "read": false,
       "metadata": {},
       "createdAt": "2025-11-26T02:35:42.085Z"
+    },
+    {
+      "id": "1764639824502kdzyzbyse",
+      "userId": "6927362921abfd7f8a7236db",
+      "type": "chat",
+      "title": "Chat disponível",
+      "message": "Você agora pode conversar com Empresa B sobre a vaga Analista de Dados Junior - BH (Cidade Nova)",
+      "link": "/chat",
+      "read": false,
+      "metadata": {
+        "applicationId": "6927377d21abfd7f8a723720",
+        "jobId": "6926677ec1d3fbca2b23f105"
+      },
+      "createdAt": "2025-12-02T01:43:44.502Z"
+    },
+    {
+      "id": "1764639824553th933wncg",
+      "userId": "6926677dc1d3fbca2b23f0b5",
+      "type": "chat",
+      "title": "Chat disponível",
+      "message": "Você agora pode conversar com Heleno Gomes sobre a vaga Analista de Dados Junior - BH (Cidade Nova)",
+      "link": "/chat",
+      "read": false,
+      "metadata": {
+        "applicationId": "6927377d21abfd7f8a723720",
+        "jobId": "6926677ec1d3fbca2b23f105"
+      },
+      "createdAt": "2025-12-02T01:43:44.553Z"
+    },
+    {
+      "id": "1764639846600teqv35kg0",
+      "userId": "692667f3c903c6bad23964eb",
+      "type": "chat",
+      "title": "Chat disponível",
+      "message": "Você agora pode conversar com Empresa B sobre a vaga Programador Mobile - BH (Buritis)",
+      "link": "/chat",
+      "read": false,
+      "metadata": {
+        "applicationId": "692a4ec6776a5aac39be77be",
+        "jobId": "6926677ec1d3fbca2b23f107"
+      },
+      "createdAt": "2025-12-02T01:44:06.600Z"
+    },
+    {
+      "id": "1764639846607hn1218lmr",
+      "userId": "6926677dc1d3fbca2b23f0b5",
+      "type": "chat",
+      "title": "Chat disponível",
+      "message": "Você agora pode conversar com ANDERSON LUIZ DA SILVA JUNIOR sobre a vaga Programador Mobile - BH (Buritis)",
+      "link": "/chat",
+      "read": false,
+      "metadata": {
+        "applicationId": "692a4ec6776a5aac39be77be",
+        "jobId": "6926677ec1d3fbca2b23f107"
+      },
+      "createdAt": "2025-12-02T01:44:06.607Z"
     }
   ],
   "favorites": [

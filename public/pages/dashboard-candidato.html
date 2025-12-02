@@ -2,7 +2,55 @@
 <html lang="pt-br">
 <head>
         <link rel="stylesheet" href="/public/css/header.css">
-        <script src="/public/js/header.js" defer></script>
+            <script src="/public/js/header.js" defer></script>
+            <!-- Diagnostic: intercept redirects to /login and print stack trace (temporary) -->
+            <script>
+                (function(){
+                    try {
+                        const wrap = (label, fn) => function(url){
+                            try {
+                                if(String(url).includes('/login')){
+                                    console.groupCollapsed('[DIAG] Redirect to /login detected - ' + label);
+                                    console.trace();
+                                    console.log('Redirect URL:', url);
+                                    console.groupEnd();
+                                }
+                            } catch(e) { console.warn('[DIAG] error while tracing redirect', e); }
+                            return fn.call(this, url);
+                        };
+
+                        if (window.location && typeof window.location.assign === 'function') {
+                            window.location.assign = wrap('assign', window.location.assign.bind(window.location));
+                        }
+                        if (window.location && typeof window.location.replace === 'function') {
+                            window.location.replace = wrap('replace', window.location.replace.bind(window.location));
+                        }
+
+                        const hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+                        if (hrefDesc && typeof hrefDesc.set === 'function') {
+                            const origHrefSet = hrefDesc.set;
+                            Object.defineProperty(Location.prototype, 'href', {
+                                configurable: true,
+                                enumerable: true,
+                                get: hrefDesc.get,
+                                set: function(url){
+                                    try {
+                                        if (String(url).includes('/login')){
+                                            console.groupCollapsed('[DIAG] Redirect to /login detected - href setter');
+                                            console.trace();
+                                            console.log('Redirect URL:', url);
+                                            console.groupEnd();
+                                        }
+                                    } catch(e) { console.warn('[DIAG] error tracing href set', e); }
+                                    return origHrefSet.call(this, url);
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('[DIAG] Failed to install redirect interceptors', e);
+                    }
+                })();
+            </script>
     <link rel="icon" type="image/png" href="/public/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -290,6 +338,34 @@
                 padding: 1.1rem 0.5rem 1rem 0.5rem;
             }
         }
+
+        /* Application card layout with company chart */
+        .application-card {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1.3rem 1.1rem 1.1rem 1.1rem;
+            background: linear-gradient(120deg, #fff 80%, #e8f5e9 100%);
+            border-radius: 12px;
+            border: 1.5px solid #e0f2f1;
+        }
+
+        .application-card .card-body {
+            flex: 1 1 auto;
+        }
+
+        .company-chart {
+            width: 120px;
+            flex: 0 0 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .company-chart-canvas {
+            width: 100% !important;
+            height: 90px !important;
+        }
     </style>
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
@@ -369,6 +445,7 @@
     </main>
 
     <script src="/public/js/ui-dialogs.js"></script>
+    <script src="/js/chart.min.js"></script>
     <script src="/public/js/auth.js"></script>
     <script src="/public/js/api.js"></script>
     <script src="/public/js/global.js"></script>
@@ -382,20 +459,33 @@
         // Load dashboard data
         async function loadDashboard() {
             try {
-                // Get user applications
-                const response = await fetch('/api/applications/me', {
-                    credentials: 'include'
-                });
+                // Get user applications (use apiFetch if available so token header is included)
+                try {
+                    if (window.apiFetch && typeof window.apiFetch === 'function') {
+                        applications = await window.apiFetch('/users/me/applications');
+                        console.log('Applications loaded (via apiFetch):', applications);
+                    } else {
+                        const headers = {};
+                        const token = window.Auth && window.Auth.getToken ? window.Auth.getToken() : null;
+                        if (token) headers['Authorization'] = 'Bearer ' + token;
+                        const response = await fetch('/api/users/me/applications', { credentials: 'include', headers });
+                        if (!response.ok) throw new Error('Failed to fetch applications');
+                        applications = await response.json();
+                        console.log('Applications loaded (via fetch):', applications);
+                    }
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch applications');
+                    updateStats();
+                    displayApplications();
+                } catch (err) {
+                    console.error('Error loading dashboard:', err);
+                    document.getElementById('applicationsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Erro ao carregar dados</h3>
+                        <p>Não foi possível carregar suas candidaturas. Tente novamente mais tarde.</p>
+                    </div>
+                `;
                 }
-
-                applications = await response.json();
-                console.log('Applications loaded:', applications);
-
-                updateStats();
-                displayApplications();
 
             } catch (error) {
                 console.error('Error loading dashboard:', error);
@@ -454,9 +544,21 @@
 
             const html = sortedApplications.map(app => createApplicationCard(app)).join('');
             container.innerHTML = `<div class="applications-list">${html}</div>`;
+            // After injecting HTML, initialize company charts
+            try { initCompanyCharts(); } catch (e) { console.warn('Failed to init company charts', e); }
         }
 
         // Create application card
+        function escapeHtml(str) {
+            if (!str && str !== 0) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function createApplicationCard(app) {
             const statusMap = {
                 'pending': 'Em Análise',
@@ -464,60 +566,111 @@
                 'rejected': 'Recusada'
             };
 
-            const statusText = statusMap[app.status] || app.status;
-            const appliedDate = new Date(app.appliedAt || app.createdAt);
+            const statusText = statusMap[app.status] || (app.status || 'Pendente');
+            const appliedDate = new Date(app.appliedAt || app.appliedAtDate || app.createdAt || app.createdAtDate || Date.now());
             const formattedDate = appliedDate.toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'
             });
 
-            const jobTitle = app.job?.title || app.jobTitle || 'Vaga';
-            const companyName = app.job?.company?.name || app.companyName || 'Empresa';
-            const jobId = app.job?._id || app.job?.id || app.jobId;
+            // API may return different shapes: prefer nested job object, then top-level job_title/job_id
+            const jobTitle = app.job && (app.job.title || app.job.name) ? (app.job.title || app.job.name) : (app.job_title || app.jobTitle || 'Vaga');
+            const companyName = app.job && app.job.company && app.job.company.name ? app.job.company.name : (app.companyName || app.company_name || 'Empresa');
+            const jobId = (app.job && (app.job._id || app.job.id)) || app.job_id || app.jobId || app.jobId;
 
+            // Sanitize feedback to avoid XSS
+            const feedbackSafe = app.feedback ? escapeHtml(app.feedback) : '';
+
+            const appKey = escapeHtml(app._id || app.id || jobId || Math.random().toString(36).slice(2,8));
             return `
                 <div class="application-card">
-                    <div class="application-header">
-                        <div>
-                            <h3 class="application-title">${jobTitle}</h3>
-                            <p class="application-company">
-                                <i class="fas fa-building"></i>
-                                ${companyName}
-                            </p>
+                    <div class="card-body">
+                        <div class="application-header">
+                            <div>
+                                <h3 class="application-title">${escapeHtml(jobTitle)}</h3>
+                                <p class="application-company">
+                                    <i class="fas fa-building"></i>
+                                    ${escapeHtml(companyName)}
+                                </p>
+                            </div>
+                            <span class="application-status ${escapeHtml(app.status || '')}">${escapeHtml(statusText)}</span>
                         </div>
-                        <span class="application-status ${app.status}">${statusText}</span>
-                    </div>
-                    <div class="application-meta">
-                        <span class="application-meta-item">
-                            <i class="fas fa-calendar"></i>
-                            Enviada em ${formattedDate}
-                        </span>
-                        ${app.feedback ? `
+                        <div class="application-meta">
                             <span class="application-meta-item">
-                                <i class="fas fa-comment"></i>
-                                Feedback recebido
+                                <i class="fas fa-calendar"></i>
+                                Enviada em ${formattedDate}
                             </span>
+                            ${app.feedback ? `
+                                <span class="application-meta-item">
+                                    <i class="fas fa-comment"></i>
+                                    Feedback recebido
+                                </span>
+                            ` : ''}
+                        </div>
+                        ${app.feedback ? `
+                            <div style="margin-top: 1rem; padding: 1rem; background: var(--gray-100); border-radius: 6px;">
+                                <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-comment-dots"></i> Feedback da empresa:
+                                </strong>
+                                <p style="color: var(--gray-600); margin: 0;">${feedbackSafe}</p>
+                            </div>
+                        ` : ''}
+                        ${jobId ? `
+                            <div style="margin-top: 1rem;">
+                                <a href="/vaga/${jobId}" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Ver Vaga
+                                </a>
+                            </div>
                         ` : ''}
                     </div>
-                    ${app.feedback ? `
-                        <div style="margin-top: 1rem; padding: 1rem; background: var(--gray-100); border-radius: 6px;">
-                            <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">
-                                <i class="fas fa-comment-dots"></i> Feedback da empresa:
-                            </strong>
-                            <p style="color: var(--gray-600); margin: 0;">${app.feedback}</p>
-                        </div>
-                    ` : ''}
-                    ${jobId ? `
-                        <div style="margin-top: 1rem;">
-                            <a href="/vaga/${jobId}" class="btn btn-outline btn-sm">
-                                <i class="fas fa-eye"></i>
-                                Ver Vaga
-                            </a>
-                        </div>
-                    ` : ''}
+                    <div class="company-chart" data-company="${escapeHtml(companyName)}" data-appid="${appKey}">
+                        <canvas id="company-chart-${appKey}" class="company-chart-canvas"></canvas>
+                    </div>
                 </div>
             `;
+        }
+
+        // Initialize company charts next to each application
+        function initCompanyCharts() {
+            if (typeof Chart === 'undefined') return;
+            // build map of company key -> applications
+            const map = {};
+            applications.forEach(a => {
+                const key = (a.job && a.job.company && (a.job.company._id || a.job.company.name)) || a.companyName || a.company_name || 'unknown';
+                if (!map[key]) map[key] = [];
+                map[key].push(a);
+            });
+
+            document.querySelectorAll('.company-chart').forEach(container => {
+                try {
+                    const company = container.getAttribute('data-company') || 'unknown';
+                    const appId = container.getAttribute('data-appid');
+                    const canvas = container.querySelector('canvas');
+                    if (!canvas) return;
+                    const apps = map[company] || [];
+                    const accepted = apps.filter(x => x.status === 'accepted').length;
+                    const pending = apps.filter(x => x.status === 'pending').length;
+                    const rejected = apps.filter(x => x.status === 'rejected').length;
+                    const data = [accepted, pending, rejected];
+
+                    if (canvas._chartInstance) {
+                        try { canvas._chartInstance.destroy(); } catch(e){}
+                    }
+
+                    canvas._chartInstance = new Chart(canvas.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Aprovadas','Aguardando','Recusadas'],
+                            datasets: [{ data, backgroundColor: ['#27ae60', '#f39c12', '#e74c3c'] }]
+                        },
+                        options: { plugins: { legend: { display: false } }, maintainAspectRatio: false, cutout: '65%' }
+                    });
+                } catch (e) {
+                    console.warn('initCompanyCharts error', e);
+                }
+            });
         }
 
         // Initialize dashboard

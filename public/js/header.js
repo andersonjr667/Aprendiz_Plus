@@ -88,6 +88,28 @@ window.renderDynamicHeader = function renderDynamicHeader() {
   }
 }
 
+// Notify listeners that header finished rendering so other scripts (auth guard) can rely on DOM
+try {
+  if (!window.__apzHeaderReadyDispatched) {
+    window.__apzHeaderReadyDispatched = false;
+  }
+  // dispatch after a short timeout to ensure DOM updates are applied
+  const dispatchHeaderReady = function() {
+    if (window.__apzHeaderReadyDispatched) return;
+    window.__apzHeaderReadyDispatched = true;
+    try { document.dispatchEvent(new Event('apz:header-ready')); } catch (e) { /* ignore */ }
+  };
+  // call dispatcher after each render (renderDynamicHeader may be called multiple times)
+  const origRender = window.renderDynamicHeader;
+  window.renderDynamicHeader = function() {
+    const res = origRender.apply(this, arguments);
+    setTimeout(dispatchHeaderReady, 0);
+    return res;
+  };
+} catch (e) {
+  console.warn('[HEADER] failed to attach header-ready dispatcher', e);
+}
+
 function renderLoggedOut(actions) {
   actions.innerHTML = `
     <a href="/login" class="apz-header__login">Entrar</a>

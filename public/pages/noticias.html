@@ -43,6 +43,47 @@
 
     <!-- Category Filter removido -->
     <!-- Content with Sidebar removido -->
+    <!-- News Grid + Sidebar -->
+    <section class="container" style="margin-top: 24px;">
+      <div class="noticias-layout" style="display:flex;gap:24px;align-items:flex-start;">
+        <div style="flex:1;">
+          <div id="news" class="news-grid">
+            <div id="loading" class="loading-container">
+              <div class="loading-spinner"></div>
+              <span>Carregando notícias...</span>
+            </div>
+          </div>
+
+          <div id="loadMoreContainer" style="text-align:center;margin-top:20px;display:none;">
+            <button id="loadMoreBtn" class="btn btn-primary">Carregar mais</button>
+          </div>
+        </div>
+
+        <aside style="width:320px;">
+          <div class="sidebar-section">
+            <h4>Populares</h4>
+            <div id="popularNews">Carregando...</div>
+          </div>
+
+          <div class="sidebar-section" style="margin-top:18px;">
+            <h4>Vagas Recentes</h4>
+            <ul id="recentJobs"></ul>
+          </div>
+
+          <div class="sidebar-section" style="margin-top:18px;">
+            <h4>Categorias</h4>
+            <div class="categories">
+              <button class="filter-btn active" data-category="all">Todas</button>
+              <button class="filter-btn" data-category="carreira">Carreira</button>
+              <button class="filter-btn" data-category="entrevistas">Entrevistas</button>
+              <button class="filter-btn" data-category="tendencias">Tendências</button>
+              <button class="filter-btn" data-category="dicas">Dicas</button>
+              <button class="filter-btn" data-category="mercado">Mercado</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
 
     <!-- Newsletter Section -->
     <section class="newsletter-section">
