@@ -1020,4 +1020,36 @@ main.main-content {
   pointer-events: none;
 }
 
+/* Polimento extra: ajustes de layout, hover e decorações do owner */
+
+/* Coloca as decorações atrás do conteúdo e ajusta espaço quando for owner */
+.profile-header.owner-profile { padding-left: 72px; }
+.profile-header > * { position: relative; z-index: 1; }
+
+/* Subtle owner decoration tweaks */
+.owner-profile-decorations { opacity: 0.95; transform: translateY(-6px); filter: grayscale(0.12) saturate(.95); }
+.owner-profile-decorations .owner-logo-circle { width: 44px; height: 44px; min-width: 44px; background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 8px 20px rgba(16,24,40,0.06); }
+
+@media (max-width: 768px) {
+  .profile-header.owner-profile { padding-left: 56px; }
+  .owner-profile-decorations .owner-logo-circle { width: 36px; height: 36px; min-width: 36px; }
+}
+
+@media (max-width: 480px) {
+  .profile-header.owner-profile { padding-left: var(--spacing-md); }
+}
+
+/* Hover and focus polish for nav and table */
+.profile-nav-item { transition: transform .18s var(--transition-fast), background .18s var(--transition-fast), color .18s var(--transition-fast); }
+.profile-nav-item:hover { transform: translateX(3px); }
+.admin-table tbody tr { transition: background .12s var(--transition-fast), transform .12s var(--transition-fast); }
+.admin-table tbody tr:hover { transform: translateY(-1px); }
+
+/* Button tweaks */
+.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; }
+.btn-danger:hover { opacity: 0.95; transform: translateY(-2px); }
+
+/* Accessibility: ensure interactive elements show focus */
+.profile-nav-item:focus { outline: 3px solid rgba(22,122,102,0.12); outline-offset: 2px; }
+
 /* Fim do CSS refatorado */
