@@ -617,11 +617,17 @@
                             </div>
                         ` : ''}
                         ${jobId ? `
-                            <div style="margin-top: 1rem;">
+                            <div style="margin-top: 1rem; display:flex; gap:0.5rem; align-items:center;">
                                 <a href="/vaga/${jobId}" class="btn btn-outline btn-sm">
                                     <i class="fas fa-eye"></i>
                                     Ver Vaga
                                 </a>
+                                ${app.status === 'accepted' ? `
+                                    <a href="/chat?applicationId=${app._id || app.id || ''}" class="btn btn-primary btn-sm" title="Abrir chat com a empresa">
+                                        <i class="fas fa-comments"></i>
+                                        Chat com a empresa
+                                    </a>
+                                ` : ''}
                             </div>
                         ` : ''}
                     </div>

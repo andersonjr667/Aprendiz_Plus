@@ -581,6 +581,93 @@
         "jobId": "6926677ec1d3fbca2b23f107"
       },
       "createdAt": "2025-12-02T01:44:06.607Z"
+    },
+    {
+      "id": "1764642097727zbkjmoajg",
+      "userId": "6926677dc1d3fbca2b23f0b5",
+      "type": "message",
+      "title": "Novo chat iniciado",
+      "message": "ANDERSON LUIZ DA SILVA JUNIOR iniciou uma conversa sobre a vaga \"Programador Mobile - BH (Buritis)\"",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "jobId": "6926677ec1d3fbca2b23f107",
+        "applicationId": "692a4ec6776a5aac39be77be"
+      },
+      "createdAt": "2025-12-02T02:21:37.727Z"
+    },
+    {
+      "id": "1764642124669wcr0yl1ty",
+      "userId": "6926677dc1d3fbca2b23f0b5",
+      "type": "message",
+      "title": "Novo chat iniciado",
+      "message": "ANDERSON LUIZ DA SILVA JUNIOR iniciou uma conversa sobre a vaga \"Programador Mobile - BH (Buritis)\"",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "jobId": "6926677ec1d3fbca2b23f107",
+        "applicationId": "692a4ec6776a5aac39be77be"
+      },
+      "createdAt": "2025-12-02T02:22:04.669Z"
+    },
+    {
+      "id": "1764643519222cfxe8w9f3",
+      "userId": "6926677dc1d3fbca2b23f0b5",
+      "type": "message",
+      "title": "Nova mensagem",
+      "message": "ANDERSON LUIZ DA SILVA JUNIOR enviou uma mensagem",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "messageId": "692e52bf13dddf83ae5ef95c"
+      },
+      "createdAt": "2025-12-02T02:45:19.222Z"
+    },
+    {
+      "id": "1764643573637g3urhapuh",
+      "userId": "692667f3c903c6bad23964eb",
+      "type": "message",
+      "title": "Novo chat iniciado",
+      "message": "Empresa B iniciou uma conversa sobre a vaga \"Programador Mobile - BH (Buritis)\"",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "jobId": "6926677ec1d3fbca2b23f107",
+        "applicationId": "692a4ec6776a5aac39be77be"
+      },
+      "createdAt": "2025-12-02T02:46:13.637Z"
+    },
+    {
+      "id": "17646435927438wb6toefc",
+      "userId": "692667f3c903c6bad23964eb",
+      "type": "message",
+      "title": "Nova mensagem",
+      "message": "Empresa B enviou uma mensagem",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "messageId": "692e530813dddf83ae5efa03"
+      },
+      "createdAt": "2025-12-02T02:46:32.743Z"
+    },
+    {
+      "id": "17646436143075jm1v1za2",
+      "userId": "692667f3c903c6bad23964eb",
+      "type": "message",
+      "title": "Nova mensagem",
+      "message": "Empresa B enviou uma mensagem",
+      "link": "/chat?chatId=692e4466299f4a4002542077",
+      "read": false,
+      "metadata": {
+        "chatId": "692e4466299f4a4002542077",
+        "messageId": "692e531e13dddf83ae5efa38"
+      },
+      "createdAt": "2025-12-02T02:46:54.307Z"
     }
   ],
   "favorites": [
@@ -698,6 +785,28 @@
   ],
   "verifications": [],
   "documentVerifications": [],
-  "rateLimits": {},
+  "rateLimits": {
+    "692667f3c903c6bad23964eb_message": [
+      "2025-12-02T02:26:01.289Z",
+      "2025-12-02T02:26:30.089Z",
+      "2025-12-02T02:28:10.202Z",
+      "2025-12-02T02:30:01.892Z",
+      "2025-12-02T02:30:12.616Z",
+      "2025-12-02T02:32:04.463Z",
+      "2025-12-02T02:32:07.534Z",
+      "2025-12-02T02:36:11.978Z",
+      "2025-12-02T02:36:26.695Z",
+      "2025-12-02T02:39:07.475Z",
+      "2025-12-02T02:39:37.185Z",
+      "2025-12-02T02:39:48.167Z",
+      "2025-12-02T02:40:03.856Z",
+      "2025-12-02T02:40:20.289Z",
+      "2025-12-02T02:45:19.086Z"
+    ],
+    "6926677dc1d3fbca2b23f0b5_message": [
+      "2025-12-02T02:46:32.638Z",
+      "2025-12-02T02:46:54.209Z"
+    ]
+  },
   "spamAttempts": []
 }

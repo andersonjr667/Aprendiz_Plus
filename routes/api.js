@@ -1427,6 +1427,71 @@ router.get('/jobs/:id/applications', authMiddleware, roleCheck(['empresa']), asy
   }
 });
 
+// Empresa: criar conversas para todos os candidatos aceitos em uma vaga
+router.post('/jobs/:id/create-chats', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const job = await Job.findById(jobId);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+
+    // Só o dono da vaga (empresa) ou admin pode executar
+    if (job.company.toString() !== req.user._id.toString() && req.user.type !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Buscar candidaturas aceitas (aceito/accepted)
+    const acceptedStatuses = ['aceito', 'accepted'];
+    const applications = await Application.find({ job: jobId, status: { $in: acceptedStatuses } }).lean();
+
+    let created = 0;
+    let skipped = 0;
+    const details = [];
+
+    for (const app of applications) {
+      try {
+        const candidateId = app.candidate;
+
+        // Verificar se já existe chat
+        const exists = await Chat.findOne({ candidateId, companyId: job.company, jobId: job._id });
+        if (exists) {
+          skipped += 1;
+          details.push({ applicationId: app._id, status: 'skipped', reason: 'chat_exists' });
+          continue;
+        }
+
+        // Criar chat
+        const chat = await Chat.create({
+          candidateId,
+          companyId: job.company,
+          jobId: job._id,
+          applicationId: app._id
+        });
+
+        // Notificar candidato sobre o chat criado
+        await Notification.create({
+          userId: candidateId,
+          type: 'chat',
+          title: 'Chat disponível',
+          message: `A empresa ${req.user.name} criou um chat sobre a vaga ${job.title}`,
+          link: `/chat?chatId=${chat._id}`,
+          metadata: { chatId: chat._id, jobId: job._id, applicationId: app._id }
+        });
+
+        created += 1;
+        details.push({ applicationId: app._id, status: 'created', chatId: chat._id });
+      } catch (innerErr) {
+        console.error('Error creating chat for application', app._id, innerErr);
+        details.push({ applicationId: app._1d, status: 'error', error: innerErr.message });
+      }
+    }
+
+    res.json({ success: true, jobId: job._id, totalApplications: applications.length, created, skipped, details });
+  } catch (err) {
+    console.error('Error in create-chats endpoint:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.put('/jobs/:id/applications/:appId', authMiddleware, roleCheck(['empresa']), async (req, res) => {
   try {
     const { id, appId } = req.params;

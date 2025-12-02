@@ -1,4 +1,4 @@
-// Estado do chat
+// Reescrita defensiva do chat client
 let currentChatId = null;
 let currentUser = null;
 let chats = [];
@@ -6,111 +6,134 @@ let messages = [];
 let messagePolling = null;
 let isTyping = false;
 let typingTimeout = null;
+let presencePolling = null;
+let loadChatsController = null;
+let loadMessagesController = null;
 
-// Inicializar ao carregar a página
-document.addEventListener('DOMContentLoaded', async () => {
+function safeGet(id) {
+    return document.getElementById(id) || null;
+}
+
+async function initChatPage() {
     try {
-        // Verificar autenticação
-        // Preferir o helper global `window.Auth` para obter o usuário atual
+        // Obter usuário (defensivo)
         if (window.Auth && typeof window.Auth.getCurrentUser === 'function') {
             currentUser = await window.Auth.getCurrentUser();
-        } else if (typeof api !== 'undefined' && api.getCurrentUser) {
-            // fallback para compatibilidade com versões antigas
-            currentUser = await api.getCurrentUser();
+        } else if (window.api && typeof window.api.getCurrentUser === 'function') {
+            currentUser = await window.api.getCurrentUser();
         } else {
             currentUser = null;
         }
+
         if (!currentUser) {
-            window.location.href = 'login.html';
+            // não autenticado -> redirecionar
+            window.location.href = '/login';
             return;
         }
 
-        // Configurar link do perfil
-        const profileLink = document.getElementById('userProfileLink');
-        if (currentUser.type === 'candidato') {
-            profileLink.href = 'perfil-candidato.html';
-        } else if (currentUser.type === 'empresa') {
-            profileLink.href = 'perfil-empresa.html';
-        } else if (currentUser.type === 'admin') {
-            profileLink.href = 'perfil-admin.html';
+        // Profile link / logout (opcional)
+        const profileLink = safeGet('userProfileLink');
+        if (profileLink) {
+            if (currentUser.type === 'candidato') profileLink.href = '/perfil-candidato';
+            else if (currentUser.type === 'empresa') profileLink.href = '/perfil-empresa';
+            else if (currentUser.type === 'admin') profileLink.href = '/perfil-admin';
         }
 
-        // Configurar logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (window.logout) window.logout();
-            else if (typeof api !== 'undefined' && api.logout) api.logout();
-            else {
-                // fallback: clear local token and redirect
-                if (window.Auth && window.Auth.removeToken) window.Auth.removeToken();
-                window.location.href = 'login.html';
-            }
-        });
+        const logoutBtn = safeGet('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (window.logout) window.logout();
+                else if (window.api && window.api.logout) window.api.logout();
+                else {
+                    if (window.Auth && window.Auth.removeToken) window.Auth.removeToken();
+                    window.location.href = '/login';
+                }
+            });
+        }
 
-        // Configurar menu mobile
+        // Setup UI handlers (defensivo)
         setupMobileMenu();
 
-        // Carregar lista de chats
-        await loadChats();
+        const messageForm = safeGet('messageForm');
+        const messageInput = safeGet('messageInput');
+        const archiveBtn = safeGet('archiveChatBtn');
+        const closeBtn = safeGet('closeChatBtn');
 
-        // Verificar se há chatId na URL
+        if (messageForm && typeof handleSendMessage === 'function') messageForm.addEventListener('submit', handleSendMessage);
+        if (messageInput) {
+            messageInput.addEventListener('input', handleInputChange);
+            messageInput.addEventListener('keydown', handleTyping);
+            messageInput.addEventListener('keyup', handleStopTyping);
+        }
+        if (archiveBtn) archiveBtn.addEventListener('click', archiveChat);
+        if (closeBtn) closeBtn.addEventListener('click', closeChat);
+
+        // Carregar conversas em background (não bloquear inicialização)
+        loadChats().catch(() => {});
+
+        // Start lightweight presence polling to keep online/offline status fresh
+        try {
+            if (presencePolling) clearInterval(presencePolling);
+            // increase presence polling interval to reduce server load
+            presencePolling = setInterval(() => {
+                if (document.visibilityState === 'visible') loadChats().catch(() => {});
+            }, 30000);
+        } catch (e) { /* ignore */ }
+
+        // Processar URL params - open/create chat ASAP without waiting for full list
         const urlParams = new URLSearchParams(window.location.search);
         const chatIdParam = urlParams.get('chatId');
         const applicationIdParam = urlParams.get('applicationId');
-
         if (chatIdParam) {
-            openChat(chatIdParam);
+            // open immediately
+            openChat(chatIdParam).catch(() => {});
         } else if (applicationIdParam) {
-            // Se veio de uma aplicação, tentar criar/abrir chat
-            await createChatFromApplication(applicationIdParam);
+            // create in background so UI stays responsive
+            setTimeout(() => createChatFromApplication(applicationIdParam).catch(() => {}), 0);
         }
 
-        // Configurar formulário de envio
-        document.getElementById('messageForm').addEventListener('submit', handleSendMessage);
-
-        // Auto-resize do textarea
-        const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('input', handleInputChange);
-
-        // Configurar eventos de digitação
-        messageInput.addEventListener('keydown', handleTyping);
-        messageInput.addEventListener('keyup', handleStopTyping);
-
-        // Arquivar chat
-        document.getElementById('archiveChatBtn').addEventListener('click', archiveChat);
-
-        // Fechar chat (mobile)
-        document.getElementById('closeChatBtn').addEventListener('click', closeChat);
-
-        // Mostrar notificações se houver
+        // Notificações
         showNotificationCount();
-
-    } catch (error) {
-        console.error('Erro ao inicializar chat:', error);
+    } catch (err) {
+        console.error('Erro ao inicializar chat:', err);
         showError('Erro ao carregar chat. Tente recarregar a página.');
     }
+}
+
+document.addEventListener('DOMContentLoaded', initChatPage);
+
+// Cleanup timers on unload
+window.addEventListener('beforeunload', () => {
+    try { if (messagePolling) clearInterval(messagePolling); } catch (e) {}
+    try { if (presencePolling) clearInterval(presencePolling); } catch (e) {}
 });
 
 // Configurar menu mobile
 function setupMobileMenu() {
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const sidebar = document.getElementById('chatSidebar');
-    const closeBtn = document.getElementById('closeChatBtn');
+    const mobileToggle = safeGet('mobileMenuToggle');
+    const sidebar = safeGet('chatSidebar');
+    const closeBtn = safeGet('closeChatBtn');
 
-    // Mostrar botão mobile apenas em telas pequenas
-    if (window.innerWidth <= 768) {
-        mobileToggle.style.display = 'block';
+    if (!mobileToggle || !sidebar) {
+        // nothing to do if mobile toggle or sidebar not present
+        return;
     }
 
-    window.addEventListener('resize', () => {
+    // Mostrar botão mobile apenas em telas pequenas
+    function updateMobileVisibility() {
         if (window.innerWidth <= 768) {
             mobileToggle.style.display = 'block';
-            closeBtn.style.display = currentChatId ? 'block' : 'none';
+            if (closeBtn) closeBtn.style.display = currentChatId ? 'block' : 'none';
         } else {
             mobileToggle.style.display = 'none';
-            closeBtn.style.display = 'none';
+            if (closeBtn) closeBtn.style.display = 'none';
             sidebar.classList.remove('active');
         }
-    });
+    }
+
+    updateMobileVisibility();
+
+    window.addEventListener('resize', updateMobileVisibility);
 
     mobileToggle.addEventListener('click', () => {
         sidebar.classList.add('active');
@@ -118,11 +141,10 @@ function setupMobileMenu() {
 
     // Fechar sidebar ao clicar fora (mobile)
     document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 768 &&
-            !sidebar.contains(e.target) &&
-            !mobileToggle.contains(e.target) &&
-            sidebar.classList.contains('active')) {
-            sidebar.classList.remove('active');
+        if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+            if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
         }
     });
 }
@@ -174,13 +196,40 @@ function closeChat() {
 // Carregar lista de conversas
 async function loadChats() {
     try {
-        const chatListEl = document.getElementById('chatList');
-        chatListEl.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando conversas...</div>';
+        const chatListEl = safeGet('chatList');
+        if (!chatListEl) return;
+        // Insert improved skeleton loading UI
+        chatListEl.innerHTML = '';
+        const skeleton = document.createElement('div');
+        skeleton.className = 'chat-skeleton';
+        for (let i = 0; i < 5; i++) {
+            const item = document.createElement('div');
+            item.className = 'skeleton-item';
 
+            const avatar = document.createElement('div');
+            avatar.className = 'skeleton-avatar';
+
+            const lines = document.createElement('div');
+            lines.className = 'skeleton-lines';
+            const l1 = document.createElement('div'); l1.className = 'skeleton-line long';
+            const l2 = document.createElement('div'); l2.className = 'skeleton-line medium';
+            const l3 = document.createElement('div'); l3.className = 'skeleton-line short';
+            lines.appendChild(l1); lines.appendChild(l2); lines.appendChild(l3);
+
+            item.appendChild(avatar);
+            item.appendChild(lines);
+            skeleton.appendChild(item);
+        }
+        chatListEl.appendChild(skeleton);
+
+        // Abort previous loadChats if any
+        try { if (loadChatsController) loadChatsController.abort(); } catch (e) {}
+        loadChatsController = new AbortController();
         const response = await fetch('/api/chats', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            },
+            signal: loadChatsController.signal
         });
 
         if (!response.ok) throw new Error('Erro ao carregar conversas');
@@ -198,22 +247,48 @@ async function loadChats() {
             return;
         }
 
-        chatListEl.innerHTML = chats.map(chat => `
-            <div class="chat-item ${chat._id === currentChatId ? 'active' : ''}" onclick="openChat('${chat._id}')">
-                <img src="${chat.otherUser.profilePhoto || '/public/images/default-avatar.png'}"
-                     alt="${chat.otherUser.name}"
-                     class="chat-item-avatar">
-                <div class="chat-item-content">
-                    <div class="chat-item-header">
-                        <span class="chat-item-name">${chat.otherUser.name}</span>
-                        <span class="chat-item-time">${formatTime(chat.lastMessageAt)}</span>
-                    </div>
-                    ${chat.job ? `<div class="chat-item-job">${chat.job.title}</div>` : ''}
-                    ${chat.lastMessage ? `<div class="chat-item-last">${chat.lastMessage}</div>` : ''}
-                </div>
-                ${chat.unreadCount > 0 ? `<span class="chat-item-badge">${chat.unreadCount}</span>` : ''}
-            </div>
-        `).join('');
+        // Render as DOM nodes to avoid inline onclick handlers
+        chatListEl.innerHTML = '';
+        chats.forEach(chat => {
+            const item = document.createElement('div');
+            item.className = `chat-item ${chat._id === currentChatId ? 'active' : ''}`;
+            item.tabIndex = 0;
+            item.addEventListener('click', () => openChat(chat._id));
+
+            const img = document.createElement('img');
+            img.src = chat.otherUser.profilePhoto || '/public/images/default-avatar.png';
+            img.loading = 'lazy';
+            img.alt = chat.otherUser.name || '';
+            img.className = 'chat-item-avatar';
+
+            const content = document.createElement('div');
+            content.className = 'chat-item-content';
+
+            const header = document.createElement('div');
+            header.className = 'chat-item-header';
+            const name = document.createElement('span'); name.className = 'chat-item-name'; name.textContent = chat.otherUser.name || 'Usuário';
+            const time = document.createElement('span'); time.className = 'chat-item-time'; time.textContent = formatTime(chat.lastMessageAt);
+            header.appendChild(name); header.appendChild(time);
+
+            content.appendChild(header);
+            if (chat.job) {
+                const jobEl = document.createElement('div'); jobEl.className = 'chat-item-job'; jobEl.textContent = chat.job.title || '';
+                content.appendChild(jobEl);
+            }
+            if (chat.lastMessage) {
+                const lastEl = document.createElement('div'); lastEl.className = 'chat-item-last'; lastEl.textContent = chat.lastMessage;
+                content.appendChild(lastEl);
+            }
+
+            item.appendChild(img);
+            item.appendChild(content);
+            if (chat.unreadCount > 0) {
+                const badge = document.createElement('span'); badge.className = 'chat-item-badge'; badge.textContent = chat.unreadCount;
+                item.appendChild(badge);
+            }
+
+            chatListEl.appendChild(item);
+        });
 
     } catch (error) {
         console.error('Erro ao carregar conversas:', error);
@@ -273,8 +348,9 @@ async function openChat(chatId) {
         // Carregar mensagens
         await loadMessages();
 
-        // Iniciar polling a cada 5 segundos
-        messagePolling = setInterval(loadMessages, 5000);
+        // Iniciar polling (8s) para reduzir carga e melhorar performance geral
+        if (messagePolling) clearInterval(messagePolling);
+        messagePolling = setInterval(loadMessages, 8000);
 
         // Marcar como lidas
         await markAsRead(chatId);
@@ -291,11 +367,19 @@ async function openChat(chatId) {
 // Carregar mensagens
 async function loadMessages() {
     try {
+        // Abort previous messages fetch if still pending
+        try { if (loadMessagesController) loadMessagesController.abort(); } catch (e) {}
+        loadMessagesController = new AbortController();
+
+        // Quick offline check
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            throw Object.assign(new Error('Offline'), { isNetwork: true, message: 'Você está offline. Conecte-se à internet para carregar mensagens.' });
+        }
         const response = await fetch(`/api/chats/${currentChatId}/messages`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
-        });
+        , signal: loadMessagesController.signal });
 
         if (!response.ok) throw new Error('Erro ao carregar mensagens');
 
@@ -319,7 +403,10 @@ async function loadMessages() {
 
     } catch (error) {
         console.error('Erro ao carregar mensagens:', error);
-        if (!messagePolling) { // Só mostrar erro se não for polling
+        // Distinguish network errors so the user sees clearer guidance
+        if (error.isNetwork || /Failed to fetch|ECONNREFUSED|NetworkError/i.test(error.message || '')) {
+            showMessage('Falha de conexão ao carregar mensagens. Verifique se o servidor está rodando (porta 3000) e sua conexão.', 'error', { persistent: true, actions: [ { label: 'Tentar novamente', onClick: async (btn) => { btn.disabled = true; try { await loadMessages(); } catch(e){} finally { btn.disabled = false; } } } ] });
+        } else if (!messagePolling) { // Só mostrar erro se não for polling
             showError('Erro ao carregar mensagens');
         }
     }
@@ -327,7 +414,8 @@ async function loadMessages() {
 
 // Renderizar mensagens
 function renderMessages() {
-    const messagesEl = document.getElementById('chatMessages');
+    const messagesEl = safeGet('chatMessages');
+    if (!messagesEl) return;
 
     if (messages.length === 0) {
         messagesEl.innerHTML = `
@@ -339,66 +427,59 @@ function renderMessages() {
         return;
     }
 
-    let html = '';
+    messagesEl.innerHTML = '';
     let lastDate = null;
 
     messages.forEach(message => {
         const messageDate = new Date(message.createdAt);
         const dateStr = messageDate.toLocaleDateString('pt-BR');
 
-        // Adicionar divisor de data
         if (dateStr !== lastDate) {
-            html += `
-                <div class="date-divider">
-                    <span>${formatDate(messageDate)}</span>
-                </div>
-            `;
+            const divider = document.createElement('div');
+            divider.className = 'date-divider';
+            divider.textContent = formatDate(messageDate);
+            messagesEl.appendChild(divider);
             lastDate = dateStr;
         }
 
-        const isSent = message.senderId._id === currentUser._id;
+        const isSent = message.senderId && message.senderId._id === currentUser._id;
+        const msgWrap = document.createElement('div');
+        msgWrap.className = `message ${isSent ? 'sent' : 'received'}`;
 
-        html += `
-            <div class="message ${isSent ? 'sent' : 'received'}">
-                ${!isSent ? `<img src="${message.senderId.profilePhoto || '/public/images/default-avatar.png'}" alt="${message.senderId.name}" class="message-avatar">` : ''}
-                <div class="message-content">
-                    <p class="message-text">${escapeHtml(message.content)}</p>
-                    <div class="message-time">${formatTime(message.createdAt)}</div>
-                </div>
-            </div>
-        `;
+        if (!isSent) {
+            const avatar = document.createElement('img');
+            avatar.className = 'message-avatar';
+            avatar.src = (message.senderId && message.senderId.profilePhoto) || '/public/images/default-avatar.png';
+            avatar.alt = (message.senderId && message.senderId.name) || '';
+            msgWrap.appendChild(avatar);
+        }
+
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        const p = document.createElement('p'); p.className = 'message-text'; p.innerHTML = escapeHtml(message.content || '');
+        const time = document.createElement('div'); time.className = 'message-time'; time.textContent = formatTime(message.createdAt);
+        content.appendChild(p); content.appendChild(time);
+        msgWrap.appendChild(content);
+        messagesEl.appendChild(msgWrap);
     });
 
-    // Adicionar indicador de digitação se necessário
     if (isTyping) {
-        const otherUser = getOtherUser();
-        html += `
-            <div class="message received typing">
-                <img src="${otherUser?.profilePhoto || '/public/images/default-avatar.png'}" alt="Typing" class="message-avatar">
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <span>Digitando</span>
-                        <div class="typing-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        const otherUser = getOtherUser() || {};
+        const typingWrap = document.createElement('div');
+        typingWrap.className = 'message received typing';
+        const avatar = document.createElement('img'); avatar.className = 'message-avatar'; avatar.src = otherUser.profilePhoto || '/public/images/default-avatar.png'; avatar.alt = otherUser.name || '';
+        const content = document.createElement('div'); content.className = 'message-content';
+        const typingInner = document.createElement('div'); typingInner.className = 'typing-indicator'; typingInner.innerHTML = `<span>Digitando</span><div class="typing-dots"><span></span><span></span><span></span></div>`;
+        content.appendChild(typingInner); typingWrap.appendChild(avatar); typingWrap.appendChild(content);
+        messagesEl.appendChild(typingWrap);
     }
 
-    messagesEl.innerHTML = html;
-
-    // Scroll para o final
     scrollToBottom();
 }
 
 // Enviar mensagem
 async function handleSendMessage(e) {
     e.preventDefault();
-
     const input = document.getElementById('messageInput');
     const content = input.value.trim();
 
@@ -408,20 +489,54 @@ async function handleSendMessage(e) {
     sendBtn.disabled = true;
     input.disabled = true;
 
-    try {
-        const response = await fetch(`/api/chats/${currentChatId}/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ content })
-        });
+    // Helper to actually send and return parsed JSON or throw
+    async function sendMessageContent(payload) {
+        let response;
+        try {
+            response = await fetch(`/api/chats/${currentChatId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ content: payload })
+            });
+        } catch (netErr) {
+            // Network level error (CORS, offline, DNS, etc.)
+            netErr.isNetwork = true;
+            throw netErr;
+        }
+
+        // Try to parse body safely
+        let body = null;
+        try {
+            body = await response.clone().json();
+        } catch (parseErr) {
+            try {
+                body = await response.clone().text();
+            } catch (e) { body = null; }
+        }
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Erro ao enviar mensagem');
+            const err = new Error((body && (body.error || body.message)) || `HTTP ${response.status}`);
+            err.status = response.status;
+            err.body = body;
+            throw err;
         }
+
+        return body;
+    }
+
+    // Quick offline check to give faster feedback
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        showMessage('Você está offline. Verifique sua conexão de rede.', 'error', { persistent: true });
+        sendBtn.disabled = false;
+        input.disabled = false;
+        return;
+    }
+
+    try {
+        await sendMessageContent(content);
 
         // Limpar input
         input.value = '';
@@ -436,7 +551,41 @@ async function handleSendMessage(e) {
 
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
-        showError(error.message);
+
+        // Friendly title + details
+        const title = error.isNetwork ? 'Erro de conexão' : (error.status ? `Erro ${error.status}` : 'Erro ao enviar mensagem');
+        const detail = error.isNetwork ? (error.message || 'Falha na conexão. Verifique sua internet ou se o servidor está ativo na porta 3000.') : (error.body && (typeof error.body === 'string' ? error.body : JSON.stringify(error.body))) || error.message;
+
+        // Show notification with retry action
+        showMessage(`${title}: ${detail}`, 'error', {
+            persistent: true,
+            actions: [
+                { label: 'Tentar novamente', onClick: async (btn) => {
+                    // disable button while retrying
+                    btn.disabled = true;
+                    try {
+                        await sendMessageContent(content);
+                        // on success, refresh messages and remove notifications
+                        await loadMessages();
+                        showSuccess('Mensagem enviada');
+                    } catch (retryErr) {
+                        console.error('Retry failed:', retryErr);
+                        showError(retryErr.message || 'Erro ao reenviar mensagem');
+                    } finally {
+                        btn.disabled = false;
+                    }
+                } },
+                { label: 'Detalhes', onClick: (btn) => {
+                    try {
+                        const details = (error.body && typeof error.body === 'object') ? JSON.stringify(error.body, null, 2) : (error.body || error.message || 'Sem detalhes');
+                        // Usar modal simples via alert para agora
+                        alert(`Detalhes do erro:\n\n${details}`);
+                    } catch (e) {
+                        alert(error.message || 'Sem detalhes disponíveis');
+                    }
+                } }
+            ]
+        });
     } finally {
         sendBtn.disabled = false;
         input.disabled = false;
@@ -605,8 +754,9 @@ function getOtherUser() {
 
 // Scroll para o final das mensagens
 function scrollToBottom() {
-    const container = document.getElementById('chatMessages');
-    container.scrollTop = container.scrollHeight;
+    const container = safeGet('chatMessages');
+    if (!container) return;
+    try { container.scrollTop = container.scrollHeight; } catch (e) { /* ignore */ }
 }
 
 // Parar indicador de digitação
@@ -669,23 +819,61 @@ function showSuccess(message) {
 }
 
 // Sistema de notificações melhorado
-function showMessage(message, type = 'info') {
-    // Criar elemento de notificação
+function showMessage(message, type = 'info', opts = {}) {
+    // opts: { persistent: boolean, actions: [{ label, onClick(button) }] }
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-        ${message}
-    `;
 
-    // Adicionar ao container
+    const iconClass = type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+
+    const content = document.createElement('div');
+    content.className = 'notification-content';
+    content.innerHTML = `<i class="fas ${iconClass}"></i> <span class="notification-text">${message}</span>`;
+    notification.appendChild(content);
+
+    // Actions container
+    if (Array.isArray(opts.actions) && opts.actions.length > 0) {
+        const actionsWrap = document.createElement('div');
+        actionsWrap.className = 'notification-actions';
+        opts.actions.forEach(action => {
+            const btn = document.createElement('button');
+            btn.className = 'btn notification-btn';
+            btn.textContent = action.label || 'OK';
+            btn.addEventListener('click', (ev) => {
+                try {
+                    action.onClick && action.onClick(btn, ev);
+                } catch (err) {
+                    console.error('Notification action error:', err);
+                }
+                // If not persistent, remove after action
+                if (!opts.persistent) notification.remove();
+            });
+            actionsWrap.appendChild(btn);
+        });
+        notification.appendChild(actionsWrap);
+    }
+
+    // Close button for persistent notifications
+    if (opts.persistent) {
+        const close = document.createElement('button');
+        close.className = 'notification-close';
+        close.innerHTML = '&times;';
+        close.addEventListener('click', () => notification.remove());
+        notification.appendChild(close);
+    }
+
+    // Add to container
     const container = document.getElementById('notificationContainer') || document.body;
     container.appendChild(notification);
 
-    // Remover após 5 segundos
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
+    // Auto-remove if not persistent
+    if (!opts.persistent) {
+        setTimeout(() => {
+            try { notification.remove(); } catch (e) {}
+        }, opts.timeout || 5000);
+    }
+
+    return notification;
 }
 
 // Criar elemento de status se não existir

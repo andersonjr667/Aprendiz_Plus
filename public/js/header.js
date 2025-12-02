@@ -112,6 +112,7 @@ try {
 
 function renderLoggedOut(actions) {
   actions.innerHTML = `
+    <button id="dark-mode-toggle" aria-pressed="false" style="background:none;border:0;padding:6px 8px;margin-right:8px;cursor:pointer;" title="Modo escuro"><i class="fas fa-moon"></i></button>
     <a href="/login" class="apz-header__login">Entrar</a>
     <a href="/register" class="apz-header__register">Cadastre-se</a>
   `;
@@ -120,8 +121,8 @@ function renderLoggedOut(actions) {
 function renderLoggedIn(user, actions) {
   // Avatar
   const avatar = user.profilePhotoUrl
-    ? `<img src="${user.profilePhotoUrl}" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;vertical-align:middle;">`
-    : `<span style="display:inline-block;width:32px;height:32px;border-radius:50%;background:var(--gray-300);text-align:center;line-height:32px;font-weight:bold;color:var(--gray-700);vertical-align:middle;">${user.name ? user.name[0].toUpperCase() : 'U'}</span>`;
+    ? `<img class="apz-header__avatar" src="${user.profilePhotoUrl}" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;vertical-align:middle;cursor:pointer;">`
+    : `<span class="apz-header__avatar" style="display:inline-block;width:32px;height:32px;border-radius:50%;background:var(--gray-300);text-align:center;line-height:32px;font-weight:bold;color:var(--gray-700);vertical-align:middle;cursor:pointer;">${user.name ? user.name[0].toUpperCase() : 'U'}</span>`;
 
   // Menu por papel
   let menuLinks = '';
@@ -129,7 +130,6 @@ function renderLoggedIn(user, actions) {
     menuLinks = `
       <a href="/mapa-vagas"><i class="fas fa-map"></i> Mapa de Vagas</a>
       <a href="/dashboard-candidato"><i class="fas fa-chart-line"></i> Dashboard</a>
-      <a href="/perfil-candidato"><i class="fas fa-user"></i> Meu Perfil</a>
       <a href="/gerar-curriculo"><i class="fas fa-file-alt"></i> Gerar Currículo</a>
     `;
   } else if (user.type === 'empresa') {
@@ -137,24 +137,28 @@ function renderLoggedIn(user, actions) {
       <a href="/painel-empresa"><i class="fas fa-building"></i> Painel da Empresa</a>
       <a href="/publicar-vaga"><i class="fas fa-bullhorn"></i> Publicar Vaga</a>
       <a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a>
-      <a href="/perfil-empresa"><i class="fas fa-user"></i> Meu Perfil</a>
     `;
   } else if (user.type === 'admin') {
     menuLinks = `
       <a href="/admin"><i class="fas fa-tachometer-alt"></i> Painel Admin</a>
       <a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a>
-      <a href="/perfil-admin"><i class="fas fa-user"></i> Meu Perfil</a>
     `;
   } else if (user.type === 'owner') {
     menuLinks = `
       <a href="/admin"><i class="fas fa-tachometer-alt"></i> Painel Admin</a>
       <a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a>
       <a href="/admin-manage-admins"><i class="fas fa-user-shield"></i> Gerenciar Admins</a>
-      <a href="/perfil-admin"><i class="fas fa-user"></i> Meu Perfil</a>
     `;
   }
 
+  // Ensure profile link is always last (before Chat and Sair)
+  let profileLink = '';
+  if (user.type === 'candidato') profileLink = `<a href="/perfil-candidato"><i class="fas fa-user"></i> Meu Perfil</a>`;
+  else if (user.type === 'empresa') profileLink = `<a href="/perfil-empresa"><i class="fas fa-user"></i> Meu Perfil</a>`;
+  else profileLink = `<a href="/perfil-admin"><i class="fas fa-user"></i> Meu Perfil</a>`;
+
   actions.innerHTML = `
+    <button id="dark-mode-toggle" aria-pressed="false" style="background:none;border:0;padding:6px 8px;margin-right:8px;cursor:pointer;" title="Modo escuro"><i class="fas fa-moon"></i></button>
     <div class="apz-header__user-menu" style="position:relative;display:inline-block;">
       <button class="apz-header__user-btn" style="background:none;border:none;display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 12px;">
         ${avatar}
@@ -163,6 +167,8 @@ function renderLoggedIn(user, actions) {
       </button>
       <div class="apz-header__user-dropdown" style="display:none;position:absolute;right:0;top:110%;background:var(--gray-50);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:200px;z-index:1000;overflow:hidden;">
         ${menuLinks}
+        <a href="/chat" style="display:block;padding:10px 14px;border-top:1px solid rgba(0,0,0,0.04);border-bottom:1px solid rgba(0,0,0,0.04);"><i class="fas fa-comments" style="margin-right:8px;"></i> Chat</a>
+        ${profileLink}
         <button id="apz-logout-btn" style="width:100%;background:none;border:none;text-align:left;padding:12px 18px;color:#dc2626;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </div>
     </div>
@@ -179,6 +185,19 @@ function renderLoggedIn(user, actions) {
     document.addEventListener('click', function() {
       dropdown.style.display = 'none';
     });
+  }
+  // Clicking on the avatar should open the chat page (but not toggle dropdown)
+  try {
+    const avatarEl = actions.querySelector('.apz-header__avatar');
+    if (avatarEl) {
+      avatarEl.addEventListener('click', function(evt) {
+        evt.stopPropagation();
+        // Navigate to chat list page
+        window.location.href = '/chat';
+      });
+    }
+  } catch (e) {
+    console.warn('[HEADER] failed to attach avatar click to open chat', e);
   }
   // Logout
   const logoutBtn = actions.querySelector('#apz-logout-btn');

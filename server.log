@@ -1,0 +1,1124 @@
+nohup: ignorando entrada
+
+> aprendiz-plus@1.0.0 start
+> node server.js
+
+Config: {
+  MONGO_URI: 'mongodb+srv://dbuser:152070an@cluster0.85mgjap.mongodb.net/?appName=Cluster0',
+  PORT: 3000,
+  NODE_ENV: 'development'
+}
+Server running on port 3000
+GridFS initialized for resumes
+MongoDB connected
+GET /users/me - User ID: new ObjectId('692667f3c903c6bad23964eb')
+User data: {
+  "_id": "692667f3c903c6bad23964eb",
+  "name": "ANDERSON LUIZ DA SILVA JUNIOR",
+  "email": "harpa.crista39@gmail.com",
+  "type": "candidato",
+  "status": "active",
+  "cpf": "70448296608",
+  "skills": [
+    "Comunicação",
+    "Falar em publico",
+    "Proatividade",
+    "Comprometimento",
+    "Criatividade"
+  ],
+  "interests": [
+    "esportes",
+    "engenharia",
+    "tecnologia",
+    "financas"
+  ],
+  "candidateProfile": {
+    "skills": [],
+    "birthDate": "2009-10-01T00:00:00.000Z",
+    "gender": "masculino",
+    "maritalStatus": "solteiro",
+    "neighborhood": "Nossa Senhora da Saúde, 22",
+    "city": "Belo Horizonte",
+    "state": "MG",
+    "cep": "31910770",
+    "whatsapp": "31975465355",
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "emailVerified": false,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:37:39.076Z",
+  "__v": 0,
+  "emailVerificationExpires": "2025-11-27T02:37:39.115Z",
+  "emailVerificationToken": "8288431e0780141ff65ff7ea6f8aed7a34acac26452a372ac8081e109bbefca5",
+  "bio": "Sou Anderson Jr!",
+  "phone": "31971533882",
+  "profilePhotoCloudinaryId": "aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421",
+  "profilePhotoUrl": "https://res.cloudinary.com/dh15wpmd6/image/upload/v1764208197/aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421.jpg"
+}
+GET /users/me - User ID: new ObjectId('692667f3c903c6bad23964eb')
+User data: {
+  "_id": "692667f3c903c6bad23964eb",
+  "name": "ANDERSON LUIZ DA SILVA JUNIOR",
+  "email": "harpa.crista39@gmail.com",
+  "type": "candidato",
+  "status": "active",
+  "cpf": "70448296608",
+  "skills": [
+    "Comunicação",
+    "Falar em publico",
+    "Proatividade",
+    "Comprometimento",
+    "Criatividade"
+  ],
+  "interests": [
+    "esportes",
+    "engenharia",
+    "tecnologia",
+    "financas"
+  ],
+  "candidateProfile": {
+    "skills": [],
+    "birthDate": "2009-10-01T00:00:00.000Z",
+    "gender": "masculino",
+    "maritalStatus": "solteiro",
+    "neighborhood": "Nossa Senhora da Saúde, 22",
+    "city": "Belo Horizonte",
+    "state": "MG",
+    "cep": "31910770",
+    "whatsapp": "31975465355",
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "emailVerified": false,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:37:39.076Z",
+  "__v": 0,
+  "emailVerificationExpires": "2025-11-27T02:37:39.115Z",
+  "emailVerificationToken": "8288431e0780141ff65ff7ea6f8aed7a34acac26452a372ac8081e109bbefca5",
+  "bio": "Sou Anderson Jr!",
+  "phone": "31971533882",
+  "profilePhotoCloudinaryId": "aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421",
+  "profilePhotoUrl": "https://res.cloudinary.com/dh15wpmd6/image/upload/v1764208197/aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421.jpg"
+}
+GET /users/me - User ID: new ObjectId('692667f3c903c6bad23964eb')
+User data: {
+  "_id": "692667f3c903c6bad23964eb",
+  "name": "ANDERSON LUIZ DA SILVA JUNIOR",
+  "email": "harpa.crista39@gmail.com",
+  "type": "candidato",
+  "status": "active",
+  "cpf": "70448296608",
+  "skills": [
+    "Comunicação",
+    "Falar em publico",
+    "Proatividade",
+    "Comprometimento",
+    "Criatividade"
+  ],
+  "interests": [
+    "esportes",
+    "engenharia",
+    "tecnologia",
+    "financas"
+  ],
+  "candidateProfile": {
+    "skills": [],
+    "birthDate": "2009-10-01T00:00:00.000Z",
+    "gender": "masculino",
+    "maritalStatus": "solteiro",
+    "neighborhood": "Nossa Senhora da Saúde, 22",
+    "city": "Belo Horizonte",
+    "state": "MG",
+    "cep": "31910770",
+    "whatsapp": "31975465355",
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "emailVerified": false,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:37:39.076Z",
+  "__v": 0,
+  "emailVerificationExpires": "2025-11-27T02:37:39.115Z",
+  "emailVerificationToken": "8288431e0780141ff65ff7ea6f8aed7a34acac26452a372ac8081e109bbefca5",
+  "bio": "Sou Anderson Jr!",
+  "phone": "31971533882",
+  "profilePhotoCloudinaryId": "aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421",
+  "profilePhotoUrl": "https://res.cloudinary.com/dh15wpmd6/image/upload/v1764208197/aprendiz_plus/profile_photos/user_692667f3c903c6bad23964eb_1764208191421.jpg"
+}
+Login request received: { email: 'b@empresa', password: 'password123' }
+User found: yes
+Password match: yes
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+Fetching jobs for company: new ObjectId('6926677dc1d3fbca2b23f0b5')
+Found 30 jobs for company
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}
+GET /users/me - User ID: new ObjectId('6926677dc1d3fbca2b23f0b5')
+User data: {
+  "_id": "6926677dc1d3fbca2b23f0b5",
+  "name": "Empresa B",
+  "email": "b@empresa",
+  "type": "empresa",
+  "status": "active",
+  "cnpj": "98.765.432/0001-99",
+  "skills": [],
+  "interests": [],
+  "companyProfile": {
+    "website": "https://empresa-b.local",
+    "tradeName": "Empresa B",
+    "legalName": "Empresa B S.A.",
+    "businessArea": "Educação",
+    "numberOfEmployees": 120,
+    "commercialPhone": "(31) 3003-1234",
+    "corporateEmail": "rh@empresa-b.local",
+    "city": "Belo Horizonte",
+    "state": "MG"
+  },
+  "emailVerified": true,
+  "emailNotifications": true,
+  "jobAlerts": true,
+  "responsibilities": [],
+  "profileViewCount": 0,
+  "followerCount": 0,
+  "followingCount": 0,
+  "loginCount": 0,
+  "createdAt": "2025-11-26T02:35:41.769Z",
+  "candidateProfile": {
+    "skills": [],
+    "areasOfInterest": [],
+    "isPCD": false,
+    "isInApprenticeshipProgram": false
+  },
+  "__v": 0
+}

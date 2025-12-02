@@ -1,108 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-        <link rel="stylesheet" href="/public/css/header.css">
-        <script src="/public/js/header.js" defer></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Aprendiz+</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Chat — Aprendiz+</title>
+    <link rel="icon" href="/public/images/logo.png">
+    <link rel="stylesheet" href="/public/css/header.css">
     <link rel="stylesheet" href="/public/css/main.css">
     <link rel="stylesheet" href="/public/css/chat.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <script src="/public/js/header.js" defer></script>
+  </head>
+  <body class="page-container">
     <div id="header-container"></div>
 
-    <!-- Container de notificações -->
+    <!-- Notification container (used by chat.js and global UI) -->
     <div id="notificationContainer" class="notification-container"></div>
 
-    <div class="chat-container modern-container">
+    <main class="main-content">
+      <div class="chat-container modern-container">
         <!-- Sidebar de conversas -->
         <aside class="chat-sidebar modern-sidebar" id="chatSidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-comments"></i> Conversas</h2>
-            </div>
-            <div class="chat-list" id="chatList">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i> Carregando conversas...
-                </div>
-            </div>
+          <div class="sidebar-header">
+            <h2><i class="fas fa-comments"></i> Conversas</h2>
+          </div>
+          <div class="chat-list" id="chatList">
+            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando conversas...</div>
+          </div>
         </aside>
 
         <!-- Área principal do chat -->
-        <main class="chat-main modern-main">
-            <div class="empty-state modern-empty" id="emptyState">
-                <i class="fas fa-comments fa-3x"></i>
-                <h3>Selecione uma conversa</h3>
-                <p>Escolha uma conversa ao lado para começar a trocar mensagens</p>
+        <section class="chat-main modern-main">
+          <div class="empty-state modern-empty" id="emptyState">
+            <i class="fas fa-comments fa-3x"></i>
+            <h3>Selecione uma conversa</h3>
+            <p>Escolha uma conversa ao lado para começar a trocar mensagens</p>
+          </div>
+
+          <div class="chat-area modern-chat-area" id="chatArea" style="display:none;">
+            <header class="chat-header modern-chat-header">
+              <div class="chat-header-info">
+                <img src="/public/images/default-avatar.png" alt="avatar" class="chat-avatar" id="chatAvatar">
+                <div class="chat-header-text">
+                  <h3 id="chatUserName">Usuário</h3>
+                  <p id="chatJobTitle">Vaga</p>
+                  <div class="chat-header-status">
+                    <span class="status-dot offline"></span>
+                    <span id="chatStatusText">Offline</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-header-actions">
+                <button id="archiveChatBtn" class="btn-icon" title="Arquivar conversa"><i class="fas fa-archive"></i></button>
+                <button id="closeChatBtn" class="btn-icon" title="Fechar conversa" style="display:none;"><i class="fas fa-times"></i></button>
+              </div>
+            </header>
+
+            <div class="chat-messages modern-messages" id="chatMessages">
+              <div class="empty-state modern-empty">
+                <i class="fas fa-comment-dots fa-2x"></i>
+                <p style="margin-top:15px">Nenhuma mensagem ainda. Comece a conversa!</p>
+              </div>
             </div>
 
-            <section class="chat-area modern-chat-area" id="chatArea" style="display: none;">
-                <!-- Cabeçalho do chat -->
-                <header class="chat-header modern-chat-header">
-                    <div class="chat-header-info">
-                        <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="chatAvatar">
-                        <div class="chat-header-text">
-                            <h3 id="chatUserName">Usuário</h3>
-                            <p id="chatJobTitle">Vaga</p>
-                            <div class="chat-header-status">
-                                <span class="status-dot offline"></span>
-                                <span>Offline</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chat-header-actions">
-                        <button class="btn-icon" id="archiveChatBtn" title="Arquivar conversa">
-                            <i class="fas fa-archive"></i>
-                        </button>
-                        <button class="btn-icon" id="closeChatBtn" title="Fechar conversa" style="display: none;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </header>
+            <div class="typing-indicator modern-typing" id="typingIndicator" style="display:none;">
+              <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="typingAvatar">
+              <span id="typingText">Digitando...</span>
+              <div class="typing-dots"><span></span><span></span><span></span></div>
+            </div>
 
-                <!-- Mensagens -->
-                <div class="chat-messages modern-messages" id="chatMessages">
-                    <div class="empty-state modern-empty">
-                        <i class="fas fa-comment-dots fa-2x"></i>
-                        <p style="margin-top: 15px;">Nenhuma mensagem ainda. Comece a conversa!</p>
-                    </div>
-                </div>
-
-                <!-- Indicador de digitação -->
-                <div class="typing-indicator modern-typing" id="typingIndicator" style="display: none;">
-                    <img src="/public/images/default-avatar.png" alt="" class="chat-avatar" id="typingAvatar">
-                    <span>digitando</span>
-                    <div class="typing-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-
-                <!-- Input de mensagem -->
-                <footer class="chat-input-container modern-input">
-                    <form id="messageForm" class="chat-input-form">
-                        <textarea
-                            id="messageInput"
-                            placeholder="Digite sua mensagem..."
-                            rows="1"
-                            maxlength="2000"
-                        ></textarea>
-                        <button type="submit" class="btn-send" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </form>
-                    <div class="char-counter">
-                        <span id="charCount">0</span>/2000
-                    </div>
-                </footer>
-            </section>
-        </main>
-    </div>
+            <footer class="chat-input-container modern-input">
+              <form id="messageForm" class="chat-input-form">
+                <textarea id="messageInput" placeholder="Digite sua mensagem..." rows="1" maxlength="2000"></textarea>
+                <button type="submit" id="sendBtn" class="btn-send" aria-label="Enviar mensagem"><i class="fas fa-paper-plane"></i></button>
+              </form>
+              <div class="char-counter"><span id="charCount">0</span>/2000</div>
+            </footer>
+          </div>
+        </section>
+      </div>
+    </main>
 
     <script src="/public/js/api.js"></script>
-    
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/global.js"></script>
     <script src="/public/js/chat.js"></script>
-</body>
+  </body>
 </html>

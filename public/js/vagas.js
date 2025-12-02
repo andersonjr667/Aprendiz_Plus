@@ -637,62 +637,105 @@ async function loadAIRecommendations() {
     const data = await res.json();
     const jobs = data.items || [];
 
-    // Heuristic scoring function (lots of if/else)
-    function scoreJob(job, user) {
-      let score = 0;
+    // Improved heuristic scoring function
+    function normalize(v, min, max) {
+      if (typeof v !== 'number' || isNaN(v)) return 0;
+      if (v <= min) return 0;
+      if (v >= max) return 1;
+      return (v - min) / (max - min);
+    }
 
-      // Basic recency bias
+    function tokenize(text) {
+      if (!text) return [];
+      return text.toString().toLowerCase().split(/[^a-z0-9áàâãéèêíïóôõöúçñ]+/i).filter(Boolean);
+    }
+
+    function countOverlap(aTokens, bTokens) {
+      const setB = new Set(bTokens);
+      let c = 0;
+      aTokens.forEach(t => { if (setB.has(t)) c++; });
+      return c;
+    }
+
+    function scoreJob(job, user, contextKeywords = []) {
+      // components: recency(0-20), location(0-20), skillMatch(0-30), titleMatch(0-15), model(0-8), salary(0-3), favorite(0-10)
+      let recency = 0, location = 0, skillMatch = 0, titleMatch = 0, model = 0, salary = 0, fav = 0;
+
+      // Recency (days)
       if (job.createdAt) {
         const days = (Date.now() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24);
-        if (days <= 3) score += 12;
-        else if (days <= 7) score += 6;
-        else if (days <= 30) score += 2;
+        // map: <=1d -> 1 ; <=7d -> 0.7 ; <=30d -> 0.3 ; >60d -> 0
+        if (days <= 1) recency = 1;
+        else if (days <= 7) recency = 0.7;
+        else if (days <= 30) recency = 0.3;
+        else recency = 0;
       }
 
-      // Location match
-      if (user && user.location && job.location) {
-        if (job.location.toString().toLowerCase() === user.location.toString().toLowerCase()) score += 15;
-      }
-      // Company city match (if profile stored differently)
-      if (user && user.location && job.company && job.company.companyProfile && job.company.companyProfile.city) {
-        if (job.company.companyProfile.city.toString().toLowerCase() === user.location.toString().toLowerCase()) score += 10;
-      }
+      // Location preference (exact city or company city)
+      try {
+        const userLoc = (user && (user.location || user.city || user.address)) ? user.location || user.city || user.address : null;
+        if (userLoc && job.location) {
+          if (job.location.toString().toLowerCase().includes(userLoc.toString().toLowerCase())) location = 1;
+        }
+        if (!location && userLoc && job.company && job.company.companyProfile && job.company.companyProfile.city) {
+          if (job.company.companyProfile.city.toString().toLowerCase().includes(userLoc.toString().toLowerCase())) location = 0.8;
+        }
+      } catch (e) { /* ignore */ }
 
-      // Work model preference
-      const jobModel = (job.workModel || job.model || '').toString().toLowerCase();
-      const preferredModel = (user && (user.preferredWorkModel || user.workModel || user.model)) ? (user.preferredWorkModel || user.workModel || user.model) : null;
-      if (preferredModel && jobModel && jobModel === preferredModel.toString().toLowerCase()) score += 10;
+      // Work model
+      try {
+        const jobModel = (job.workModel || job.model || '').toString().toLowerCase();
+        const preferredModel = (user && (user.preferredWorkModel || user.workModel || user.model)) ? (user.preferredWorkModel || user.workModel || user.model) : null;
+        if (preferredModel && jobModel && jobModel === preferredModel.toString().toLowerCase()) model = 1;
+      } catch (e) {}
 
-      // Skills matching (if user has skills array)
+      // Skills matching: compare user.skills to job title+description
+      const text = ((job.title || '') + ' ' + (job.description || '')).toLowerCase();
+      const textTokens = tokenize(text);
       if (user && Array.isArray(user.skills) && user.skills.length > 0) {
-        const text = ((job.title || '') + ' ' + (job.description || '')).toLowerCase();
-        let matched = 0;
-        user.skills.forEach(s => {
-          try {
-            const skill = s.toString().toLowerCase();
-            if (!skill) return;
-            if (text.includes(skill)) matched += 1;
-          } catch (e) {}
-        });
-        score += Math.min(5, matched) * 6; // up to +30
+        const userSkills = user.skills.map(s => s.toString().toLowerCase());
+        const overlap = countOverlap(userSkills, textTokens);
+        skillMatch = normalize(overlap, 0, Math.min(8, userSkills.length)); // cap
       }
 
-      // Keyword/title preference (user may store desiredRole)
-      if (user && user.desiredRole && job.title) {
-        if (job.title.toLowerCase().includes(user.desiredRole.toString().toLowerCase())) score += 18;
-      }
+      // Title & context keywords (search query, desiredRole, recent searches)
+      const titleTokens = tokenize(job.title || '');
+      let contextTokens = [];
+      if (user && user.desiredRole) contextTokens = contextTokens.concat(tokenize(user.desiredRole));
+      // current search input
+      try { const qv = document.getElementById('q')?.value; if (qv) contextTokens = contextTokens.concat(tokenize(qv)); } catch(e){}
+      // include passed context keywords
+      contextTokens = contextTokens.concat(contextKeywords.map(k => tokenize(k)).flat());
+      const titleOverlap = countOverlap(contextTokens, titleTokens);
+      titleMatch = normalize(titleOverlap, 0, 3);
 
-      // Favorited companies / user favorites influence
-      if (favorites && favorites.includes(job._id)) score += 20;
+      // Salary small boost
+      if (job.salary) salary = 1;
 
-      // Small boost if job has salary info
-      if (job.salary) score += 3;
+      // Favorites boost
+      if (favorites && favorites.includes(job._id || job.id)) fav = 1;
 
-      // Penalize older or long-closed postings (status handled server-side)
-      const status = (job.status || '').toString().toLowerCase();
-      if (status === 'inactive' || status === 'pausada' || status === 'closed') score -= 100;
+      // Combine with weights
+      const weights = {
+        recency: 0.18,
+        location: 0.18,
+        skillMatch: 0.30,
+        titleMatch: 0.12,
+        model: 0.08,
+        salary: 0.04,
+        fav: 0.10
+      };
 
-      return score;
+      const score = (recency * weights.recency) +
+                    (location * weights.location) +
+                    (skillMatch * weights.skillMatch) +
+                    (titleMatch * weights.titleMatch) +
+                    (model * weights.model) +
+                    (salary * weights.salary) +
+                    (fav * weights.fav);
+
+      // Multiply to make scores more readable (0-100)
+      return Math.round(score * 100);
     }
 
     // Build scored list
