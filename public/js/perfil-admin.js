@@ -453,16 +453,16 @@ function displayUsers(users) {
             </td>
             <td>${user.email}</td>
             <td><span class="badge badge-${user.type}">${formatUserType(user.type)}</span></td>
-            <td><span class="badge badge-${user.status}">${user.status || 'ativo'}</span></td>
+            <td><span class="badge badge-${(user.status||'ativo')}">${formatStatusLabel(user.status)}</span></td>
             <td>${new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
             <td>
               <div class="table-actions">
                 <button onclick="viewUserProfile('${user._id}')" class="btn-icon" title="Ver perfil">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="toggleUserStatus('${user._id}', '${user.status || 'active'}')" 
-                        class="btn-icon" title="${user.status === 'active' ? 'Desativar' : 'Ativar'}">
-                  <i class="fas fa-${user.status === 'active' ? 'ban' : 'check'}"></i>
+                <button onclick="toggleUserStatus('${user._id}', '${user.status || ''}')" 
+                        class="btn-icon" title="${(user.status && normalizeStatus(user.status) === 'active') ? 'Desativar' : 'Ativar'}">
+                  <i class="fas fa-${(user.status && normalizeStatus(user.status) === 'active') ? 'ban' : 'check'}"></i>
                 </button>
                 ${user.type !== 'admin' ? `
                   <button onclick="deleteUser('${user._id}')" class="btn-icon btn-danger" title="Excluir">
@@ -716,12 +716,14 @@ function viewUserProfile(userId) {
 }
 
 async function toggleUserStatus(userId, currentStatus) {
-  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-  
+  // Normalize incoming status values (accept 'ativo'/'inativo' or 'active'/'inactive')
+  const norm = normalizeStatus(currentStatus);
+  const newStatus = norm === 'active' ? 'inactive' : 'active';
+
   if (!confirm(`Deseja ${newStatus === 'active' ? 'ativar' : 'desativar'} este usuário?`)) {
     return;
   }
-  
+
   try {
     const response = await callApi(`/api/users/${userId}/status`, {
       method: 'PUT',
@@ -943,6 +945,21 @@ function formatUserType(type) {
     'admin': 'Administrador'
   };
   return types[type] || type;
+}
+
+// Normalize status values coming from different sources (portuguese/english)
+function normalizeStatus(status) {
+  if (!status) return 'inactive';
+  const s = status.toString().toLowerCase();
+  if (['active', 'ativo', 'ativado', 'enabled', 'true'].includes(s)) return 'active';
+  if (['inactive', 'inativo', 'disabled', 'false'].includes(s)) return 'inactive';
+  // fallback: treat as inactive
+  return 'inactive';
+}
+
+function formatStatusLabel(status) {
+  const norm = normalizeStatus(status);
+  return norm === 'active' ? 'Ativo' : 'Inativo';
 }
 
 function getActionIcon(action) {
