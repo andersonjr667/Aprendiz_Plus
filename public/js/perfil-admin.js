@@ -447,6 +447,12 @@ function displayUsers(users) {
     return;
   }
   
+  function getUserAvatarUrl(user) {
+    if (!user) return '/images/default-avatar.png';
+    // Common properties used across API versions
+    return user.avatarUrl || user.profilePhotoUrl || user.profilePhoto || user.avatar || user.photoUrl || user.imageUrl || user.photo || '/images/default-avatar.png';
+  }
+
   container.innerHTML = `
     <table class="admin-table">
       <thead>
@@ -464,8 +470,9 @@ function displayUsers(users) {
           <tr>
             <td>
               <div class="user-cell">
-                <img src="${user.avatarUrl || user.profilePhotoUrl || '/images/default-avatar.png'}" 
-                     alt="${user.name}" class="table-avatar">
+                 <img src="${getUserAvatarUrl(user)}" 
+                   alt="${user.name}" class="table-avatar" loading="lazy"
+                   onerror="this.onerror=null;this.src='/images/default-avatar.png'">
                 <span>${user.name}</span>
               </div>
             </td>
