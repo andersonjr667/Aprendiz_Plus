@@ -447,10 +447,23 @@ function displayUsers(users) {
     return;
   }
   
+  // Return a data:URL SVG placeholder with user initials
+  function avatarPlaceholder(name, size = 80) {
+    const initials = (name || '').split(' ').filter(Boolean).map(n => n[0]).slice(0,2).join('').toUpperCase() || '';
+    const bg = '#E6EEF7';
+    const fg = '#6B7280';
+    const fontSize = Math.floor(size / 2);
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>` +
+      `<rect width='100%' height='100%' fill='${bg}' rx='${size/8}'/>` +
+      `<text x='50%' y='50%' dy='.35em' text-anchor='middle' font-family='Segoe UI, Roboto, Arial, sans-serif' font-size='${fontSize}' fill='${fg}'>${initials}</text>` +
+      `</svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
   function getUserAvatarUrl(user) {
-    if (!user) return '/images/default-avatar.png';
-    // Common properties used across API versions
-    return user.avatarUrl || user.profilePhotoUrl || user.profilePhoto || user.avatar || user.photoUrl || user.imageUrl || user.photo || '/images/default-avatar.png';
+    if (!user) return avatarPlaceholder('');
+    const url = user.avatarUrl || user.profilePhotoUrl || user.profilePhoto || user.avatar || user.photoUrl || user.imageUrl || user.photo;
+    return url || avatarPlaceholder(user.name || '');
   }
 
   container.innerHTML = `
@@ -472,7 +485,7 @@ function displayUsers(users) {
               <div class="user-cell">
                  <img src="${getUserAvatarUrl(user)}" 
                    alt="${user.name}" class="table-avatar" loading="lazy"
-                   onerror="this.onerror=null;this.src='/images/default-avatar.png'">
+                   onerror="this.onerror=null;this.src='${avatarPlaceholder(user.name || '')}'">
                 <span>${user.name}</span>
               </div>
             </td>
