@@ -68,7 +68,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use((req, res, next) => {
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https:",
     "img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://cdn.jsdelivr.net",
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
@@ -83,6 +83,9 @@ app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy', csp);
   next();
 });
+
+// Serve favicon from project root if present
+app.use('/favicon.ico', express.static(path.join(__dirname, 'favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

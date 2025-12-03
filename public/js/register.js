@@ -26,6 +26,16 @@ function showRegisterMessage(message, type = 'info') {
   }
 }
 
+// Default avatar image path based on user type (uses images placed in /public/images)
+function getDefaultAvatarPath(user) {
+  const base = '/public/images';
+  if (!user) return `${base}/user_icon_green.png`;
+  const type = (user.type || '').toString().toLowerCase();
+  if (type === 'empresa' || type === 'company') return `${base}/company_icon_green.png`;
+  if (type === 'admin' || type === 'owner') return `${base}/admin_icon_green.png`;
+  return `${base}/user_icon_green.png`;
+}
+
 function selectUserType(type, element) {
   // Update UI
   document.querySelectorAll('.type-option').forEach(opt => {

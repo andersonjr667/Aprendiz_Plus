@@ -44,9 +44,8 @@
   }
 
   function detectPreferred() {
-    try {
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-    } catch (e) {}
+    // Default to light mode by default (user preference via OS is ignored here)
+    // to keep the site in light mode unless user explicitly toggles dark.
     return 'light';
   }
 

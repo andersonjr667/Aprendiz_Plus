@@ -266,6 +266,16 @@ function formatCEP(value) {
   return numbers.replace(/(\d{5})(\d{3})/, '$1-$2');
 }
 
+// Default avatar image path based on user type (uses images placed in /public/images)
+function getDefaultAvatarPath(user) {
+  const base = '/public/images';
+  if (!user) return `${base}/user_icon_green.png`;
+  const type = (user.type || '').toString().toLowerCase();
+  if (type === 'empresa' || type === 'company') return `${base}/company_icon_green.png`;
+  if (type === 'admin' || type === 'owner') return `${base}/admin_icon_green.png`;
+  return `${base}/user_icon_green.png`;
+}
+
 // Toggle edit mode
 function toggleEditMode() {
   console.log('toggleEditMode called, current isEditMode:', isEditMode);
@@ -617,107 +627,53 @@ async function toggleJobStatus(jobId, currentStatus) {
 
 // Calculate and update profile completion
 function updateProfileCompletion(user) {
-  // Campos obrigatórios e opcionais
   const fields = {
     required: ['name', 'email'],
     optional: ['cnpj', 'phone', 'website', 'description', 'profilePhotoUrl']
   };
-  
-  const allFields = [...fields.required, ...fields.optional];
-  
+
+  const allFields = fields.required.concat(fields.optional);
   const completedFields = allFields.filter(field => {
-    if (field === 'profilePhotoUrl') {
-      return user.profilePhotoUrl || user.avatarUrl;
-    }
+    if (field === 'profilePhotoUrl') return !!(user.profilePhotoUrl || user.avatarUrl);
     return user[field] && user[field].toString().trim().length > 0;
   });
-  
+
   const completion = Math.round((completedFields.length / allFields.length) * 100);
-  
-  // Update stats completion
+
   const statsCompletion = document.getElementById('statsCompletion');
-  if (statsCompletion) {
-    statsCompletion.textContent = `${completion}%`;
-  }
-  
-  // Update header badge
+  if (statsCompletion) statsCompletion.textContent = `${completion}%`;
+
   const completionPercent = document.getElementById('completionPercent');
-  if (completionPercent) {
-    completionPercent.textContent = `${completion}%`;
-  }
-  
-  // Update completion badge color
+  if (completionPercent) completionPercent.textContent = `${completion}%`;
+
   const completionBadge = document.getElementById('completionBadge');
   if (completionBadge) {
-    if (completion === 100) {
-      completionBadge.style.backgroundColor = '#2ECC71';
-    } else if (completion >= 70) {
-      completionBadge.style.backgroundColor = '#3498DB';
-    } else if (completion >= 40) {
-      completionBadge.style.backgroundColor = '#F39C12';
-    } else {
-      completionBadge.style.backgroundColor = '#E74C3C';
-    }
+    if (completion === 100) completionBadge.style.backgroundColor = '#2ECC71';
+    else if (completion >= 70) completionBadge.style.backgroundColor = '#F1C40F';
+    else completionBadge.style.backgroundColor = '';
   }
-  
-  // Update progress bar
-  const completionBar = document.getElementById('completionBar');
-  if (completionBar) {
-    completionBar.style.width = `${completion}%`;
-  }
-}
 
-// Upload avatar photo
-async function uploadAvatar(file) {
+  // Update header avatar element safely
   try {
-    console.log('Uploading avatar:', file.name);
-    showProfileMessage('Enviando logo...', 'info');
-    
-    const formData = new FormData();
-    formData.append('profilePhoto', file);
-    
-    const res = await fetch('/api/users/me', {
-      method: 'PUT',
-      credentials: 'include',
-      body: formData
-    });
-    
-    const result = await res.json();
-    console.log('Avatar upload response:', result);
-    
-    if (res.ok) {
-      currentUser = result;
-      
-      // Update avatar immediately
-      const avatarEl = document.getElementById('profileAvatar');
-      if (avatarEl && result.profilePhotoUrl) {
-        const photoUrl = result.profilePhotoUrl;
-        console.log('Setting avatar to:', photoUrl);
-        
-        avatarEl.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = photoUrl;
-        img.alt = 'Logo da empresa';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '50%';
-        img.onerror = function() {
-          console.error('Failed to load:', this.src);
-        };
-        avatarEl.appendChild(img);
-      }
-      
-      // Reload profile
-      await loadProfile();
-      
-      showProfileMessage('Logo atualizado com sucesso!', 'success');
-    } else {
-      showProfileMessage(result.error || 'Erro ao enviar logo', 'error');
+    const avatarEl = document.getElementById('profileAvatar');
+    if (avatarEl) {
+      const defaultImg = getDefaultAvatarPath(user);
+      let photoUrl = user.profilePhotoUrl || user.avatarUrl || defaultImg;
+      if (photoUrl && photoUrl.startsWith('/uploads')) photoUrl += '?t=' + Date.now();
+
+      avatarEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = photoUrl;
+      img.alt = user.name ? `${user.name} - logo` : 'Logo da empresa';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      img.onerror = function() { avatarEl.innerHTML = `<i class="fas fa-building" style="font-size: 4rem; color: #2ECC71;"></i>`; };
+      avatarEl.appendChild(img);
     }
-  } catch (error) {
-    console.error('Error uploading avatar:', error);
-    showProfileMessage('Erro de conexão ao enviar logo', 'error');
+  } catch (e) {
+    console.error('updateProfileCompletion: failed to update avatar', e);
   }
 }
 

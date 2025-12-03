@@ -21,6 +21,7 @@
   
   <script src="/public/js/auth.js" defer></script>
   <script src="/public/js/api.js" defer></script>
+  <script src="/public/js/global.js"></script>
   
     <!-- AI Assistant -->
     <link rel="stylesheet" href="/public/css/ai-assistant.css">
@@ -152,6 +153,12 @@
   <div id="messageContainer"></div>
 
   <script>
+    // Ensure showMessage exists (fallback for pages that execute inline scripts
+    // before helper bundles). This prevents "showMessage is not defined" errors
+    // in environments where `global.js` hasn't executed yet.
+    if (typeof window.showMessage === 'undefined') {
+      window.showMessage = function(message, type) { console.log('[showMessage fallback]', message, type); };
+    }
     // Edição de responsabilidades (apenas frontend)
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('editResponsibilitiesBtn');
@@ -214,8 +221,9 @@
     // Initialize auth buttons
     window.addEventListener('DOMContentLoaded', () => {
       const authButtons = document.getElementById('authButtons');
+      if (!authButtons) return; // page may not include auth buttons
       const token = Auth.getToken();
-      
+
       if (token) {
         authButtons.innerHTML = `
           <a href="/perfil-admin">Meu Perfil</a>
@@ -259,6 +267,7 @@
         if (user.type === 'owner') {
           // Banner maior e colorido
           const cover = document.getElementById('profileCoverPublic');
+          const adminBadge = document.getElementById('adminBadge');
           if (cover) {
             cover.style.background = 'linear-gradient(120deg, #36E131 0%, #2E935B 25%, #18F535 55%, #88F677 80%, #5DBBC3 100%)';
             cover.style.minHeight = '340px';

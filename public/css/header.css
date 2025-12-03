@@ -34,7 +34,8 @@ body, .main-content, main {
   text-decoration: none;
 }
 .apz-header__logo img {
-  height: calc(var(--apz-header-height) * 0.58);
+  /* slightly smaller logo for a cleaner header */
+  height: calc(var(--apz-header-height) * 0.48);
   width: auto;
 }
 .apz-header__logo-text {
@@ -386,7 +387,8 @@ html.dark .apz-header {
   .apz-header__container {
     height: 56px;
   }
-  .apz-header__logo img { height: 32px; }
+  /* mobile: reduce logo a bit more for tighter header */
+  .apz-header__logo img { height: 28px; }
   .apz-header__nav { display: none; }
   .apz-header__hamburger { display: block; }
   /* esconder login/cadastro no header (aparecem somente no menu hambúrguer) */

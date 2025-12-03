@@ -1,6 +1,16 @@
 // Login handler moved out of inline script to satisfy CSP (script-src 'self')
 // Depends on /public/js/auth.js which defines login function
 
+// Default avatar image path based on user type (uses images placed in /public/images)
+function getDefaultAvatarPath(user) {
+    const base = '/public/images';
+    if (!user) return `${base}/user_icon_green.png`;
+    const type = (user.type || '').toString().toLowerCase();
+    if (type === 'empresa' || type === 'company') return `${base}/company_icon_green.png`;
+    if (type === 'admin' || type === 'owner') return `${base}/admin_icon_green.png`;
+    return `${base}/user_icon_green.png`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Verifica se já está autenticado ao carregar a página de login
     if (window.Auth && typeof window.Auth.getToken === 'function' && window.Auth.getToken()) {

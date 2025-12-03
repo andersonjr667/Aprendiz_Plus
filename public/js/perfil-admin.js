@@ -72,6 +72,16 @@ function hideAvatarUploading() {
   if (wrapper) wrapper.classList.remove('uploading');
 }
 
+// Default avatar image path based on user type (uses images placed in /public/images)
+function getDefaultAvatarPath(user) {
+  const base = '/public/images';
+  if (!user) return `${base}/user_icon_green.png`;
+  const type = (user.type || '').toString().toLowerCase();
+  if (type === 'empresa' || type === 'company') return `${base}/company_icon_green.png`;
+  if (type === 'admin' || type === 'owner') return `${base}/admin_icon_green.png`;
+  return `${base}/user_icon_green.png`;
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCurrentUser();
@@ -156,9 +166,9 @@ async function loadCurrentUser() {
 // Atualizar header do perfil
 function updateProfileHeader() {
   const profileAvatar = document.getElementById('profileAvatar');
-  const avatar = currentUser.avatarUrl || currentUser.profilePhotoUrl;
+  const avatar = currentUser.avatarUrl || currentUser.profilePhotoUrl || getDefaultAvatarPath(currentUser);
   
-  if (avatar && profileAvatar) {
+  if (profileAvatar) {
     profileAvatar.innerHTML = `<img src="${avatar}" alt="${currentUser.name}">`;
   }
   
@@ -191,8 +201,14 @@ function updateProfileHeader() {
     console.log('✅ Usuário é o DONO DO SISTEMA! Aplicando decorações...');
     profileHeader.classList.add('owner-profile');
 
-    // Adicionar círculos decorativos com logos
-    addOwnerDecorations(profileHeader);
+    // Remover decorações com logo (não usar mais):
+    // antigamente usamos addOwnerDecorations() para inserir várias divs com logos
+    // mas isso estava causando problemas — portanto removemos as divs e não as reinserimos.
+    const existingDecor = profileHeader.querySelector('.owner-profile-decorations');
+    if (existingDecor) {
+      existingDecor.remove();
+      console.log('Decorações antigas removidas.');
+    }
 
     // Adicionar badge de dono
     const profileBadges = document.querySelector('.profile-badges');
@@ -210,50 +226,10 @@ function updateProfileHeader() {
   }
 }
 
-// Adicionar decorações especiais para o dono do sistema
-function addOwnerDecorations(headerElement) {
-  // Verificar se já existem decorações
-  if (headerElement.querySelector('.owner-profile-decorations')) {
-    console.log('Decorações já existem, pulando...');
-    return;
-  }
-  
-  console.log('Adicionando decorações de dono do sistema...');
-  
-  const decorations = document.createElement('div');
-  decorations.className = 'owner-profile-decorations';
-  
-  // Criar 5 círculos com logo
-  for (let i = 0; i < 5; i++) {
-    const circle = document.createElement('div');
-    circle.className = 'owner-logo-circle';
-    
-    // Adicionar logo
-    const logoImg = document.createElement('img');
-    logoImg.src = '/images/logo.png';
-    logoImg.alt = 'Logo Aprendiz+';
-    
-    logoImg.onload = function() {
-      console.log(`Logo carregada com sucesso no círculo ${i + 1}`);
-    };
-    
-    logoImg.onerror = function() {
-      // Se a logo não carregar, usar ícone ao invés
-      console.warn(`Falha ao carregar logo no círculo ${i + 1}, usando fallback`);
-      this.style.display = 'none';
-      const icon = document.createElement('i');
-      icon.className = 'fas fa-briefcase';
-      circle.appendChild(icon);
-    };
-    
-    circle.appendChild(logoImg);
-    decorations.appendChild(circle);
-  }
-  
-  // Inserir no início do header (antes do content)
-  headerElement.insertBefore(decorations, headerElement.firstChild);
-  console.log('Decorações adicionadas com sucesso!');
-}
+// A função de inserção dinâmica de decorações do owner foi removida
+// porque causava problemas visuais e de carregamento. Mantemos a
+// classe CSS (`.owner-profile-decorations`) caso seja necessária
+// para uso estático no futuro.
 
 // Compartilhar perfil
 function shareProfile() {
@@ -448,22 +424,25 @@ function displayUsers(users) {
   }
   
   // Return a data:URL SVG placeholder with user initials
-  function avatarPlaceholder(name, size = 80) {
+  function avatarPlaceholder(name, size = 48) {
     const initials = (name || '').split(' ').filter(Boolean).map(n => n[0]).slice(0,2).join('').toUpperCase() || '';
     const bg = '#E6EEF7';
     const fg = '#6B7280';
-    const fontSize = Math.floor(size / 2);
+    const fontSize = Math.floor(size / 2.2);
+    const rx = Math.floor(size / 2);
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>` +
-      `<rect width='100%' height='100%' fill='${bg}' rx='${size/8}'/>` +
+      `<rect width='100%' height='100%' fill='${bg}' rx='${rx}' ry='${rx}'/>` +
       `<text x='50%' y='50%' dy='.35em' text-anchor='middle' font-family='Segoe UI, Roboto, Arial, sans-serif' font-size='${fontSize}' fill='${fg}'>${initials}</text>` +
       `</svg>`;
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
+  
+
   function getUserAvatarUrl(user) {
-    if (!user) return avatarPlaceholder('');
+    if (!user) return getDefaultAvatarPath(null);
     const url = user.avatarUrl || user.profilePhotoUrl || user.profilePhoto || user.avatar || user.photoUrl || user.imageUrl || user.photo;
-    return url || avatarPlaceholder(user.name || '');
+    return url || getDefaultAvatarPath(user);
   }
 
   container.innerHTML = `
@@ -485,7 +464,7 @@ function displayUsers(users) {
               <div class="user-cell">
                  <img src="${getUserAvatarUrl(user)}" 
                    alt="${user.name}" class="table-avatar" loading="lazy"
-                   onerror="this.onerror=null;this.src='${avatarPlaceholder(user.name || '')}'">
+                   onerror="this.onerror=null;this.src='${getDefaultAvatarPath(user)}'">
                 <span>${user.name}</span>
               </div>
             </td>
@@ -536,7 +515,12 @@ async function loadJobs() {
     const response = await callApi('/api/jobs');
     if (!response.ok) throw new Error('Erro ao carregar vagas');
     
-    allJobs = await response.json();
+    let jobsPayload = await response.json();
+    // Normalizar formatos de resposta comuns (array ou objeto com items/data)
+    if (!Array.isArray(jobsPayload)) {
+      jobsPayload = jobsPayload && (jobsPayload.items || jobsPayload.data || jobsPayload.jobs || jobsPayload.rows) || jobsPayload || [];
+    }
+    allJobs = Array.isArray(jobsPayload) ? jobsPayload : [];
     displayJobs(allJobs);
     
   } catch (error) {
@@ -547,8 +531,9 @@ async function loadJobs() {
 
 function displayJobs(jobs) {
   const container = document.getElementById('jobsTable');
-  
-  if (jobs.length === 0) {
+  if (!container) return;
+
+  if (!Array.isArray(jobs) || jobs.length === 0) {
     container.innerHTML = '<p class="no-content">Nenhuma vaga encontrada</p>';
     return;
   }

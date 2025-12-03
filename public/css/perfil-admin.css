@@ -80,25 +80,29 @@ main.main-content {
   display: flex;
   gap: var(--spacing-xl);
   align-items: center;
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+  /* Verde-água: usar a cor solicitada (#167a66) no gradiente */
+  background: linear-gradient(135deg, #167a66 0%, #16a085 100%);
   color: white;
-  padding: var(--spacing-xl);
+  padding: calc(var(--spacing-lg) + 6px);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 22px rgba(16,24,40,0.06);
   position: relative;
   overflow: hidden;
 }
 
 .profile-header::before {
+  /* Logos de decoração no fundo, semi-transparentes */
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-  transform: translate(30%, -30%);
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url('/public/images/decor1.png'), url('/public/images/decor2.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: left top, right bottom;
+  background-size: 240px auto, 180px auto;
+  opacity: 0.12;
+  mix-blend-mode: normal;
 }
 
 .profile-avatar-wrapper {
@@ -112,18 +116,18 @@ main.main-content {
   height: 112px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(10px);
-  transition: all var(--transition-base);
+  background: linear-gradient(180deg, rgba(22,122,102,0.06), rgba(255,255,255,0.02));
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .profile-avatar:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.02);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(16,24,40,0.08);
 }
 
 .profile-avatar img {
@@ -133,19 +137,92 @@ main.main-content {
   display: block;
 }
 
+/* Overlay para upload de avatar */
+.avatar-upload-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  color: rgba(255,255,255,0.95);
+  background: linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.35));
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  cursor: pointer;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.profile-avatar-wrapper:hover .avatar-upload-overlay,
+.profile-avatar-wrapper:focus-within .avatar-upload-overlay {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.avatar-upload-overlay i { font-size: 1.05rem; }
+.avatar-upload-overlay span { font-size: 0.8rem; opacity: 0.95; }
+
+/* Actions next to profile (share, edit) */
+.profile-actions {
+  margin-top: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.profile-header-content { display: flex; gap: var(--spacing-xl); align-items: center; justify-content: flex-start; }
+
+/* Move profile information column to the right of the header (desktop/tablet)
+   The info column is the last child in the header content and will be
+   right-aligned. On small screens we revert to left alignment. */
+.profile-header-content > div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Ensure icon fallback in avatar looks centered */
+.profile-avatar i { font-size: 2.2rem; color: rgba(255,255,255,0.85); }
+
+/* Slightly smaller badges on narrow screens */
+.profile-badge { font-size: 0.85rem; }
+
+/* Base typography for the profile pages */
+body.page-container, .profile-container { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color: var(--color-gray-900); }
+
+/* Improve contrast on subtitles for readability */
+.profile-subtitle { color: rgba(255,255,255,0.95); font-weight: 500; }
+
+/* Make nav items keyboard accessible visuals */
+.profile-nav-item[role="button"] { outline: none; }
+
 .profile-header .profile-meta {
   flex: 1;
   min-width: 0;
   z-index: 1;
 }
 
+.profile-header .profile-meta {
+  padding-right: var(--spacing-md);
+}
+
 .profile-header h1 {
   margin: 0 0 var(--spacing-xs) 0;
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.1;
+  color: var(--color-gray-900);
 }
+
+.profile-header .profile-meta { text-align: left; }
 
 .profile-subtitle {
   margin: 0 0 var(--spacing-md) 0;
@@ -162,16 +239,16 @@ main.main-content {
 }
 
 .profile-badge {
-  background: rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--color-gray-100);
+  padding: calc(var(--spacing-xs) + 2px) var(--spacing-md);
   border-radius: var(--radius-full);
   font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all var(--transition-fast);
+  color: var(--color-gray-800);
+  border: 1px solid var(--color-gray-200);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .profile-badge:hover {
@@ -202,75 +279,68 @@ main.main-content {
 }
 
 .profile-nav {
-  background: var(--color-surface);
+  background: transparent;
   padding: var(--spacing-sm);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
 }
 
 .profile-nav-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: calc(var(--spacing-sm) + 2px) var(--spacing-md);
   border-radius: var(--radius-md);
-  color: var(--color-gray-600);
+  color: var(--color-gray-700);
   cursor: pointer;
   border: none;
   background: transparent;
   width: 100%;
   text-align: left;
   font-size: 0.95rem;
-  font-weight: 500;
-  transition: all var(--transition-base);
+  font-weight: 600;
+  transition: background var(--transition-base), transform var(--transition-fast), color var(--transition-base);
   position: relative;
-  overflow: hidden;
 }
 
 .profile-nav-item::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: var(--color-primary-500);
-  transform: translateX(-100%);
-  transition: transform var(--transition-base);
+  left: 10px;
+  top: 12px;
+  height: calc(100% - 24px);
+  width: 4px;
+  background: transparent;
+  border-radius: 4px;
+  transition: background var(--transition-base), transform var(--transition-base);
 }
 
 .profile-nav-item i {
   width: 20px;
   text-align: center;
   font-size: 1.1rem;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .profile-nav-item:hover {
-  background: var(--color-primary-50);
+  background: var(--color-gray-50);
   color: var(--color-primary-600);
-  transform: translateX(4px);
 }
 
 .profile-nav-item:hover::before {
-  transform: translateX(0);
+  background: rgba(22,122,102,0.08);
 }
 
 .profile-nav-item.active {
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
-  color: white;
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(90deg, var(--color-primary-50), rgba(22,122,102,0.02));
+  color: var(--color-primary-700);
 }
 
 .profile-nav-item.active::before {
-  transform: translateX(0);
-  background: white;
+  background: linear-gradient(to bottom, var(--color-primary-500), var(--color-primary-600));
 }
 
 .profile-nav-item.active i {
-  opacity: 1;
-  color: white;
+  color: var(--color-primary-600);
 }
 
 /* ===== CONTEÚDO PRINCIPAL ===== */
@@ -290,18 +360,18 @@ main.main-content {
 }
 
 .profile-card {
-  background: var(--color-surface);
+  background: linear-gradient(180deg, var(--color-surface), #fbfdfe);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
+  padding: calc(var(--spacing-xl) + 4px);
+  box-shadow: var(--shadow-sm);
   margin-bottom: var(--spacing-lg);
-  border: 1px solid var(--color-gray-200);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  border: 1px solid var(--color-gray-100);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .profile-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(16,24,40,0.06);
 }
 
 .card-header-profile {
@@ -472,7 +542,6 @@ main.main-content {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
 }
 
 .admin-table thead {
@@ -502,6 +571,52 @@ main.main-content {
   padding: var(--spacing-md) var(--spacing-lg);
   color: var(--color-gray-700);
   font-size: 0.95rem;
+}
+
+/* User cell + avatar in tables (fix layout when clicking 'Usuários') */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.table-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%; /* circular avatars */
+  object-fit: cover;
+  display: inline-block;
+  flex: 0 0 auto;
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-gray-200);
+}
+
+/* make sure large images don't break layout */
+.admin-table td img.table-avatar {
+  max-width: 100%;
+  height: 48px;
+  border-radius: 50%;
+}
+
+@media (max-width: 480px) {
+  .table-avatar { width: 40px; height: 40px; border-radius: 6px; }
+}
+
+/* Column spacing adjustments for admin tables */
+.admin-table thead th:first-child,
+.admin-table tbody td:first-child {
+  padding-left: var(--spacing-md);
+  width: 240px; /* name column */
+}
+
+.admin-table thead th:nth-child(2),
+.admin-table tbody td:nth-child(2) {
+  width: 260px; /* email column */
+}
+
+/* Reduce general cell padding for tighter layout */
+.admin-table td, .admin-table thead th {
+  padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .table-actions {
@@ -665,26 +780,25 @@ main.main-content {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-weight: 500;
+  padding: calc(var(--spacing-sm) + 8px) calc(var(--spacing-md) + 8px);
+  border-radius: 10px;
+  font-size: 0.98rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-base);
   border: none;
   text-decoration: none;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
   color: white;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 6px 18px rgba(22,122,102,0.08);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(22,122,102,0.08);
 }
 
 .btn-primary:active {
@@ -778,40 +892,41 @@ main.main-content {
 /* ===== DECORAÇÕES DE PERFIL OWNER ===== */
 .owner-profile-decorations {
   position: absolute;
-  left: 12px;
-  top: 12px;
+  inset: 0; /* fill the header area */
   display: flex;
-  gap: 8px;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.12;
+  transform: translateY(-6px);
+  mix-blend-mode: multiply;
 }
 
 .owner-profile-decorations .owner-logo-circle {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
   border-radius: 50%;
   overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: var(--shadow-lg);
-  transition: transform var(--transition-base);
-}
-
-.owner-profile-decorations .owner-logo-circle:hover {
-  transform: scale(1.1);
-  z-index: 1;
+  background: transparent;
+  border: none;
+  filter: grayscale(0.8) contrast(0.9) saturate(0.85);
+  opacity: 0.9;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .owner-profile-decorations .owner-logo-circle img {
-  width: 80%;
-  height: 80%;
+  width: 72%;
+  height: 72%;
   object-fit: contain;
   display: block;
+  opacity: 0.95;
+  filter: grayscale(1) brightness(1.1);
 }
 
 /* ===== BADGE OWNER ===== */
@@ -861,8 +976,8 @@ main.main-content {
   
   .profile-header {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
     gap: var(--spacing-lg);
     padding: var(--spacing-lg);
   }
@@ -871,6 +986,8 @@ main.main-content {
     width: 96px;
     height: 96px;
   }
+
+  .profile-avatar-wrapper { margin-bottom: var(--spacing-md); }
   
   .profile-header h1 {
     font-size: 1.5rem;
@@ -896,6 +1013,8 @@ main.main-content {
   .form-actions {
     justify-content: center;
   }
+
+  .profile-actions { align-self: flex-start; }
   
   .owner-profile-decorations {
     left: 8px;
@@ -1027,16 +1146,21 @@ main.main-content {
 .profile-header > * { position: relative; z-index: 1; }
 
 /* Subtle owner decoration tweaks */
-.owner-profile-decorations { opacity: 0.95; transform: translateY(-6px); filter: grayscale(0.12) saturate(.95); }
-.owner-profile-decorations .owner-logo-circle { width: 44px; height: 44px; min-width: 44px; background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 8px 20px rgba(16,24,40,0.06); }
+.owner-profile-decorations { opacity: 0.12; transform: translateY(-6px); filter: grayscale(0.8) saturate(.85); }
+.owner-profile-decorations .owner-logo-circle { width: 56px; height: 56px; min-width: 56px; background: transparent; border: none; box-shadow: none; }
 
 @media (max-width: 768px) {
   .profile-header.owner-profile { padding-left: 56px; }
-  .owner-profile-decorations .owner-logo-circle { width: 36px; height: 36px; min-width: 36px; }
+  .owner-profile-decorations { opacity: 0.08; }
+  .owner-profile-decorations .owner-logo-circle { width: 40px; height: 40px; min-width: 40px; }
 }
 
 @media (max-width: 480px) {
   .profile-header.owner-profile { padding-left: var(--spacing-md); }
+}
+
+@media (max-width: 480px) {
+  .owner-profile-decorations { display: none; }
 }
 
 /* Hover and focus polish for nav and table */
@@ -1053,3 +1177,120 @@ main.main-content {
 .profile-nav-item:focus { outline: 3px solid rgba(22,122,102,0.12); outline-offset: 2px; }
 
 /* Fim do CSS refatorado */
+
+/* ========== DARK MODE ========== */
+/* Suporta class `dark-mode`, attribute `data-theme="dark"` e preferência do sistema */
+.dark-mode, [data-theme="dark"] {
+  --color-surface: #071426;
+  --color-background: #04121a;
+  --color-primary-50: #053f37;
+  --color-primary-100: #0a5a47;
+  --color-primary-500: #16a085;
+  --color-primary-600: #0f6b58;
+
+  --color-gray-50: #061018;
+  --color-gray-100: #071826;
+  --color-gray-200: #0d2a36;
+  --color-gray-300: #17343e;
+  --color-gray-400: #2b4850;
+  --color-gray-500: #6f8b90;
+  --color-gray-600: #a8c0c4;
+  --color-gray-700: #d7eef0;
+  --color-gray-800: #eaf7f6;
+  --color-gray-900: #f8ffff;
+
+  --shadow-sm: 0 6px 18px rgba(2,8,12,0.6);
+  --shadow-md: 0 10px 28px rgba(2,10,14,0.6);
+}
+
+/* Apply dark surfaces */
+.dark-mode body.page-container,
+.dark-mode .profile-container,
+[data-theme="dark"] body.page-container,
+[data-theme="dark"] .profile-container {
+  background: var(--color-background);
+  color: var(--color-gray-900);
+}
+
+.dark-mode .profile-header,
+[data-theme="dark"] .profile-header {
+  background: linear-gradient(135deg, rgba(22,122,102,0.14), rgba(12,92,74,0.06));
+  color: var(--color-gray-900);
+  border-left-color: rgba(22,122,102,0.12);
+}
+
+.dark-mode .profile-header::before,
+[data-theme="dark"] .profile-header::before {
+  opacity: 0.08;
+  filter: brightness(0.8) saturate(0.6);
+}
+
+.dark-mode .profile-avatar,
+[data-theme="dark"] .profile-avatar {
+  border: 2px solid rgba(255,255,255,0.04);
+  box-shadow: 0 8px 20px rgba(2,8,12,0.6);
+}
+
+.dark-mode .profile-badge,
+[data-theme="dark"] .profile-badge {
+  background: rgba(255,255,255,0.03);
+  color: var(--color-gray-800);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.dark-mode .profile-card,
+[data-theme="dark"] .profile-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark-mode .profile-nav-item:hover,
+[data-theme="dark"] .profile-nav-item:hover {
+  background: rgba(255,255,255,0.02);
+  color: var(--color-primary-100);
+}
+
+.dark-mode .profile-nav-item.active,
+[data-theme="dark"] .profile-nav-item.active {
+  background: linear-gradient(90deg, rgba(22,122,102,0.06), rgba(22,122,102,0.03));
+  color: var(--color-primary-100);
+}
+
+.dark-mode .admin-table thead,
+[data-theme="dark"] .admin-table thead {
+  background: linear-gradient(180deg, rgba(22,122,102,0.03), rgba(22,122,102,0.02));
+}
+
+.dark-mode .admin-table td,
+[data-theme="dark"] .admin-table td {
+  color: var(--color-gray-800);
+}
+
+.dark-mode .search-box input,
+[data-theme="dark"] .search-box input,
+.dark-mode .filter-box select,
+[data-theme="dark"] .filter-box select {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+  color: var(--color-gray-900);
+}
+
+/* Scrollbar for dark */
+.dark-mode .activity-list::-webkit-scrollbar-thumb,
+[data-theme="dark"] .activity-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.07);
+}
+
+/* Reduce decoration visibility in dark */
+.dark-mode .profile-header::before,
+[data-theme="dark"] .profile-header::before {
+  opacity: 0.06;
+}
+
+/* Smooth theme transitions */
+.dark-mode *, [data-theme="dark"] * { transition: background-color 180ms linear, color 180ms linear, border-color 180ms linear; }
+
+/* Note: automatic application via `prefers-color-scheme` removed so
+   the site defaults to light mode. Use `class="dark-mode"` or
+   `data-theme="dark"` to enable dark theme explicitly. */

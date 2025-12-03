@@ -2769,6 +2769,36 @@ router.get('/applications/all', authMiddleware, roleCheck(['admin']), async (req
   }
 });
 
+// Get applications for the logged-in company (company dashboard)
+router.get('/applications/company', authMiddleware, roleCheck(['empresa']), async (req, res) => {
+  try {
+    // Find jobs owned by this company
+    const jobs = await Job.find({ company: req.user._id }).select('_id title');
+    const jobIds = jobs.map(j => j._id);
+
+    if (jobIds.length === 0) return res.json([]);
+
+    const applications = await Application.find({ job: { $in: jobIds } })
+      .populate('candidate', 'name email')
+      .populate('job', 'title')
+      .sort({ appliedAt: -1 })
+      .lean();
+
+    const formatted = applications.map(app => ({
+      ...app,
+      user_name: app.candidate?.name,
+      user_email: app.candidate?.email,
+      job_title: app.job?.title,
+      job_id: app.job?._id
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error('Error fetching company applications:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ----- ANALYTICS & REPORTS -----
 
 // Get analytics for company applications
@@ -3740,6 +3770,16 @@ router.put('/notifications/read-all', authMiddleware, async (req, res) => {
 
 // Contar não lidas
 router.get('/notifications/unread-count', authMiddleware, async (req, res) => {
+  try {
+    const count = await Notification.getUnreadCount(req.user._id.toString());
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Backwards-compatible alias used by some client code
+router.get('/notifications/count', authMiddleware, async (req, res) => {
   try {
     const count = await Notification.getUnreadCount(req.user._id.toString());
     res.json({ count });
